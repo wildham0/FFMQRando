@@ -206,7 +206,7 @@ namespace FFMQRWin
 
         private void button3_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("FFMQ Randomizer Beta v0.1.0\nMain Developer: wildham\ngithub:");
+            MessageBox.Show("FFMQ Randomizer Beta v0.1.0\nMain Developer: wildham\ngithub: https://github.com/wildham0/ProjectFancyTitle");
         }
     }
 }
