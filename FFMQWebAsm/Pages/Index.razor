@@ -17,7 +17,7 @@
     }
 </style>
 
-<div class="center-logo"><img height=100 src="logo/mqlogoM.png" /><img height=100 src="logo/mqlogoy.png" /><img height=100 src="logo/mqlogos.png" /><img height=100 src="logo/mqlogot.png" /><img height=100 src="logo/mqlogoi.png" /><img height=100 src="logo/mqlogoc.png" />     <img height=100 src="logo/mqlogoQ.png" /><img height=100 src="logo/mqlogou.png" /><img height=100 src="logo/mqlogoe.png" /><img height=100 src="logo/mqlogos2.png" /><img height=100 src="logo/mqlogot2.png" /></div>
+<div class="center-logo"><img height=100 src="@titleLetters[0]" /><img height=100 src="@titleLetters[1]" /><img height=100 src="@titleLetters[2]" /><img height=100 src="@titleLetters[3]" /><img height=100 src="@titleLetters[4]" /><img height=100 src="@titleLetters[5]" /><img height=100 src="logo/mqlogo_.png" /><img height=100 src="@titleLetters[6]" /><img height=100 src="@titleLetters[7]" /><img height=100 src="@titleLetters[8]" /><img height=100 src="@titleLetters[9]" /><img height=100 src="@titleLetters[10]" /></div>
 <h5 class="text-secondary text-center">A FFMQ Randomizer</h5>
 
 <div><br /><br /><br /></div>
@@ -52,6 +52,7 @@
     <Button Color="Color.Primary" Loading="@isLoading" Clicked="@Generate">Generate</Button>
 </Field>
 
+<div><br /><br /><br /></div>
 <h3 id="optionsSection" class="text-secondary">Options</h3>
 
 <Field>
@@ -69,7 +70,35 @@
         }
     </Select>
 </Field>
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Enemies' Stats Scaling</FieldLabel> 
+    <Select @bind-SelectedValue="@flags.EnemiesScaling">
+        @foreach(var item in Enum.GetValues<FFMQLib.EnemiesScaling>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Scaling Spread</FieldLabel> 
+    <Select @bind-SelectedValue="@flags.EnemiesScalingSpread">
+        @foreach(var item in Enum.GetValues<FFMQLib.EnemiesScalingSpread>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Leveling Curve</FieldLabel> 
+    <Select @bind-SelectedValue="@flags.LevelingCurve">
+        @foreach(var item in Enum.GetValues<FFMQLib.LevelingCurve>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
 
+<div><br /><br /><br /><br /><br /></div>
 
 @code{
     //bool IntroPaneVisible = true;
@@ -87,7 +116,7 @@
     private string seedMessage = "";
     private string romMessage = "";
     private string flagsMessage = "";
-
+    private List<string> titleLetters = new List<string> { "logo/mqlogoM.png", "logo/mqlogoy.png", "logo/mqlogos.png", "logo/mqlogot.png", "logo/mqlogoi.png", "logo/mqlogoc.png", "logo/mqlogoQ.png", "logo/mqlogou.png", "logo/mqlogoe.png", "logo/mqlogos2.png", "logo/mqlogot2.png" };
 
     private async Task OnGenerate()
     {
@@ -151,6 +180,8 @@
     {
         var rng = new Random();
         rng.NextBytes(seed);
+        MT19337 rng2 = new MT19337((uint)seed.ToUInts().Sum(x => x));
+        titleLetters.Shuffle(rng2);
         showSeed = seed.ToHex();
     }
 
