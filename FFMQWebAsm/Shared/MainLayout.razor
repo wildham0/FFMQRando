@@ -1,0 +1,61 @@
+﻿@inherits LayoutComponentBase
+
+<Layout Sider="true">
+    <LayoutSider>
+        <LayoutSiderContent>
+            <Sidebar @ref="sidebar" Data="@sidebarInfo" />
+        </LayoutSiderContent>
+    </LayoutSider>
+
+    <Layout>
+        <LayoutHeader Fixed="true">
+            <a href="#"><Icon Name="IconName.Bars" IconSize="IconSize.x2" class="text-secondary" Margin="Margin.Is3" Clicked="@ToggleSidebar"/></a>
+        </LayoutHeader>
+        <LayoutContent>
+            <div class="page">
+                <div class="main">
+                    <div class="content">
+                        @Body
+                    </div>
+                </div>
+            </div>
+        </LayoutContent>
+    </Layout>
+
+
+</Layout>
+
+@code{
+    Sidebar sidebar;
+    bool showSidebar = true;
+    SidebarInfo sidebarInfo = new SidebarInfo
+    {
+
+        
+        Brand = new SidebarBrandInfo
+        {
+            Text = "FFMQ Rando",
+        },
+        
+        Items = new List<SidebarItemInfo>
+        {
+            new SidebarItemInfo
+            {
+                Text = " File",
+                Icon = IconName.Save,
+                To = "#fileSection",
+            },
+            new SidebarItemInfo
+            {
+                Text = " Options",
+                Icon = IconName.Wrench,
+                To = "#optionsSection",
+            },
+        }
+    };
+
+    void ToggleSidebar()
+    {
+        sidebar.Toggle();
+    }
+}

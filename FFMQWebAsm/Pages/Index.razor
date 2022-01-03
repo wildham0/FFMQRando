@@ -1,0 +1,211 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Components.Forms
+@using System.IO;
+@using System;
+@using FFMQLib;
+@using Microsoft.JSInterop;
+@using Microsoft.JSInterop.WebAssembly;
+@using Blazorise.Components;
+@using RomUtilities;
+@inject IJSRuntime JS
+
+<style>
+    body {
+
+        background: linear-gradient(rgba(27,42,81,1),rgba(171,181,232,1)) no-repeat center fixed;
+        background-size: cover;
+    }
+</style>
+
+<div class="center-logo"><img height=100 src="logo/mqlogoM.png" /><img height=100 src="logo/mqlogoy.png" /><img height=100 src="logo/mqlogos.png" /><img height=100 src="logo/mqlogot.png" /><img height=100 src="logo/mqlogoi.png" /><img height=100 src="logo/mqlogoc.png" />     <img height=100 src="logo/mqlogoQ.png" /><img height=100 src="logo/mqlogou.png" /><img height=100 src="logo/mqlogoe.png" /><img height=100 src="logo/mqlogos2.png" /><img height=100 src="logo/mqlogot2.png" /></div>
+<h5 class="text-secondary text-center">A FFMQ Randomizer</h5>
+
+<div><br /><br /><br /></div>
+
+<h3 id="fileSection" class="text-secondary">File</h3>
+
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel> 
+    <FileEdit Filter="*.sfc" AutoReset="false" Changed="@LoadFiles"></FileEdit>
+    <FieldHelp>@romMessage</FieldHelp>
+</Field>
+<Fields>
+    <Field>
+        <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Seed</FieldLabel> 
+        <TextEdit Placeholder="Seed" Text="@showSeed" FocusOut="@OnSeedLoseFocus" TextChanged="@OnChangeSeed"/>
+        <FieldHelp>@seedMessage</FieldHelp>
+    </Field>
+     <Field>
+        <FieldLabel Visibility="Visibility.Invisible">None</FieldLabel>
+        <Button Color="Color.Primary" Clicked="@RollSeed" class="field-button">Roll Seed</Button>
+    </Field>
+</Fields>
+<Fields>
+    <Field>
+        <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Flag String</FieldLabel> 
+        <TextEdit Placeholder="Flag string" Text="@flags.GenerateFlagString()" TextChanged="@OnNameChanged"/>
+        <FieldHelp>@flagsMessage</FieldHelp>
+    </Field>
+</Fields>
+
+<Field>
+    <Button Color="Color.Primary" Loading="@isLoading" Clicked="@Generate">Generate</Button>
+</Field>
+
+<h3 id="optionsSection" class="text-secondary">Options</h3>
+
+<Field>
+    <Switch TValue="bool" @bind-Checked="@flags.ShuffleQuestItems" Disabled><Text TextColor="TextColor.Secondary" class="fw-bold">Shuffle Quest Items</Text></Switch>
+</Field>
+<Field>
+    <Switch TValue="bool" @bind-Checked="@flags.ShuffleEnemiesPosition"><Text TextColor="TextColor.Secondary" class="fw-bold">Shuffle Enemies' Positions</Text></Switch>
+</Field>
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Enemies Density</FieldLabel> 
+    <Select @bind-SelectedValue="@flags.EnemiesDensity">
+        @foreach(var item in Enum.GetValues<FFMQLib.EnemiesDensity>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
+
+
+@code{
+    //bool IntroPaneVisible = true;
+    //bool FilePaneVisible = false;
+    //bool MainPaneVisible = false;
+    //bool ExtPaneVisible = false;
+
+    private FFMQRom newRom = new();
+    private long maxFileSize = 0x80000;
+    private bool isLoading = false;
+    private Blob seed = new byte[4];
+    private string showSeed;
+    private Flags flags = new();
+
+    private string seedMessage = "";
+    private string romMessage = "";
+    private string flagsMessage = "";
+
+
+    private async Task OnGenerate()
+    {
+        isLoading = true;
+        await Generate();
+    }
+    private async Task Generate()
+    {
+        if (newRom.IsEmpty())
+        {
+            romMessage = "No file.";
+            return;
+        }
+
+        if (!newRom.Validate())
+        {
+            romMessage = "Invalid ROM file.";
+            return;
+        }
+
+        try
+        {
+            newRom.Randomize(seed, flags);
+        }
+        catch (Exception ex)
+        {
+            romMessage = ex.Message;
+        }
+
+        var fs = newRom.DataStream();
+        var fileName = "FFMQR_" + seed.ToHex() + ".sfc";
+
+        using var streamRef = new DotNetStreamReference(stream: fs);
+
+        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+        isLoading = false;
+    }
+
+    private async Task LoadFiles(FileChangedEventArgs e)
+    {
+        try
+        {
+            await newRom.LoadAsync(e.Files.First().OpenReadStream(maxFileSize));
+            if (!newRom.Validate())
+            {
+                romMessage = "Invalid ROM file.";
+                return;
+            }
+            else
+            {
+                romMessage = "ROM file loaded succesfully.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private void RollSeed()
+    {
+        var rng = new Random();
+        rng.NextBytes(seed);
+        showSeed = seed.ToHex();
+    }
+
+    protected override void OnInitialized()
+    {
+        RollSeed();
+    }
+
+    Task OnChangeSeed(string value)
+    {
+        showSeed = value;
+
+        if (showSeed.Length <= 8)
+        {
+            try
+            {
+                var tempSeed = showSeed.PadLeft(8, '0');
+                seed = Blob.FromHex(tempSeed);
+                seedMessage = "";
+            }
+            catch (Exception ex)
+            {
+                seedMessage = "Invalid Seed: " + ex.Message;
+            }
+        }
+        else
+        {
+            seedMessage = "Invalid Seed: Seed string is too long (max 8 digits).";
+        }
+        return Task.CompletedTask;
+    }
+
+    Task OnSeedLoseFocus()
+    {
+        showSeed = showSeed.PadLeft(8, '0');
+        return Task.CompletedTask;
+    }
+
+    private async Task CopyTextToClipboard()
+    {
+        await JS.InvokeVoidAsync("copyClipboard");
+    }
+
+    Task OnNameChanged( string value )
+    {
+        try
+        {
+            flags.ReadFlagString(value);
+            flagsMessage = "Flags loaded successfully.";
+        }
+        catch (Exception)
+        {
+            flagsMessage = "Invalid flags string.";
+        }
+
+        return Task.CompletedTask;
+    }
+}

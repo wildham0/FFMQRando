@@ -1,0 +1,41 @@
+<Blazorise.ThemeProvider Theme="@theme">
+    <Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p>Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+ </Blazorise.ThemeProvider>
+
+@code{
+    private Theme theme = new Theme
+    {
+        IsGradient = true,
+        IsRounded = true,
+        ColorOptions = new ThemeColorOptions
+        {
+            Primary = "#FFFFFF",
+            Secondary = "#A65529",
+
+            // other
+        },
+        TextColorOptions = new ThemeTextColorOptions
+        {
+            Primary = "#000000",
+            Secondary = "#FFFFFF",
+            Muted = "#E5E5E5",
+
+            // other
+        },
+        SidebarOptions = new ThemeSidebarOptions
+        {
+            BackgroundColor = "#000000",
+            Color = "#FFFFFF",
+        }
+    };
+
+}

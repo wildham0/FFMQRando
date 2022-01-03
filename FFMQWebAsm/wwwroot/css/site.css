@@ -1,0 +1,14 @@
+﻿.center-logo {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn.field-button {
+    display: block;
+}
+
+.form-check {
+    margin-left: 1.25em;
+}
