@@ -1,5 +1,6 @@
 ﻿using RomUtilities;
 using System.Collections.Generic;
+using System.Text;
 using System.Linq;
 using System;
 
@@ -38,6 +39,11 @@ namespace FFMQLib
 
             string flagstring = Convert.ToBase64String(BitConverter.GetBytes(flagstrinvalue));
             return flagstring.Replace('+', '-').Replace('/', '_').Replace('=',',');
+        }
+
+        public Blob EncodedFlagString()
+        {
+            return Encoding.UTF8.GetBytes(GenerateFlagString());
         }
 
         public void ReadFlagString(string flagstring)

@@ -71,9 +71,7 @@ namespace FFMQLib
 			MT19337 rng;
 			using (SHA256 hasher = SHA256.Create())
 			{
-				//Blob FlagsBlob = Encoding.UTF8.GetBytes(Flags.EncodeFlagsText(flags));
-				Blob SeedAndFlags = Blob.Concat(new Blob[] { seed });
-				Blob hash = hasher.ComputeHash(SeedAndFlags);
+				Blob hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
 
