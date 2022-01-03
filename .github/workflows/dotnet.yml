@@ -23,7 +23,7 @@ jobs:
       uses: netlify/actions/cli@master 
       env: 
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        NETLIFY_API_ID: ${{ secrets.NETLIFY_API_ID }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
       with:
         args: deploy --dir=publishoutput/wwwroot --prod
-        secrets: '["NETLIFY_AUTH_TOKEN", "NETLIFY_API_ID"]' 
+        secrets: '["NETLIFY_AUTH_TOKEN", "NETLIFY_SITE_ID"]' 
