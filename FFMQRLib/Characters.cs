@@ -66,7 +66,7 @@ namespace FFMQLib
             PutInBank(0x03, 0xAE2D, new byte[] { xpconst2 });
 
             // for next level in status screen
-            PutInBank(0x03, 0x9C10, new byte[] { xpconst1 });
+            PutInBank(0x03, 0x9C11, new byte[] { xpconst1 });
             PutInBank(0x03, 0x9C1F, new byte[] { xpconst2 });
         }
 
