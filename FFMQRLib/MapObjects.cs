@@ -122,15 +122,67 @@ namespace FFMQLib
 			}
 			public void ShuffleEnemiesPosition(List<Map> maps, Flags flags, MT19337 rng)
 			{
+				List<List<(int, int)>> barredTiles = new()
+				{
+					new List<(int, int)> { },
+					new List<(int, int)> { },
+					new List<(int, int)> { }, // Foresta
+					new List<(int, int)> { }, // Aquaria
+					new List<(int, int)> { }, // Windia
+					new List<(int, int)> { }, // Fireburg
+					new List<(int, int)> { }, // Destiny Hill
+					new List<(int, int)> { (0x34, 0x10), (0x34, 0x0E) }, // Level Forest+Alive Forest
+					new List<(int, int)> { }, // Wintry Cave
+					new List<(int, int)> { }, // Mine
+					new List<(int, int)> { }, // Volcano Top
+					new List<(int, int)> { (0x0F, 0x08) }, // Volcano Base
+					new List<(int, int)> { }, // Rope Bridge
+					new List<(int, int)> { }, // Giant Tree 1 
+					new List<(int, int)> { }, // Giant Tree 2
+					new List<(int, int)> { }, // Giant Tree Walk
+					new List<(int, int)> { (0x18, 0x16), (0x17, 0x16), (0x1C, 0x14), (0x32, 0x23), (0x1F, 0x12), (0x27, 0x0F), (0x27, 0x0E), (0x22, 0x0A) }, // Mount Gale
+					new List<(int, int)> { (0x13, 0x1D) }, // Mac Ship Deck
+					new List<(int, int)> { (0x12, 0x11), (0x08, 0x08), (0x11, 0x21) }, // !Mac Ship Interior
+					new List<(int, int)> { }, // Bone dungeon
+					new List<(int, int)> { (0x21, 0x3D) }, // Ice Pyramid 1
+					new List<(int, int)> { }, // Ice Pyramid 2
+					new List<(int, int)> { }, // Lava Dome Exterior
+					new List<(int, int)> { (0x35, 0x14), (0x33, 0x14), (0x36, 0x0A), (0x36, 0x08), (0x34, 0x08), (0x32, 0x08), (0x29, 0x1E), (0x27, 0x1E), (0x29, 0x20), (0x29, 0x22), (0x2B, 0x22), (0x29, 0x24), (0x2B, 0x24), (0x29, 0x26), }, // Lava Dome Interior 1
+					new List<(int, int)> { (0x0B, 0x12), (0x07, 0x14), (0x09, 0x19), (0x13, 0x14), (0x11, 0x14), (0x39, 0x05), (0x25, 0x0C), (0x23, 0x12), (0x25, 0x12), (0x2A, 0x0C), (0x2C, 0x0C), (0x38, 0x11), (0x36, 0x11), (0x2E, 0x16), (0x30, 0x16) }, // Lava Dome Interior 2
+					new List<(int, int)> { (0x14, 0x0A), (0x10, 0x12), (0x10, 0x13), (0x0F, 0x16), (0x0F, 0x17), (0x12, 0x31), (0x14, 0x31), (0x2C, 0x33), (0x2A, 0x33), (0x32, 0x33), (0x34, 0x33) }, // Pazuzu Tower 1
+					new List<(int, int)> { (0x2D, 0x19), (0x10, 0x2D), (0x06, 0x2E), (0x07, 0x32) }, // Pazuzu Tower 2
+					new List<(int, int)> { }, // Spencer's Place
+					new List<(int, int)> { }, // ?
+					new List<(int, int)> { }, // ?
+					new List<(int, int)> { }, // House interiors
+					new List<(int, int)> { }, // Cave interiors
+					new List<(int, int)> { }, // Foresta interiors
+					new List<(int, int)> { (0x2C, 0x1A), (0x25, 0x13), (0x1F, 0x13), (0x1E, 0x13), (0x1C, 0x1E), (0x1B, 0x1E), (0x1A, 0x1E), (0x19, 0x1E), (0x18, 0x1E), (0x0D, 0x12), (0x0E, 0x12), (0x0F, 0x12), (0x13, 0x13), (0x13, 0x15), (0x13, 0x17) }, // !Doom Castle Base
+					new List<(int, int)> { }, // Tower
+					new List<(int, int)> { (0x1C, 0x24), (0x20, 0x24), (0x1C, 0x20), (0x25, 0x1A), (0x24, 0x19), (0x0F, 0x26), (0x1B, 0x0F), (0x1E, 0x16), (0x11, 0x1A), (0x0A, 0x17), (0x0B, 0x16), (0x18, 0x0B)}, // !Doom Castle Ice floor
+					new List<(int, int)> { }, // !Doom Castle Fire floor
+					new List<(int, int)> { (0x19, 0x22), (0x17, 0x22) }, // Doom Castle Sky floor
+					new List<(int, int)> { }, // Doom Castle Hero floor
+					new List<(int, int)> { }, // Dark King floor
+					new List<(int, int)> { }, // Backgrounds
+					new List<(int, int)> { },
+					new List<(int, int)> { },
+					new List<(int, int)> { },
+				};
+				
+				
 				if (flags.ShuffleEnemiesPosition == false)
 				{
 					return;
 				}
 
+				List<int> collectionToSkip = new() { 0x40, 0x67 }; // Skip lava floors for now, as they are too peculiar for shuffling
+
 				for (int i = 0; i < _collections.Count; i++)
 				{
+					
 					var enemiescollection = _collections[i].Where(x => x.Type == MapObjectType.Battle).ToList();
-					if (!enemiescollection.Any())
+					if (!enemiescollection.Any() || collectionToSkip.Contains(i))
 					{
 						continue;
 					}
@@ -141,7 +193,27 @@ namespace FFMQLib
 
 					var validLayers = enemiescollection.Select(x => x.Layer).Distinct().ToList();
 					var targetmap = GetAreaMapId(i);
+
 					List<(byte, byte)> selectedPositions = _collections[i].Where(x => x.Type != MapObjectType.Battle).Select(x => (x.X, x.Y)).ToList();
+
+					if (targetmap == 0x0D || targetmap == 0x0E) // Special exception for Living Tree's hooks
+					{
+						var hookList = _collections[i].Where(x => x.Sprite == 0x28).ToList();
+						foreach (var hook in hookList)
+						{
+							for (int j = minx; j <= maxx; j++)
+							{
+								selectedPositions.Add(((byte)j, (byte)hook.Y));
+							}
+
+							for (int j = miny; j <= maxy; j++)
+							{
+								selectedPositions.Add(((byte)hook.X, (byte)j));
+							}
+						}
+					}
+
+					
 
 					foreach (var enemy in enemiescollection)
 					{
@@ -150,7 +222,7 @@ namespace FFMQLib
 						{
 							byte newx = (byte)rng.Between(minx, maxx);
 							byte newy = (byte)rng.Between(miny, maxy);
-							if (!selectedPositions.Contains((newx, newy)) && validLayers.Contains(maps[targetmap].WalkableByte((int)newx, (int)newy)))
+							if (!selectedPositions.Contains((newx, newy)) && !barredTiles[targetmap].Contains((newx, newy)) && validLayers.Contains(maps[targetmap].WalkableByte((int)newx, (int)newy)))
 							{
 								selectedPositions.Add((newx, newy));
 								enemy.X = newx;
