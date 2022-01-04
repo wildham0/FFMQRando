@@ -213,9 +213,7 @@ namespace FFMQLib
 						}
 					}
 
-					
-
-					foreach (var enemy in enemiescollection)
+          foreach (var enemy in enemiescollection)
 					{
 						bool placed = false;
 						while (!placed)
@@ -227,6 +225,7 @@ namespace FFMQLib
 								selectedPositions.Add((newx, newy));
 								enemy.X = newx;
 								enemy.Y = newy;
+								enemy.Layer = maps[targetmap].WalkableByte((int)newx, (int)newy);
 								placed = true;
 							}
 						}
