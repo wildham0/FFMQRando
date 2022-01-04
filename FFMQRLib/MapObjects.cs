@@ -213,7 +213,7 @@ namespace FFMQLib
 						}
 					}
 
-					foreach (var enemy in enemiescollection)
+          foreach (var enemy in enemiescollection)
 					{
 						bool placed = false;
 						while (!placed)
