@@ -394,13 +394,13 @@ namespace FFMQLib
 			// Collaspe
 			TileScripts.AddScript((int)TileScriptsList.WintryCavePhoebeClaw,
 				new ScriptBuilder(new List<string> {
-					"2e73[07]",
+					"2e9B[07]",
 					$"050f{(int)Companion.Phoebe:X2}[07]",
 					"2a3046104310443054ffff",
 					"1a8a" + TextToHex("Good job not being a clutz and falling down like an idiot! I guess that calls for a reward..."),
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeWintryCave]:X2}0262",
 					"2ad3fe10414046ffff", // 24ff > d3fe
-					"2373",
+					"239B",
 					"00"
 				}));
 
