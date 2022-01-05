@@ -75,6 +75,50 @@ namespace FFMQLib
 		SquidDefeated = 0xE0,
 		PathCuttedByKaeli = 0xE3,
 		ShowFigureForHP = 0xF0,
+	}
+	public enum NewGameFlagsList : int
+	{
+		WakeWaterUsed = 0x02, 
+
+		// Kaeli new flags
+		ShowForestaKaeli = 0x62,
+		ShowSickKaeli = 0x7D,
+		ShowWindiaKaeli = 0x68,
+		KaeliCured = 0x1F,
+		KaeliSecondItemGiven = 0xE8,
+
+		// Tristam new flags
+		ShowSandTempleTristam = 0x5A,
+		TristamBoneDungeonItemGiven = 0xC9,
+		ShowFireburgTristam = 0x53,
+		TristamFireburgItemGiven = 0xE9,
+
+		// Phoebe new flags
+		ShowLibraTemplePhoebe = 0x4E,
+		PhoebeWintryItemGiven = 0xEA,
+		ShowWindiaPhoebe = 0x7E,
+
+		// Reuben new flags
+		ShowFireburgReuben = 0x5F,
+		ReubenMineItemGiven = 0xEB,
+
+		// Arion new flags
+		ArionItemGiven = 0xEC,
+
+		// Chests flags
+		TristamChestUnopened = 0xED,
+		VenusChestUnopened = 0xEE,
+
+		// Spencer
+		SpencerItemGiven = 0xEF,
+
+		// Sellers flags
+		AquariaSellerItemBought = 0xD0,
+		FireburgSellerItemBought = 0xD1,
+		WindiaSellerItemBought = 0xD2,
+
+
+
 
 	}
 	public enum AccessReqs : int

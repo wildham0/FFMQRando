@@ -152,7 +152,7 @@ namespace FFMQLib
 					"2C0001",
 					"00",
 					"2C0101",
-					"2E62[11]",
+					$"2E{(int)NewGameFlagsList.ShowForestaKaeli:X2}[11]",
 					"2EE3[11]",
 					$"050f{(int)Companion.Kaeli:X2}[11]",
 					"2A3346634013432344505010530054FFFF",
@@ -197,7 +197,7 @@ namespace FFMQLib
 					"2C7044",
 					"2C8044",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliForesta]:X2}0162",
-					"237D",
+					$"23{(int)NewGameFlagsList.ShowSickKaeli:X2}",
 					"0880FF",
 					"61",
 					"2A1140404661424146FFFF",
@@ -223,7 +223,7 @@ namespace FFMQLib
 					"2C4146",
 					"0880FF",
 					"05E601085B85",
-					"2B6223632B6C",
+					$"2B{(int)NewGameFlagsList.ShowForestaKaeli:X2}23632B6C",
 					"00",
 					"2C114300",
 					"2C114200"
@@ -243,7 +243,7 @@ namespace FFMQLib
 					"2C4146",
 					"0880FF",
 					$"05E6{(int)Companion.KaeliPromo:X2}085B85",
-					"2B7D231F",
+					$"2B{(int)NewGameFlagsList.ShowSickKaeli:X2}23{(int)NewGameFlagsList.KaeliCured:X2}",
 					"00",
 					"2C114300",
 					"2C114100"
@@ -267,8 +267,8 @@ namespace FFMQLib
 					"2C4046",
 					"0880FF",
 					$"05E6{(int)Companion.Tristam:X2}085B85",
-					"2B5A",
-					"2B53",
+					$"2B{(int)NewGameFlagsList.ShowSandTempleTristam:X2}",
+					$"2B{(int)NewGameFlagsList.ShowFireburgTristam:X2}",
 					"00"
 				}));
 
@@ -277,18 +277,18 @@ namespace FFMQLib
 			GameFlags[0xC9] = false;
 			TileScripts.AddScript((int)TileScriptsList.BoneDungeonTristamBomb,
 				new ScriptBuilder(new List<string> {
-					"2ec9[11]",
+					$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[11]",
 					$"050f{(int)Companion.Tristam:X2}[11]",
 					"2a3046104130441054ffff",
 					"1a85" + TextToHex("Care to invest in my ") + $"1E{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}" + TextToHex(" venture? I'll give you an early prototype!") + "36",
 					"08D0FD",
 					"050BFB[09]",
 					"1a85" + TextToHex("That's fine, not everyone is cut out for massive profits and a lifetime of riches.") + "36",
-					"2ad3fe10434046ffff",
+					"2a10434046ffff",
 					"00",
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}0162",
-					"2ad3fe10434046ffff", // 24ff > d3fe
-					"23C9",
+					"2a10434046ffff", // 24ff > d3fe
+					$"23{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}",
 					"00"
 				}));
 
@@ -319,8 +319,8 @@ namespace FFMQLib
 			GameFlags[0xCB] = false; // Hide MysteriousMan Find Phoebe
 
 			// Venus Chest
-			MapObjects[0x0A][0x08].Gameflag = 0x9E;
-			GameFlags[0x9E] = true; 
+			MapObjects[0x0A][0x08].Gameflag = (byte)NewGameFlagsList.VenusChestUnopened;
+			GameFlags[(int)NewGameFlagsList.VenusChestUnopened] = true; 
 
 			TalkScripts.AddScript((int)TalkScriptsList.VenusChest,
 				new ScriptBuilder(new List<string>{
@@ -328,11 +328,11 @@ namespace FFMQLib
 					"2F",
 					"050C03[04]",
 					"1A000A37FF", // Locked...
-					"2E9E[06]",
+					$"2E{(int)NewGameFlagsList.VenusChestUnopened:X2}[06]",
 					"0D08788600",
 					"2A2827082C80FBFFFF", // need some adjusting
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.VenusChest]:X2}0062",
-					"2B9E",
+					$"2B{(int)NewGameFlagsList.VenusChestUnopened:X2}",
 					"00"
 				}));
 
@@ -345,7 +345,7 @@ namespace FFMQLib
 					"2C4046",
 					"0880FF",
 					$"05E6{(int)Companion.Phoebe:X2}085B85",
-					"2B4E",
+					$"2B{(int)NewGameFlagsList.ShowLibraTemplePhoebe:X2}",
 					"00"
 				}));
 
@@ -360,7 +360,7 @@ namespace FFMQLib
 					"050D02[10]",
 					"2A5EFF080161FFFFFF",
 					"2A20509053705015271225304506ff0900FFFF",
-					"2302",
+					$"23{(int)NewGameFlagsList.WakeWaterUsed:X2}",
 					"234F", //is it necessary?
 					"00",
 					"2C0801",
@@ -375,12 +375,12 @@ namespace FFMQLib
 				new ScriptBuilder(new List<string>{
 					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.WomanAquaria]:X2}",
 					"2BFC",
-					"2E9FBFFE",
+					$"2E{(int)NewGameFlagsList.AquariaSellerItemBought:X2}BFFE",
 					"0E0115C80000", // set price
 					"0891FE",
 					"2EFDA4D8",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.WomanAquaria]:X2}0462", // give item
-					"239F",
+					$"23{(int)NewGameFlagsList.AquariaSellerItemBought:X2}",
 					"1A29",
 					"0ABFFE"
 				}));
@@ -394,13 +394,13 @@ namespace FFMQLib
 			// Collaspe
 			TileScripts.AddScript((int)TileScriptsList.WintryCavePhoebeClaw,
 				new ScriptBuilder(new List<string> {
-					"2e9B[07]",
+					$"2e{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[07]",
 					$"050f{(int)Companion.Phoebe:X2}[07]",
 					"2a3046104310443054ffff",
 					"1a8a" + TextToHex("Good job not being a clutz and falling down like an idiot! I guess that calls for a reward..."),
-					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeWintryCave]:X2}0262",
-					"2ad3fe10414046ffff", // 24ff > d3fe
-					"239B",
+					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeWintryCave]:X2}0162",
+					"2a10414046ffff", // 24ff > d3fe
+					$"23{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}",
 					"00"
 				}));
 
@@ -473,6 +473,8 @@ namespace FFMQLib
 			// Fight IceGolem
 			TileScripts.AddScript((int)TileScriptsList.FightIceGolem,
 				new ScriptBuilder(new List<string> {
+					"2E07[02]",
+					"00",
 					"2C2727",
 					"1A31B243FF3F477D44D1C54078A4C1524DBBC8BBCF019F63FF57CE30ADB4BE403FBCC6CE",
 					"05E44F13",
@@ -490,12 +492,12 @@ namespace FFMQLib
 			// Create New Tristam Chest
 			MapObjects[0x18][0x01].Value = 0x1E; // Change Talk Script of NPCs
 			MapObjects[0x02C][0x01].RawOverwrite(Blob.FromHex("AD7B6435A60224")); //Copy Venus Chest settings
-			MapObjects[0x02C][0x01].Gameflag = 0x9D;
+			MapObjects[0x02C][0x01].Gameflag = (byte)NewGameFlagsList.TristamChestUnopened;
 			MapObjects[0x02C][0x01].Value = 0x1D; // Assign
 			MapObjects[0x02C][0x01].X = 0x16;
 			MapObjects[0x02C][0x01].Y = 0x30;
 
-			GameFlags[0x9D] = true; // Tristam Chest
+			GameFlags[(int)NewGameFlagsList.TristamChestUnopened] = true; // Tristam Chest
 
 			// Block spencer's place exit
 			Data[0x046E3D] = 0x5B;
@@ -532,10 +534,10 @@ namespace FFMQLib
 			TalkScripts.AddScript((int)TalkScriptsList.SpencerFirstTime,
 				new ScriptBuilder(new List<string>{
 					"04",
-					"2EA2[06]",
+					$"2E{(int)NewGameFlagsList.SpencerItemGiven:X2}[06]",
 					"1A32" + TextToHex("This? It's some weird trash I found while diggin' to Captain Mac's ship, you can have it.") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.Spencer]:X2}0162",
-					"23A2",
+					$"23{(int)NewGameFlagsList.SpencerItemGiven:X2}",
 					"00",
 					"1A32" + TextToHex(rng.PickFrom(spencerPostItemDialogue)) + "36",
 					"00"
@@ -548,11 +550,11 @@ namespace FFMQLib
 					"2F",
 					"050C03[04]",
 					"1A000A37FF", // Locked...
-					"2E9D[06]",
+					$"2E{(int)NewGameFlagsList.TristamChestUnopened:X2}[06]",
 					"08788600",
 					"2A2827082C80FBFFFF", // need some adjusting
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.TristamSpencersPlace]:X2}0062",
-					"2B9D",
+					$"2B{(int)NewGameFlagsList.TristamChestUnopened:X2}",
 					"00"
 				}));
 
@@ -609,18 +611,18 @@ namespace FFMQLib
 			TalkScripts.AddScript((int)TalkScriptsList.ReubenFireburg,
 				new ScriptBuilder(new List<string>{
 					"04",
-					"2E98[08]",
+					$"2E{(int)NewGameFlagsList.ReubenMineItemGiven:X2}[08]",
 					"1A3A" + TextToHex($"Help you? Oh! Uh... Oh no! My {rng.PickFrom(reubenDiseaseList)} is acting up! Arrgh, the pain... No? Alright...") + "36",
 					"2A11434146FFFF",
 					"0880FF",
 					$"05E6{(int)Companion.Reuben:X2}085B85",
-					"2B5F",
+					$"2B{(int)NewGameFlagsList.ShowFireburgReuben:X2}",
 					"00",
 					"1A3A" + TextToHex(rng.PickFrom(reubenJoinDialogueList)) + "36",
 					"2A11434146FFFF",
 					"0880FF",
 					$"05E6{(int)Companion.ReubenPromo:X2}085B85",
-					"2B5F",
+					$"2B{(int)NewGameFlagsList.ShowFireburgReuben:X2}",
 					"00",
 				}));
 
@@ -628,10 +630,10 @@ namespace FFMQLib
 			TalkScripts.AddScript((int)TalkScriptsList.Arion,
 				new ScriptBuilder(new List<string>{
 					"04",
-					"2E9C[06]",
+					$"2E{(int)NewGameFlagsList.ArionItemGiven:X2}[06]",
 					"1A3B" + TextToHex("I was scared I would have to pass this on to my useless son, but now, I can give this to you!") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.ArionFireburg]:X2}0162",
-					"239C",
+					$"23{(int)NewGameFlagsList.ArionItemGiven:X2}",
 					"00",
 					"1A3B" + TextToHex("Would you like to be adopted? We're a loving family for sons that aren't inept at life.") + "36",
 					"00"
@@ -642,12 +644,12 @@ namespace FFMQLib
 				new ScriptBuilder(new List<string>{
 					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.WomanFireburg]:X2}",
 					"2BFC",
-					"2EA0BFFE",
+					$"2E{(int)NewGameFlagsList.FireburgSellerItemBought:X2}BFFE",
 					"0E0115F40100", // set price
 					"0891FE",
 					"2EFDA4D8",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.WomanFireburg]:X2}0462", // give item
-					"23A0",
+					$"23{(int)NewGameFlagsList.FireburgSellerItemBought:X2}",
 					"1A40",
 					"0ABFFE"
 				}));
@@ -669,10 +671,10 @@ namespace FFMQLib
 			TalkScripts.AddScript((int)TalkScriptsList.TristamInFireburg01,
 				new ScriptBuilder(new List<string>{
 					"04",
-					"2E9A[06]",
+					$"2E{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}[06]",
 					"1A3D" + TextToHex("Hey! You can get this, it's free! It will only report back some of your personal user data to me.") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.TristamFireburg]:X2}0162",
-					"239A",
+					$"23{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}",
 					"00",
 					"1A3D" + TextToHex("Let's go!") + "36",
 					"0F8B0E",
@@ -682,7 +684,7 @@ namespace FFMQLib
 					"2C4146",
 					"0880FF",
 					$"05E6{(int)Companion.TristamPromo:X2}085B85",
-					"2B532B5A",
+					$"2B{(int)NewGameFlagsList.ShowSandTempleTristam:X2}2B{(int)NewGameFlagsList.ShowFireburgTristam:X2}",
 					"00",
 					"2C114000",
 					"2C114100",
@@ -692,16 +694,15 @@ namespace FFMQLib
 			/*** Mine ***/
 
 			// Throw Mega Grenade
-			string reubenFlag01 = "98";
 			TileScripts.AddScript((int)TileScriptsList.BlowingOffMineBoulder,
 				new ScriptBuilder(new List<string> {
-					"2E" + reubenFlag01 + "[07]",
+					$"2E{(int)NewGameFlagsList.ReubenMineItemGiven:X2}[07]",
 					$"050f{(int)Companion.Reuben:X2}[07]",
 					"2a3046104310443054ffff",
 					"1a91" + TextToHex("Ugh, my feet are killing me! Do me a favor and hold this on the way back. It's weighting a ton!"),
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeFallBasin]:X2}0162",
-					"2ad3fe10414046ffff",
-					"23" + reubenFlag01,
+					"2a10414046ffff",
+					$"23{(int)NewGameFlagsList.ReubenMineItemGiven:X2}",
 					"2E37[10]",
 					"2D" + ScriptItemFlags[Items.MegaGrenade].Item1,
 					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[11]",
@@ -776,7 +777,7 @@ namespace FFMQLib
 					TextToHex("You may enter.") + "36",
 					$"2a{treeDoorChangeId:X2}2a10505eff9700ffff",
 					"00",
-					TextToHex("Defeat Chimera and I'll let you pass.") + "36",
+					TextToHex("Defeat Gidrah and I'll let you pass.") + "36",
 					"00"
 				}));
 
@@ -786,28 +787,28 @@ namespace FFMQLib
 				new ScriptBuilder(new List<string>{
 					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.GirlWindia]:X2}",
 					"2BFC",
-					"2EA1BFFE",
+					$"2E{(int)NewGameFlagsList.WindiaSellerItemBought:X2}BFFE",
 					"0E01152C0100", // set price
 					"0891FE",
 					"2EFDA4D8",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.GirlWindia]:X2}0462", // give item
-					"23A1",
+					$"23{(int)NewGameFlagsList.WindiaSellerItemBought:X2}",
 					"1A67",
 					"0ABFFE"
 				}));
 
 			// Kaeli Windia
 			MapObjects[0x51][0x01].Gameflag = 0xFE;
-			MapObjects[0x52][0x00].Gameflag = 0x68;
+			MapObjects[0x52][0x00].Gameflag = (byte)NewGameFlagsList.ShowWindiaKaeli;
 			MapObjects[0x52][0x00].Value = 0x5B;
 
 			TalkScripts.AddScript((int)TalkScriptsList.KaeliWindia,
 				new ScriptBuilder(new List<string>{
 					"04",
-					"2E99[06]",
+					$"2E{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}[06]",
 					"1A5B" + TextToHex("Take this mate!") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliWindia]:X2}0162",
-					"2399",
+					$"23{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}",
 					"00",
 					"1A5B" + TextToHex("Let's go!") + "36",
 					"0F8B0E",
@@ -817,7 +818,7 @@ namespace FFMQLib
 					"2C4146",
 					"0880FF",
 					$"05E6{(int)Companion.KaeliPromo:X2}085B85",
-					"2B53",
+					$"2B{(int)NewGameFlagsList.ShowWindiaKaeli:X2}",
 					"00",
 					"2C114000",
 					"2C114100",

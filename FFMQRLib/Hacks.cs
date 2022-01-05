@@ -109,23 +109,23 @@ namespace FFMQLib
 			// Switch companion code
 			var companionSwitch = new ScriptBuilder(new List<string>{
 				$"050f{(int)Companion.Kaeli:X2}[06]",
-				"2e1f[08]",       // 01 is Elixir Quest done?
-				"2e7d[09]",       // 02 No, is Kaeli Sick?
-				"236200",         // 03 No, show Foresta
-				"2368",           // 04 then available in Windia
-				"00",             // 05
+				$"2e{(int)NewGameFlagsList.KaeliCured:X2}[08]",                  // 01 is Elixir Quest done?
+				$"2e{(int)NewGameFlagsList.ShowSickKaeli:X2}[09]",               // 02 No, is Kaeli Sick?
+				$"23{(int)NewGameFlagsList.ShowForestaKaeli:X2}00",              // 03 No, show Foresta
+				$"23{(int)NewGameFlagsList.ShowWindiaKaeli:X2}",                 // 04 then available in Windia
+				"00",															 // 05
 				$"050f{(int)Companion.Tristam:X2}[11]",
-				"2353",		      // 07 Tristam is at Fireburg
-				"2ec9[13]",       // 08 Is bone quest done?
-				"235a",           // 09 No, show at Sand Temple
-				"00",             // 10
+				$"23{(int)NewGameFlagsList.ShowFireburgTristam:X2}",	         // 07 Tristam is at Fireburg
+				$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[13]", // 08 Is bone quest done?
+				$"23{(int)NewGameFlagsList.ShowSandTempleTristam:X2}",           // 09 No, show at Sand Temple
+				"00",												             // 10
 				$"050f{(int)Companion.Phoebe:X2}[16]",
-				"2e9b[16]",       // 12 is WintryCave Quest done?
-				"234e00",         // 13 No, show in Libra Temple
-				"237e",           // 14 Yes, show in Windia
-				"00",             // 15
+				$"2e{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[16]",       // 12 is WintryCave Quest done?
+				$"23{(int)NewGameFlagsList.ShowLibraTemplePhoebe:X2}00",         // 13 No, show in Libra Temple
+				$"23{(int)NewGameFlagsList.ShowWindiaPhoebe:X2}",		         // 14 Yes, show in Windia
+				"00",												             // 15
 				$"050f{(int)Companion.Reuben:X2}[18]",
-				"235F00",         // 17 Reuben is always in Fireburg
+				$"23{(int)NewGameFlagsList.ShowFireburgReuben:X2}00",            // 17 Reuben is always in Fireburg
 				"00",
 				});
 
