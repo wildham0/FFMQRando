@@ -378,7 +378,7 @@ namespace FFMQLib
 		RopeBridgeFight,
 		Unknown10, // I was waiting for you little beast!
 		Unknown11, // etc...
-		Unknown12,
+		Unknown12, // Ah, pazuzu at each floor
 		Unknown13,
 		Unknown14,
 		Unknown15,
@@ -481,7 +481,7 @@ namespace FFMQLib
 		AquariaPeople06,
 		AquariaPeople07,
 		AquariaPeople08,
-		AquariaPeople09, // Phoebe in her house?
+		PhoebeInAquaria, // Phoebe in her house?
 		KaeliInAquaria,
 		AquariaPeople0a,
 		AquariaPeople0b,

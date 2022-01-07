@@ -176,7 +176,7 @@ namespace FFMQLib
 					return;
 				}
 
-				List<int> collectionToSkip = new() { 0x40, 0x67 }; // Skip lava floors for now, as they are too peculiar for shuffling
+				List<int> collectionToSkip = new() { _pointerCollectionPairs[0x40], _pointerCollectionPairs[0x67] }; // Skip lava floors for now, as they are too peculiar for shuffling
 
 				for (int i = 0; i < _collections.Count; i++)
 				{

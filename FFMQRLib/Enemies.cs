@@ -17,6 +17,8 @@ namespace FFMQLib
         Quarter = 0,
         [Description("50%")]
         Half,
+        [Description("75%")]
+        ThreeQuarter,
         [Description("100%")]
         Normal,
         [Description("150%")]
@@ -25,8 +27,6 @@ namespace FFMQLib
         Double,
         [Description("250%")]
         DoubleAndHalf,
-        [Description("300%")]
-        Triple,
     }
     public enum EnemiesScalingSpread : int
     {
@@ -76,7 +76,7 @@ namespace FFMQLib
             }
             return (byte)Min(0xFF, Max(0x01, value * randomizedScaling / 100));
         }
-        private short ScaleHP(short value, int scaling, int spread, MT19337 rng)
+        private ushort ScaleHP(ushort value, int scaling, int spread, MT19337 rng)
         {
             int randomizedScaling = scaling;
             if (spread != 0)
@@ -86,7 +86,7 @@ namespace FFMQLib
 
                 randomizedScaling = (int)Exp(((double)rng.Next() / uint.MaxValue) * (Log(max) - Log(min)) + Log(min));
             }
-            return (short)Min(0xFFFF, Max(0x01, value * randomizedScaling / 100));
+            return (ushort)Min(0xFFFF, Max(0x01, value * randomizedScaling / 100));
         }
         public void ScaleEnemies(Flags flags, MT19337 rng)
         {
@@ -97,11 +97,11 @@ namespace FFMQLib
             {
                 case EnemiesScaling.Quarter: scaling = 25; break;
                 case EnemiesScaling.Half: scaling = 50; break;
+                case EnemiesScaling.ThreeQuarter: scaling = 75; break;
                 case EnemiesScaling.Normal: scaling = 100; break;
                 case EnemiesScaling.OneAndHalf: scaling = 150; break;
                 case EnemiesScaling.Double: scaling = 200; break;
                 case EnemiesScaling.DoubleAndHalf: scaling = 250; break;
-                case EnemiesScaling.Triple: scaling = 300; break;
             }
 
             switch (flags.EnemiesScalingSpread)
@@ -128,7 +128,7 @@ namespace FFMQLib
     {
         private Blob _rawBytes;
         
-        public short HP { get; set; }
+        public ushort HP { get; set; }
         public byte AttackPower { get; set; }
         public byte DamageReduction { get; set; }
         public byte Speed { get; set; }
@@ -142,7 +142,7 @@ namespace FFMQLib
             _rawBytes = rom.GetFromBank(RomOffsets.EnemiesStatsBank, RomOffsets.EnemiesStatsAddress + (enemyId * RomOffsets.EnemiesStatsLength), RomOffsets.EnemiesStatsLength);
 
             _Id = enemyId;
-            HP = (short)(_rawBytes[1] * 0x100 + _rawBytes[0]);
+            HP = (ushort)(_rawBytes[1] * 0x100 + _rawBytes[0]);
             AttackPower = _rawBytes[2];
             DamageReduction = _rawBytes[3];
             Speed = _rawBytes[4];
@@ -197,11 +197,11 @@ namespace FFMQLib
             {
                 case EnemiesScaling.Quarter: scaling = 25; break;
                 case EnemiesScaling.Half: scaling = 50; break;
+                case EnemiesScaling.ThreeQuarter: scaling = 75; break;
                 case EnemiesScaling.Normal: scaling = 100; break;
                 case EnemiesScaling.OneAndHalf: scaling = 150; break;
                 case EnemiesScaling.Double: scaling = 200; break;
                 case EnemiesScaling.DoubleAndHalf: scaling = 250; break;
-                case EnemiesScaling.Triple: scaling = 300; break;
             }
            
             switch (flags.EnemiesScalingSpread)
