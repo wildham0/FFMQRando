@@ -76,6 +76,7 @@ namespace FFMQLib
 		{
 			// Show Figure by default instead of Scale for HP
 			GameFlags[(int)GameFlagsList.ShowFigureForHP] = true;
+
 			// Default Text speed to 1
 			Data[0x65397] = 0x00;
 		}
@@ -91,6 +92,9 @@ namespace FFMQLib
 			// Fix Bomb and JumboBomb to work everywhere
 			PutInBank(0x01, 0xF453, Blob.FromHex("3030"));
 
+			// Allow shattered tile to intercept MegaGrenade
+			PutInBank(0x06, 0xAE22, Blob.FromHex("00"));
+
 			// Stop CatClaws from giving Bow&Arrows to companion
 			PutInBank(0x00, 0xdb9d, Blob.FromHex("EAEAEAEA"));
 
@@ -99,40 +103,6 @@ namespace FFMQLib
 
 			// Start with 50 bombs so we don't need to update when acquiring them
 			PutInBank(0x0C, 0xd0e0, Blob.FromHex("32"));
-		}
-		public void CompanionRoutines()
-		{
-			// Check char opcode
-			PutInBank(0x11, 0x8400, Blob.FromHex("08E230A717E617AE9010E0FFF00DCD920EF00E186904CD920EF00628A71785176B28E617E6176B"));
-			PutInBank(0x00, 0xff00, Blob.FromHex("2200841160"));
-
-			// Switch companion code
-			var companionSwitch = new ScriptBuilder(new List<string>{
-				$"050f{(int)Companion.Kaeli:X2}[06]",
-				$"2e{(int)NewGameFlagsList.KaeliCured:X2}[08]",                  // 01 is Elixir Quest done?
-				$"2e{(int)NewGameFlagsList.ShowSickKaeli:X2}[09]",               // 02 No, is Kaeli Sick?
-				$"23{(int)NewGameFlagsList.ShowForestaKaeli:X2}00",              // 03 No, show Foresta
-				$"23{(int)NewGameFlagsList.ShowWindiaKaeli:X2}",                 // 04 then available in Windia
-				"00",															 // 05
-				$"050f{(int)Companion.Tristam:X2}[11]",
-				$"23{(int)NewGameFlagsList.ShowFireburgTristam:X2}",	         // 07 Tristam is at Fireburg
-				$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[13]", // 08 Is bone quest done?
-				$"23{(int)NewGameFlagsList.ShowSandTempleTristam:X2}",           // 09 No, show at Sand Temple
-				"00",												             // 10
-				$"050f{(int)Companion.Phoebe:X2}[16]",
-				$"2e{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[16]",       // 12 is WintryCave Quest done?
-				$"23{(int)NewGameFlagsList.ShowLibraTemplePhoebe:X2}00",         // 13 No, show in Libra Temple
-				$"23{(int)NewGameFlagsList.ShowWindiaPhoebe:X2}",		         // 14 Yes, show in Windia
-				"00",												             // 15
-				$"050f{(int)Companion.Reuben:X2}[18]",
-				$"23{(int)NewGameFlagsList.ShowFireburgReuben:X2}00",            // 17 Reuben is always in Fireburg
-				"00",
-				});
-
-			companionSwitch.Update(0xFF80);
-			companionSwitch.Write(this);
-
-			PutInBank(0x00, 0x9e8c, Blob.FromHex("00ff"));
 		}
 	}
 }

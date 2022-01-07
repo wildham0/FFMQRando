@@ -8,6 +8,11 @@ using System.Security.Cryptography;
 
 namespace FFMQLib
 {
+	public static class Metadata
+	{
+		public static string Version = "0.2.0-alpha";
+	}
+	
 	public partial class FFMQRom : SnesRom
 	{
 
@@ -103,7 +108,7 @@ namespace FFMQLib
 
 			MapObjects.SetEnemiesDensity(flags, rng);
 			MapObjects.ShuffleEnemiesPosition(mapList, flags, rng);
-			enemiesAttacks.ScaleAttacks(flags, rng);
+			//enemiesAttacks.ScaleAttacks(flags, rng);
 			enemiesStats.ScaleEnemies(flags, rng);
 			nodeLocations.OpenNodes();
 
@@ -369,6 +374,10 @@ namespace FFMQLib
 
 			TileScripts.AddScript((int)TileScriptsList.EnterPhoebesHouse,
 				new ScriptBuilder(new List<string> { "2C0A0200" }));
+
+			// Move girl that blocks Aquaria Seller's House
+			MapObjects[0x18][0x02].X = 0x06;
+			MapObjects[0x19][0x02].X = 0x26;
 
 			// Seller in Aquaria
 			TalkScripts.AddScript((int)TalkScriptsList.AquariaSellerGirl,
@@ -823,6 +832,19 @@ namespace FFMQLib
 					"2C114000",
 					"2C114100",
 					"2C114300"
+				}));
+
+			// Phoebe Windia
+			MapObjects[0x52][0x02].Value = (byte)TalkScriptsList.PhoebeInAquaria;
+			TalkScripts.AddScript((int)TalkScriptsList.PhoebeInAquaria,
+				new ScriptBuilder(new List<string>{
+					TextToHex("Finally, my quest to slay the Dark King is coming to an end! Come, my assistant.") + "36",
+					"2C1243",
+					"2C4246",
+					"0880FF",
+					$"05E6{(int)Companion.PhoebePromo:X2}085B85",
+					$"2B{(int)NewGameFlagsList.ShowWindiaPhoebe:X2}",
+					"00"
 				}));
 
 			// Otto
