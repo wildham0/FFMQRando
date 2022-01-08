@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "0.2.1-alpha";
+		public static string Version = "0.2.2-alpha";
 	}
 	
 	public partial class FFMQRom : SnesRom
@@ -128,7 +128,9 @@ namespace FFMQLib
 			}
 
 
+			
 			UpdateScripts(itemsPlacement, rng);
+			Battlefields.PlaceItems(itemsPlacement, this);
 
 			credits.Update();
 

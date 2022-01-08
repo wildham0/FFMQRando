@@ -126,6 +126,14 @@ namespace FFMQLib
 			_battlesQty = rom.GetFromBank(0x0C, 0xD4D0, BattlefieldsQty).Chunk(1).Select(x => x[0]).ToList();
 		}
 
+		public void PlaceItems(ItemsPlacement itemsPlacement, FFMQRom rom)
+		{
+			rom.PutInBank(0x07, 0xEFA3, new byte[] { (byte)itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.ForestaWestBattlefield).Content });
+			rom.PutInBank(0x07, 0xEFAB, new byte[] { (byte)itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.AquariaBattlefield03).Content });
+			rom.PutInBank(0x07, 0xEFB3, new byte[] { (byte)itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.LibraBattlefield01).Content });
+			rom.PutInBank(0x07, 0xEFB9, new byte[] { (byte)itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.FireburgBattlefield02).Content });
+			rom.PutInBank(0x07, 0xEFBF, new byte[] { (byte)itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.MineBattlefield02).Content });
+		}
 		public void SetBattlesQty(Flags flags, MT19337 rng)
 		{
 			int battleQty = 10;

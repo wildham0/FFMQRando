@@ -21,7 +21,7 @@ namespace FFMQLib
 				badPlacement = false;
 				List<Items> itemsList = RandomizeItemsOrder(rng);
 
-				ItemsLocations = new(ItemLocations.AllChestsNPCs().ToList());
+				ItemsLocations = new(ItemLocations.AllChestsNPCsBattlefields().ToList());
 
 				List<Items> placedItems = new();
 
@@ -54,7 +54,7 @@ namespace FFMQLib
 					itemsList.RemoveAt(0);
 					targetLocation.Content = itemToPlace;
 					placedItems.Add(itemToPlace);
-					Console.WriteLine(Enum.GetName(targetLocation.Location) + " - " + Enum.GetName(itemToPlace));
+					//Console.WriteLine(Enum.GetName(targetLocation.Location) + " - " + Enum.GetName(itemToPlace));
 
 					List<AccessReqs> result;
 					if (ItemLocations.ItemAccessReq.TryGetValue(itemToPlace, out result))
@@ -67,10 +67,10 @@ namespace FFMQLib
 				}
 
 				var unfiledValidLocations = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.Content == Items.None).ToList();
-				Console.WriteLine("**** Unfiled Locations ****");
+				//Console.WriteLine("**** Unfiled Locations ****");
 				foreach (var loc in unfiledValidLocations)
 				{
-					Console.WriteLine(Enum.GetName(loc.Location) + " - " + loc.ObjectId);
+					//Console.WriteLine(Enum.GetName(loc.Location) + " - " + loc.ObjectId);
 				}
 			}
 		}
@@ -104,11 +104,11 @@ namespace FFMQLib
 				Items.Mask,
 				Items.MagicMirror,
 				Items.LibraCrest,
-				//Items.GeminiCrest, //Battlefield
+				Items.GeminiCrest, //Battlefield
 			};
 			List<Items> Gear = new()
 			{
-				//Items.ExitBook, //Battlefield
+				Items.ExitBook, //Battlefield
 				Items.CureBook,
 				Items.HealBook,
 				Items.LifeBook,
@@ -116,7 +116,7 @@ namespace FFMQLib
 				Items.BlizzardBook,
 				Items.FireBook,
 				Items.AeroBook,
-				//Items.ThunderSeal //Battlefield
+				Items.ThunderSeal, //Battlefield
 				Items.WhiteSeal,
 				Items.MeteorSeal,
 				Items.FlareSeal,
@@ -129,8 +129,8 @@ namespace FFMQLib
 				Items.SteelShield,
 				Items.VenusShield, //Chest-NPC
 				Items.AegisShield,
-				//Items.Charm //Battlefield
-				//Items.MagicRing //Battlefield
+				Items.Charm, //Battlefield
+				Items.MagicRing, //Battlefield
 				Items.CupidLock // NPC
 			};
 

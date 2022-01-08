@@ -175,7 +175,8 @@ namespace FFMQLib
 	{
 		Chest = 1,
 		Box,
-		NPC
+		NPC,
+		Battlefield
 	}
 	public enum Companion : int
 	{
