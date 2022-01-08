@@ -20,10 +20,14 @@ jobs:
     - name: Publish webasm
       run: dotnet publish FFMQWebAsm -c Release --no-build -o publishoutput
     - name: Publish to netlify
-      uses: netlify/actions/cli@master 
+      uses: nwtgck/actions-netlify@v1.2 
       env: 
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
       with:
-        args: deploy --dir=publishoutput/wwwroot --prod
-        secrets: '["NETLIFY_AUTH_TOKEN", "NETLIFY_SITE_ID"]' 
+          publish-dir: './publishoutput/wwwroot'
+          production-branch: master
+          deploy-message: "Deploy from GitHub Actions"
+          enable-pull-request-comment: false
+          enable-commit-comment: false
+          overwrites-pull-request-comment: false
