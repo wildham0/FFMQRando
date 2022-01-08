@@ -394,6 +394,29 @@ namespace FFMQLib
 					"0ABFFE"
 				}));
 
+			// Bomb vendor in Aquaria
+			TalkScripts.AddMobileScript((int)TalkScriptsList.AquariaInnKeeper);
+			TalkScripts.AddMobileScript((int)TalkScriptsList.AquariaPotionVendor);
+			
+			TalkScripts.AddScript((int)TalkScriptsList.AquariaExplosiveVendor,
+				new ScriptBuilder(new List<string>{
+					"2D" + ScriptItemFlags[Items.Bomb].Item1,
+					$"050c" + ScriptItemFlags[Items.Bomb].Item2 + "[08]",
+					"2D" + ScriptItemFlags[Items.JumboBomb].Item1,
+					$"050c" + ScriptItemFlags[Items.JumboBomb].Item2 + "[08]",
+					"2D" + ScriptItemFlags[Items.MegaGrenade].Item1,
+					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[08]",
+					TextToHex("Look, I'm a busy person. Figure out which kind of explosives you want first, then come back."),
+					"00",
+					"0C0015DD",
+					"23FC",
+					"0A2BFE"
+				}));
+
+			// Update Fireburg and Windia Bomb vendors to same script
+			MapObjects[0x2F][0x01].Value = (byte)TalkScriptsList.AquariaExplosiveVendor;
+			MapObjects[0x52][0x09].Value = (byte)TalkScriptsList.AquariaExplosiveVendor;
+
 			/*** Wintry Cave ***/
 			// Wintry Cave
 			GameFlags[(int)GameFlagsList.WintryCaveCollapsed] = true;

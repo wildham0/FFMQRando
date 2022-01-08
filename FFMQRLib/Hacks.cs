@@ -99,7 +99,7 @@ namespace FFMQLib
 			PutInBank(0x00, 0xdb9d, Blob.FromHex("EAEAEAEA"));
 
 			// Phoebe1 start with Bow&Arrows
-			PutInBank(0x0C, 0xd1d1, Blob.FromHex("2D"));
+			PutInBank(0x0C, 0xd1d1, Blob.FromHex("2D0004"));
 
 			// Start with 50 bombs so we don't need to update when acquiring them
 			PutInBank(0x0C, 0xd0e0, Blob.FromHex("32"));
