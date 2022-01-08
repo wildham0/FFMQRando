@@ -3,9 +3,29 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using RomUtilities;
+using System.ComponentModel;
 
 namespace FFMQLib
 {
+	public enum BattlesQty : int
+	{
+		[Description("10")]
+		Ten = 0,
+		[Description("7")]
+		Seven,
+		[Description("5")]
+		Five,
+		[Description("3")]
+		Three,
+		[Description("1")]
+		One,
+		[Description("Random 1-10")]
+		RandomHigh,
+		[Description("Random 1-5")]
+		RandomLow,
+
+	}
+
 	public class ChestLocation
 	{
 		public int ObjectId { get; set; }
@@ -94,6 +114,45 @@ namespace FFMQLib
 			}
 		}
 
+	}
+	public class Battlefields
+	{
+
+		private List<byte> _battlesQty;
+		private const int BattlefieldsQty = 0x14;
+
+		public Battlefields(FFMQRom rom)
+		{
+			_battlesQty = rom.GetFromBank(0x0C, 0xD4D0, BattlefieldsQty).Chunk(1).Select(x => x[0]).ToList();
+		}
+
+		public void SetBattlesQty(Flags flags, MT19337 rng)
+		{
+			int battleQty = 10;
+			bool randomQty = false;
+
+			switch (flags.BattlesQuantity)
+			{
+				case BattlesQty.Ten: return;
+				case BattlesQty.Seven: battleQty = 7; break;
+				case BattlesQty.Five: battleQty = 5; break;
+				case BattlesQty.Three: battleQty = 3; break;
+				case BattlesQty.One: battleQty = 1; break;
+				case BattlesQty.RandomHigh: battleQty = 10; randomQty = true; break;
+				case BattlesQty.RandomLow: battleQty = 5; randomQty = true; break;
+			}
+
+			for (int i = 0; i < _battlesQty.Count; i++)
+			{ 
+				_battlesQty[i] = randomQty ? (byte)rng.Between(1, battleQty) : (byte)battleQty;
+			}
+		}
+
+		public void Write(FFMQRom rom)
+		{
+			rom.PutInBank(0x0C, 0xD4D0, _battlesQty.ToArray());
+		}
+	
 	}
 	public class NodeLocations
 	{

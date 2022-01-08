@@ -21,6 +21,7 @@ namespace FFMQLib
 		public GameFlags GameFlags;
 		public GameScriptManager TileScripts;
 		public GameScriptManager TalkScripts;
+		public Battlefields Battlefields;
 
 		public override bool Validate()
 		{
@@ -90,6 +91,7 @@ namespace FFMQLib
 			//ExitList exits = new(this);
 			TalkScripts = new(this, RomOffsets.TalkScriptsPointers, RomOffsets.TalkScriptPointerQty, RomOffsets.TalkScriptOffset, RomOffsets.TalkScriptEndOffset);
 			TileScripts = new(this, RomOffsets.TileScriptsPointers, RomOffsets.TileScriptPointerQty, RomOffsets.TileScriptOffset, RomOffsets.TileScriptEndOffset);
+			Battlefields = new(this);
 			MapChanges = new(this);
 
 			List<Map> mapList = new();
@@ -111,6 +113,7 @@ namespace FFMQLib
 			//enemiesAttacks.ScaleAttacks(flags, rng);
 			enemiesStats.ScaleEnemies(flags, rng);
 			nodeLocations.OpenNodes();
+			Battlefields.SetBattlesQty(flags, rng);
 
 
 
@@ -137,6 +140,7 @@ namespace FFMQLib
 			TalkScripts.Write(this);
 			GameFlags.Write(this);
 			nodeLocations.Write(this);
+			Battlefields.Write(this);
 			MapObjects.WriteAll(this);
 		}
 		public void UpdateScripts(ItemsPlacement fullItemsPlacement, MT19337 rng)

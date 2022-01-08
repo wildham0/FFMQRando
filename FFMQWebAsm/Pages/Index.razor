@@ -98,6 +98,15 @@
         }
     </Select>
 </Field>
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Battlefields Battles Quantity</FieldLabel> 
+    <Select @bind-SelectedValue="@flags.BattlesQuantity">
+        @foreach(var item in Enum.GetValues<FFMQLib.BattlesQty>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
 
 <div><br /><br /><br /></div>
 
