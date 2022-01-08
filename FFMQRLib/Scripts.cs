@@ -10,6 +10,7 @@ namespace FFMQLib
 	{
 		private List<ScriptEntry> _scripts;
 		private Dictionary<int, ScriptBuilder> _newScripts;
+		private List<int> _enableMoveScripts;
 		private int PointersPosition;
 		private int PointersQty;
 		private int ScriptsStart;
@@ -39,6 +40,7 @@ namespace FFMQLib
 			ScriptsEnd = scriptsEnd;
 			_scripts = new();
 			_newScripts = new Dictionary<int, ScriptBuilder>();
+			_enableMoveScripts = new();
 
 			List<int> ScriptsPointers = rom.Get(PointersPosition, PointersQty * 2).Chunk(2).Select(x => x[1] * 0x100 + x[0]).ToList();
 
@@ -66,6 +68,10 @@ namespace FFMQLib
 			_newScripts.Add(index, newscript);
 		}
 
+		public void AddMobileScript(int index)
+		{
+			_enableMoveScripts.Add(index);
+		}
 		public void Dump()
 		{
 			for (int i = 0; i < _scripts.Count; i++)
@@ -87,11 +93,16 @@ namespace FFMQLib
 
 				if (changedscripts.Any())
 				{
-					Console.WriteLine(offset);
+					//Console.WriteLine(offset);
 					_scripts[i].Script = changedscripts.First().Update(offset);
 					_scripts[i].Pointer = offset;
 					offset += _scripts[i].Script.Length;
-					Console.WriteLine(String.Concat(Array.ConvertAll(_scripts[i].Script, x => x.ToString("X2"))));
+					//Console.WriteLine(String.Concat(Array.ConvertAll(_scripts[i].Script, x => x.ToString("X2"))));
+				}
+				else if (_scripts[i].Positions.Where(x => _enableMoveScripts.Contains(x)).Any())
+				{
+					_scripts[i].Pointer = offset;
+					offset += _scripts[i].Script.Length;
 				}
 				else
 				{

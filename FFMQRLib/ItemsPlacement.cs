@@ -83,7 +83,7 @@ namespace FFMQLib
 			List<Items> ProgressionSwords = new() { Items.SteelSword, Items.KnightSword, Items.Excalibur };
 			List<Items> ProgressionAxes = new() { Items.Axe, Items.BattleAxe, Items.GiantsAxe };
 			List<Items> ProgressionClaws = new() { Items.CatClaw, Items.CharmClaw };
-			List<Items> InitialProgressionItems = new() { Items.SandCoin, Items.RiverCoin, Items.SunCoin };
+			List<Items> InitialProgressionItems = new() { Items.SandCoin, Items.RiverCoin };
 			List<Items> ProgressionItems = new()
 			{
 				Items.TreeWither, // NPC
@@ -95,11 +95,12 @@ namespace FFMQLib
 				Items.SkyCoin,
 				Items.DragonClaw, // NPC
 				Items.MegaGrenade, //NPC
+				Items.SunCoin,
+				Items.Elixir, // NPC
+				Items.WakeWater, // NPC
 			};
 			List<Items> NonProgressionItems = new()
 			{
-				Items.Elixir, // NPC
-				Items.WakeWater, // NPC
 				Items.Mask,
 				Items.MagicMirror,
 				Items.LibraCrest,
@@ -146,9 +147,8 @@ namespace FFMQLib
 			// Select Inital Progression
 			InitialProgressionItems.Add(rng.TakeFrom(ProgressionBombs));
 			FinalItems.Add(rng.TakeFrom(InitialProgressionItems));
-			//rng.Pick
+
 			// Build Progression Items List
-			//ProgressionSwords.S
 			ProgressionItems.Add(rng.TakeFrom(ProgressionSwords));
 			ProgressionItems.Add(rng.TakeFrom(ProgressionBombs));
 			ProgressionItems.Add(rng.TakeFrom(ProgressionAxes));
@@ -163,15 +163,20 @@ namespace FFMQLib
 			NonProgressionItems.AddRange(ProgressionClaws);
 
 			// Fill 3 tiers
+			// Tier3 is 5 random piece of gear
 			Gear.Shuffle(rng);
 			List<Items> Tier3 = Gear.GetRange(0, 5);
 			Gear.RemoveRange(0, 5);
+
+			// Tier1 is 5 random progression item, 5 random non progression+gear
 			NonProgressionItems.AddRange(Gear);
 			NonProgressionItems.Shuffle(rng);
 			List<Items> Tier1 = ProgressionItems.GetRange(0, 5);
 			ProgressionItems.RemoveRange(0, 5);
 			Tier1.AddRange(NonProgressionItems.GetRange(0, 5));
 			NonProgressionItems.RemoveRange(0, 5);
+			
+			// Tier2 is everything else
 			List<Items> Tier2 = ProgressionItems.ToList();
 			Tier2.AddRange(NonProgressionItems);
 

@@ -486,9 +486,9 @@ namespace FFMQLib
 		AquariaPeople0a,
 		AquariaPeople0b,
 		AquariaSellerGirl,
-		ExplosiveVendor,
-		AquariaPeople0c,
-		Vendor, // Selling something
+		AquariaExplosiveVendor,
+		AquariaPotionVendor,
+		AquariaInnKeeper, // Selling something
 		FightSquid, 
 		Unknown2e, // crash
 		FightCrab,
@@ -514,6 +514,7 @@ namespace FFMQLib
 		FightHeadlessKnight = 0x54,
 		KaeliWindia = 0x5B,
 		Otto = 0x5C,
+		WindiaExplosiveVendor = 0x66,
 		WindiaSellerGirl = 0x67,
 		CaptainMacOnShip = 0x75,
 		VenusChest = 0x7B,
