@@ -724,6 +724,40 @@ namespace FFMQLib
 				}));
 
 			/*** Mine ***/
+			// Prevent softlock by gating usage of the elevators with claws.
+			TalkScripts.AddMobileScript((int)TalkScriptsList.MysteriousManSealedTemple);
+			TalkScripts.AddMobileScript((int)TalkScriptsList.MineElevatorCenter);
+			TalkScripts.AddMobileScript((int)TalkScriptsList.MineElevatorBottomRight);
+
+			TalkScripts.AddScript((int)TalkScriptsList.MineElevatorTop,
+				new ScriptBuilder(new List<string>
+				{
+					"04",
+					"2D" + ScriptItemFlags[Items.CatClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.CatClaw].Item2 + "[09]",
+					"2D" + ScriptItemFlags[Items.CharmClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.CharmClaw].Item2 + "[09]",
+					"2D" + ScriptItemFlags[Items.DragonClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.DragonClaw].Item2 + "[09]",
+					"1A48" + TextToHex("You'll need some kind of claw to operate this."),
+					"00",
+					"2C222500",
+				}));
+
+			TalkScripts.AddScript((int)TalkScriptsList.MineElevatorEntrance,
+				new ScriptBuilder(new List<string>
+				{
+					"04",
+					"2D" + ScriptItemFlags[Items.CatClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.CatClaw].Item2 + "[09]",
+					"2D" + ScriptItemFlags[Items.CharmClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.CharmClaw].Item2 + "[09]",
+					"2D" + ScriptItemFlags[Items.DragonClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.DragonClaw].Item2 + "[09]",
+					"1A49" + TextToHex("You'll need some kind of claw to operate this."),
+					"00",
+					"2C232500",
+				}));
 
 			// Throw Mega Grenade
 			TileScripts.AddScript((int)TileScriptsList.BlowingOffMineBoulder,
