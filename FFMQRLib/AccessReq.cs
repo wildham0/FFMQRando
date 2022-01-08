@@ -241,18 +241,23 @@ namespace FFMQLib
 		public static TreasureObject DoomCastle04 = new TreasureObject(0xE7, (int)MapList.DoomCastleIce, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword, AccessReqs.DragonClaw });
 		public static TreasureObject DoomCastle06 = new TreasureObject(0xE8, (int)MapList.DoomCastleIce, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword, AccessReqs.DragonClaw });
 		public static TreasureObject DoomCastle07 = new TreasureObject(0xE9, (int)MapList.DoomCastleIce, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword, AccessReqs.DragonClaw });
-		public static TreasureObject DoomCastle08 = new TreasureObject(0x0EA, (int)MapList.DoomCastleIce, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword, AccessReqs.DragonClaw });
-		public static TreasureObject DoomCastle09 = new TreasureObject(0x0EB, (int)MapList.DoomCastleLava, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { });
-		public static TreasureObject DoomCastle10 = new TreasureObject(0x0EC, (int)MapList.DoomCastleLava, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { });
-		public static TreasureObject DoomCastle11 = new TreasureObject(0x0ED, (int)MapList.DoomCastleLava, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { });
-		public static TreasureObject DoomCastle12 = new TreasureObject(0x0EE, (int)MapList.DoomCastleLava, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { });
-		public static TreasureObject DoomCastle13 = new TreasureObject(0x0EF, (int)MapList.DoomCastleSky, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { });
-		public static TreasureObject DoomCastle14 = new TreasureObject(0x0F0, (int)MapList.DoomCastleSky, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { });
-		public static TreasureObject DoomCastle15 = new TreasureObject(0x0F2, (int)MapList.DoomCastleHero, Locations.DoomCastle, TreasureType.Chest, new List<AccessReqs> { });
-		public static TreasureObject DoomCastle16 = new TreasureObject(0x0F3, (int)MapList.DoomCastleHero, Locations.DoomCastle, TreasureType.Chest, new List<AccessReqs> { });
-		public static TreasureObject DoomCastle17 = new TreasureObject(0x0F4, (int)MapList.DoomCastleHero, Locations.DoomCastle, TreasureType.Chest, new List<AccessReqs> { });
-		public static TreasureObject DoomCastle18 = new TreasureObject(0x0F5, (int)MapList.DoomCastleHero, Locations.DoomCastle, TreasureType.Chest, new List<AccessReqs> { });
+		public static TreasureObject DoomCastle08 = new TreasureObject(0xEA, (int)MapList.DoomCastleIce, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword, AccessReqs.DragonClaw });
+		public static TreasureObject DoomCastle09 = new TreasureObject(0xEB, (int)MapList.DoomCastleLava, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { });
+		public static TreasureObject DoomCastle10 = new TreasureObject(0xEC, (int)MapList.DoomCastleLava, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { });
+		public static TreasureObject DoomCastle11 = new TreasureObject(0xED, (int)MapList.DoomCastleLava, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { });
+		public static TreasureObject DoomCastle12 = new TreasureObject(0xEE, (int)MapList.DoomCastleLava, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { });
+		public static TreasureObject DoomCastle13 = new TreasureObject(0xEF, (int)MapList.DoomCastleSky, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { });
+		public static TreasureObject DoomCastle14 = new TreasureObject(0xF0, (int)MapList.DoomCastleSky, Locations.DoomCastle, TreasureType.Box, new List<AccessReqs> { });
+		public static TreasureObject DoomCastle15 = new TreasureObject(0xF2, (int)MapList.DoomCastleHero, Locations.DoomCastle, TreasureType.Chest, new List<AccessReqs> { });
+		public static TreasureObject DoomCastle16 = new TreasureObject(0xF3, (int)MapList.DoomCastleHero, Locations.DoomCastle, TreasureType.Chest, new List<AccessReqs> { });
+		public static TreasureObject DoomCastle17 = new TreasureObject(0xF4, (int)MapList.DoomCastleHero, Locations.DoomCastle, TreasureType.Chest, new List<AccessReqs> { });
+		public static TreasureObject DoomCastle18 = new TreasureObject(0xF5, (int)MapList.DoomCastleHero, Locations.DoomCastle, TreasureType.Chest, new List<AccessReqs> { });
 
+		public static TreasureObject ForestaBattlefieldReward = new TreasureObject(0x01, (int)MapList.Overworld, Locations.ForestaWestBattlefield, TreasureType.Battlefield, new List<AccessReqs> { });
+		public static TreasureObject AquariaBattlefieldReward = new TreasureObject(0x02, (int)MapList.Overworld, Locations.AquariaBattlefield03, TreasureType.Battlefield, new List<AccessReqs> { });
+		public static TreasureObject LibraBattlefieldReward = new TreasureObject(0x03, (int)MapList.Overworld, Locations.LibraBattlefield01, TreasureType.Battlefield, new List<AccessReqs> { });
+		public static TreasureObject FireburgBattlefieldReward = new TreasureObject(0x04, (int)MapList.Overworld, Locations.FireburgBattlefield02, TreasureType.Battlefield, new List<AccessReqs> { });
+		public static TreasureObject MineBattlefieldReward = new TreasureObject(0x05, (int)MapList.Overworld, Locations.MineBattlefield02, TreasureType.Battlefield, new List<AccessReqs> { });
 
 		public static TreasureObject BoulderOldMan = new TreasureObject((int)ItemGivingNPCs.BoulderOldMan, (int)MapList.LevelAliveForest, Locations.LevelForest, TreasureType.NPC, new List<AccessReqs> { });
 		public static TreasureObject KaeliForesta = new TreasureObject((int)ItemGivingNPCs.KaeliForesta, (int)MapList.LevelAliveForest, Locations.LevelForest, TreasureType.NPC, new List<AccessReqs> { AccessReqs.TreeWither });
@@ -324,6 +329,29 @@ namespace FFMQLib
 			//return properties.ToList();
 			return properties.Where(x => x.Type == TreasureType.NPC || (x.Type == TreasureType.Chest && x.ObjectId < 0x30)).ToList();
 		}
+		public static List<TreasureObject> AllChestsNPCsBattlefields()
+		{
+			List<TreasureObject> properties = new();
+			ItemLocations instance = new();
+			//Type type = typeof(ItemLocations);
+			foreach (FieldInfo prop in typeof(ItemLocations).GetFields())
+			{
+				if (prop.FieldType == typeof(TreasureObject))
+				{
+					properties.Add(new TreasureObject((TreasureObject)prop.GetValue(instance)));
+				}
+
+			}
+
+			for (int i = 0; i < properties.Count; i++)
+			{
+				properties[i].AccessRequirements.AddRange(LocationAccessReq[properties[i].Location]);
+				//properties[i].Content = Items.None;
+			}
+
+			//return properties.ToList();
+			return properties.Where(x => x.Type == TreasureType.NPC || (x.Type == TreasureType.Chest && x.ObjectId < 0x30) || x.Type == TreasureType.Battlefield).ToList();
+		}
 		public static List<TreasureObject> AllNPCsItems()
 		{
 			List<TreasureObject> properties = new();
@@ -356,6 +384,25 @@ namespace FFMQLib
 
 		public static Dictionary<Locations, List<AccessReqs>> LocationAccessReq => new Dictionary<Locations, List<AccessReqs>>
 		{
+			{ Locations.ForestaSouthBattlefield, new List<AccessReqs> { } },
+			{ Locations.ForestaWestBattlefield, new List<AccessReqs> { } },
+			{ Locations.ForestaEastBattlefield, new List<AccessReqs> { } },
+			{ Locations.AquariaBattlefield01, new List<AccessReqs> { AccessReqs.SandCoin } },
+			{ Locations.AquariaBattlefield02, new List<AccessReqs> { AccessReqs.SandCoin } },
+			{ Locations.AquariaBattlefield03, new List<AccessReqs> { AccessReqs.SandCoin } },
+			{ Locations.WintryBattlefield01, new List<AccessReqs> { AccessReqs.SandCoin } },
+			{ Locations.WintryBattlefield02, new List<AccessReqs> { AccessReqs.SandCoin } },
+			{ Locations.PyramidBattlefield01, new List<AccessReqs> { AccessReqs.SandCoin } },
+			{ Locations.LibraBattlefield01, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater } },
+			{ Locations.LibraBattlefield02, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater } },
+			{ Locations.FireburgBattlefield01, new List<AccessReqs> { AccessReqs.RiverCoin } },
+			{ Locations.FireburgBattlefield02, new List<AccessReqs> { AccessReqs.RiverCoin } },
+			{ Locations.FireburgBattlefield03, new List<AccessReqs> { AccessReqs.RiverCoin } },
+			{ Locations.MineBattlefield01, new List<AccessReqs> { AccessReqs.RiverCoin } },
+			{ Locations.MineBattlefield02, new List<AccessReqs> { AccessReqs.RiverCoin } },
+			{ Locations.VolcanoBattlefield01, new List<AccessReqs> { AccessReqs.RiverCoin } },
+			{ Locations.WindiaBattlefield01, new List<AccessReqs> { AccessReqs.SunCoin } },
+			{ Locations.WindiaBattlefield02, new List<AccessReqs> { AccessReqs.SunCoin } },
 			{ Locations.HillOfDestiny, new List<AccessReqs> { } },
 			{ Locations.LevelForest, new List<AccessReqs> { } },
 			{ Locations.Foresta, new List<AccessReqs> { } },

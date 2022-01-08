@@ -32,6 +32,8 @@ namespace FFMQRWin
             rng.NextBytes(seed);
             textBox2.Text = seed.ToHex();
             comboBox1.DataSource = Enum.GetValues<FFMQLib.EnemiesDensity>();
+            comboBox2.DataSource = Enum.GetValues<FFMQLib.BattlesQty>();
+
             trackBar1.TickFrequency = 1;
             trackBar1.Maximum = Enum.GetValues<FFMQLib.EnemiesScaling>().Length - 1;
             trackBar1.Minimum = 0;
@@ -166,6 +168,7 @@ namespace FFMQRWin
                 flags.ReadFlagString(((TextBox)sender).Text);
                 checkBox2.Checked = flags.ShuffleEnemiesPosition;
                 comboBox1.SelectedItem = flags.EnemiesDensity;
+                comboBox2.SelectedItem = flags.BattlesQuantity;
                 trackBar1.Value = (int)flags.EnemiesScaling;
                 label6.Text = "Enemies Scaling: " + flags.EnemiesScaling.GetDescription();
                 trackBar2.Value = (int)flags.EnemiesScalingSpread;
@@ -206,7 +209,13 @@ namespace FFMQRWin
 
         private void button3_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("FFMQ Randomizer Beta v0.1.0\nMain Developer: wildham\ngithub: https://github.com/wildham0/ProjectFancyTitle");
+            MessageBox.Show("FFMQ Randomizer Beta v" + FFMQLib.Metadata.Version + "\nMain Developer: wildham\ngithub: https://github.com/wildham0/FFMQRando");
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            flags.BattlesQuantity = Enum.Parse<FFMQLib.BattlesQty>(((ComboBox)sender).SelectedItem.ToString());
+            textBox3.Text = flags.GenerateFlagString();
         }
     }
 }

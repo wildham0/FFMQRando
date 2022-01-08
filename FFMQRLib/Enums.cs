@@ -175,7 +175,8 @@ namespace FFMQLib
 	{
 		Chest = 1,
 		Box,
-		NPC
+		NPC,
+		Battlefield
 	}
 	public enum Companion : int
 	{
@@ -509,6 +510,11 @@ namespace FFMQLib
 		TristamInFireburg02,
 		Unknown3f, // I guess I'll head back to Aquaria, prob Tristam
 		FireburgSellerGirl,
+		MineElevatorTop = 0x48,
+		MineElevatorEntrance = 0x49,
+		MineElevatorCenter = 0x4A,
+		MineElevatorBottomRight = 0x4B,
+		MysteriousManSealedTemple = 0x4C, 
 		FightMedusa = 0x4D,
 		GiantTree = 0x4E,
 		FightHeadlessKnight = 0x54,

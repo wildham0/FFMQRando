@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "0.2.1-alpha";
+		public static string Version = "0.2.2-alpha";
 	}
 	
 	public partial class FFMQRom : SnesRom
@@ -21,6 +21,7 @@ namespace FFMQLib
 		public GameFlags GameFlags;
 		public GameScriptManager TileScripts;
 		public GameScriptManager TalkScripts;
+		public Battlefields Battlefields;
 
 		public override bool Validate()
 		{
@@ -90,6 +91,7 @@ namespace FFMQLib
 			//ExitList exits = new(this);
 			TalkScripts = new(this, RomOffsets.TalkScriptsPointers, RomOffsets.TalkScriptPointerQty, RomOffsets.TalkScriptOffset, RomOffsets.TalkScriptEndOffset);
 			TileScripts = new(this, RomOffsets.TileScriptsPointers, RomOffsets.TileScriptPointerQty, RomOffsets.TileScriptOffset, RomOffsets.TileScriptEndOffset);
+			Battlefields = new(this);
 			MapChanges = new(this);
 
 			List<Map> mapList = new();
@@ -111,6 +113,7 @@ namespace FFMQLib
 			//enemiesAttacks.ScaleAttacks(flags, rng);
 			enemiesStats.ScaleEnemies(flags, rng);
 			nodeLocations.OpenNodes();
+			Battlefields.SetBattlesQty(flags, rng);
 
 
 
@@ -125,7 +128,9 @@ namespace FFMQLib
 			}
 
 
+			
 			UpdateScripts(itemsPlacement, rng);
+			Battlefields.PlaceItems(itemsPlacement, this);
 
 			credits.Update();
 
@@ -137,6 +142,7 @@ namespace FFMQLib
 			TalkScripts.Write(this);
 			GameFlags.Write(this);
 			nodeLocations.Write(this);
+			Battlefields.Write(this);
 			MapObjects.WriteAll(this);
 		}
 		public void UpdateScripts(ItemsPlacement fullItemsPlacement, MT19337 rng)
@@ -724,6 +730,40 @@ namespace FFMQLib
 				}));
 
 			/*** Mine ***/
+			// Prevent softlock by gating usage of the elevators with claws.
+			TalkScripts.AddMobileScript((int)TalkScriptsList.MysteriousManSealedTemple);
+			TalkScripts.AddMobileScript((int)TalkScriptsList.MineElevatorCenter);
+			TalkScripts.AddMobileScript((int)TalkScriptsList.MineElevatorBottomRight);
+
+			TalkScripts.AddScript((int)TalkScriptsList.MineElevatorTop,
+				new ScriptBuilder(new List<string>
+				{
+					"04",
+					"2D" + ScriptItemFlags[Items.CatClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.CatClaw].Item2 + "[09]",
+					"2D" + ScriptItemFlags[Items.CharmClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.CharmClaw].Item2 + "[09]",
+					"2D" + ScriptItemFlags[Items.DragonClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.DragonClaw].Item2 + "[09]",
+					"1A48" + TextToHex("You'll need some kind of claw to operate this."),
+					"00",
+					"2C222500",
+				}));
+
+			TalkScripts.AddScript((int)TalkScriptsList.MineElevatorEntrance,
+				new ScriptBuilder(new List<string>
+				{
+					"04",
+					"2D" + ScriptItemFlags[Items.CatClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.CatClaw].Item2 + "[09]",
+					"2D" + ScriptItemFlags[Items.CharmClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.CharmClaw].Item2 + "[09]",
+					"2D" + ScriptItemFlags[Items.DragonClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.DragonClaw].Item2 + "[09]",
+					"1A49" + TextToHex("You'll need some kind of claw to operate this."),
+					"00",
+					"2C232500",
+				}));
 
 			// Throw Mega Grenade
 			TileScripts.AddScript((int)TileScriptsList.BlowingOffMineBoulder,
