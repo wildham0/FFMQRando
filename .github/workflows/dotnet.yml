@@ -23,7 +23,7 @@ jobs:
       uses: datamonsters/replace-action@v2
       id: sub
       with:
-         files: './publishoutput/wwwroot/service-worker.published.js'
+         files: '/home/runner/work/FFMQRando/FFMQRando/FFMQWebAsm/bin/Release/net6.0/wwwroot/service-worker.published.js'
          replacements: '%%CACHE_VERSION%%=${{ github.run_id }}'
     - name: Publish to netlify
       uses: nwtgck/actions-netlify@v1.2 
