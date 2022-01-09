@@ -21,9 +21,8 @@ jobs:
       run: dotnet publish FFMQWebAsm -c Release --no-build -o publishoutput
     - name: UpdateVersion
       uses: datamonsters/replace-action@v2
-      id: sub
       with:
-         files: '/home/runner/work/FFMQRando/FFMQRando/publishoutput/wwwroot/service-worker.published.js'
+         files: './wwwroot/service-worker.published.js'
          replacements: '%%CACHE_VERSION%%=${{ github.run_id }}'
     - name: Publish to netlify
       uses: nwtgck/actions-netlify@v1.2 
