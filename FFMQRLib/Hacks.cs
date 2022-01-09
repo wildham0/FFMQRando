@@ -37,6 +37,8 @@ namespace FFMQLib
 			Put(0x009BCD, Blob.FromHex("02")); // 9BCC > 9BCD ? 98CD
 			Put(0x009C7F, Blob.FromHex("07")); // 9C7E > 9C7F
 
+			// Fix mine elevator animation
+			PutInBank(0x01, 0xCD8C, Blob.FromHex("01"));
 
 			// Move CODE_018AE4 for space
 			//var CODE_018AE4 = Get(0x008AE4, 0x2F);
@@ -103,6 +105,9 @@ namespace FFMQLib
 
 			// Start with 50 bombs so we don't need to update when acquiring them
 			PutInBank(0x0C, 0xd0e0, Blob.FromHex("32"));
+
+			// Fix armor downgrading
+			PutInBank(0x00, 0xDBCE, Blob.FromHex("201490"));
 		}
 	}
 }
