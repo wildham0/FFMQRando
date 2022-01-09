@@ -50,7 +50,7 @@
 </Fields>
 
 <Field>
-    <Button Color="Color.Primary" Loading="@isLoading" Clicked="@Generate">Generate</Button>
+    <Button Color="Color.Primary" Loading="@isGenerating" Clicked="@OnGenerate" Disabled="@isLoadingRom">Generate</Button>
 </Field>
 
 <div><br /><br /><br /></div>
@@ -122,11 +122,13 @@
 
     private FFMQRom newRom = new();
     private long maxFileSize = 0x80000;
-    private bool isLoading = false;
+    private bool isLoadingRom = false;
+    private bool isGenerating = false;
+
     private Blob seed = new byte[4];
     private string showSeed;
     private Flags flags = new();
-
+    private bool generatedRom = false;
     private string seedMessage = "";
     private string romMessage = "";
     private string flagsMessage = "";
@@ -134,15 +136,25 @@
 
     private async Task OnGenerate()
     {
-        isLoading = true;
+        isGenerating = true;
+        StateHasChanged();
+        await Task.Delay(1);
         await Generate();
+        isGenerating = false;
     }
+
     private async Task Generate()
     {
         if (newRom.IsEmpty())
         {
             romMessage = "No file.";
             return;
+        }
+
+        if (generatedRom)
+        {
+            newRom.RestoreOriginalData();
+            generatedRom = false;
         }
 
         if (!newRom.Validate())
@@ -152,7 +164,7 @@
         }
 
         try
-        {
+        {            
             newRom.Randomize(seed, flags);
         }
         catch (Exception ex)
@@ -166,22 +178,28 @@
         using var streamRef = new DotNetStreamReference(stream: fs);
 
         await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
-        isLoading = false;
+        generatedRom = true;
     }
 
     private async Task LoadFiles(FileChangedEventArgs e)
     {
+        romMessage = "Loading...";
+        isLoadingRom = true;
+        StateHasChanged();
         try
         {
             await newRom.LoadAsync(e.Files.First().OpenReadStream(maxFileSize));
             if (!newRom.Validate())
             {
                 romMessage = "Invalid ROM file.";
+                isLoadingRom = false;
                 return;
             }
             else
             {
                 romMessage = "ROM file loaded succesfully.";
+                isLoadingRom = false;
+                newRom.BackupOriginalData();
             }
         }
         catch (Exception ex)

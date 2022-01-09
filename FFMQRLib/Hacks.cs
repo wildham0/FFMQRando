@@ -93,7 +93,7 @@ namespace FFMQLib
 			PutInBank(0x01, 0xF453, Blob.FromHex("3030"));
 
 			// Allow shattered tile to intercept MegaGrenade
-			PutInBank(0x06, 0xAE22, Blob.FromHex("00"));
+			PutInBank(0x06, 0xAE2A, Blob.FromHex("00"));
 
 			// Stop CatClaws from giving Bow&Arrows to companion
 			PutInBank(0x00, 0xdb9d, Blob.FromHex("EAEAEAEA"));

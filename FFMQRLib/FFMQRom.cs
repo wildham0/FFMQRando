@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "0.2.3-alpha";
+		public static string Version = "0.2.4-alpha";
 	}
 	
 	public partial class FFMQRom : SnesRom
@@ -22,6 +22,7 @@ namespace FFMQLib
 		public GameScriptManager TileScripts;
 		public GameScriptManager TalkScripts;
 		public Battlefields Battlefields;
+		private byte[] originalData;
 
 		public override bool Validate()
 		{
@@ -71,6 +72,16 @@ namespace FFMQLib
 			Blob newData = new byte[0x100000];
 			Array.Copy(Data, newData, 0x80000);
 			Data = newData;
+		}
+		public void BackupOriginalData()
+		{
+			originalData = new byte[0x80000];
+			Array.Copy(Data, originalData, 0x80000);
+		}
+		public void RestoreOriginalData()
+		{
+			Data = new byte[0x80000];
+			Array.Copy(originalData, Data, 0x80000);
 		}
 		public void Randomize(Blob seed, Flags flags)
 		{
