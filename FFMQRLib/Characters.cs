@@ -79,14 +79,14 @@ namespace FFMQLib
             // Switch companion code
             var companionSwitch = new ScriptBuilder(new List<string>{
                 $"050f{(int)Companion.Kaeli:X2}[06]",
-                $"2e{(int)NewGameFlagsList.KaeliCured:X2}[08]",                  // 01 is Elixir Quest done?
-				$"2e{(int)NewGameFlagsList.ShowSickKaeli:X2}[09]",               // 02 No, is Kaeli Sick?
+                $"2e{(int)NewGameFlagsList.KaeliCured:X2}[04]",                  // 01 is Elixir Quest done?
+				$"2e{(int)NewGameFlagsList.ShowSickKaeli:X2}[05]",               // 02 No, is Kaeli Sick?
 				$"23{(int)NewGameFlagsList.ShowForestaKaeli:X2}00",              // 03 No, show Foresta
 				$"23{(int)NewGameFlagsList.ShowWindiaKaeli:X2}",                 // 04 then available in Windia
 				"00",															 // 05
 				$"050f{(int)Companion.Tristam:X2}[11]",
                 $"23{(int)NewGameFlagsList.ShowFireburgTristam:X2}",	         // 07 Tristam is at Fireburg
-				$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[13]", // 08 Is bone quest done?
+				$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[10]", // 08 Is bone quest done?
 				$"23{(int)NewGameFlagsList.ShowSandTempleTristam:X2}",           // 09 No, show at Sand Temple
 				"00",												             // 10
 				$"050f{(int)Companion.Phoebe:X2}[16]",

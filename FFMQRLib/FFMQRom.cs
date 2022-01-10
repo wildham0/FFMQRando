@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "0.2.6-alpha";
+		public static string Version = "0.2.7-alpha";
 	}
 	
 	public partial class FFMQRom : SnesRom
@@ -262,13 +262,13 @@ namespace FFMQLib
 					"0F8B0E",
 					"057C01[13]",
 					"057C03[14]",
-					"2C4146",
+					"2C4246",
 					"0880FF",
 					$"05E6{(int)Companion.KaeliPromo:X2}085B85",
 					$"2B{(int)NewGameFlagsList.ShowSickKaeli:X2}23{(int)NewGameFlagsList.KaeliCured:X2}",
 					"00",
-					"2C114300",
-					"2C114100"
+					"2C124300",
+					"2C124100"
 				}));
 
 			/*** Sand Temple ***/
@@ -898,14 +898,14 @@ namespace FFMQLib
 					"057C02[16]",
 					"057C03[17]",
 					"057C01[18]",
-					"2C4146",
+					"2C4046",
 					"0880FF",
 					$"05E6{(int)Companion.KaeliPromo:X2}085B85",
 					$"2B{(int)NewGameFlagsList.ShowWindiaKaeli:X2}",
 					"00",
-					"2C114000",
-					"2C114100",
-					"2C114300"
+					"2C104000",
+					"2C104100",
+					"2C104300"
 				}));
 
 			// Phoebe Windia
