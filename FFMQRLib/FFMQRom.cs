@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "0.2.7-alpha";
+		public static string Version = "0.2.8-alpha";
 	}
 	
 	public partial class FFMQRom : SnesRom
@@ -22,6 +22,7 @@ namespace FFMQLib
 		public GameScriptManager TileScripts;
 		public GameScriptManager TalkScripts;
 		public Battlefields Battlefields;
+		public TilesProperties TilesProperties;
 		private byte[] originalData;
 
 		public override bool Validate()
@@ -95,6 +96,7 @@ namespace FFMQLib
 			NodeLocations nodeLocations = new(this);
 			EnemiesAttacks enemiesAttacks = new(this);
 			EnemiesStats enemiesStats = new(this);
+			TilesProperties = new(this);
 			MapObjects = new(this);
 			Credits credits = new(this);
 			//MapUtilities mapUtilities = new(this);
@@ -138,17 +140,16 @@ namespace FFMQLib
 				}
 			}
 
-
-			
 			UpdateScripts(itemsPlacement, rng);
-			Battlefields.PlaceItems(itemsPlacement, this);
+			Battlefields.PlaceItems(itemsPlacement);
 
 			credits.Update();
-
+			
 			credits.Write(this);
 			enemiesAttacks.Write(this);
 			enemiesStats.Write(this);
 			MapChanges.Write(this);
+			TilesProperties.Write(this);
 			TileScripts.Write(this);
 			TalkScripts.Write(this);
 			GameFlags.Write(this);
@@ -510,10 +511,7 @@ namespace FFMQLib
 				}));
 
 			// Exit Fall Basin
-			TileScripts.AddScript((int)TileScriptsList.FallBasinGiveJumboBomb,
-				new ScriptBuilder(new List<string> {
-					"00",
-				}));
+			TilesProperties[0x0A][0x22].Byte2 = 0x08;
 
 			/*** Ice Pyramid ***/
 			TileScripts.AddScript((int)TileScriptsList.EnterIcePyramid,
@@ -714,6 +712,26 @@ namespace FFMQLib
 					"00",
 					"1A3C" + TextToHex("Threathening an old man in his own home. Who do you think you are? A milkdrinking psychopath?") + "36",
 					"00"
+				}));
+
+			// Grenade Man's Door - Prevent softlock
+			// Set exit tile to jump to a script
+			TilesProperties[0x0C][0x46].Byte2 = 0x88;
+			// Hijack Phoebe's FallBasin script since we don't use it
+			PutInBank(0x05, 0xFBC2, Blob.FromHex($"{(int)TileScriptsList.FallBasinGiveJumboBomb:X2}")); 
+
+			TileScripts.AddScript((int)TileScriptsList.FallBasinGiveJumboBomb,
+				new ScriptBuilder(new List<string> {
+					"2D" + ScriptItemFlags[Items.MultiKey].Item1,
+					$"050D" + ScriptItemFlags[Items.MultiKey].Item2 + "[04]",
+					"2C5C00",
+					"00",
+					"2C3050",
+					"1A00" + TextToHex("It's locked...") + "36",
+					"2C2044",
+					"1B3C" + TextToHex("I'm not locked up in here with you, kid. You're locked up in here with me!") + "36",
+					"2C3044",
+					"00",
 				}));
 
 			// Tristam Fireburg

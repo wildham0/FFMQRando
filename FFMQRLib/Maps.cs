@@ -6,6 +6,43 @@ using RomUtilities;
 
 namespace FFMQLib
 {
+	public class TilesProperties
+	{
+		private List<List<SingleTile>> _tilesProperties;
+
+		public TilesProperties(FFMQRom rom)
+		{
+			_tilesProperties = rom.Get(RomOffsets.MapTileData, 0x10 * 0x100).Chunk(0x100).Select(x => x.Chunk(0x02).Select(y => new SingleTile(y)).ToList()).ToList();
+		}
+
+		public List<SingleTile> this[int propTableID]
+		{
+			get => _tilesProperties[propTableID];
+			set => _tilesProperties[propTableID] = value;
+		}
+
+		public void Write(FFMQRom rom)
+		{
+			rom.Put(RomOffsets.MapTileData, _tilesProperties.SelectMany(x => x.SelectMany(y => y.GetBytes())).ToArray());
+		}
+	}
+
+	public class SingleTile
+	{ 
+		public byte Byte1 { get; set; }
+		public byte Byte2 { get; set; }
+
+		public SingleTile(byte[] tileprop)
+		{
+			Byte1 = tileprop[0];
+			Byte2 = tileprop[1];
+		}
+
+		public byte[] GetBytes()
+		{
+			return new byte[] { Byte1, Byte2 };
+		}
+	}
 	public partial class FFMQRom : SnesRom
 	{
 		public static readonly byte[] BitConverter = { 0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };

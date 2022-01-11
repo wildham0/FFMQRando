@@ -120,19 +120,24 @@ namespace FFMQLib
 
 		private List<byte> _battlesQty;
 		private const int BattlefieldsQty = 0x14;
+		private Items ForestaWestBattlefield = Items.Charm;
+		private Items AquariaBattlefield03 = Items.MagicRing;
+		private Items LibraBattlefield01 = Items.ExitBook;
+		private Items FireburgBattlefield02 = Items.GeminiCrest;
+		private Items MineBattlefield02 = Items.ThunderSeal;
 
 		public Battlefields(FFMQRom rom)
 		{
 			_battlesQty = rom.GetFromBank(0x0C, 0xD4D0, BattlefieldsQty).Chunk(1).Select(x => x[0]).ToList();
 		}
 
-		public void PlaceItems(ItemsPlacement itemsPlacement, FFMQRom rom)
+		public void PlaceItems(ItemsPlacement itemsPlacement)
 		{
-			rom.PutInBank(0x07, 0xEFA3, new byte[] { (byte)itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.ForestaWestBattlefield).Content });
-			rom.PutInBank(0x07, 0xEFAB, new byte[] { (byte)itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.AquariaBattlefield03).Content });
-			rom.PutInBank(0x07, 0xEFB3, new byte[] { (byte)itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.LibraBattlefield01).Content });
-			rom.PutInBank(0x07, 0xEFB9, new byte[] { (byte)itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.FireburgBattlefield02).Content });
-			rom.PutInBank(0x07, 0xEFBF, new byte[] { (byte)itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.MineBattlefield02).Content });
+			ForestaWestBattlefield = itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.ForestaWestBattlefield).Content;
+			AquariaBattlefield03 = itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.AquariaBattlefield03).Content;
+			LibraBattlefield01 = itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.LibraBattlefield01).Content;
+			FireburgBattlefield02 = itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.FireburgBattlefield02).Content;
+			MineBattlefield02 = itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.MineBattlefield02).Content;
 		}
 		public void SetBattlesQty(Flags flags, MT19337 rng)
 		{
@@ -159,6 +164,12 @@ namespace FFMQLib
 		public void Write(FFMQRom rom)
 		{
 			rom.PutInBank(0x0C, 0xD4D0, _battlesQty.ToArray());
+
+			rom.PutInBank(0x07, 0xEFA3, new byte[] { (byte)ForestaWestBattlefield });
+			rom.PutInBank(0x07, 0xEFAB, new byte[] { (byte)AquariaBattlefield03 });
+			rom.PutInBank(0x07, 0xEFB3, new byte[] { (byte)LibraBattlefield01 });
+			rom.PutInBank(0x07, 0xEFB9, new byte[] { (byte)FireburgBattlefield02 });
+			rom.PutInBank(0x07, 0xEFBF, new byte[] { (byte)MineBattlefield02 });
 		}
 	
 	}

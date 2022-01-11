@@ -95,7 +95,8 @@ namespace FFMQLib
 			PutInBank(0x01, 0xF453, Blob.FromHex("3030"));
 
 			// Allow shattered tile to intercept MegaGrenade
-			PutInBank(0x06, 0xAE2A, Blob.FromHex("07"));
+			TilesProperties[0x06][0x15].Byte1 = 0x07;
+			//PutInBank(0x06, 0xAE2A, Blob.FromHex("07"));
 
 			// Stop CatClaws from giving Bow&Arrows to companion
 			PutInBank(0x00, 0xdb9d, Blob.FromHex("EAEAEAEA"));
@@ -108,6 +109,10 @@ namespace FFMQLib
 
 			// Fix armor downgrading
 			PutInBank(0x00, 0xDBCE, Blob.FromHex("201490"));
+
+			// Fix Giant Tree Axe-less softlock by blocking access from outside the forest
+			PutInBank(0x03, 0xA4A3, Blob.FromHex("2E"));
+			PutInBank(0x03, 0xA625, Blob.FromHex("7B"));
 		}
 	}
 }
