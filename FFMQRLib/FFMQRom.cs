@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "0.2.8-alpha";
+		public static string Version = "0.2.9-alpha";
 	}
 	
 	public partial class FFMQRom : SnesRom
@@ -715,8 +715,8 @@ namespace FFMQLib
 				}));
 
 			// Grenade Man's Door - Prevent softlock
-			// Set exit tile to jump to a script
-			TilesProperties[0x0C][0x46].Byte2 = 0x88;
+			// Set door tile to one that jump to a script
+			PutInBank(0x08, 0xF854, Blob.FromHex("C9"));
 			// Hijack Phoebe's FallBasin script since we don't use it
 			PutInBank(0x05, 0xFBC2, Blob.FromHex($"{(int)TileScriptsList.FallBasinGiveJumboBomb:X2}")); 
 
