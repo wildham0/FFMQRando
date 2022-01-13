@@ -114,5 +114,14 @@ namespace FFMQLib
 			PutInBank(0x03, 0xA4A3, Blob.FromHex("2E"));
 			PutInBank(0x03, 0xA625, Blob.FromHex("7B"));
 		}
+
+		public void BugFixes()
+		{
+			// Fix vendor buy 0 bug
+			PutInBank(0x00, 0xB75B, Blob.FromHex("D0")); // Instead of BPL, BNE to skip 0
+			PutInBank(0x00, 0xB783, Blob.FromHex("8D")); // Instead of STZ, STA (A will always be #$01 if reached)
+			
+		
+		}
 	}
 }

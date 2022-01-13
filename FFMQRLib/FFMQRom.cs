@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "0.2.9-alpha";
+		public static string Version = "0.2.10-alpha";
 	}
 	
 	public partial class FFMQRom : SnesRom
@@ -118,6 +118,7 @@ namespace FFMQLib
 			DefaultSettings();
 			RemoveClouds();
 			SmallFixes();
+			BugFixes();
 			CompanionRoutines();
 			SetLevelingCurve(flags);
 
@@ -300,8 +301,8 @@ namespace FFMQLib
 			GameFlags[0xC9] = false;
 			TileScripts.AddScript((int)TileScriptsList.BoneDungeonTristamBomb,
 				new ScriptBuilder(new List<string> {
-					$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[11]",
-					$"050f{(int)Companion.Tristam:X2}[11]",
+					$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[12]",
+					$"050f{(int)Companion.Tristam:X2}[12]",
 					"2a3046104130441054ffff",
 					"1a85" + TextToHex("Care to invest in my ") + $"1E{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}" + TextToHex(" venture? I'll give you an early prototype!") + "36",
 					"08D0FD",
@@ -381,10 +382,10 @@ namespace FFMQLib
 					"00",
 					"2F",
 					"050D02[10]",
-					"2A5EFF080161FFFFFF",
-					"2A20509053705015271225304506ff0900FFFF",
 					$"23{(int)NewGameFlagsList.WakeWaterUsed:X2}",
 					"234F", //is it necessary?
+					"2A5EFF080161FFFFFF",
+					"2A20509053705015271225304506ff0900FFFF",
 					"00",
 					"2C0801",
 					"00",
@@ -431,6 +432,14 @@ namespace FFMQLib
 					"0A2BFE"
 				}));
 
+			// Potion seller in Aquaria
+			TalkScripts.AddScript((int)TalkScriptsList.AquariaPotionVendor,
+				new ScriptBuilder(new List<string>{
+					"2E02D4EA",
+					"9A4A41BB5EBF48BB4BB545B4C540B9C5C2CD564DC67266B64F7E7ABE40C0591E1053",
+					"00"
+				}));
+			
 			// Update Fireburg and Windia Bomb vendors to same script
 			MapObjects[0x2F][0x01].Value = (byte)TalkScriptsList.AquariaExplosiveVendor;
 			MapObjects[0x52][0x09].Value = (byte)TalkScriptsList.AquariaExplosiveVendor;
