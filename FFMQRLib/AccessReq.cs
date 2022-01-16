@@ -205,7 +205,7 @@ namespace FFMQLib
 		public static TreasureObject Houses06 = new TreasureObject(0xC7, (int)MapList.HouseInterior, Locations.Windia, TreasureType.Box, new List<AccessReqs> { }); // Windia Inn
 		public static TreasureObject Houses07 = new TreasureObject(0xC8, (int)MapList.HouseInterior, Locations.Windia, TreasureType.Box, new List<AccessReqs> { }); // Windia 
 		public static TreasureObject Houses08 = new TreasureObject(0xC9, (int)MapList.HouseInterior, Locations.Windia, TreasureType.Box, new List<AccessReqs> { }); // Windia
-		public static TreasureObject Caves01 = new TreasureObject(0x0F, (int)MapList.Caves, Locations.SpencersPlace, TreasureType.Chest, new List<AccessReqs> { AccessReqs.MegaGrenade, AccessReqs.MobiusCrest });
+		public static TreasureObject Caves01 = new TreasureObject(0x0F, (int)MapList.Caves, Locations.SpencersPlace, TreasureType.Chest, new List<AccessReqs> { AccessReqs.MegaGrenade, AccessReqs.ThunderRock, AccessReqs.SunCoin, AccessReqs.LibraCrest });
 		//public static TreasureObject Caves02 = new TreasureObject(0x34, (int)MapList.Caves, Locations.Windia, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject Caves03 = new TreasureObject(0x40, (int)MapList.Caves, Locations.LibraTemple, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject Caves04 = new TreasureObject(0x4E, (int)MapList.Caves, Locations.LifeTemple, TreasureType.Box, new List<AccessReqs> { }); // Libra Crest

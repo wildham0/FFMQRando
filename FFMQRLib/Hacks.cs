@@ -120,8 +120,19 @@ namespace FFMQLib
 			// Fix vendor buy 0 bug
 			PutInBank(0x00, 0xB75B, Blob.FromHex("D0")); // Instead of BPL, BNE to skip 0
 			PutInBank(0x00, 0xB783, Blob.FromHex("8D")); // Instead of STZ, STA (A will always be #$01 if reached)
-			
-		
+
+			// Fix Companion Armor Bug
+			PutInBank(0x00, 0x9E7E, Blob.FromHex("1490")); // Add copying armor stats to working memory as a command (05 08)
+			PutInBank(0x03, 0x8606, Blob.FromHex("08C0FF00")); // Insert jump for space in add companion routine
+			PutInBank(0x03, 0xFFC0, Blob.FromHex("0508051ED0000100")); // Copy armor command + moved original command
+
+			// Fix Life Insta Kill Bug
+			PutInBank(0x02, 0x9238, Blob.FromHex("A5562B2908F0E5")); // Load weakness instead of resistance, and beq insteand of bne
+			PutInBank(0x02, 0x9CAA, Blob.FromHex("EAEA")); // Don't branch if resistant to fatal
+
+			// Fix Cure Overflow Bug
+			PutInBank(0x02, 0x95CA, Blob.FromHex("EAEAEAEA22008611"));
+			PutInBank(0x11, 0x8600, Blob.FromHex("A514186D7704B002C5166B")); // Same as original except we skip comparing to max hp if carry is set
 		}
 	}
 }
