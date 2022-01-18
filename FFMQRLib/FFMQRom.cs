@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "0.2.11-alpha";
+		public static string Version = "0.2.12-alpha";
 	}
 	
 	public partial class FFMQRom : SnesRom
@@ -567,12 +567,13 @@ namespace FFMQLib
 			// Enter Tile
 			TileScripts.AddScript((int)TileScriptsList.EnterSpencersPlace,
 				new ScriptBuilder(new List<string> {
-					"2E04[08]",
+					"2E04[09]",
 					"2C0E01",
 					"2D" + ScriptItemFlags[Items.MegaGrenade].Item1,
 					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[05]",
 					"00",
 					"2304",
+					"231A",
 					"2A10503346305418251825182521255EFF07062A250F0161FFFFFF", 
 					"00",
 					"2C0F01",
@@ -986,7 +987,7 @@ namespace FFMQLib
 				}));
 
 			/*** Ship's Dock ***/
-			GameFlags[0x1A] = true; // Mac Ship
+			GameFlags[0x1A] = false; // Mac Ship
 			GameFlags[0x56] = false; // Mac Ship
 			MapObjects[0x60][0x03].Gameflag = 0xFE; // Hide ship because cutescene enable it's flag anyway
 

@@ -218,6 +218,8 @@ namespace FFMQLib
 				"FFMQ Randomizer\n\n" +
 				"Main Developer\n" +
 				"wildham\n\n" +
+				"Playtester\n" +
+				"spellzapp\n\n" +
 				"Special Thanks\n" +
 				"Entroper\n" +
 				"nitz\n" +
