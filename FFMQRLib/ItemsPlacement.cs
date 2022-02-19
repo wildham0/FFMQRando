@@ -155,7 +155,10 @@ namespace FFMQLib
 			Gear.RemoveAll(x => StartingItems.Contains(x));
 
 			// Select Inital Progression
-			InitialProgressionItems.Add(rng.TakeFrom(ProgressionBombs));
+			if (ProgressionBombs.Count > 1)
+			{
+				InitialProgressionItems.Add(rng.TakeFrom(ProgressionBombs));
+			}			
 			FinalItems.Add(rng.TakeFrom(InitialProgressionItems));
 
 			// Build Progression Items List
