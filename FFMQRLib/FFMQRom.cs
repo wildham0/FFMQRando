@@ -131,7 +131,7 @@ namespace FFMQLib
 
 
 
-			ItemsPlacement itemsPlacement = new(rng);
+			ItemsPlacement itemsPlacement = new(flags, rng);
 
 			foreach (var item in itemsPlacement.ItemsLocations)
 			{
@@ -140,6 +140,8 @@ namespace FFMQLib
 					Data[RomOffsets.TreasuresOffset + item.ObjectId] = (byte)item.Content;
 				}
 			}
+
+			SetStartingWeapons(itemsPlacement);
 
 			UpdateScripts(itemsPlacement, rng);
 			Battlefields.PlaceItems(itemsPlacement);
@@ -1007,6 +1009,29 @@ namespace FFMQLib
 					"1A75" + TextToHex("Gonna hit the bunk now.") + "36",
 					"00"
 				}));
+		}
+
+		public void SetStartingWeapons(ItemsPlacement itemsPlacement)
+		{
+			if (itemsPlacement.StartingItems.Contains(Items.SteelSword))
+			{
+				return;
+			}
+			else if (itemsPlacement.StartingItems.Contains(Items.Axe))
+			{
+				PutInBank(0x0C, 0xD0E2, Blob.FromHex("1000"));
+				PutInBank(0x0C, 0xD0E1, new byte[] { (byte)Items.Axe });
+			}
+			else if (itemsPlacement.StartingItems.Contains(Items.CatClaw))
+			{
+				PutInBank(0x0C, 0xD0E2, Blob.FromHex("0200"));
+				PutInBank(0x0C, 0xD0E1, new byte[] { (byte)Items.CatClaw });
+			}
+			else if (itemsPlacement.StartingItems.Contains(Items.Bomb))
+			{
+				PutInBank(0x0C, 0xD0E2, Blob.FromHex("0040"));
+				PutInBank(0x0C, 0xD0E1, new byte[] { (byte)Items.Bomb });
+			}
 		}
 	}
 

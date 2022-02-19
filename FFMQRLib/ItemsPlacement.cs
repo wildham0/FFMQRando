@@ -11,7 +11,7 @@ namespace FFMQLib
 		public List<Items> StartingItems { get; set; }
 		public List<TreasureObject> ItemsLocations { get; }
 
-		public ItemsPlacement(MT19337 rng)
+		public ItemsPlacement(Flags flags, MT19337 rng)
 		{
 			bool badPlacement = true;
 			int counter = 0;
@@ -19,7 +19,7 @@ namespace FFMQLib
 			while (badPlacement)
 			{
 				badPlacement = false;
-				List<Items> itemsList = RandomizeItemsOrder(rng);
+				List<Items> itemsList = RandomizeItemsOrder(flags, rng);
 
 				ItemsLocations = new(ItemLocations.AllChestsNPCsBattlefields().ToList());
 
@@ -75,10 +75,19 @@ namespace FFMQLib
 			}
 		}
 
-		private List<Items> RandomizeItemsOrder(MT19337 rng)
+		private List<Items> RandomizeItemsOrder(Flags flags, MT19337 rng)
 		{
 			List<Items> FinalItems = new();
-			StartingItems = new() { Items.SteelSword, Items.SteelArmor };
+			List<Items> StartingWeapons = new() { Items.SteelSword, Items.Axe, Items.CatClaw, Items.Bomb };
+			StartingItems = new() { Items.SteelArmor };
+			if (flags.RandomStartingWeapon)
+			{
+				StartingItems.Add(rng.PickFrom(StartingWeapons));
+			}
+			else
+			{
+				StartingItems.Add(Items.SteelSword);
+			}
 			List<Items> ProgressionBombs = new() { Items.Bomb, Items.JumboBomb };
 			List<Items> ProgressionSwords = new() { Items.SteelSword, Items.KnightSword, Items.Excalibur };
 			List<Items> ProgressionAxes = new() { Items.Axe, Items.BattleAxe, Items.GiantsAxe };
@@ -134,6 +143,7 @@ namespace FFMQLib
 				Items.CupidLock // NPC
 			};
 
+			
 			// Remove Starting Items
 			ProgressionBombs.RemoveAll(x => StartingItems.Contains(x));
 			ProgressionSwords.RemoveAll(x => StartingItems.Contains(x));
