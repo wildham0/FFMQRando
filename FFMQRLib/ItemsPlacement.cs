@@ -60,6 +60,7 @@ namespace FFMQLib
 				while (itemsList.Any())
 				{
 					var validLocations = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && (placedChests >= 0x1C ? (x.Type != TreasureType.Chest && x.Type != TreasureType.Box) : true)).ToList();
+
 					if (!validLocations.Any() && itemsList.Any())
 					{
 						Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
@@ -68,7 +69,7 @@ namespace FFMQLib
 						break;
 					}
 
-					var targetLocation = rng.PickFrom(validLocations);
+					TreasureObject targetLocation = rng.PickFrom(validLocations);
 					var itemToPlace = itemsList.First();
 
 					itemsList.RemoveAt(0);
@@ -144,6 +145,7 @@ namespace FFMQLib
 			List<Items> ProgressionAxes = new() { Items.Axe, Items.BattleAxe, Items.GiantsAxe };
 			List<Items> ProgressionClaws = new() { Items.CatClaw, Items.CharmClaw };
 			List<Items> InitialProgressionItems = new() { Items.SandCoin, Items.RiverCoin };
+			List<Items> ProgressionCoins = new() { Items.SunCoin };
 			List<Items> ProgressionItems = new()
 			{
 				Items.TreeWither, // NPC
@@ -155,7 +157,6 @@ namespace FFMQLib
 				Items.SkyCoin,
 				Items.DragonClaw, // NPC
 				Items.MegaGrenade, //NPC
-				Items.SunCoin,
 				Items.Elixir, // NPC
 				Items.WakeWater, // NPC
 			};
@@ -217,7 +218,12 @@ namespace FFMQLib
 			ProgressionItems.Add(rng.TakeFrom(ProgressionBombs));
 			ProgressionItems.Add(rng.TakeFrom(ProgressionAxes));
 			ProgressionItems.Add(rng.TakeFrom(ProgressionClaws));
-			ProgressionItems.AddRange(InitialProgressionItems);
+			if (flags.ItemShuffle == ItemShuffle.QuestItemsOnly)
+			{
+				ProgressionItems.AddRange(InitialProgressionItems);
+				ProgressionItems.AddRange(ProgressionCoins); 
+			}
+			//ProgressionItems.AddRange(InitialProgressionItems);
 			ProgressionItems.Shuffle(rng);
 
 			// Put Everything else in Non Progression Items
@@ -235,10 +241,21 @@ namespace FFMQLib
 			// Tier1 is 5 random progression item, 5 random non progression+gear
 			NonProgressionItems.AddRange(Gear);
 			NonProgressionItems.Shuffle(rng);
-			List<Items> Tier1 = ProgressionItems.GetRange(0, 5);
-			ProgressionItems.RemoveRange(0, 5);
-			Tier1.AddRange(NonProgressionItems.GetRange(0, 5));
+
+			List<Items> Tier1 = NonProgressionItems.GetRange(0, 5);
 			NonProgressionItems.RemoveRange(0, 5);
+			if (flags.ItemShuffle == ItemShuffle.QuestItemsOnly)
+			{
+				Tier1.AddRange(ProgressionItems.GetRange(0, 5));
+				ProgressionItems.RemoveRange(0, 5);
+			}
+			else
+			{
+				Tier1.AddRange(ProgressionItems.GetRange(0, 3));
+				ProgressionItems.RemoveRange(0, 3);
+				Tier1.AddRange(InitialProgressionItems);
+				Tier1.AddRange(ProgressionCoins);
+			}
 			
 			// Tier2 is everything else
 			List<Items> Tier2 = ProgressionItems.ToList();
