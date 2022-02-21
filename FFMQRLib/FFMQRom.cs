@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "0.2.14-alpha";
+		public static string Version = "0.2.15-alpha";
 	}
 	
 	public partial class FFMQRom : SnesRom
@@ -131,20 +131,16 @@ namespace FFMQLib
 
 
 
-			ItemsPlacement itemsPlacement = new(flags, rng);
-
-			foreach (var item in itemsPlacement.ItemsLocations)
-			{
-				if (item.Type == TreasureType.Chest)
-				{
-					Data[RomOffsets.TreasuresOffset + item.ObjectId] = (byte)item.Content;
-				}
-			}
+			ItemsPlacement itemsPlacement = new(this, flags, rng);
 
 			SetStartingWeapons(itemsPlacement);
+			MapObjects.UpdateChests(flags, itemsPlacement);
 
+			itemsPlacement.WriteChests(this);
+			
 			UpdateScripts(itemsPlacement, rng);
 			Battlefields.PlaceItems(itemsPlacement);
+
 
 			credits.Update();
 			
@@ -466,6 +462,12 @@ namespace FFMQLib
 				}));
 
 			// Wintry Squid
+			if (MapObjects[0x1F][0x0B].Sprite == 0x26)
+			{
+				MapObjects[0x1F][0x0B].Gameflag = 0xFE;
+				GameFlags[0xB2] = true;
+			}
+			
 			TalkScripts.AddScript((int)TalkScriptsList.FightSquid,
 				new ScriptBuilder(new List<string>{
 					"04",
@@ -502,8 +504,13 @@ namespace FFMQLib
 			// Put Chest under crab
 			MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
 			MapObjects[0x21][0x0F].Y = MapObjects[0x21][0x07].Y;
-			
 			GameFlags[(int)GameFlagsList.ShowFallBasinChest] = false;
+
+			if (MapObjects[0x21][0x0F].Sprite == 0x26)
+			{
+				MapObjects[0x21][0x0F].Gameflag = 0xFE;
+				GameFlags[(int)GameFlagsList.ShowFallBasinChest] = true;
+			}
 
 			TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
 				new ScriptBuilder(new List<string>{
@@ -834,6 +841,12 @@ namespace FFMQLib
 			MapObjects[0x37][0x00].Y = MapObjects[0x37][0x0D].Y;
 			GameFlags[0xBB] = false;
 
+			if (MapObjects[0x37][0x0D].Sprite == 0x26)
+			{
+				MapObjects[0x37][0x0D].Gameflag = 0xFE;
+				GameFlags[0xBB] = true;
+			}
+
 			TalkScripts.AddScript((int)TalkScriptsList.FightMedusa,
 				new ScriptBuilder(new List<string>{
 					"04",
@@ -973,8 +986,13 @@ namespace FFMQLib
 			// Headless Knight
 			MapObjects[0x4F][0x0C].X = MapObjects[0x4F][0x00].X;
 			MapObjects[0x4F][0x0C].Y = MapObjects[0x4F][0x00].Y;
-
 			GameFlags[0xC0] = false;
+
+			if (MapObjects[0x4F][0x0C].Sprite == 0x26)
+			{
+				MapObjects[0x4F][0x0C].Gameflag = 0xFE;
+				GameFlags[0xC0] = true;
+			}
 
 			TalkScripts.AddScript((int)TalkScriptsList.FightHeadlessKnight,
 				new ScriptBuilder(new List<string>{

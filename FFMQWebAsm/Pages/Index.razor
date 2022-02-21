@@ -57,7 +57,13 @@
 <h3 id="optionsSection" class="text-secondary">Options</h3>
 
 <Field>
-    <Switch TValue="bool" @bind-Checked="@flags.ShuffleQuestItems" Disabled><Text TextColor="TextColor.Secondary" class="fw-bold">Shuffle Quest Items</Text></Switch>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Items Shuffling</FieldLabel> 
+    <Select @bind-SelectedValue="@flags.ItemShuffle">
+        @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffle>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
 </Field>
 <Field>
     <Switch TValue="bool" @bind-Checked="@flags.RandomStartingWeapon"><Text TextColor="TextColor.Secondary" class="fw-bold">Random Starting Weapon</Text></Switch>

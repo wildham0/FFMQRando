@@ -12,12 +12,15 @@ namespace FFMQLib
     { 
         public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.All;
         public bool ShuffleQuestItems { get; set; } = true;
+        public ItemShuffle ItemShuffle { get; set; } = ItemShuffle.QuestItemsOnly;
+        public bool ShuffleAllItems { get; set; } = true;
         public bool ShuffleEnemiesPosition { get; set; } = false;
         public EnemiesScaling EnemiesScaling { get; set; } = EnemiesScaling.Normal;
         public EnemiesScalingSpread EnemiesScalingSpread { get; set; } = EnemiesScalingSpread.None;
         public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
         public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;
         public bool RandomStartingWeapon { get; set; } = false;
+
         public string GenerateFlagString()
         {
             var flaglist = this.GetType().GetProperties();

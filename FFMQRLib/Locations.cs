@@ -47,6 +47,7 @@ namespace FFMQLib
 		public Locations Location { get; set; }
 		public Items Content { get; set; }
 		public TreasureType Type { get; set; }
+		public bool IsPlaced { get; set; }
 		public List<AccessReqs> AccessRequirements { get; set; }
 
 		public TreasureObject(int mapobjid, int mapid, Locations location, TreasureType type, List<AccessReqs> access)
@@ -56,7 +57,9 @@ namespace FFMQLib
 			Location = location;
 			Type = type;
 			MapId = mapid;
+			IsPlaced = false;
 			AccessRequirements = access;
+
 		}
 
 		public TreasureObject(TreasureObject treasure)
@@ -66,6 +69,7 @@ namespace FFMQLib
 			Location = treasure.Location;
 			Type = treasure.Type;
 			MapId = treasure.MapId;
+			IsPlaced = treasure.IsPlaced;
 			AccessRequirements = treasure.AccessRequirements.ToList();
 		}
 	}

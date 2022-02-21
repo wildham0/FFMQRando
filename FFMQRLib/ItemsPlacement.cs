@@ -3,25 +3,45 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using RomUtilities;
+using System.ComponentModel;
 
 namespace FFMQLib
 {
+	public enum ItemShuffle : int
+	{
+		[Description("Quest Items Only")]
+		QuestItemsOnly = 0,
+		[Description("All Items")]
+		AllItems,
+	}
 	public class ItemsPlacement
 	{
 		public List<Items> StartingItems { get; set; }
 		public List<TreasureObject> ItemsLocations { get; }
 
-		public ItemsPlacement(Flags flags, MT19337 rng)
+		public ItemsPlacement(FFMQRom rom, Flags flags, MT19337 rng)
 		{
 			bool badPlacement = true;
 			int counter = 0;
+			int placedChests = 0;
+
+			List<Items> consumableList = rom.GetFromBank(0x01, 0x801D, 0xDE).ToBytes().Select(x => (Items)x).ToList();
 
 			while (badPlacement)
 			{
 				badPlacement = false;
+				placedChests = 0;
 				List<Items> itemsList = RandomizeItemsOrder(flags, rng);
+				//List<int> placedLocations = new();
 
-				ItemsLocations = new(ItemLocations.AllChestsNPCsBattlefields().ToList());
+				if (flags.ItemShuffle == ItemShuffle.AllItems)
+				{
+					ItemsLocations = new(ItemLocations.AllEverything().ToList());
+				}
+				else
+				{
+					ItemsLocations = new(ItemLocations.AllChestsNPCsBattlefields().ToList());
+				}
 
 				List<Items> placedItems = new();
 
@@ -39,7 +59,7 @@ namespace FFMQLib
 
 				while (itemsList.Any())
 				{
-					var validLocations = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.Content == Items.None).ToList();
+					var validLocations = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && (placedChests >= 0x1C ? (x.Type != TreasureType.Chest && x.Type != TreasureType.Box) : true)).ToList();
 					if (!validLocations.Any() && itemsList.Any())
 					{
 						Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
@@ -53,6 +73,12 @@ namespace FFMQLib
 
 					itemsList.RemoveAt(0);
 					targetLocation.Content = itemToPlace;
+					targetLocation.IsPlaced = true;
+					if(targetLocation.Type == TreasureType.Chest || targetLocation.Type == TreasureType.Box)
+					{ 
+						targetLocation.Type = TreasureType.Chest;
+						placedChests++;
+					}
 					placedItems.Add(itemToPlace);
 					//Console.WriteLine(Enum.GetName(targetLocation.Location) + " - " + Enum.GetName(itemToPlace));
 
@@ -73,8 +99,33 @@ namespace FFMQLib
 					//Console.WriteLine(Enum.GetName(loc.Location) + " - " + loc.ObjectId);
 				}
 			}
-		}
 
+			if (flags.ItemShuffle == ItemShuffle.AllItems)
+			{
+				for (int i = 0; i < ItemsLocations.Count; i++)
+				{
+					if (ItemsLocations[i].IsPlaced == false)
+					{
+						ItemsLocations[i].Content = rng.TakeFrom(consumableList);
+						ItemsLocations[i].IsPlaced = true;
+						if (ItemsLocations[i].Type == TreasureType.Chest || ItemsLocations[i].Type == TreasureType.Box)
+						{
+							ItemsLocations[i].Type = TreasureType.Box;
+						}
+					}
+				}
+			}
+		}
+		public void WriteChests(FFMQRom rom)
+		{
+			foreach (var item in ItemsLocations)
+			{
+				if (item.Type == TreasureType.Chest || item.Type == TreasureType.Box)
+				{
+					rom[RomOffsets.TreasuresOffset + item.ObjectId] = (byte)item.Content;
+				}
+			}
+		}
 		private List<Items> RandomizeItemsOrder(Flags flags, MT19337 rng)
 		{
 			List<Items> FinalItems = new();

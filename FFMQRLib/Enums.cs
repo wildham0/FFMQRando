@@ -356,6 +356,8 @@ namespace FFMQLib
 		Charm = 0x3D,
 		MagicRing = 0x3E,
 		CupidLock = 0x3F,
+		BombRefill = 0xDD,
+		ProjectileRefill = 0xDE,
 		None = 0xFF,
 	}
 

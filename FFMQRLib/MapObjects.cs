@@ -84,11 +84,60 @@ namespace FFMQLib
 					}
 				}
 			}
-			public void UpdateChests()
+			public void UpdateChests(Flags flags, ItemsPlacement itemsPlacement)
 			{
-				foreach (var chest in Chests)
+				if (flags.ItemShuffle == ItemShuffle.QuestItemsOnly)
 				{
-					_collections[chest.AreaId][chest.ObjectId].Value = (byte)chest.Treasure;
+					return;
+				}
+				
+				List<Items> boxItems = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
+
+				const int baseFlag = 0xA9;
+
+				//int currrentTreasure = 0x00; // max 0x1D
+
+				List<int> validId = Enumerable.Range(0, 0x1D).ToList();
+				validId.Remove(0x04);
+
+				List<int> freeID = new();
+				//const int maxFlag = 0xC5;
+				var test = itemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.Chest).ToList();
+
+				foreach (var item in itemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.Chest).OrderBy(x => x.ObjectId))
+				{
+					List<Chest> targetChest = Chests.Where(x => x.TreasureId == item.ObjectId).ToList();
+					
+					if (!targetChest.Any()) continue;
+
+					if (validId.Contains(item.ObjectId))
+					{
+						validId.Remove(item.ObjectId);
+						continue;
+					}
+					
+					_collections[targetChest.First().AreaId][targetChest.First().ObjectId].Sprite = 0x24;
+					_collections[targetChest.First().AreaId][targetChest.First().ObjectId].Gameflag = (byte)(baseFlag+validId.First());
+					_collections[targetChest.First().AreaId][targetChest.First().ObjectId].Value = (byte)validId.First();
+
+					freeID.Add(item.ObjectId);
+					item.ObjectId = validId.First();
+					validId.RemoveAt(0);
+				}
+
+				foreach (var item in itemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.Box && x.ObjectId < 0x1D))
+				{
+					List<Chest> targetChest = Chests.Where(x => x.TreasureId == item.ObjectId).ToList();
+
+					if (!targetChest.Any())	continue;
+
+					_collections[targetChest.First().AreaId][targetChest.First().ObjectId].Sprite = 0x26;
+					_collections[targetChest.First().AreaId][targetChest.First().ObjectId].Gameflag = 0x00;
+					_collections[targetChest.First().AreaId][targetChest.First().ObjectId].Value = (byte)freeID.First();
+
+					item.ObjectId = (byte)freeID.First();
+
+					freeID.RemoveAt(0);
 				}
 			}
 			public int GetAreaMapId(int area)

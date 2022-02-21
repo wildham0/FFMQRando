@@ -211,8 +211,8 @@ namespace FFMQLib
 		public static TreasureObject Caves04 = new TreasureObject(0x4E, (int)MapList.Caves, Locations.LifeTemple, TreasureType.Box, new List<AccessReqs> { }); // Libra Crest
 		public static TreasureObject Caves05 = new TreasureObject(0x70, (int)MapList.Caves, Locations.WintryTemple, TreasureType.Box, new List<AccessReqs> { }); // Gemini Crest
 		public static TreasureObject Caves06 = new TreasureObject(0x71, (int)MapList.Caves, Locations.WintryTemple, TreasureType.Box, new List<AccessReqs> { }); // Gemini Crest
-																																								 //public static TreasureObject Caves07 = new TreasureObject(0x72, (int)MapList.Caves, Locations.Windia, TreasureType.Box, new List<AccessReqs> { }); // in Wintry Temple, but not there
-																																								 //public static TreasureObject Caves08 = new TreasureObject(0x73, (int)MapList.Caves, Locations.Windia, TreasureType.Box, new List<AccessReqs> { });
+		//public static TreasureObject Caves07 = new TreasureObject(0x72, (int)MapList.Caves, Locations.Windia, TreasureType.Box, new List<AccessReqs> { }); // in Wintry Temple, but not there
+		//public static TreasureObject Caves08 = new TreasureObject(0x73, (int)MapList.Caves, Locations.Windia, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject Caves09 = new TreasureObject(0x7E, (int)MapList.Caves, Locations.SealedTemple, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject Caves10 = new TreasureObject(0x7D, (int)MapList.Caves, Locations.SealedTemple, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject Caves11 = new TreasureObject(0xC1, (int)MapList.Caves, Locations.KaidgeTemple, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
@@ -282,6 +282,13 @@ namespace FFMQLib
 		public static TreasureObject CupidLockGirlWindia = new TreasureObject((int)ItemGivingNPCs.GirlWindia, (int)MapList.Windia, Locations.Windia, TreasureType.NPC, new List<AccessReqs> { });
 		//public static TreasureObject Kaeli02 = new TreasureObject(0x04, (int)MapList.Windia, Locations.Windia, TreasureType.NPC, new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.ThunderRock, AccessReqs.MegaGrenade });
 
+		public void GetChestContent(FFMQRom rom)
+		{
+			foreach (var item in AllChests())
+			{
+				item.Content = (Items)rom[RomOffsets.TreasuresOffset + item.ObjectId];
+			}
+		}
 		public static List<TreasureObject> AllChests()
 		{
 			List<TreasureObject> properties = new();
@@ -292,7 +299,7 @@ namespace FFMQLib
 				properties.Add(new TreasureObject((TreasureObject)prop.GetValue(instance)));
 			}
 
-			return properties.Where(x => x.Type == TreasureType.Chest).ToList();
+			return properties.Where(x => x.Type == TreasureType.Chest || x.Type == TreasureType.Box).ToList();
 		}
 		public static List<TreasureObject> AllNPCs()
 		{
@@ -351,6 +358,30 @@ namespace FFMQLib
 
 			//return properties.ToList();
 			return properties.Where(x => x.Type == TreasureType.NPC || (x.Type == TreasureType.Chest && x.ObjectId < 0x30) || x.Type == TreasureType.Battlefield).ToList();
+		}
+
+		public static List<TreasureObject> AllEverything()
+		{
+			List<TreasureObject> properties = new();
+			ItemLocations instance = new();
+			//Type type = typeof(ItemLocations);
+			foreach (FieldInfo prop in typeof(ItemLocations).GetFields())
+			{
+				if (prop.FieldType == typeof(TreasureObject))
+				{
+					properties.Add(new TreasureObject((TreasureObject)prop.GetValue(instance)));
+				}
+
+			}
+
+			for (int i = 0; i < properties.Count; i++)
+			{
+				properties[i].AccessRequirements.AddRange(LocationAccessReq[properties[i].Location]);
+				//properties[i].Content = Items.None;
+			}
+
+			//return properties.ToList();
+			return properties.Where(x => x.Type == TreasureType.NPC || (x.Type == TreasureType.Chest && x.ObjectId < 0x30) || x.Type == TreasureType.Box || x.Type == TreasureType.Battlefield).ToList();
 		}
 		public static List<TreasureObject> AllNPCsItems()
 		{
