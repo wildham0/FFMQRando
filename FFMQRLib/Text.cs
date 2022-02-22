@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System;
-
+using System.Security.Cryptography;
 
 namespace FFMQLib
 {
@@ -254,5 +254,119 @@ namespace FFMQLib
 			rom.PutInBank(RomOffsets.CreditsBankOld, RomOffsets.CreditsHeader, header);
 			rom.PutInBank(RomOffsets.CreditsBankNew, RomOffsets.CreditsAddressNew, newCredits);
 		}
+	}
+
+	public class TitleScreen
+	{
+		private const int titleScreenBank = 0x0C;
+	
+		private const int offsetSprites = 0x8C5E;
+		private const int lengthSprites = 4;
+		private const int qtySprites = 0x2F;
+
+		private const int offsetFFMRando = 0x8EDD;
+		private const int lengthFFMRando = 14;
+		private const int offsetVersion = 0x8EEB;
+		private const int lengthVersion = 8;
+		private const int offsetHash = 0x8F0A;
+		private const int lengthHash = 8;
+
+		private List<Blob> titleSprites;
+
+		public TitleScreen(FFMQRom rom)
+		{
+			titleSprites = rom.GetFromBank(titleScreenBank, offsetSprites, lengthSprites * qtySprites).Chunk(lengthSprites);
+			UpdateSprites();
+			//UpdateText();
+		}
+
+		public void Write(FFMQRom rom, string version, Blob seed, Flags flags)
+		{
+
+			rom.PutInBank(titleScreenBank, offsetSprites, titleSprites.SelectMany(x => x.ToBytes()).ToArray());
+
+			rom.PutInBank(titleScreenBank, offsetFFMRando, Blob.FromHex("9f9fa6aaabb4c1b7c2c0bccdb8c5"));
+			rom.PutInBank(titleScreenBank, offsetVersion, Blob.FromHex(rom.TextToHex("v" + version + "a")));
+
+			byte[] hash;
+
+			using (SHA256 hasher = SHA256.Create())
+			{
+				hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
+			}
+
+			rom.PutInBank(titleScreenBank, offsetHash, rom.TextToByte(EncodeTo32(hash).Substring(0, 8)));
+		}
+		private string EncodeTo32(byte[] bytesToEncode)
+		{
+			string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+
+			string encodedString = "";
+
+			foreach(var byteValue in bytesToEncode)
+			{
+				encodedString += characters[(byteValue / 16)];
+				encodedString += characters[(byteValue % 16)];
+			}
+
+			return encodedString;
+		}
+		private void UpdateSprites()
+		{
+			List<int> spritesToErase = new() { 20, 21, 22, 41 };
+			List<int> spritesFFMQ = new() { 29, 30 };
+			List<int> spritesRandomizer = new() { 19, 33, 34, 35, 36 };
+			List<int> spritesVersion = new() { 37, 38, 39, 40 };
+			List<int> spritesHash = new() { 42, 43, 44, 45 };
+
+			byte offsetX = 0;
+			byte offsetY = 0;
+
+			foreach (var sprite in spritesToErase)
+			{
+				titleSprites[sprite] = Blob.FromHex($"{offsetX:X2}{offsetY:X2}3700");
+			}
+
+			offsetX = 0x44;
+			offsetY = 0xB7;
+
+			foreach (var sprite in spritesFFMQ)
+			{
+				titleSprites[sprite][0] = offsetX;
+				titleSprites[sprite][1] = offsetY;
+				offsetX += 0x10;
+			}
+
+			offsetX = 0x6C;
+			offsetY = 0xB7;
+
+			foreach (var sprite in spritesRandomizer)
+			{
+				titleSprites[sprite][0] = offsetX;
+				titleSprites[sprite][1] = offsetY;
+				offsetX += 0x10;
+			}
+
+			offsetX = 0x60;
+			offsetY = 0xC3;
+
+			foreach (var sprite in spritesVersion)
+			{
+				titleSprites[sprite][0] = offsetX;
+				titleSprites[sprite][1] = offsetY;
+				offsetX += 0x10;
+			}
+
+			offsetX = 0x60;
+			offsetY = 0xCE;
+
+			foreach (var sprite in spritesHash)
+			{
+				titleSprites[sprite][0] = offsetX;
+				titleSprites[sprite][1] = offsetY;
+				offsetX += 0x10;
+			}
+		}
+	
 	}
 }

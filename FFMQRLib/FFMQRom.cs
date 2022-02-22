@@ -10,7 +10,8 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "0.2.16-alpha";
+		public static string VersionNumber = "0.2.17";
+		public static string Version = VersionNumber + "-alpha";
 	}
 	
 	public partial class FFMQRom : SnesRom
@@ -106,6 +107,7 @@ namespace FFMQLib
 			TileScripts = new(this, RomOffsets.TileScriptsPointers, RomOffsets.TileScriptPointerQty, RomOffsets.TileScriptOffset, RomOffsets.TileScriptEndOffset);
 			Battlefields = new(this);
 			MapChanges = new(this);
+			TitleScreen titleScreen = new(this);
 
 			List<Map> mapList = new();
 			for (int i = 0; i < 0x2C; i++)
@@ -155,6 +157,7 @@ namespace FFMQLib
 			nodeLocations.Write(this);
 			Battlefields.Write(this);
 			MapObjects.WriteAll(this);
+			titleScreen.Write(this, Metadata.VersionNumber, seed, flags);
 		}
 		public void UpdateScripts(ItemsPlacement fullItemsPlacement, MT19337 rng)
 		{

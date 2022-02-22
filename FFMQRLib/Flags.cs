@@ -11,9 +11,7 @@ namespace FFMQLib
     public class Flags
     { 
         public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.All;
-        public bool ShuffleQuestItems { get; set; } = true;
         public ItemShuffle ItemShuffle { get; set; } = ItemShuffle.QuestItemsOnly;
-        public bool ShuffleAllItems { get; set; } = true;
         public bool ShuffleEnemiesPosition { get; set; } = false;
         public EnemiesScaling EnemiesScaling { get; set; } = EnemiesScaling.Normal;
         public EnemiesScalingSpread EnemiesScalingSpread { get; set; } = EnemiesScalingSpread.None;
