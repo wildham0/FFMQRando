@@ -139,6 +139,12 @@ namespace FFMQLib
 
 					freeID.RemoveAt(0);
 				}
+
+				// Copy box+chest from Level Forest 2nd map to 1st map
+				for (int i = 0; i < 5; i++)
+				{
+					_collections[0x09][0x0C + i].RawOverwrite(_collections[0x0A][0x0C + i].RawArray());
+				}
 			}
 			public int GetAreaMapId(int area)
 			{

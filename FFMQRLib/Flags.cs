@@ -40,7 +40,7 @@ namespace FFMQLib
             }
 
             string flagstring = Convert.ToBase64String(BitConverter.GetBytes(flagstrinvalue));
-            return flagstring.Replace('+', '-').Replace('/', '_').Replace('=',',');
+            return flagstring.Replace('+', '-').Replace('/', '_').Replace('=', '~');
         }
 
         public Blob EncodedFlagString()
@@ -50,7 +50,7 @@ namespace FFMQLib
 
         public void ReadFlagString(string flagstring)
         {
-            flagstring = flagstring.Replace('-', '+').Replace('_', '/').Replace(',', '=');
+            flagstring = flagstring.Replace('-', '+').Replace('_', '/').Replace('~', '=');
             var flaglist = this.GetType().GetProperties();
             var orderedflaglist = flaglist.OrderByDescending(x => x.Name).ToList();
             long numflagstring = BitConverter.ToInt64(Convert.FromBase64String(flagstring), 0);

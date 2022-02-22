@@ -2,12 +2,15 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using System.IO;
 @using System;
+@using System.Web
 @using FFMQLib;
 @using Microsoft.JSInterop;
 @using Microsoft.JSInterop.WebAssembly;
 @using Blazorise.Components;
 @using RomUtilities;
+@using Microsoft.AspNetCore.Components
 @inject IJSRuntime JS
+@inject NavigationManager NavigationManager
 
 <style>
     body {
@@ -44,7 +47,7 @@
 <Fields>
     <Field>
         <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Flag String</FieldLabel> 
-        <TextEdit Placeholder="Flag string" Text="@flags.GenerateFlagString()" TextChanged="@OnNameChanged"/>
+        <TextEdit Placeholder="Flag string" Text="@flagString" TextChanged="@OnNameChanged"/>
         <FieldHelp>@flagsMessage</FieldHelp>
     </Field>
 </Fields>
@@ -143,6 +146,22 @@
     private string flagsMessage = "";
     private List<string> titleLetters = new List<string> { "logo/mqlogoM.png", "logo/mqlogoy.png", "logo/mqlogos.png", "logo/mqlogot.png", "logo/mqlogoi.png", "logo/mqlogoc.png", "logo/mqlogoQ.png", "logo/mqlogou.png", "logo/mqlogoe.png", "logo/mqlogos2.png", "logo/mqlogot2.png" };
 
+    [Parameter]
+    public string flagString
+    {
+        get
+        {
+            var tempString = flags.GenerateFlagString();
+            UpdateUrl();
+            return tempString;
+        }
+        set
+        {
+            SetFlags(value);
+            UpdateUrl();
+        }
+    }
+
     private async Task OnGenerate()
     {
         isGenerating = true;
@@ -175,18 +194,21 @@
         try
         {            
             newRom.Randomize(seed, flags);
+
+            romMessage = "ROM file generated successfully.";
+
+            var fs = newRom.DataStream();
+            var fileName = "FFMQR_" + seed.ToHex() + ".sfc";
+
+            using var streamRef = new DotNetStreamReference(stream: fs);
+
+            await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
         }
         catch (Exception ex)
         {
             romMessage = ex.Message;
         }
 
-        var fs = newRom.DataStream();
-        var fileName = "FFMQR_" + seed.ToHex() + ".sfc";
-
-        using var streamRef = new DotNetStreamReference(stream: fs);
-
-        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
         generatedRom = true;
     }
 
@@ -224,23 +246,63 @@
         MT19337 rng2 = new MT19337((uint)seed.ToUInts().Sum(x => x));
         titleLetters.Shuffle(rng2);
         showSeed = seed.ToHex();
+        UpdateUrl();
+    }
+
+    private void UpdateUrl()
+    { 
+        var uri = new Uri(NavigationManager.Uri);
+
+        var test = NavigationManager.GetUriWithQueryParameters(new Dictionary<string, object>
+        {
+         { "s", showSeed },
+         { "f", flags.GenerateFlagString() }
+        });
+
+        NavigationManager.NavigateTo(test);
     }
 
     protected override void OnInitialized()
     {
-        RollSeed();
+        var uri = new Uri(NavigationManager.Uri);
+        //string seed;
+
+        try { 
+            var seed = HttpUtility.ParseQueryString(uri.Query).Get("s");
+            SetSeed(seed);
+        }
+        catch (Exception ex)
+        {
+            RollSeed();
+        }
+
+        try { 
+            var flags = HttpUtility.ParseQueryString(uri.Query).Get("f");
+            SetFlags(flags);
+        }
+        catch (Exception ex)
+        {
+            flagsMessage = "Invalid flags string.";
+        }
     }
 
     Task OnChangeSeed(string value)
     {
+        SetSeed(value);
+        UpdateUrl();
+        return Task.CompletedTask;
+    }
+
+    Task SetSeed(string value)
+    { 
         showSeed = value;
 
         if (showSeed.Length <= 8)
         {
             try
             {
-                var tempSeed = showSeed.PadLeft(8, '0');
-                seed = Blob.FromHex(tempSeed);
+                showSeed = showSeed.PadLeft(8, '0');
+                seed = Blob.FromHex(showSeed);
                 seedMessage = "";
             }
             catch (Exception ex)
@@ -258,6 +320,7 @@
     Task OnSeedLoseFocus()
     {
         showSeed = showSeed.PadLeft(8, '0');
+        UpdateUrl();
         return Task.CompletedTask;
     }
 
@@ -268,10 +331,18 @@
 
     Task OnNameChanged( string value )
     {
+        SetFlags(value);
+        UpdateUrl();
+        return Task.CompletedTask;
+    }
+
+    Task SetFlags( string value )
+    {
         try
         {
             flags.ReadFlagString(value);
             flagsMessage = "Flags loaded successfully.";
+            UpdateUrl();
         }
         catch (Exception)
         {
