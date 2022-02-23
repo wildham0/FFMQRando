@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.2.18";
+		public static string VersionNumber = "0.2.19";
 		public static string Version = VersionNumber + "-alpha";
 	}
 	
@@ -478,7 +478,7 @@ namespace FFMQLib
 					"04",
 					"05E43110",
 					"2B24",
-					"23B2",
+					GameFlags[0xB2] ? "" : "23B2",
 					"2A61463B46FFFF",
 					"23E0",
 					"00"
@@ -522,7 +522,7 @@ namespace FFMQLib
 					"04",
 					"05E43403",
 					"2B25",
-					"23B3",
+					GameFlags[(int)GameFlagsList.ShowFallBasinChest] ? "" : "23B3",
 					"2A67463F46FFFF",
 					"00"
 				}));
@@ -859,7 +859,7 @@ namespace FFMQLib
 					"2B27",
 					"2375",
 					"235D",
-					"23BB",
+					GameFlags[0xBB] ? "" : "23BB",
 					"2A60463D46FFFF",
 					"00"
 				}));
@@ -1006,7 +1006,7 @@ namespace FFMQLib
 					"05E49604",
 					"2B2A",
 					"232B",
-					"23C0",
+					GameFlags[0xC0] ? "" : "23C0",
 					"2A60463C46FFFF",
 					"00",
 				}));

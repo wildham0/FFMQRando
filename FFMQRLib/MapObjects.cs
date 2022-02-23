@@ -241,10 +241,10 @@ namespace FFMQLib
 					{
 						continue;
 					}
-					int minx = enemiescollection.Select(x => x.X).Min();
-					int maxx = enemiescollection.Select(x => x.X).Max();
-					int miny = enemiescollection.Select(x => x.Y).Min();
-					int maxy = enemiescollection.Select(x => x.Y).Max();
+					int minx = enemiescollection.Select(x => x.X).Min() - 1;
+					int maxx = enemiescollection.Select(x => x.X).Max() + 1;
+					int miny = enemiescollection.Select(x => x.Y).Min() - 1;
+					int maxy = enemiescollection.Select(x => x.Y).Max() + 1;
 
 					var validLayers = enemiescollection.Select(x => x.Layer).Distinct().ToList();
 					var targetmap = GetAreaMapId(i);
