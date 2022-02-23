@@ -158,6 +158,8 @@ namespace FFMQLib
 			Battlefields.Write(this);
 			MapObjects.WriteAll(this);
 			titleScreen.Write(this, Metadata.VersionNumber, seed, flags);
+
+			this.Header = Array.Empty<byte>();
 		}
 		public void UpdateScripts(ItemsPlacement fullItemsPlacement, MT19337 rng)
 		{

@@ -133,7 +133,7 @@
     //bool ExtPaneVisible = false;
 
     private FFMQRom newRom = new();
-    private long maxFileSize = 0x80000;
+    private long maxFileSize = 0x80200;
     private bool isLoadingRom = false;
     private bool isGenerating = false;
 
@@ -268,21 +268,18 @@
         //string seed;
 
         try { 
-            var seed = HttpUtility.ParseQueryString(uri.Query).Get("s");
-            SetSeed(seed);
+            var seedParameter = HttpUtility.ParseQueryString(uri.Query).Get("s");
+            SetSeed(seedParameter);
         }
-        catch (Exception ex)
+        catch
         {
             RollSeed();
         }
 
-        try { 
-            var flags = HttpUtility.ParseQueryString(uri.Query).Get("f");
-            SetFlags(flags);
-        }
-        catch (Exception ex)
+        var flagsParameter = HttpUtility.ParseQueryString(uri.Query).Get("f");
+        if (flagsParameter != null)
         {
-            flagsMessage = "Invalid flags string.";
+            SetFlags(flagsParameter);                
         }
     }
 
