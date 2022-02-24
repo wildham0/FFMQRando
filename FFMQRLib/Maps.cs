@@ -146,6 +146,14 @@ namespace FFMQLib
 			{ 
 				return (byte)(_tiledata[(_maparray[(y * _dimensions.Item1) + x] & 0x7F) * 2] & 0x0F);
 			}
+			public bool IsScriptTile(int x, int y)
+			{
+				return (_tiledata[((_maparray[(y * _dimensions.Item1) + x] & 0x7F) * 2) + 1] & 0x80) == 0x80;
+			}
+			public byte TileValue(int x, int y)
+			{
+				return (byte)(_maparray[(y * _dimensions.Item1) + x] & 0x7F);
+			}
 			private byte tileconverter(byte[] tiledata)
 			{
 				if ((tiledata[0] & 0x07) == 0x07)

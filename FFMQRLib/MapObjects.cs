@@ -202,7 +202,7 @@ namespace FFMQLib
 					new List<(int, int)> { (0x21, 0x3D) }, // Ice Pyramid 1
 					new List<(int, int)> { }, // Ice Pyramid 2
 					new List<(int, int)> { }, // Lava Dome Exterior
-					new List<(int, int)> { (0x35, 0x14), (0x33, 0x14), (0x36, 0x0A), (0x36, 0x08), (0x34, 0x08), (0x32, 0x08), (0x29, 0x1E), (0x27, 0x1E), (0x29, 0x20), (0x29, 0x22), (0x2B, 0x22), (0x29, 0x24), (0x2B, 0x24), (0x29, 0x26), }, // Lava Dome Interior 1
+					new List<(int, int)> { (0x35, 0x14), (0x33, 0x14), (0x36, 0x0A), (0x36, 0x08), (0x34, 0x08), (0x32, 0x08), (0x29, 0x1E), (0x27, 0x1E), (0x29, 0x20), (0x29, 0x22), (0x2B, 0x22), (0x29, 0x24), (0x2B, 0x24), (0x29, 0x26), (0x19, 0x36), (0x03, 0x34), (0x05, 0x2C), (0x02, 0x23), (0x0E, 0x24) }, // Lava Dome Interior 1
 					new List<(int, int)> { (0x0B, 0x12), (0x07, 0x14), (0x09, 0x19), (0x13, 0x14), (0x11, 0x14), (0x39, 0x05), (0x25, 0x0C), (0x23, 0x12), (0x25, 0x12), (0x2A, 0x0C), (0x2C, 0x0C), (0x38, 0x11), (0x36, 0x11), (0x2E, 0x16), (0x30, 0x16) }, // Lava Dome Interior 2
 					new List<(int, int)> { (0x14, 0x0A), (0x10, 0x12), (0x10, 0x13), (0x0F, 0x16), (0x0F, 0x17), (0x12, 0x31), (0x14, 0x31), (0x2C, 0x33), (0x2A, 0x33), (0x32, 0x33), (0x34, 0x33) }, // Pazuzu Tower 1
 					new List<(int, int)> { (0x2D, 0x19), (0x10, 0x2D), (0x06, 0x2E), (0x07, 0x32) }, // Pazuzu Tower 2
@@ -215,7 +215,7 @@ namespace FFMQLib
 					new List<(int, int)> { (0x2C, 0x1A), (0x25, 0x13), (0x1F, 0x13), (0x1E, 0x13), (0x1C, 0x1E), (0x1B, 0x1E), (0x1A, 0x1E), (0x19, 0x1E), (0x18, 0x1E), (0x0D, 0x12), (0x0E, 0x12), (0x0F, 0x12), (0x13, 0x13), (0x13, 0x15), (0x13, 0x17) }, // !Doom Castle Base
 					new List<(int, int)> { }, // Tower
 					new List<(int, int)> { (0x1C, 0x24), (0x20, 0x24), (0x1C, 0x20), (0x25, 0x1A), (0x24, 0x19), (0x0F, 0x26), (0x1B, 0x0F), (0x1E, 0x16), (0x11, 0x1A), (0x0A, 0x17), (0x0B, 0x16), (0x18, 0x0B)}, // !Doom Castle Ice floor
-					new List<(int, int)> { }, // !Doom Castle Fire floor
+					new List<(int, int)> { (0x25, 0x1C), (0x25, 0x1F), (0x22, 0x17), (0x1B, 0x16), (0x1A, 0x1F), (0x13, 0x1F), (0x10, 0x09), (0x11, 0x09), (0x12, 0x11), (0x14, 0x18), (0x18, 0x0B), (0x0B, 0x20) }, // !Doom Castle Fire floor
 					new List<(int, int)> { (0x19, 0x22), (0x17, 0x22) }, // Doom Castle Sky floor
 					new List<(int, int)> { }, // Doom Castle Hero floor
 					new List<(int, int)> { }, // Dark King floor
@@ -231,13 +231,15 @@ namespace FFMQLib
 					return;
 				}
 
-				List<int> collectionToSkip = new() { _pointerCollectionPairs[0x40], _pointerCollectionPairs[0x67] }; // Skip lava floors for now, as they are too peculiar for shuffling
+				//List<int> collectionToSkip = new() { _pointerCollectionPairs[0x40], _pointerCollectionPairs[0x67] }; // Skip lava floors for now, as they are too peculiar for shuffling
 
+				List<byte> excludedTiles = new();
+				
 				for (int i = 0; i < _collections.Count; i++)
 				{
 					
 					var enemiescollection = _collections[i].Where(x => x.Type == MapObjectType.Battle).ToList();
-					if (!enemiescollection.Any() || collectionToSkip.Contains(i))
+					if (!enemiescollection.Any())
 					{
 						continue;
 					}
@@ -268,14 +270,53 @@ namespace FFMQLib
 						}
 					}
 
-          foreach (var enemy in enemiescollection)
+					if (targetmap == (int)MapList.LavaDomeExterior || targetmap == (int)MapList.LavaDomeInteriorA)
+					{
+						excludedTiles = new() { 0x7E, 0xFE, 0x37, 0x41 };
+					}
+					else if (targetmap == (int)MapList.LavaDomeInteriorB)
+					{
+						excludedTiles = new() { 0x49, 0x4B, 0x7D };
+					}
+					else if (targetmap == (int)MapList.DoomCastleLava)
+					{
+						excludedTiles = new() { 0x57, 0x41 };
+					}
+					else
+					{
+						excludedTiles = new();
+					}
+					//for(int i = 0; i < maps[targetmap].)
+					/*
+					if (targetmap == 0x0D || targetmap == 0x0E) // Special exception for Living Tree's hooks
+					{
+						var hookList = _collections[i].Where(x => x.Sprite == 0x28).ToList();
+						foreach (var hook in hookList)
+						{
+							for (int j = minx; j <= maxx; j++)
+							{
+								selectedPositions.Add(((byte)j, (byte)hook.Y));
+							}
+
+							for (int j = miny; j <= maxy; j++)
+							{
+								selectedPositions.Add(((byte)hook.X, (byte)j));
+							}
+						}
+					}*/
+
+					foreach (var enemy in enemiescollection)
 					{
 						bool placed = false;
 						while (!placed)
 						{
 							byte newx = (byte)rng.Between(minx, maxx);
 							byte newy = (byte)rng.Between(miny, maxy);
-							if (!selectedPositions.Contains((newx, newy)) && !barredTiles[targetmap].Contains((newx, newy)) && validLayers.Contains(maps[targetmap].WalkableByte((int)newx, (int)newy)))
+							if (!selectedPositions.Contains((newx, newy))
+								&& !barredTiles[targetmap].Contains((newx, newy))
+								&& validLayers.Contains(maps[targetmap].WalkableByte((int)newx, (int)newy))
+								&& !maps[targetmap].IsScriptTile((int)newx, (int)newy)
+								&& !excludedTiles.Contains(maps[targetmap].TileValue((int)newx, (int)newy)))
 							{
 								selectedPositions.Add((newx, newy));
 								enemy.X = newx;
