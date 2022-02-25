@@ -122,11 +122,11 @@ namespace FFMQLib
 		public static TreasureObject IcePyramid17 = new TreasureObject(0x66, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
 		public static TreasureObject IcePyramid18 = new TreasureObject(0x67, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
 		public static TreasureObject IcePyramid19 = new TreasureObject(0x68, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
-		public static TreasureObject IcePyramid20 = new TreasureObject(0x69, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
+		public static TreasureObject IcePyramid20 = new TreasureObject(0x69, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword, AccessReqs.Claw, AccessReqs.Bomb });
 		public static TreasureObject IcePyramid21 = new TreasureObject(0x6A, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
 		public static TreasureObject IcePyramid22 = new TreasureObject(0x6B, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
 		public static TreasureObject IcePyramid23 = new TreasureObject(0x6C, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
-		public static TreasureObject IcePyramid24 = new TreasureObject(0x6D, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
+		public static TreasureObject IcePyramid24 = new TreasureObject(0x6D, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword, AccessReqs.Claw, AccessReqs.Bomb });
 		public static TreasureObject IcePyramid25 = new TreasureObject(0x6E, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
 		public static TreasureObject IcePyramid26 = new TreasureObject(0x62, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
 		public static TreasureObject IcePyramid27 = new TreasureObject(0x62, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
