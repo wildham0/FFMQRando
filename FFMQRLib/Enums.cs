@@ -51,6 +51,7 @@ namespace FFMQLib
 		ShowColumnMoved = 0x21,
 		HillCollapsed = 0x22,
 		SandCoinUsed = 0x23,
+		ShowFireburgBoulder = 0x2E,
 		ShowForestaBoulder = 0x34,
 		WintryCaveCollapsed = 0x35,
 		GiantTreeUnset = 0x3A,
@@ -442,7 +443,7 @@ namespace FFMQLib
 		EnterFallBasin, // Teleport and run intro script
 		EnterIcePyramid,
 		ReceiveWakeWater,
-		Unknown4f // Teleport to an Inn
+		EnterWindiaInn // Teleport to an Inn
 	}
 
 	public enum TalkScriptsList : int
@@ -538,6 +539,35 @@ namespace FFMQLib
 
 
 
+	}
+	public enum BattlefieldRewardType : byte
+	{
+		Gold = 0x00,
+		Item = 0x40,
+		Experience = 0x80,
+	}
+	public enum OverworldSpritesId : byte
+	{
+		ForestaSouthBattlefield = 0x11,
+		ForestaWestBattlefield = 0x12,
+		ForestaEastBattlefield = 0x13,
+		AquariaBattlefield01 = 0x14,
+		AquariaBattlefield02 = 0x15,
+		AquariaBattlefield03 = 0x16,
+		WintryBattlefield01 = 0x17,
+		WintryBattlefield02 = 0x18,
+		PyramidBattlefield01 = 0x19,
+		LibraBattlefield01 = 0x1A,
+		LibraBattlefield02 = 0x1B,
+		FireburgBattlefield01 = 0x1C,
+		FireburgBattlefield02 = 0x1D,
+		FireburgBattlefield03 = 0x1E,
+		MineBattlefield01 = 0x1F,
+		MineBattlefield02 = 0x20,
+		MineBattlefield03 = 0x21,
+		VolcanoBattlefield01 = 0x22,
+		WindiaBattlefield01 = 0x23,
+		WindiaBattlefield02 = 0x24,
 	}
 	public enum Locations : byte
 	{

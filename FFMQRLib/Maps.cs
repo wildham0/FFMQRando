@@ -144,7 +144,7 @@ namespace FFMQLib
 			}
 			public byte WalkableByte(int x, int y)
 			{ 
-				return (byte)(_tiledata[(_maparray[(y * _dimensions.Item1) + x] & 0x7F) * 2] & 0x0F);
+				return (byte)(_tiledata[(_maparray[(y * _dimensions.Item1) + x] & 0x7F) * 2] & 0x07);
 			}
 			public bool IsScriptTile(int x, int y)
 			{

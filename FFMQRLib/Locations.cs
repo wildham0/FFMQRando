@@ -121,27 +121,66 @@ namespace FFMQLib
 	}
 	public class Battlefields
 	{
+		private const int BattlefieldsRewardsBank = 0x07;
+		private const int BattlefieldsRewardsOffset = 0xEFA1;
+
+		private const int BattlefieldsQty = 0x14;
 
 		private List<byte> _battlesQty;
-		private const int BattlefieldsQty = 0x14;
-		private Items ForestaWestBattlefield = Items.Charm;
-		private Items AquariaBattlefield03 = Items.MagicRing;
-		private Items LibraBattlefield01 = Items.ExitBook;
-		private Items FireburgBattlefield02 = Items.GeminiCrest;
-		private Items MineBattlefield02 = Items.ThunderSeal;
+		private List<Blob> _rewards;
+
+		public List<Locations> BattlefieldsWithItem;
 
 		public Battlefields(FFMQRom rom)
 		{
 			_battlesQty = rom.GetFromBank(0x0C, 0xD4D0, BattlefieldsQty).Chunk(1).Select(x => x[0]).ToList();
-		}
+			_rewards = rom.GetFromBank(BattlefieldsRewardsBank, BattlefieldsRewardsOffset, BattlefieldsQty * 2).Chunk(2);
 
+			BattlefieldsWithItem = new();
+
+			for (int i = 0; i < _battlesQty.Count; i++)
+			{
+				if ((BattlefieldRewardType)(_rewards[i][1] & 0b1100_0000) == BattlefieldRewardType.Item)
+				{
+					BattlefieldsWithItem.Add((Locations)(i + 1));
+				}
+			}
+		}
 		public void PlaceItems(ItemsPlacement itemsPlacement)
 		{
-			ForestaWestBattlefield = itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.ForestaWestBattlefield).Content;
-			AquariaBattlefield03 = itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.AquariaBattlefield03).Content;
-			LibraBattlefield01 = itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.LibraBattlefield01).Content;
-			FireburgBattlefield02 = itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.FireburgBattlefield02).Content;
-			MineBattlefield02 = itemsPlacement.ItemsLocations.Find(x => x.Location == Locations.MineBattlefield02).Content;
+			var battlefieldsWithItem = itemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.Battlefield && x.Content != Items.None).ToList();
+
+			foreach (var battlefield in battlefieldsWithItem)
+			{
+				_rewards[(int)(battlefield.Location - 1)][0] = (byte)battlefield.Content;
+			}
+		}
+		public void ShuffleBattelfieldRewards(Flags flags, MT19337 rng)
+		{
+			if (!flags.ShuffleBattlefieldRewards)
+			{
+				return;
+			}
+			
+			_rewards.Shuffle(rng);
+
+			BattlefieldsWithItem.Clear();
+
+			for (int i = 0; i < _battlesQty.Count; i++)
+			{
+				if ((BattlefieldRewardType)(_rewards[i][1] & 0b1100_0000) == BattlefieldRewardType.Item)
+				{
+					BattlefieldsWithItem.Add((Locations)(i + 1));
+				}
+			}
+		}
+		public BattlefieldRewardType GetRewardType(Locations targetBattlefield)
+		{
+			return (BattlefieldRewardType)(_rewards[(int)(targetBattlefield - 1)][1] & 0b1100_0000);
+		}
+		public List<BattlefieldRewardType> GetAllRewardType()
+		{
+			return _rewards.Select(x => (BattlefieldRewardType)(x[1] & 0b1100_0000)).ToList();
 		}
 		public void SetBattlesQty(Flags flags, MT19337 rng)
 		{
@@ -168,12 +207,7 @@ namespace FFMQLib
 		public void Write(FFMQRom rom)
 		{
 			rom.PutInBank(0x0C, 0xD4D0, _battlesQty.ToArray());
-
-			rom.PutInBank(0x07, 0xEFA3, new byte[] { (byte)ForestaWestBattlefield });
-			rom.PutInBank(0x07, 0xEFAB, new byte[] { (byte)AquariaBattlefield03 });
-			rom.PutInBank(0x07, 0xEFB3, new byte[] { (byte)LibraBattlefield01 });
-			rom.PutInBank(0x07, 0xEFB9, new byte[] { (byte)FireburgBattlefield02 });
-			rom.PutInBank(0x07, 0xEFBF, new byte[] { (byte)MineBattlefield02 });
+			rom.PutInBank(BattlefieldsRewardsBank, BattlefieldsRewardsOffset, _rewards.SelectMany(x => x.ToBytes()).ToArray());
 		}
 	
 	}

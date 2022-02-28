@@ -17,6 +17,7 @@ namespace FFMQLib
         public EnemiesScalingSpread EnemiesScalingSpread { get; set; } = EnemiesScalingSpread.None;
         public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
         public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;
+        public bool ShuffleBattlefieldRewards { get; set; } = false;
         public bool RandomStartingWeapon { get; set; } = false;
 
         public string GenerateFlagString()

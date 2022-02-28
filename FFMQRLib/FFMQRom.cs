@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.2.21";
+		public static string VersionNumber = "0.2.22";
 		public static string Version = VersionNumber + "-alpha";
 	}
 	
@@ -107,6 +107,7 @@ namespace FFMQLib
 			TileScripts = new(this, RomOffsets.TileScriptsPointers, RomOffsets.TileScriptPointerQty, RomOffsets.TileScriptOffset, RomOffsets.TileScriptEndOffset);
 			Battlefields = new(this);
 			MapChanges = new(this);
+			Overworld overworld = new(this);
 			TitleScreen titleScreen = new(this);
 
 			List<Map> mapList = new();
@@ -130,9 +131,8 @@ namespace FFMQLib
 			enemiesStats.ScaleEnemies(flags, rng);
 			nodeLocations.OpenNodes();
 			Battlefields.SetBattlesQty(flags, rng);
-
-
-
+			Battlefields.ShuffleBattelfieldRewards(flags, rng);
+			overworld.UpdateBattlefieldsColor(flags, Battlefields);
 			ItemsPlacement itemsPlacement = new(this, flags, rng);
 
 			SetStartingWeapons(itemsPlacement);
@@ -156,6 +156,7 @@ namespace FFMQLib
 			GameFlags.Write(this);
 			nodeLocations.Write(this);
 			Battlefields.Write(this);
+			overworld.Write(this);
 			MapObjects.WriteAll(this);
 			titleScreen.Write(this, Metadata.VersionNumber, seed, flags);
 
@@ -170,6 +171,7 @@ namespace FFMQLib
 			Put(RomOffsets.GameStartScript, Blob.FromHex("23222b7a2a0b2700200470002ab05320501629ffff00"));
 			
 			GameFlags[(int)GameFlagsList.ShowPazuzuBridge] = true;
+			GameFlags[(int)GameFlagsList.ShowFireburgBoulder] = false;
 
 			/*** Level Forest ***/
 			// Enter Level Forest
@@ -356,7 +358,7 @@ namespace FFMQLib
 					"050C03[04]",
 					"1A000A37FF", // Locked...
 					$"2E{(int)NewGameFlagsList.VenusChestUnopened:X2}[06]",
-					"0D08788600",
+					"08788600",
 					"2A2827082C80FBFFFF", // need some adjusting
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.VenusChest]:X2}0062",
 					$"2B{(int)NewGameFlagsList.VenusChestUnopened:X2}",
@@ -550,7 +552,6 @@ namespace FFMQLib
 					"05E44F13",
 					"2A42FF1E2529E6FFFF",
 					"2312",
-					"235E",
 					"2B50",
 					"2B07",
 					"23CD",
@@ -967,6 +968,11 @@ namespace FFMQLib
 					$"05E6{(int)Companion.PhoebePromo:X2}085B85",
 					$"2B{(int)NewGameFlagsList.ShowWindiaPhoebe:X2}",
 					"00"
+				}));
+
+			TileScripts.AddScript((int)TileScriptsList.EnterWindiaInn,
+				new ScriptBuilder(new List<string> {
+					"2C1F0200",
 				}));
 
 			// Otto

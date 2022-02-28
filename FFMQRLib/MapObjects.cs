@@ -231,8 +231,6 @@ namespace FFMQLib
 					return;
 				}
 
-				//List<int> collectionToSkip = new() { _pointerCollectionPairs[0x40], _pointerCollectionPairs[0x67] }; // Skip lava floors for now, as they are too peculiar for shuffling
-
 				List<byte> excludedTiles = new();
 				
 				for (int i = 0; i < _collections.Count; i++)
@@ -282,28 +280,20 @@ namespace FFMQLib
 					{
 						excludedTiles = new() { 0x57, 0x41 };
 					}
+					else if (targetmap == (int)MapList.GiantTreeA || targetmap == (int)MapList.GiantTreeB)
+					{
+						excludedTiles = new() { 0x06, 0x16 };
+					}
 					else
 					{
 						excludedTiles = new();
 					}
-					//for(int i = 0; i < maps[targetmap].)
-					/*
-					if (targetmap == 0x0D || targetmap == 0x0E) // Special exception for Living Tree's hooks
-					{
-						var hookList = _collections[i].Where(x => x.Sprite == 0x28).ToList();
-						foreach (var hook in hookList)
-						{
-							for (int j = minx; j <= maxx; j++)
-							{
-								selectedPositions.Add(((byte)j, (byte)hook.Y));
-							}
 
-							for (int j = miny; j <= maxy; j++)
-							{
-								selectedPositions.Add(((byte)hook.X, (byte)j));
-							}
-						}
-					}*/
+					// Worm Party
+					if (i == _pointerCollectionPairs[0x48] && rng.Between(1,10) == 10)
+					{
+						validLayers = new() { 0x02 };
+					}
 
 					foreach (var enemy in enemiescollection)
 					{
@@ -405,7 +395,7 @@ namespace FFMQLib
 				_array[2] = (byte)((UnknownIndex * 64) + (Y & 0b0011_1111));
 				_array[3] = (byte)((Orientation * 64) + (X & 0b0011_1111));
 				_array[4] = (byte)(Palette * 16 + Behavior);
-				_array[5] = (byte)(((int)Type * 8) + (Solid ? 0 : 0b0010_0000) + (Pushable ? 0b0100_0000 : 0) + (Layer & 0b0000_0011) + (_array[5] & 0b1000_0100));
+				_array[5] = (byte)(((int)Type * 8) + (Solid ? 0 : 0b0010_0000) + (Pushable ? 0b0100_0000 : 0) + (Layer & 0b0000_0111) + (_array[5] & 0b1000_0000));
 				_array[6] = (byte)((int)Sprite + (_array[6] & 0b1000_0000));
 			}
 
@@ -422,7 +412,7 @@ namespace FFMQLib
 				Type = (MapObjectType)((_array[5] & 0b0001_1000) / 8);
 				Solid = (bool)((_array[5] & 0b0010_0000) == 0);
 				Pushable = (bool)((_array[5] & 0b0100_0000) != 0);
-				Layer = (byte)(_array[5] & 0b0000_0011);
+				Layer = (byte)(_array[5] & 0b0000_0111);
 				Sprite = (byte)(_array[6] & 0b0111_1111);
 			}
 			public void Write(FFMQRom rom)

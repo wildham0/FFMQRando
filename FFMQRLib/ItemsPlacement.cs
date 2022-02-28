@@ -21,6 +21,7 @@ namespace FFMQLib
 
 		public ItemsPlacement(FFMQRom rom, Flags flags, MT19337 rng)
 		{
+			
 			bool badPlacement = true;
 			int counter = 0;
 			int placedChests = 0;
@@ -41,6 +42,17 @@ namespace FFMQLib
 				else
 				{
 					ItemsLocations = new(ItemLocations.AllChestsNPCsBattlefields().ToList());
+				}
+
+				// Update Battlefields if shuffled
+				if (flags.ShuffleBattlefieldRewards)
+				{
+					var battlefields = ItemsLocations.Where(x => x.Type == TreasureType.Battlefield).ToList();
+
+					for (int i = 0; i < battlefields.Count(); i++)
+					{
+						battlefields[i].Location = rom.Battlefields.BattlefieldsWithItem[i];
+					}
 				}
 
 				List<Items> placedItems = new();

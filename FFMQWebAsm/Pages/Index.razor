@@ -111,6 +111,9 @@
     </Select>
 </Field>
 <Field>
+    <Switch TValue="bool" @bind-Checked="@flags.ShuffleBattlefieldRewards"><Text TextColor="TextColor.Secondary" class="fw-bold">Shuffle Battlefields Rewards</Text></Switch>
+</Field>
+<Field>
     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Battlefields Battles Quantity</FieldLabel> 
     <Select @bind-SelectedValue="@flags.BattlesQuantity">
         @foreach(var item in Enum.GetValues<FFMQLib.BattlesQty>())
@@ -198,7 +201,7 @@
             romMessage = "ROM file generated successfully.";
 
             var fs = newRom.DataStream();
-            var fileName = "FFMQR_" + seed.ToHex() + ".sfc";
+            var fileName = "FFMQR_" + FFMQLib.Metadata.VersionNumber + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".sfc";
 
             using var streamRef = new DotNetStreamReference(stream: fs);
 
