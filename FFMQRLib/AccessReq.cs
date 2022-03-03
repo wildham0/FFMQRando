@@ -293,7 +293,7 @@ namespace FFMQLib
 		{
 			List<TreasureObject> properties = new();
 			ItemLocations instance = new();
-			//Type type = typeof(ItemLocations);
+
 			foreach (PropertyInfo prop in typeof(ItemLocations).GetProperties())
 			{
 				properties.Add(new TreasureObject((TreasureObject)prop.GetValue(instance)));
@@ -305,7 +305,7 @@ namespace FFMQLib
 		{
 			List<TreasureObject> properties = new();
 			ItemLocations instance = new();
-			//Type type = typeof(ItemLocations);
+
 			foreach (PropertyInfo prop in typeof(ItemLocations).GetProperties())
 			{
 				properties.Add((TreasureObject)prop.GetValue(instance));
@@ -317,7 +317,7 @@ namespace FFMQLib
 		{
 			List<TreasureObject> properties = new();
 			ItemLocations instance = new();
-			//Type type = typeof(ItemLocations);
+
 			foreach (FieldInfo prop in typeof(ItemLocations).GetFields())
 			{
 				if (prop.FieldType == typeof(TreasureObject))
@@ -330,17 +330,15 @@ namespace FFMQLib
 			for (int i = 0; i < properties.Count; i++)
 			{
 				properties[i].AccessRequirements.AddRange(LocationAccessReq[properties[i].Location]);
-				//properties[i].Content = Items.None;
 			}
 
-			//return properties.ToList();
 			return properties.Where(x => x.Type == TreasureType.NPC || (x.Type == TreasureType.Chest && x.ObjectId < 0x30)).ToList();
 		}
-		public static List<TreasureObject> AllChestsNPCsBattlefields()
+		public static List<TreasureObject> AllChestsNPCsBattlefields(Flags flags, Battlefields battlefields)
 		{
 			List<TreasureObject> properties = new();
 			ItemLocations instance = new();
-			//Type type = typeof(ItemLocations);
+
 			foreach (FieldInfo prop in typeof(ItemLocations).GetFields())
 			{
 				if (prop.FieldType == typeof(TreasureObject))
@@ -350,21 +348,30 @@ namespace FFMQLib
 
 			}
 
+			// Update Battlefields Locations
+			if (flags.ShuffleBattlefieldRewards)
+			{
+				var battlefieldsLocation = properties.Where(x => x.Type == TreasureType.Battlefield).ToList();
+
+				for (int i = 0; i < battlefieldsLocation.Count(); i++)
+				{
+					battlefieldsLocation[i].Location = battlefields.BattlefieldsWithItem[i];
+				}
+			}
+
 			for (int i = 0; i < properties.Count; i++)
 			{
 				properties[i].AccessRequirements.AddRange(LocationAccessReq[properties[i].Location]);
-				//properties[i].Content = Items.None;
 			}
 
-			//return properties.ToList();
 			return properties.Where(x => x.Type == TreasureType.NPC || (x.Type == TreasureType.Chest && x.ObjectId < 0x30) || x.Type == TreasureType.Battlefield).ToList();
 		}
 
-		public static List<TreasureObject> AllEverything()
+		public static List<TreasureObject> AllEverything(Flags flags, Battlefields battlefields)
 		{
 			List<TreasureObject> properties = new();
 			ItemLocations instance = new();
-			//Type type = typeof(ItemLocations);
+			
 			foreach (FieldInfo prop in typeof(ItemLocations).GetFields())
 			{
 				if (prop.FieldType == typeof(TreasureObject))
@@ -374,20 +381,29 @@ namespace FFMQLib
 
 			}
 
+			// Update Battlefields Locations
+			if (flags.ShuffleBattlefieldRewards)
+			{
+				var battlefieldsLocation = properties.Where(x => x.Type == TreasureType.Battlefield).ToList();
+
+				for (int i = 0; i < battlefieldsLocation.Count(); i++)
+				{
+					battlefieldsLocation[i].Location = battlefields.BattlefieldsWithItem[i];
+				}
+			}
+
 			for (int i = 0; i < properties.Count; i++)
 			{
 				properties[i].AccessRequirements.AddRange(LocationAccessReq[properties[i].Location]);
-				//properties[i].Content = Items.None;
 			}
 
-			//return properties.ToList();
 			return properties.Where(x => x.Type == TreasureType.NPC || (x.Type == TreasureType.Chest && x.ObjectId < 0x30) || x.Type == TreasureType.Box || x.Type == TreasureType.Battlefield).ToList();
 		}
 		public static List<TreasureObject> AllNPCsItems()
 		{
 			List<TreasureObject> properties = new();
 			ItemLocations instance = new();
-			//Type type = typeof(ItemLocations);
+
 			foreach (PropertyInfo prop in typeof(ItemLocations).GetProperties())
 			{
 				properties.Add((TreasureObject)prop.GetValue(instance));
@@ -431,6 +447,7 @@ namespace FFMQLib
 			{ Locations.FireburgBattlefield03, new List<AccessReqs> { AccessReqs.RiverCoin } },
 			{ Locations.MineBattlefield01, new List<AccessReqs> { AccessReqs.RiverCoin } },
 			{ Locations.MineBattlefield02, new List<AccessReqs> { AccessReqs.RiverCoin } },
+			{ Locations.MineBattlefield03, new List<AccessReqs> { AccessReqs.RiverCoin } },
 			{ Locations.VolcanoBattlefield01, new List<AccessReqs> { AccessReqs.RiverCoin } },
 			{ Locations.WindiaBattlefield01, new List<AccessReqs> { AccessReqs.SunCoin } },
 			{ Locations.WindiaBattlefield02, new List<AccessReqs> { AccessReqs.SunCoin } },

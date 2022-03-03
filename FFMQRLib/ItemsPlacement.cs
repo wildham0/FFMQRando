@@ -33,26 +33,14 @@ namespace FFMQLib
 				badPlacement = false;
 				placedChests = 0;
 				List<Items> itemsList = RandomizeItemsOrder(flags, rng);
-				//List<int> placedLocations = new();
 
 				if (flags.ItemShuffle == ItemShuffle.AllItems)
 				{
-					ItemsLocations = new(ItemLocations.AllEverything().ToList());
+					ItemsLocations = new(ItemLocations.AllEverything(flags, rom.Battlefields).ToList());
 				}
 				else
 				{
-					ItemsLocations = new(ItemLocations.AllChestsNPCsBattlefields().ToList());
-				}
-
-				// Update Battlefields if shuffled
-				if (flags.ShuffleBattlefieldRewards)
-				{
-					var battlefields = ItemsLocations.Where(x => x.Type == TreasureType.Battlefield).ToList();
-
-					for (int i = 0; i < battlefields.Count(); i++)
-					{
-						battlefields[i].Location = rom.Battlefields.BattlefieldsWithItem[i];
-					}
+					ItemsLocations = new(ItemLocations.AllChestsNPCsBattlefields(flags, rom.Battlefields).ToList());
 				}
 
 				List<Items> placedItems = new();
