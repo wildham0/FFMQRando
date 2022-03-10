@@ -163,8 +163,8 @@ namespace FFMQLib
 		public static TreasureObject LavaDome21 = new TreasureObject(0x9E, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject LavaDome22 = new TreasureObject(0x9F, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject LavaDome23 = new TreasureObject(0xA0, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
-		public static TreasureObject LavaDome24 = new TreasureObject(0xA1, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
-		public static TreasureObject LavaDome25 = new TreasureObject(0xA2, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
+		//public static TreasureObject LavaDome24 = new TreasureObject(0xA1, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { }); // Unacessible boxes? See mapbojects 0x41
+		//public static TreasureObject LavaDome25 = new TreasureObject(0xA2, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject LavaDome26 = new TreasureObject(0x8C, (int)MapList.LavaDomeInteriorB, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject LavaDome27 = new TreasureObject(0x8D, (int)MapList.LavaDomeInteriorB, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject LavaDome28 = new TreasureObject(0x8E, (int)MapList.LavaDomeInteriorB, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });

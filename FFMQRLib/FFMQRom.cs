@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.2.23";
+		public static string VersionNumber = "0.2.24";
 		public static string Version = VersionNumber + "-alpha";
 	}
 	
@@ -30,8 +30,24 @@ namespace FFMQLib
 		{
 			using (SHA256 hasher = SHA256.Create())
 			{
-				Blob hash = hasher.ComputeHash(Data);
-				if (hash == Blob.FromHex("F71817F55FEBD32FD1DCE617A326A77B6B062DD0D4058ECD289F64AF1B7A1D05"))
+				byte[] dataToHash = new byte[0x80000];
+				Array.Copy(Data, dataToHash, 0x80000);
+
+				// zero out benjamin's sprites
+				for (int i = 0x21A20; i < (0x24A20 + 0x180 * 1); i++)
+				{
+					dataToHash[i] = 0;
+				}
+
+				for (int i = 0x24A20; i < (0x24A20 + 0x180 * 5); i++)
+				{
+					dataToHash[i] = 0;
+				}
+
+				Blob hash = hasher.ComputeHash(dataToHash);
+
+				// if (hash == Blob.FromHex("F71817F55FEBD32FD1DCE617A326A77B6B062DD0D4058ECD289F64AF1B7A1D05")) unadultered hash
+				if (hash == Blob.FromHex("3B488D148358EA263FB7E800ABA92BBF6D3CE41E5E33C3C1F6CA1EF5E23C6CFC"))
 				{
 					return true;
 				}
