@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.2.24";
+		public static string VersionNumber = "0.2.25";
 		public static string Version = VersionNumber + "-alpha";
 	}
 	
@@ -24,6 +24,7 @@ namespace FFMQLib
 		public GameScriptManager TalkScripts;
 		public Battlefields Battlefields;
 		public TilesProperties TilesProperties;
+		public Overworld Overworld;
 		private byte[] originalData;
 
 		public override bool Validate()
@@ -123,7 +124,7 @@ namespace FFMQLib
 			TileScripts = new(this, RomOffsets.TileScriptsPointers, RomOffsets.TileScriptPointerQty, RomOffsets.TileScriptOffset, RomOffsets.TileScriptEndOffset);
 			Battlefields = new(this);
 			MapChanges = new(this);
-			Overworld overworld = new(this);
+			Overworld = new(this);
 			TitleScreen titleScreen = new(this);
 
 			List<Map> mapList = new();
@@ -148,7 +149,7 @@ namespace FFMQLib
 			nodeLocations.OpenNodes();
 			Battlefields.SetBattlesQty(flags, rng);
 			Battlefields.ShuffleBattelfieldRewards(flags, rng);
-			overworld.UpdateBattlefieldsColor(flags, Battlefields);
+			Overworld.UpdateBattlefieldsColor(flags, Battlefields);
 			ItemsPlacement itemsPlacement = new(this, flags, rng);
 
 			SetStartingWeapons(itemsPlacement);
@@ -172,7 +173,7 @@ namespace FFMQLib
 			GameFlags.Write(this);
 			nodeLocations.Write(this);
 			Battlefields.Write(this);
-			overworld.Write(this);
+			Overworld.Write(this);
 			MapObjects.WriteAll(this);
 			titleScreen.Write(this, Metadata.VersionNumber, seed, flags);
 
@@ -187,7 +188,11 @@ namespace FFMQLib
 			Put(RomOffsets.GameStartScript, Blob.FromHex("23222b7a2a0b2700200470002ab05320501629ffff00"));
 			
 			GameFlags[(int)GameFlagsList.ShowPazuzuBridge] = true;
-			GameFlags[(int)GameFlagsList.ShowFireburgBoulder] = false;
+
+			for (int i = 0; i < 4; i++)
+			{
+				Overworld.RemoveObject(i);
+			}
 
 			/*** Level Forest ***/
 			// Enter Level Forest
@@ -911,6 +916,9 @@ namespace FFMQLib
 				new ScriptBuilder(new List<string>{
 					"00",
 				}));
+			
+			// Fix Alive Forest's Mobius teleporter disapearing after clearing Giant Tree
+			MapChanges.Modify(0x0E, 0x17, 0x52);
 
 			/*** Giant Tree ***/
 			// Set door to chests in Giant Tree to open only once chimera is defeated
@@ -918,6 +926,8 @@ namespace FFMQLib
 			MapObjects[0x46][0x04].RawOverwrite(Blob.FromHex("0002073816002C")); // Put new map object to talk to
 			Data[0x0437F4] = 0x3E; // Change map to block exit
 			Data[0x02F65D] = 0x08; // Change exit coordinate
+
+
 
 			TalkScripts.AddScript(0x02, new ScriptBuilder(new List<string>
 				{

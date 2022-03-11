@@ -329,6 +329,10 @@ namespace FFMQLib
 			_mapchanges.Add(mapchange);
 			return (byte)(_mapchanges.Count() - 1);
 		}
+		public void Modify(int index, int address, byte modification)
+		{
+			_mapchanges[index][address] = modification;
+		}
 		public void Replace(int index, Blob mapchange)
 		{
 			_mapchanges[index] = mapchange;

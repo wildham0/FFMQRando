@@ -53,6 +53,11 @@ namespace FFMQLib
                 }
             }
         }
+        public void RemoveObject(int index)
+        {
+            owObjects[index].Data[0] = 0;
+            owObjects[index].Data[1] = 0;
+        }
         public void Write(FFMQRom rom)
         {
             rom.PutInBank(OWObjectBank, OWObjectOffset, owObjects.SelectMany(x => x.Data).ToArray());

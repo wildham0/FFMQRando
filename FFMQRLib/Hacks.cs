@@ -113,9 +113,6 @@ namespace FFMQLib
 			// Fix Giant Tree Axe-less softlock by blocking access from outside the forest
 			PutInBank(0x03, 0xA4A3, Blob.FromHex("2E"));
 			PutInBank(0x03, 0xA625, Blob.FromHex("7B"));
-
-			// Fix Alive Forest's Mobius teleporter disapearing after clearing Giant Tree
-			PutInBank(0x12, 0x8219, Blob.FromHex("52"));
 		}
 
 		public void BugFixes()
