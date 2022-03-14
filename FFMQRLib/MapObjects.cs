@@ -290,7 +290,7 @@ namespace FFMQLib
 					}
 
 					// Worm Party
-					if (i == _pointerCollectionPairs[0x48] && rng.Between(1,10) == 10)
+					if (i == _pointerCollectionPairs[0x48] && rng.Between(1,20) == 10)
 					{
 						validLayers = new() { 0x02 };
 					}

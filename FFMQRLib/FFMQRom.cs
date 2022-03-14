@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.2.25";
+		public static string VersionNumber = "0.2.26";
 		public static string Version = VersionNumber + "-alpha";
 	}
 	
