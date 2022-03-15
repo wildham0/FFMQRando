@@ -266,7 +266,7 @@ namespace FFMQLib
 					"2d" + ScriptItemFlags[Items.TreeWither].Item1,
 					"050c" + ScriptItemFlags[Items.TreeWither].Item2 + "[04]",
 					"1A15" + TextToHex("Hey there, lubber. The forest is dying? Tell that to the &%?! marines! It's totally fine.") + "3600",
-					"1A15" + TextToHex("!&%?! Look at that rotten hollard! Ok, let's go Johnny raw, we have some cursed tree to chop!") + "36",
+					"1A15" + TextToHex("!&%?! Look at that rotten hollard! Ok, let's go Johnny raw, let's chop some cursed tree!") + "36",
 					"0F8B0E",
 					"057C01[13]",
 					"057C00[14]",
@@ -286,7 +286,7 @@ namespace FFMQLib
 					"2d" + ScriptItemFlags[Items.Elixir].Item1,
 					"050c" + ScriptItemFlags[Items.Elixir].Item2 + "[04]",
 					"1A16" + TextToHex("I'll be fine, mate. Nothing a grog and some rest can't fix. I'll be back on deck in no time.") + "3600",
-					"1A16" + TextToHex("Hey, Elixir, let's go!") + "36",
+					"1A16" + TextToHex("Mate! Psha, this taste like &?!% kelt, but I'm ready to show a leg! Heave and rally!") + "36",
 					"0F8B0E",
 					"057C01[13]",
 					"057C03[14]",
@@ -781,6 +781,14 @@ namespace FFMQLib
 				}));
 
 			// Tristam Fireburg
+
+
+			List<string> tristamJoinDialogueList = new()
+			{
+				"Hey! Call me a Treasure Hunter or I'll rip your lungs out!",
+				"Death is always a step behind me..."
+			};
+
 			TalkScripts.AddScript((int)TalkScriptsList.TristamInFireburg01,
 				new ScriptBuilder(new List<string>{
 					"04",
@@ -789,7 +797,7 @@ namespace FFMQLib
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.TristamFireburg]:X2}0162",
 					$"23{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}",
 					"00",
-					"1A3D" + TextToHex("Let's go!") + "36",
+					"1A3D" + TextToHex(rng.PickFrom(tristamJoinDialogueList)) + "36",
 					"0F8B0E",
 					"057C02[16]",
 					"057C03[17]",
@@ -964,11 +972,11 @@ namespace FFMQLib
 				new ScriptBuilder(new List<string>{
 					"04",
 					$"2E{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}[06]",
-					"1A5B" + TextToHex("Take this mate!") + "36",
+					"1A5B" + TextToHex("Hearty, mate. This is straight from my ?%!& ditty-bag, but I want you to have it!") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliWindia]:X2}0162",
 					$"23{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}",
 					"00",
-					"1A5B" + TextToHex("Let's go!") + "36",
+					"1A5B" + TextToHex("I'm tired to play &?&% harbour-watch. Let's loose for sea, mate!") + "36",
 					"0F8B0E",
 					"057C02[16]",
 					"057C03[17]",
