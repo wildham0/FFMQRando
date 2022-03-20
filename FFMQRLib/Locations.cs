@@ -48,6 +48,8 @@ namespace FFMQLib
 		public Items Content { get; set; }
 		public TreasureType Type { get; set; }
 		public bool IsPlaced { get; set; }
+		public bool Prioritize { get; set; }
+		public bool Exclude { get; set; }
 		public List<AccessReqs> AccessRequirements { get; set; }
 
 		public TreasureObject(int mapobjid, int mapid, Locations location, TreasureType type, List<AccessReqs> access)
@@ -58,6 +60,8 @@ namespace FFMQLib
 			Type = type;
 			MapId = mapid;
 			IsPlaced = false;
+			Prioritize = false;
+			Exclude = false;
 			AccessRequirements = access;
 
 		}
@@ -70,6 +74,8 @@ namespace FFMQLib
 			Type = treasure.Type;
 			MapId = treasure.MapId;
 			IsPlaced = treasure.IsPlaced;
+			Prioritize = treasure.Prioritize;
+			Exclude = treasure.Exclude;
 			AccessRequirements = treasure.AccessRequirements.ToList();
 		}
 	}
@@ -105,19 +111,23 @@ namespace FFMQLib
 
 		private void FlagToHex(int flag, bool value)
 		{
+			CustomFlagToHex(_gameflags, flag, value);
+		}
+
+		public void CustomFlagToHex(byte[] flagarray, int flag, bool value)
+		{
 			var targetbyte = flag / 8;
 			var targetbit = (byte)BitPos.Find(x => x.Item1 == (flag & 0x07)).Item2;
 
 			if (value)
 			{
-				_gameflags[targetbyte] |= targetbit;
+				flagarray[targetbyte] |= targetbit;
 			}
 			else
 			{
-				_gameflags[targetbyte] &= (byte)~targetbit;
+				flagarray[targetbyte] &= (byte)~targetbit;
 			}
 		}
-
 	}
 	public class Battlefields
 	{

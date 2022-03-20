@@ -10,8 +10,8 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.2.26";
-		public static string Version = VersionNumber + "-alpha";
+		public static string VersionNumber = "0.3.00";
+		public static string Version = VersionNumber + "-beta";
 	}
 	
 	public partial class FFMQRom : SnesRom
@@ -158,6 +158,7 @@ namespace FFMQLib
 			itemsPlacement.WriteChests(this);
 			
 			UpdateScripts(itemsPlacement, rng);
+			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
 
 
@@ -343,10 +344,10 @@ namespace FFMQLib
 				}));
 
 			// Fight Rex
-			MapObjects[0x16][0x05].Type = MapObjectType.Chest;
-			MapObjects[0x16][0x05].Value = 0x04;
-			MapObjects[0x16][0x05].Gameflag = 0xAD;
-			Data[0x8004] = (byte)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonElixir];
+			//MapObjects[0x16][0x05].Type = MapObjectType.Chest;
+			//MapObjects[0x16][0x05].Value = 0x04;
+			//MapObjects[0x16][0x05].Gameflag = 0xAD;
+			//Data[0x8004] = (byte)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonElixir];
 
 			TileScripts.AddScript((int)TileScriptsList.FightFlamerusRex,
 				new ScriptBuilder(new List<string> {

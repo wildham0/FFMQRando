@@ -59,18 +59,54 @@
 <div><br /><br /><br /></div>
 <h3 id="optionsSection" class="text-secondary">Options</h3>
 
+<div><br /></div>
+<h4 id="optionsSection" class="text-secondary">Items Shuffling</h4>
 <Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Items Shuffling</FieldLabel> 
-    <Select @bind-SelectedValue="@flags.ItemShuffle">
-        @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffle>())
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Original Chests</FieldLabel> 
+    <Select @bind-SelectedValue="@flags.ChestsShuffle">
+        @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffleChests>())
         {
             <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
         }
     </Select>
 </Field>
 <Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">NPCs</FieldLabel> 
+    <Select @bind-SelectedValue="@flags.NPCsShuffle">
+        @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffleNPCsBattlefields>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Battlefields</FieldLabel> 
+    <Select @bind-SelectedValue="@flags.BattlefieldsShuffle">
+        @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffleNPCsBattlefields>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Brown Boxes</FieldLabel> 
+    <Select @bind-SelectedValue="@flags.BoxesShuffle">
+        @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffleBoxes>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
+<Field>
+    <Switch TValue="bool" @bind-Checked="@flags.ShuffleBoxesContent"><Text TextColor="TextColor.Secondary" class="fw-bold">Shuffle Brown Boxes' Content</Text></Switch>
+</Field>
+<Field>
     <Switch TValue="bool" @bind-Checked="@flags.RandomStartingWeapon"><Text TextColor="TextColor.Secondary" class="fw-bold">Random Starting Weapon</Text></Switch>
 </Field>
+
+<div><br /></div>
+<h4 id="optionsSection" class="text-secondary">Enemies</h4>
+
 <Field>
     <Switch TValue="bool" @bind-Checked="@flags.ShuffleEnemiesPosition"><Text TextColor="TextColor.Secondary" class="fw-bold">Shuffle Enemies' Positions</Text></Switch>
 </Field>
@@ -101,6 +137,10 @@
         }
     </Select>
 </Field>
+
+<div><br /></div>
+<h4 id="optionsSection" class="text-secondary">Misc</h4>
+
 <Field>
     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Leveling Curve</FieldLabel> 
     <Select @bind-SelectedValue="@flags.LevelingCurve">

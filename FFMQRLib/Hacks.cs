@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using RomUtilities;
 
 namespace FFMQLib
@@ -113,6 +114,62 @@ namespace FFMQLib
 			// Fix Giant Tree Axe-less softlock by blocking access from outside the forest
 			PutInBank(0x03, 0xA4A3, Blob.FromHex("2E"));
 			PutInBank(0x03, 0xA625, Blob.FromHex("7B"));
+		}
+
+
+		public void ChestsHacks(ItemsPlacement itemsPlacement)
+		{
+			// Include chests when loading graphics for empty boxes
+			PutInBank(0x01, 0xB095, Blob.FromHex("00"));
+
+			// New routine to get the quantity of items, use a lut instead of comparing chest id
+			PutInBank(0x11, 0x9000, Blob.FromHex("08c230ad9e00aabf0091118d6601e230c901f004a9808002a9008d6501286b"));
+
+			// Generate lut of boxes & chests quantity
+			byte[] lutResetBox = new byte[0x20];
+
+			var test2 = itemsPlacement.ItemsLocations.Where(x => x.ObjectId < 0x20).ToList();
+
+			foreach(var location in itemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.Chest || x.Type == TreasureType.Box).ToList())
+            {
+				byte quantity = 1;
+
+				if (location.Content >= Items.Potion && location.Content <= Items.Refresher)
+				{
+					quantity = 3;
+				}
+				else if (location.Content == Items.BombRefill || location.Content == Items.ProjectileRefill)
+				{
+					quantity = 10;
+				}
+
+				if (location.ObjectId >= 0xF2 && location.ObjectId <= 0xF5)
+				{
+					quantity = 25;
+				}
+
+
+				if (location.Type == TreasureType.Chest)
+				{
+					GameFlags.CustomFlagToHex(lutResetBox, location.ObjectId, true);
+				}
+
+				
+				PutInBank(0x11, 0x9100 + location.ObjectId, new byte[] { quantity });
+            }
+
+			// Part 1 of chest script, we gut the native quantity scripts
+			PutInBank(0x03, 0x86BF, Blob.FromHex("051d2e000205fc4d6a8714ff115f012dc80e058e6a870d65010001090090110543008001052c9e0014ff0a3287"));
+
+			// Part 2 of chest script
+			PutInBank(0x03, 0x8732, Blob.FromHex("500f5f01093f800b5114ff08bd870bff828710660105050153870c0505250a57870c0505260f5f0105d80a6487"));
+
+			// New routine to resets chests when leaving dungeon, instead of clearing everything we use a lut to spare red chests from the reset
+			PutInBank(0x11, 0x8F90, Blob.FromHex("5aa20000a02000bfc08f113dc80e9dc80ee888d0f2a20000a920eaeaea9e280fe83ad0f67a6b"));
+			PutInBank(0x0B, 0x818D, Blob.FromHex("22908f11eaeaeaeaeaeaeaeaeaeaea"));
+
+			// Insert lut of resetable boxes, 0x20 bytes
+			PutInBank(0x11, 0x8FC0, lutResetBox);
 		}
 
 		public void BugFixes()

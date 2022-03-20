@@ -93,6 +93,7 @@ namespace FFMQLib
 		public static TreasureObject BoneDungeon02 = new TreasureObject(0x07, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Chest, new List<AccessReqs> { AccessReqs.Bomb });
 		public static TreasureObject BoneDungeon03 = new TreasureObject(0x08, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Chest, new List<AccessReqs> { AccessReqs.Bomb });
 		public static TreasureObject BoneDungeon04 = new TreasureObject(0x35, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Box, new List<AccessReqs> { });
+		public static TreasureObject TristamBoneDungeonExlixir = new TreasureObject(0x04, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Chest, new List<AccessReqs> { AccessReqs.Bomb });
 		public static TreasureObject BoneDungeon05 = new TreasureObject(0x36, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject BoneDungeon06 = new TreasureObject(0x37, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject BoneDungeon07 = new TreasureObject(0x38, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Box, new List<AccessReqs> { AccessReqs.Bomb });
@@ -262,7 +263,7 @@ namespace FFMQLib
 		public static TreasureObject BoulderOldMan = new TreasureObject((int)ItemGivingNPCs.BoulderOldMan, (int)MapList.LevelAliveForest, Locations.LevelForest, TreasureType.NPC, new List<AccessReqs> { });
 		public static TreasureObject KaeliForesta = new TreasureObject((int)ItemGivingNPCs.KaeliForesta, (int)MapList.LevelAliveForest, Locations.LevelForest, TreasureType.NPC, new List<AccessReqs> { AccessReqs.TreeWither });
 		public static TreasureObject TristamBoneDungeonBomb = new TreasureObject((int)ItemGivingNPCs.TristamBoneDungeonBomb, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.NPC, new List<AccessReqs> { });
-		public static TreasureObject TristamBoneDungeonExlixir = new TreasureObject((int)ItemGivingNPCs.TristamBoneDungeonElixir, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.NPC, new List<AccessReqs> { AccessReqs.Bomb });
+		//public static TreasureObject TristamBoneDungeonExlixir = new TreasureObject((int)ItemGivingNPCs.TristamBoneDungeonElixir, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.NPC, new List<AccessReqs> { AccessReqs.Bomb });
 		public static TreasureObject SteelHelmWomanAquaria = new TreasureObject((int)ItemGivingNPCs.WomanAquaria, (int)MapList.Aquaria, Locations.Aquaria, TreasureType.NPC, new List<AccessReqs> { });
 		public static TreasureObject PhoebeWintryCave = new TreasureObject((int)ItemGivingNPCs.PhoebeWintryCave, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.NPC, new List<AccessReqs> { });
 		public static TreasureObject MysteriousManLifeTemple = new TreasureObject((int)ItemGivingNPCs.MysteriousManLifeTemple, (int)MapList.Caves, Locations.LibraTemple, TreasureType.NPC, new List<AccessReqs> { AccessReqs.LibraCrest });
@@ -301,19 +302,7 @@ namespace FFMQLib
 
 			return properties.Where(x => x.Type == TreasureType.Chest || x.Type == TreasureType.Box).ToList();
 		}
-		public static List<TreasureObject> AllNPCs()
-		{
-			List<TreasureObject> properties = new();
-			ItemLocations instance = new();
-
-			foreach (PropertyInfo prop in typeof(ItemLocations).GetProperties())
-			{
-				properties.Add((TreasureObject)prop.GetValue(instance));
-			}
-
-			return properties.Where(x => x.Type == TreasureType.NPC).ToList();
-		}
-		public static List<TreasureObject> AllChestsNPCs()
+		public static List<TreasureObject> Generate(Flags flags, Battlefields battlefields)
 		{
 			List<TreasureObject> properties = new();
 			ItemLocations instance = new();
@@ -324,28 +313,6 @@ namespace FFMQLib
 				{
 					properties.Add(new TreasureObject((TreasureObject)prop.GetValue(instance)));
 				}
-				
-			}
-
-			for (int i = 0; i < properties.Count; i++)
-			{
-				properties[i].AccessRequirements.AddRange(LocationAccessReq[properties[i].Location]);
-			}
-
-			return properties.Where(x => x.Type == TreasureType.NPC || (x.Type == TreasureType.Chest && x.ObjectId < 0x30)).ToList();
-		}
-		public static List<TreasureObject> AllChestsNPCsBattlefields(Flags flags, Battlefields battlefields)
-		{
-			List<TreasureObject> properties = new();
-			ItemLocations instance = new();
-
-			foreach (FieldInfo prop in typeof(ItemLocations).GetFields())
-			{
-				if (prop.FieldType == typeof(TreasureObject))
-				{
-					properties.Add(new TreasureObject((TreasureObject)prop.GetValue(instance)));
-				}
-
 			}
 
 			// Update Battlefields Locations
@@ -359,19 +326,50 @@ namespace FFMQLib
 				}
 			}
 
+			// Collapse Access Requirements
 			for (int i = 0; i < properties.Count; i++)
 			{
 				properties[i].AccessRequirements.AddRange(LocationAccessReq[properties[i].Location]);
 			}
 
-			return properties.Where(x => x.Type == TreasureType.NPC || (x.Type == TreasureType.Chest && x.ObjectId < 0x30) || x.Type == TreasureType.Battlefield).ToList();
-		}
+			// Set Priorization
+			if (flags.ChestsShuffle == ItemShuffleChests.Prioritize)
+			{
+				properties.Where(x => x.Type == TreasureType.Chest && x.ObjectId < 0x20).ToList().ForEach(x => x.Prioritize = true);
+			}
 
-		public static List<TreasureObject> AllEverything(Flags flags, Battlefields battlefields)
+			if (flags.NPCsShuffle == ItemShuffleNPCsBattlefields.Prioritize)
+			{
+				properties.Where(x => x.Type == TreasureType.NPC).ToList().ForEach(x => x.Prioritize = true);
+			}
+			else if (flags.NPCsShuffle == ItemShuffleNPCsBattlefields.Exclude)
+			{
+				properties.Where(x => x.Type == TreasureType.NPC).ToList().ForEach(x => x.Exclude = true);
+			}
+
+			if (flags.BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Prioritize)
+			{
+				properties.Where(x => x.Type == TreasureType.Battlefield).ToList().ForEach(x => x.Prioritize = true);
+			}
+			else if (flags.BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Exclude)
+			{
+				properties.Where(x => x.Type == TreasureType.Battlefield).ToList().ForEach(x => x.Exclude = true);
+			}
+
+			if (flags.BoxesShuffle == ItemShuffleBoxes.Exclude)
+			{
+				properties.Where(x => x.Type == TreasureType.Box).ToList().ForEach(x => x.Exclude = true);
+			}
+
+			properties.Where(x => x.Type == TreasureType.Chest && x.ObjectId >= 0xF2 && x.ObjectId <= 0xF5).ToList().ForEach(x => x.Exclude = true);
+
+			return properties.ToList();
+		}
+		public static List<TreasureObject> FinalChests()
 		{
 			List<TreasureObject> properties = new();
 			ItemLocations instance = new();
-			
+
 			foreach (FieldInfo prop in typeof(ItemLocations).GetFields())
 			{
 				if (prop.FieldType == typeof(TreasureObject))
@@ -381,24 +379,9 @@ namespace FFMQLib
 
 			}
 
-			// Update Battlefields Locations
-			if (flags.ShuffleBattlefieldRewards)
-			{
-				var battlefieldsLocation = properties.Where(x => x.Type == TreasureType.Battlefield).ToList();
-
-				for (int i = 0; i < battlefieldsLocation.Count(); i++)
-				{
-					battlefieldsLocation[i].Location = battlefields.BattlefieldsWithItem[i];
-				}
-			}
-
-			for (int i = 0; i < properties.Count; i++)
-			{
-				properties[i].AccessRequirements.AddRange(LocationAccessReq[properties[i].Location]);
-			}
-
-			return properties.Where(x => x.Type == TreasureType.NPC || (x.Type == TreasureType.Chest && x.ObjectId < 0x30) || x.Type == TreasureType.Box || x.Type == TreasureType.Battlefield).ToList();
+			return properties.Where(x => x.Type == TreasureType.Chest && x.ObjectId >= 0xF2 && x.ObjectId <= 0xF5).ToList();
 		}
+
 		public static List<TreasureObject> AllNPCsItems()
 		{
 			List<TreasureObject> properties = new();

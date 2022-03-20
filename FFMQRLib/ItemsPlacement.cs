@@ -3,16 +3,33 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using RomUtilities;
+using static System.Math;
 using System.ComponentModel;
 
 namespace FFMQLib
 {
-	public enum ItemShuffle : int
+	public enum ItemShuffleChests : int
 	{
-		[Description("Quest Items Only")]
-		QuestItemsOnly = 0,
-		[Description("All Items")]
-		AllItems,
+		[Description("Prioritize")]
+		Prioritize = 0,
+		[Description("Include")]
+		Include,
+	}
+	public enum ItemShuffleNPCsBattlefields : int
+	{
+		[Description("Prioritize")]
+		Prioritize = 0,
+		[Description("Include")]
+		Include,
+		[Description("Exclude")]
+		Exclude,
+	}
+	public enum ItemShuffleBoxes : int
+	{
+		[Description("Include")]
+		Include = 0,
+		[Description("Exclude")]
+		Exclude,
 	}
 	public class ItemsPlacement
 	{
@@ -21,30 +38,33 @@ namespace FFMQLib
 
 		public ItemsPlacement(FFMQRom rom, Flags flags, MT19337 rng)
 		{
-			
 			bool badPlacement = true;
 			int counter = 0;
 			int placedChests = 0;
+			int prioritizedLocationsCount = 0;
+			int prioritizedItemsCount = 0;
+			int looseItemsCount = 0;
 
-			List<Items> consumableList = rom.GetFromBank(0x01, 0x801D, 0xDE).ToBytes().Select(x => (Items)x).ToList();
+			List<Items> consumableList = rom.GetFromBank(0x01, 0x801E, 0xDD).ToBytes().Select(x => (Items)x).ToList();
+			List<Items> finalConsumables = rom.GetFromBank(0x01, 0x80F2, 0x04).ToBytes().Select(x => (Items)x).ToList();
 
 			while (badPlacement)
 			{
 				badPlacement = false;
 				placedChests = 0;
+
 				List<Items> itemsList = RandomizeItemsOrder(flags, rng);
 
-				if (flags.ItemShuffle == ItemShuffle.AllItems)
-				{
-					ItemsLocations = new(ItemLocations.AllEverything(flags, rom.Battlefields).ToList());
-				}
-				else
-				{
-					ItemsLocations = new(ItemLocations.AllChestsNPCsBattlefields(flags, rom.Battlefields).ToList());
-				}
+				ItemsLocations = new(ItemLocations.Generate(flags, rom.Battlefields).ToList());
+				
+				prioritizedLocationsCount = ItemsLocations.Where(x => x.Prioritize == true).Count();
+
+				looseItemsCount = Max(0, itemsList.Count() - prioritizedLocationsCount);
+				prioritizedItemsCount = Min(prioritizedLocationsCount, itemsList.Count());
 
 				List<Items> placedItems = new();
 
+				// Apply starting items access
 				foreach (var item in StartingItems)
 				{
 					List<AccessReqs> result;
@@ -59,7 +79,36 @@ namespace FFMQLib
 
 				while (itemsList.Any())
 				{
-					var validLocations = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && (placedChests >= 0x1C ? (x.Type != TreasureType.Chest && x.Type != TreasureType.Box) : true)).ToList();
+					List<TreasureObject> validLocations;
+					
+					int diceRoll = rng.Between(1, itemsList.Count);
+
+					if (diceRoll <= prioritizedItemsCount)
+					{
+						validLocations = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && x.Prioritize == true).ToList();
+						if (!validLocations.Any())
+						{
+							validLocations = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false).ToList();
+							looseItemsCount--;
+						}
+						else
+						{
+							prioritizedItemsCount--;
+						}
+					}
+					else
+					{
+						validLocations = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false).ToList();
+						if (!validLocations.Any())
+						{
+							validLocations = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && x.Prioritize == true).ToList();
+							prioritizedItemsCount--;
+						}
+						else
+						{
+							looseItemsCount--;
+						}
+					}
 
 					if (!validLocations.Any() && itemsList.Any())
 					{
@@ -101,21 +150,51 @@ namespace FFMQLib
 				}
 			}
 
-			if (flags.ItemShuffle == ItemShuffle.AllItems)
+			// Fill excluded and unfilled locations
+			List<Items> consumables = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed };
+			
+			var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == TreasureType.NPC || x.Type == TreasureType.Battlefield || (x.Type == TreasureType.Chest && x.ObjectId < 0x20))).ToList();
+
+			foreach (var location in unfilledLocations)
 			{
-				for (int i = 0; i < ItemsLocations.Count; i++)
+				location.Content = rng.PickFrom(consumables);
+				location.IsPlaced = true;
+			}
+
+			var test2 = ItemsLocations.Where(x => x.IsPlaced == false).ToList();
+			// Place consumables
+			for (int i = 0; i < ItemsLocations.Count; i++)
+			{
+				if (ItemsLocations[i].IsPlaced == false)
 				{
-					if (ItemsLocations[i].IsPlaced == false)
+
+					if (flags.ShuffleBoxesContent)
 					{
 						ItemsLocations[i].Content = rng.TakeFrom(consumableList);
-						ItemsLocations[i].IsPlaced = true;
-						if (ItemsLocations[i].Type == TreasureType.Chest || ItemsLocations[i].Type == TreasureType.Box)
-						{
-							ItemsLocations[i].Type = TreasureType.Box;
-						}
+					}
+					else
+					{
+						ItemsLocations[i].Content = consumableList[ItemsLocations[i].ObjectId - 0x1E];
+					}
+
+					ItemsLocations[i].IsPlaced = true;
+					if (ItemsLocations[i].Type == TreasureType.Chest || ItemsLocations[i].Type == TreasureType.Box)
+					{
+						ItemsLocations[i].Type = TreasureType.Box;
 					}
 				}
 			}
+
+			// Add the final chests so we can update their properties
+			List<TreasureObject> finalChests = new(ItemLocations.FinalChests());
+
+			for(int i = 0; i < finalChests.Count; i++)
+			{
+				finalChests[i].Content = finalConsumables[i];
+				finalChests[i].IsPlaced = true;
+			}
+
+			ItemsLocations.AddRange(finalChests);
 		}
 		public void WriteChests(FFMQRom rom)
 		{
@@ -218,7 +297,7 @@ namespace FFMQLib
 			ProgressionItems.Add(rng.TakeFrom(ProgressionBombs));
 			ProgressionItems.Add(rng.TakeFrom(ProgressionAxes));
 			ProgressionItems.Add(rng.TakeFrom(ProgressionClaws));
-			if (flags.ItemShuffle == ItemShuffle.QuestItemsOnly)
+			if (flags.ChestsShuffle == ItemShuffleChests.Prioritize)
 			{
 				ProgressionItems.AddRange(InitialProgressionItems);
 				ProgressionItems.AddRange(ProgressionCoins); 
@@ -244,7 +323,7 @@ namespace FFMQLib
 
 			List<Items> Tier1 = NonProgressionItems.GetRange(0, 5);
 			NonProgressionItems.RemoveRange(0, 5);
-			if (flags.ItemShuffle == ItemShuffle.QuestItemsOnly)
+			if (flags.ChestsShuffle == ItemShuffleChests.Prioritize)
 			{
 				Tier1.AddRange(ProgressionItems.GetRange(0, 5));
 				ProgressionItems.RemoveRange(0, 5);
