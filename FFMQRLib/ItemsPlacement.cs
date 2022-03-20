@@ -159,9 +159,12 @@ namespace FFMQLib
 			{
 				location.Content = rng.PickFrom(consumables);
 				location.IsPlaced = true;
+				if (location.Type == TreasureType.Chest || location.Type == TreasureType.Box)
+				{
+					location.Type = TreasureType.Box;
+				}
 			}
 
-			var test2 = ItemsLocations.Where(x => x.IsPlaced == false).ToList();
 			// Place consumables
 			for (int i = 0; i < ItemsLocations.Count; i++)
 			{
