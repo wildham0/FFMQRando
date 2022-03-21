@@ -551,8 +551,8 @@ namespace FFMQLib
 			TilesProperties[0x0A][0x22].Byte2 = 0x08;
 
 			/*** Ice Pyramid ***/
-			// Neutralize entrance tile to disable script
-			TilesProperties[0x06][0x25].Byte2 = 0x08;
+			// Change entrance tile to disable script
+			PutInBank(0x08, 0xD047, Blob.FromHex("05"));
 
 			// Add teleport coordinates
 			PutInBank(0x05, 0xFED5, Blob.FromHex("2F364D"));
