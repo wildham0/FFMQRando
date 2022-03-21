@@ -252,19 +252,19 @@ namespace FFMQLib
 			public void ChestLocationDump(ObjectList mapobjects)
 			{
 				var tempmap = _maparray[0..(_dimensions.Item1 * _dimensions.Item2)].Select(x => ((_tiledata[(x & 0x7F) * 2] & 0x07) == 0x07) ? 0xFF : 0x00).ToArray();
-
+				/*
 				for (int i = 0; i < 0x6B; i++)
 				{
 					if (mapobjects.GetAreaMapId(i) == _mapId)
 					{
-						var validchests = mapobjects.Chests.Where(x => x.AreaId == i).ToList();
+						var validchests = mapobjects.ChestList.Where(x => x.Item2 == i).ToList();
 
 						foreach (var chest in validchests)
 						{
 							tempmap[chest.Y * _dimensions.Item1 + chest.X] = (byte)chest.TreasureId;
 						}
 					}
-				}
+				}*/
 
 				for (int i = 0; i < (_dimensions.Item2); i++)
 				{

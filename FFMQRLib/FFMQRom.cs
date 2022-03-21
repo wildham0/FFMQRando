@@ -10,8 +10,8 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.2.26";
-		public static string Version = VersionNumber + "-alpha";
+		public static string VersionNumber = "0.3.02";
+		public static string Version = VersionNumber + "-beta";
 	}
 	
 	public partial class FFMQRom : SnesRom
@@ -158,6 +158,7 @@ namespace FFMQLib
 			itemsPlacement.WriteChests(this);
 			
 			UpdateScripts(itemsPlacement, rng);
+			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
 
 
@@ -343,10 +344,10 @@ namespace FFMQLib
 				}));
 
 			// Fight Rex
-			MapObjects[0x16][0x05].Type = MapObjectType.Chest;
-			MapObjects[0x16][0x05].Value = 0x04;
-			MapObjects[0x16][0x05].Gameflag = 0xAD;
-			Data[0x8004] = (byte)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonElixir];
+			//MapObjects[0x16][0x05].Type = MapObjectType.Chest;
+			//MapObjects[0x16][0x05].Value = 0x04;
+			//MapObjects[0x16][0x05].Gameflag = 0xAD;
+			//Data[0x8004] = (byte)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonElixir];
 
 			TileScripts.AddScript((int)TileScriptsList.FightFlamerusRex,
 				new ScriptBuilder(new List<string> {
@@ -490,11 +491,7 @@ namespace FFMQLib
 				}));
 
 			// Wintry Squid
-			if (MapObjects[0x1F][0x0B].Sprite == 0x26)
-			{
-				MapObjects[0x1F][0x0B].Gameflag = 0xFE;
-				GameFlags[0xB2] = true;
-			}
+			MapObjects[0x1F][0x0B].Gameflag = 0xFE;
 			
 			TalkScripts.AddScript((int)TalkScriptsList.FightSquid,
 				new ScriptBuilder(new List<string>{
@@ -532,13 +529,7 @@ namespace FFMQLib
 			// Put Chest under crab
 			MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
 			MapObjects[0x21][0x0F].Y = MapObjects[0x21][0x07].Y;
-			GameFlags[(int)GameFlagsList.ShowFallBasinChest] = false;
-
-			if (MapObjects[0x21][0x0F].Sprite == 0x26)
-			{
-				MapObjects[0x21][0x0F].Gameflag = 0xFE;
-				GameFlags[(int)GameFlagsList.ShowFallBasinChest] = true;
-			}
+			MapObjects[0x21][0x0F].Gameflag = 0xFE;
 
 			TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
 				new ScriptBuilder(new List<string>{
@@ -560,8 +551,38 @@ namespace FFMQLib
 			TilesProperties[0x0A][0x22].Byte2 = 0x08;
 
 			/*** Ice Pyramid ***/
+			// Neutralize entrance tile to disable script
+			TilesProperties[0x06][0x25].Byte2 = 0x08;
+
+			// Add teleport coordinates
+			PutInBank(0x05, 0xFED5, Blob.FromHex("2F364D"));
+
+			// Change tile properties from falling tile to script tile
+			TilesProperties[0x06][0x1E].Byte2 = 0x88;
+
 			TileScripts.AddScript((int)TileScriptsList.EnterIcePyramid,
-				new ScriptBuilder(new List<string> { "00" }));
+				new ScriptBuilder(new List<string>
+				{
+					"2D" + ScriptItemFlags[Items.CatClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.CatClaw].Item2 + "[17]", // goto teleport
+					"2D" + ScriptItemFlags[Items.CharmClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.CharmClaw].Item2 + "[17]",
+					"2D" + ScriptItemFlags[Items.DragonClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.DragonClaw].Item2 + "[17]",
+					"0F8B0E",
+					"057C00[13]", // looking up
+					"057C01[14]",// looking right
+					"057C02[15]",  // lookingdown
+					"057C03[16]",// looking left
+					"1A48" + TextToHex("I should bring claws with me before going down there.") + "36",
+					"00",
+					"2C105900",
+					"2C105A00",
+					"2C105700",
+					"2C105800",
+					"0cee19000cef191a094cb20100" // Hack to excute the falling down routine
+				}));
+
 
 			// Fight IceGolem
 			TileScripts.AddScript((int)TileScriptsList.FightIceGolem,
@@ -645,7 +666,7 @@ namespace FFMQLib
 					"1A000A37FF", // Locked...
 					$"2E{(int)NewGameFlagsList.TristamChestUnopened:X2}[06]",
 					"08788600",
-					"2A2827082C80FBFFFF", // need some adjusting
+					"2A2827012C80FBFFFF", // it's fine now?
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.TristamSpencersPlace]:X2}0062",
 					$"2B{(int)NewGameFlagsList.TristamChestUnopened:X2}",
 					"00"
@@ -781,8 +802,6 @@ namespace FFMQLib
 				}));
 
 			// Tristam Fireburg
-
-
 			List<string> tristamJoinDialogueList = new()
 			{
 				"Hey! Call me a Treasure Hunter or I'll rip your lungs out!",
@@ -874,13 +893,7 @@ namespace FFMQLib
 			// Medusa - Put medusa over chest
 			MapObjects[0x37][0x00].X = MapObjects[0x37][0x0D].X;
 			MapObjects[0x37][0x00].Y = MapObjects[0x37][0x0D].Y;
-			GameFlags[0xBB] = false;
-
-			if (MapObjects[0x37][0x0D].Sprite == 0x26)
-			{
-				MapObjects[0x37][0x0D].Gameflag = 0xFE;
-				GameFlags[0xBB] = true;
-			}
+			MapObjects[0x37][0x0D].Gameflag = 0xFE;
 
 			TalkScripts.AddScript((int)TalkScriptsList.FightMedusa,
 				new ScriptBuilder(new List<string>{
@@ -1031,13 +1044,7 @@ namespace FFMQLib
 			// Headless Knight
 			MapObjects[0x4F][0x0C].X = MapObjects[0x4F][0x00].X;
 			MapObjects[0x4F][0x0C].Y = MapObjects[0x4F][0x00].Y;
-			GameFlags[0xC0] = false;
-
-			if (MapObjects[0x4F][0x0C].Sprite == 0x26)
-			{
-				MapObjects[0x4F][0x0C].Gameflag = 0xFE;
-				GameFlags[0xC0] = true;
-			}
+			MapObjects[0x4F][0x0C].Gameflag = 0xFE;
 
 			TalkScripts.AddScript((int)TalkScriptsList.FightHeadlessKnight,
 				new ScriptBuilder(new List<string>{

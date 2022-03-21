@@ -218,8 +218,10 @@ namespace FFMQLib
 				"FFMQ Randomizer\n\n" +
 				"Main Developer\n" +
 				"wildham\n\n" +
-				"Playtester\n" +
-				"spellzapp\n\n" +
+				"Playtesters\n" +
+				"spellzapp\n" +
+				"caleb\n" +
+				"VampireKnight\n\n" +
 				"Special Thanks\n" +
 				"Entroper\n" +
 				"nitz\n" +
@@ -286,7 +288,7 @@ namespace FFMQLib
 			rom.PutInBank(titleScreenBank, offsetSprites, titleSprites.SelectMany(x => x.ToBytes()).ToArray());
 
 			rom.PutInBank(titleScreenBank, offsetFFMRando, Blob.FromHex("9f9fa6aaabb4c1b7c2c0bccdb8c5"));
-			rom.PutInBank(titleScreenBank, offsetVersion, Blob.FromHex(rom.TextToHex("v" + version + "a")));
+			rom.PutInBank(titleScreenBank, offsetVersion, Blob.FromHex(rom.TextToHex("v" + version + "b")));
 
 			byte[] hash;
 

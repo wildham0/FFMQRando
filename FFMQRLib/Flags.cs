@@ -11,7 +11,11 @@ namespace FFMQLib
     public class Flags
     { 
         public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.All;
-        public ItemShuffle ItemShuffle { get; set; } = ItemShuffle.QuestItemsOnly;
+        public ItemShuffleChests ChestsShuffle { get; set; } = ItemShuffleChests.Prioritize;
+        public ItemShuffleBoxes BoxesShuffle { get; set; } = ItemShuffleBoxes.Exclude;
+        public bool ShuffleBoxesContent { get; set; } = false;
+        public ItemShuffleNPCsBattlefields NPCsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
+        public ItemShuffleNPCsBattlefields BattlefieldsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
         public bool ShuffleEnemiesPosition { get; set; } = false;
         public EnemiesScaling EnemiesScaling { get; set; } = EnemiesScaling.Normal;
         public EnemiesScalingSpread EnemiesScalingSpread { get; set; } = EnemiesScalingSpread.None;

@@ -37,7 +37,7 @@ namespace FFMQLib
 			private List<List<MapObject>> _collections = new List<List<MapObject>>();
 			private List<int> _pointerCollectionPairs = new();
 			private List<Blob> _areaattributes = new();
-			public List<Chest> Chests = new();
+			public List<(int, int, int)> ChestList = new();
 			private List<Blob> _attributepointers = new();
 
 			public ObjectList(FFMQRom rom)
@@ -79,65 +79,39 @@ namespace FFMQLib
 					{
 						if (_collections[i][j].Type == MapObjectType.Chest)
 						{
-							Chests.Add(new Chest(j, i, 0x00, _collections[i][j].X, _collections[i][j].Y, _collections[i][j].Value, (Items)rom.Data[RomOffsets.TreasuresOffset + _collections[i][j].Value]));
+							ChestList.Add((_collections[i][j].Value, i, j));
 						}
 					}
 				}
 			}
 			public void UpdateChests(Flags flags, ItemsPlacement itemsPlacement)
 			{
-				if (flags.ItemShuffle == ItemShuffle.QuestItemsOnly)
-				{
-					return;
-				}
-				
+				// Update Tristam Elixir Chest so it's taken into account
+				_collections[_pointerCollectionPairs[0x16]][0x05].Type = MapObjectType.Chest;
+				_collections[_pointerCollectionPairs[0x16]][0x05].Value = 0x04;
+				_collections[_pointerCollectionPairs[0x16]][0x05].Gameflag = 0xAD;
+
+				ChestList.Add((0x04, _pointerCollectionPairs[0x16], 0x05));
+
 				List<Items> boxItems = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
 
-				const int baseFlag = 0xA9;
-
-				//int currrentTreasure = 0x00; // max 0x1D
-
-				List<int> validId = Enumerable.Range(0, 0x1D).ToList();
-				validId.Remove(0x04);
-
-				List<int> freeID = new();
-				//const int maxFlag = 0xC5;
 				var test = itemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.Chest).ToList();
 
-				foreach (var item in itemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.Chest).OrderBy(x => x.ObjectId))
+				foreach (var item in itemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.Chest || x.Type == TreasureType.Box).OrderBy(x => x.ObjectId))
 				{
-					List<Chest> targetChest = Chests.Where(x => x.TreasureId == item.ObjectId).ToList();
+					byte sprite = 0x26;
+					
+					if (item.Type == TreasureType.Chest)
+					{
+						sprite = 0x24;
+					}
+					
+					List<(int,int,int)> targetChest = ChestList.Where(x => x.Item1 == item.ObjectId).ToList();
 					
 					if (!targetChest.Any()) continue;
 
-					if (validId.Contains(item.ObjectId))
-					{
-						validId.Remove(item.ObjectId);
-						continue;
-					}
-					
-					_collections[targetChest.First().AreaId][targetChest.First().ObjectId].Sprite = 0x24;
-					_collections[targetChest.First().AreaId][targetChest.First().ObjectId].Gameflag = (byte)(baseFlag+validId.First());
-					_collections[targetChest.First().AreaId][targetChest.First().ObjectId].Value = (byte)validId.First();
-
-					freeID.Add(item.ObjectId);
-					item.ObjectId = validId.First();
-					validId.RemoveAt(0);
-				}
-
-				foreach (var item in itemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.Box && x.ObjectId < 0x1D))
-				{
-					List<Chest> targetChest = Chests.Where(x => x.TreasureId == item.ObjectId).ToList();
-
-					if (!targetChest.Any())	continue;
-
-					_collections[targetChest.First().AreaId][targetChest.First().ObjectId].Sprite = 0x26;
-					_collections[targetChest.First().AreaId][targetChest.First().ObjectId].Gameflag = 0x00;
-					_collections[targetChest.First().AreaId][targetChest.First().ObjectId].Value = (byte)freeID.First();
-
-					item.ObjectId = (byte)freeID.First();
-
-					freeID.RemoveAt(0);
+					_collections[targetChest.First().Item2][targetChest.First().Item3].Sprite = sprite;
+					_collections[targetChest.First().Item2][targetChest.First().Item3].Gameflag = 0x00;
 				}
 
 				// Copy box+chest from Level Forest 2nd map to 1st map
@@ -188,7 +162,7 @@ namespace FFMQLib
 					new List<(int, int)> { }, // Destiny Hill
 					new List<(int, int)> { (0x34, 0x10), (0x34, 0x0E) }, // Level Forest+Alive Forest
 					new List<(int, int)> { }, // Wintry Cave
-					new List<(int, int)> { }, // Mine
+					new List<(int, int)> { (0x0B, 0x026), (0x23, 0x2A), (0x21, 0x0F), (0x3B, 0x30)}, // Mine
 					new List<(int, int)> { }, // Volcano Top
 					new List<(int, int)> { (0x0F, 0x08) }, // Volcano Base
 					new List<(int, int)> { }, // Rope Bridge
@@ -199,11 +173,11 @@ namespace FFMQLib
 					new List<(int, int)> { (0x13, 0x1D) }, // Mac Ship Deck
 					new List<(int, int)> { (0x12, 0x11), (0x08, 0x08), (0x11, 0x21) }, // !Mac Ship Interior
 					new List<(int, int)> { }, // Bone dungeon
-					new List<(int, int)> { (0x21, 0x3D) }, // Ice Pyramid 1
+					new List<(int, int)> { (0x21, 0x3D), (0x2A, 0x3C), (0x25, 0x34) }, // Ice Pyramid 1
 					new List<(int, int)> { }, // Ice Pyramid 2
 					new List<(int, int)> { }, // Lava Dome Exterior
-					new List<(int, int)> { (0x35, 0x14), (0x33, 0x14), (0x36, 0x0A), (0x36, 0x08), (0x34, 0x08), (0x32, 0x08), (0x29, 0x1E), (0x27, 0x1E), (0x29, 0x20), (0x29, 0x22), (0x2B, 0x22), (0x29, 0x24), (0x2B, 0x24), (0x29, 0x26), (0x19, 0x36), (0x03, 0x34), (0x05, 0x2C), (0x02, 0x23), (0x0E, 0x24) }, // Lava Dome Interior 1
-					new List<(int, int)> { (0x0B, 0x12), (0x07, 0x14), (0x09, 0x19), (0x13, 0x14), (0x11, 0x14), (0x39, 0x05), (0x25, 0x0C), (0x23, 0x12), (0x25, 0x12), (0x2A, 0x0C), (0x2C, 0x0C), (0x38, 0x11), (0x36, 0x11), (0x2E, 0x16), (0x30, 0x16) }, // Lava Dome Interior 2
+					new List<(int, int)> { (0x35, 0x14), (0x33, 0x14), (0x36, 0x0A), (0x36, 0x08), (0x34, 0x08), (0x32, 0x08), (0x29, 0x1E), (0x27, 0x1E), (0x29, 0x20), (0x29, 0x22), (0x2B, 0x22), (0x29, 0x24), (0x2B, 0x24), (0x29, 0x26), (0x19, 0x36), (0x03, 0x34), (0x05, 0x2C), (0x02, 0x23), (0x0E, 0x24), (0x28, 0x04) }, // Lava Dome Interior 1
+					new List<(int, int)> { (0x04, 0x07), (0x0B, 0x12), (0x07, 0x14), (0x09, 0x19), (0x13, 0x14), (0x11, 0x14), (0x39, 0x05), (0x25, 0x0C), (0x23, 0x12), (0x25, 0x12), (0x2A, 0x0C), (0x2C, 0x0C), (0x38, 0x11), (0x36, 0x11), (0x2E, 0x16), (0x30, 0x16) }, // Lava Dome Interior 2
 					new List<(int, int)> { (0x14, 0x0A), (0x10, 0x12), (0x10, 0x13), (0x0F, 0x16), (0x0F, 0x17), (0x12, 0x31), (0x14, 0x31), (0x2C, 0x33), (0x2A, 0x33), (0x32, 0x33), (0x34, 0x33) }, // Pazuzu Tower 1
 					new List<(int, int)> { (0x2D, 0x19), (0x10, 0x2D), (0x06, 0x2E), (0x07, 0x32) }, // Pazuzu Tower 2
 					new List<(int, int)> { }, // Spencer's Place

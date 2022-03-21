@@ -21,16 +21,17 @@ namespace FFMQLib
 		public static TreasureObject AliveForest03 = new TreasureObject(0xA6, (int)MapList.LevelAliveForest, Locations.AliveForest, TreasureType.Box, new List<AccessReqs> { AccessReqs.Axe });
 		public static TreasureObject AliveForest04 = new TreasureObject(0xA7, (int)MapList.LevelAliveForest, Locations.AliveForest, TreasureType.Box, new List<AccessReqs> { AccessReqs.Axe });
 		public static TreasureObject WintryCave01 = new TreasureObject(0x09, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Chest, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
-		public static TreasureObject WintryCave02 = new TreasureObject(0x44, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { });
-		public static TreasureObject WintryCave03 = new TreasureObject(0x45, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
-		public static TreasureObject WintryCave04 = new TreasureObject(0x46, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
-		public static TreasureObject WintryCave05 = new TreasureObject(0x47, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
-		public static TreasureObject WintryCave06 = new TreasureObject(0x48, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
-		public static TreasureObject WintryCave07 = new TreasureObject(0x49, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
-		public static TreasureObject WintryCave08 = new TreasureObject(0x4A, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
-		public static TreasureObject WintryCave09 = new TreasureObject(0x4B, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
-		public static TreasureObject WintryCave10 = new TreasureObject(0x4C, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
-		public static TreasureObject WintryCave11 = new TreasureObject(0x4D, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
+		public static TreasureObject WintryCave02 = new TreasureObject(0x43, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { });
+		public static TreasureObject WintryCave03 = new TreasureObject(0x44, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { });
+		public static TreasureObject WintryCave04 = new TreasureObject(0x45, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
+		public static TreasureObject WintryCave05 = new TreasureObject(0x46, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
+		public static TreasureObject WintryCave06 = new TreasureObject(0x47, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
+		public static TreasureObject WintryCave07 = new TreasureObject(0x48, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
+		public static TreasureObject WintryCave08 = new TreasureObject(0x49, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
+		public static TreasureObject WintryCave09 = new TreasureObject(0x4A, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
+		public static TreasureObject WintryCave10 = new TreasureObject(0x4B, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
+		public static TreasureObject WintryCave11 = new TreasureObject(0x4C, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
+		public static TreasureObject WintryCave12 = new TreasureObject(0x4D, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
 		public static TreasureObject MineCliff01 = new TreasureObject(0x79, (int)MapList.VolcanoTop, Locations.Volcano, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
 		public static TreasureObject MineCliff02 = new TreasureObject(0x7A, (int)MapList.VolcanoTop, Locations.Volcano, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
 		public static TreasureObject MineCliff03 = new TreasureObject(0x7B, (int)MapList.VolcanoTop, Locations.Volcano, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
@@ -93,6 +94,7 @@ namespace FFMQLib
 		public static TreasureObject BoneDungeon02 = new TreasureObject(0x07, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Chest, new List<AccessReqs> { AccessReqs.Bomb });
 		public static TreasureObject BoneDungeon03 = new TreasureObject(0x08, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Chest, new List<AccessReqs> { AccessReqs.Bomb });
 		public static TreasureObject BoneDungeon04 = new TreasureObject(0x35, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Box, new List<AccessReqs> { });
+		public static TreasureObject TristamBoneDungeonExlixir = new TreasureObject(0x04, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Chest, new List<AccessReqs> { AccessReqs.Bomb });
 		public static TreasureObject BoneDungeon05 = new TreasureObject(0x36, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject BoneDungeon06 = new TreasureObject(0x37, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject BoneDungeon07 = new TreasureObject(0x38, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Box, new List<AccessReqs> { AccessReqs.Bomb });
@@ -262,7 +264,7 @@ namespace FFMQLib
 		public static TreasureObject BoulderOldMan = new TreasureObject((int)ItemGivingNPCs.BoulderOldMan, (int)MapList.LevelAliveForest, Locations.LevelForest, TreasureType.NPC, new List<AccessReqs> { });
 		public static TreasureObject KaeliForesta = new TreasureObject((int)ItemGivingNPCs.KaeliForesta, (int)MapList.LevelAliveForest, Locations.LevelForest, TreasureType.NPC, new List<AccessReqs> { AccessReqs.TreeWither });
 		public static TreasureObject TristamBoneDungeonBomb = new TreasureObject((int)ItemGivingNPCs.TristamBoneDungeonBomb, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.NPC, new List<AccessReqs> { });
-		public static TreasureObject TristamBoneDungeonExlixir = new TreasureObject((int)ItemGivingNPCs.TristamBoneDungeonElixir, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.NPC, new List<AccessReqs> { AccessReqs.Bomb });
+		//public static TreasureObject TristamBoneDungeonExlixir = new TreasureObject((int)ItemGivingNPCs.TristamBoneDungeonElixir, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.NPC, new List<AccessReqs> { AccessReqs.Bomb });
 		public static TreasureObject SteelHelmWomanAquaria = new TreasureObject((int)ItemGivingNPCs.WomanAquaria, (int)MapList.Aquaria, Locations.Aquaria, TreasureType.NPC, new List<AccessReqs> { });
 		public static TreasureObject PhoebeWintryCave = new TreasureObject((int)ItemGivingNPCs.PhoebeWintryCave, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.NPC, new List<AccessReqs> { });
 		public static TreasureObject MysteriousManLifeTemple = new TreasureObject((int)ItemGivingNPCs.MysteriousManLifeTemple, (int)MapList.Caves, Locations.LibraTemple, TreasureType.NPC, new List<AccessReqs> { AccessReqs.LibraCrest });
@@ -301,19 +303,7 @@ namespace FFMQLib
 
 			return properties.Where(x => x.Type == TreasureType.Chest || x.Type == TreasureType.Box).ToList();
 		}
-		public static List<TreasureObject> AllNPCs()
-		{
-			List<TreasureObject> properties = new();
-			ItemLocations instance = new();
-
-			foreach (PropertyInfo prop in typeof(ItemLocations).GetProperties())
-			{
-				properties.Add((TreasureObject)prop.GetValue(instance));
-			}
-
-			return properties.Where(x => x.Type == TreasureType.NPC).ToList();
-		}
-		public static List<TreasureObject> AllChestsNPCs()
+		public static List<TreasureObject> Generate(Flags flags, Battlefields battlefields)
 		{
 			List<TreasureObject> properties = new();
 			ItemLocations instance = new();
@@ -324,28 +314,6 @@ namespace FFMQLib
 				{
 					properties.Add(new TreasureObject((TreasureObject)prop.GetValue(instance)));
 				}
-				
-			}
-
-			for (int i = 0; i < properties.Count; i++)
-			{
-				properties[i].AccessRequirements.AddRange(LocationAccessReq[properties[i].Location]);
-			}
-
-			return properties.Where(x => x.Type == TreasureType.NPC || (x.Type == TreasureType.Chest && x.ObjectId < 0x30)).ToList();
-		}
-		public static List<TreasureObject> AllChestsNPCsBattlefields(Flags flags, Battlefields battlefields)
-		{
-			List<TreasureObject> properties = new();
-			ItemLocations instance = new();
-
-			foreach (FieldInfo prop in typeof(ItemLocations).GetFields())
-			{
-				if (prop.FieldType == typeof(TreasureObject))
-				{
-					properties.Add(new TreasureObject((TreasureObject)prop.GetValue(instance)));
-				}
-
 			}
 
 			// Update Battlefields Locations
@@ -359,19 +327,50 @@ namespace FFMQLib
 				}
 			}
 
+			// Collapse Access Requirements
 			for (int i = 0; i < properties.Count; i++)
 			{
 				properties[i].AccessRequirements.AddRange(LocationAccessReq[properties[i].Location]);
 			}
 
-			return properties.Where(x => x.Type == TreasureType.NPC || (x.Type == TreasureType.Chest && x.ObjectId < 0x30) || x.Type == TreasureType.Battlefield).ToList();
-		}
+			// Set Priorization
+			if (flags.ChestsShuffle == ItemShuffleChests.Prioritize)
+			{
+				properties.Where(x => x.Type == TreasureType.Chest && x.ObjectId < 0x20).ToList().ForEach(x => x.Prioritize = true);
+			}
 
-		public static List<TreasureObject> AllEverything(Flags flags, Battlefields battlefields)
+			if (flags.NPCsShuffle == ItemShuffleNPCsBattlefields.Prioritize)
+			{
+				properties.Where(x => x.Type == TreasureType.NPC).ToList().ForEach(x => x.Prioritize = true);
+			}
+			else if (flags.NPCsShuffle == ItemShuffleNPCsBattlefields.Exclude)
+			{
+				properties.Where(x => x.Type == TreasureType.NPC).ToList().ForEach(x => x.Exclude = true);
+			}
+
+			if (flags.BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Prioritize)
+			{
+				properties.Where(x => x.Type == TreasureType.Battlefield).ToList().ForEach(x => x.Prioritize = true);
+			}
+			else if (flags.BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Exclude)
+			{
+				properties.Where(x => x.Type == TreasureType.Battlefield).ToList().ForEach(x => x.Exclude = true);
+			}
+
+			if (flags.BoxesShuffle == ItemShuffleBoxes.Exclude)
+			{
+				properties.Where(x => x.Type == TreasureType.Box).ToList().ForEach(x => x.Exclude = true);
+			}
+
+			properties.Where(x => x.Type == TreasureType.Chest && x.ObjectId >= 0xF2 && x.ObjectId <= 0xF5).ToList().ForEach(x => x.Exclude = true);
+
+			return properties.ToList();
+		}
+		public static List<TreasureObject> FinalChests()
 		{
 			List<TreasureObject> properties = new();
 			ItemLocations instance = new();
-			
+
 			foreach (FieldInfo prop in typeof(ItemLocations).GetFields())
 			{
 				if (prop.FieldType == typeof(TreasureObject))
@@ -381,24 +380,9 @@ namespace FFMQLib
 
 			}
 
-			// Update Battlefields Locations
-			if (flags.ShuffleBattlefieldRewards)
-			{
-				var battlefieldsLocation = properties.Where(x => x.Type == TreasureType.Battlefield).ToList();
-
-				for (int i = 0; i < battlefieldsLocation.Count(); i++)
-				{
-					battlefieldsLocation[i].Location = battlefields.BattlefieldsWithItem[i];
-				}
-			}
-
-			for (int i = 0; i < properties.Count; i++)
-			{
-				properties[i].AccessRequirements.AddRange(LocationAccessReq[properties[i].Location]);
-			}
-
-			return properties.Where(x => x.Type == TreasureType.NPC || (x.Type == TreasureType.Chest && x.ObjectId < 0x30) || x.Type == TreasureType.Box || x.Type == TreasureType.Battlefield).ToList();
+			return properties.Where(x => x.Type == TreasureType.Chest && x.ObjectId >= 0xF2 && x.ObjectId <= 0xF5).ToList();
 		}
+
 		public static List<TreasureObject> AllNPCsItems()
 		{
 			List<TreasureObject> properties = new();
@@ -486,6 +470,68 @@ namespace FFMQLib
 			{ Locations.DoomCastle, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.RiverCoin, AccessReqs.SunCoin, AccessReqs.SkyCoin, AccessReqs.MobiusCrest, AccessReqs.CaptainCap, AccessReqs.ThunderRock, AccessReqs.Sword, AccessReqs.MegaGrenade, AccessReqs.DragonClaw } }, // Maybe put to ALL
 			{ Locations.LightTemple, new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.MobiusCrest, AccessReqs.CaptainCap, AccessReqs.ThunderRock, AccessReqs.Sword, AccessReqs.MegaGrenade, AccessReqs.DragonClaw } }, // Anything there?
 			{ Locations.MacsShip, new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.MobiusCrest, AccessReqs.ThunderRock, AccessReqs.MegaGrenade } },
+		};
+		public static MapRegions ReturnRegion(Locations location)
+		{
+			return Regions.Find(x => x.Item2 == location).Item1;
+		}
+		public static List<(MapRegions, Locations)> Regions => new()
+		{
+			(MapRegions.Foresta, Locations.ForestaSouthBattlefield),
+			(MapRegions.Foresta, Locations.ForestaWestBattlefield),
+			(MapRegions.Foresta, Locations.ForestaEastBattlefield),
+			(MapRegions.Aquaria, Locations.AquariaBattlefield01),
+			(MapRegions.Aquaria, Locations.AquariaBattlefield02),
+			(MapRegions.Aquaria, Locations.AquariaBattlefield03),
+			(MapRegions.Aquaria, Locations.WintryBattlefield01),
+			(MapRegions.Aquaria, Locations.WintryBattlefield02),
+			(MapRegions.Aquaria, Locations.PyramidBattlefield01),
+			(MapRegions.Aquaria, Locations.LibraBattlefield01),
+			(MapRegions.Aquaria, Locations.LibraBattlefield02),
+			(MapRegions.Fireburg, Locations.FireburgBattlefield01),
+			(MapRegions.Fireburg, Locations.FireburgBattlefield02),
+			(MapRegions.Fireburg, Locations.FireburgBattlefield03),
+			(MapRegions.Fireburg, Locations.MineBattlefield01),
+			(MapRegions.Fireburg, Locations.MineBattlefield02),
+			(MapRegions.Fireburg, Locations.MineBattlefield03),
+			(MapRegions.Fireburg, Locations.VolcanoBattlefield01),
+			(MapRegions.Windia, Locations.WindiaBattlefield01),
+			(MapRegions.Windia, Locations.WindiaBattlefield02),
+			(MapRegions.Foresta, Locations.HillOfDestiny),
+			(MapRegions.Foresta, Locations.LevelForest),
+			(MapRegions.Foresta, Locations.Foresta),
+			(MapRegions.Foresta, Locations.SandTemple),
+			(MapRegions.Foresta, Locations.BoneDungeon),
+			(MapRegions.Foresta, Locations.FocusTowerSouth),
+			(MapRegions.Aquaria, Locations.FocusTowerWest),
+			(MapRegions.Aquaria, Locations.LibraTemple),
+			(MapRegions.Aquaria, Locations.Aquaria),
+			(MapRegions.Aquaria, Locations.WintryCave),
+			(MapRegions.Aquaria, Locations.LifeTemple),
+			(MapRegions.Aquaria, Locations.FallsBasin),
+			(MapRegions.Aquaria, Locations.IcePyramid),
+			(MapRegions.Aquaria, Locations.SpencersPlace),
+			(MapRegions.Aquaria, Locations.WintryTemple),
+			(MapRegions.Aquaria, Locations.FocusTowerNorth),
+			(MapRegions.Fireburg, Locations.FocusTowerEast),
+			(MapRegions.Fireburg, Locations.Fireburg),
+			(MapRegions.Fireburg, Locations.Mine),
+			(MapRegions.Fireburg, Locations.SealedTemple),
+			(MapRegions.Fireburg, Locations.Volcano),
+			(MapRegions.Fireburg, Locations.LavaDome),
+			(MapRegions.Windia, Locations.FocusTowerSouth2),
+			(MapRegions.Windia, Locations.RopeBridge),
+			(MapRegions.Windia, Locations.AliveForest),
+			(MapRegions.Windia, Locations.GiantTree),
+			(MapRegions.Windia, Locations.KaidgeTemple),
+			(MapRegions.Windia, Locations.Windia),
+			(MapRegions.Windia, Locations.WindholeTemple),
+			(MapRegions.Windia, Locations.MountGale),
+			(MapRegions.Windia, Locations.PazuzusTower),
+			(MapRegions.Windia, Locations.ShipDock),
+			(MapRegions.Windia, Locations.DoomCastle),
+			(MapRegions.Windia, Locations.LightTemple),
+			(MapRegions.Windia, Locations.MacsShip)
 		};
 
 		public static Dictionary<Items, List<AccessReqs>> ItemAccessReq => new Dictionary<Items, List<AccessReqs>>
