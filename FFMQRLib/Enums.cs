@@ -678,6 +678,13 @@ namespace FFMQLib
 		BackgroundD = 0x2B,
 	}
 
+	public enum MapRegions : byte
+	{
+		Foresta = 0x00,
+		Aquaria,
+		Fireburg,
+		Windia,
+	}
 	public partial class FFMQRom : SnesRom
 	{
 

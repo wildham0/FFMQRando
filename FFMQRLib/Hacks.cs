@@ -170,6 +170,23 @@ namespace FFMQLib
 
 			// Insert lut of resetable boxes, 0x20 bytes
 			PutInBank(0x11, 0x8FC0, lutResetBox);
+
+			// Put the Mirror/Mask effect with the give item routine instead, just outright cancel if they're outside their respective dungeons
+			string maskRoutine = "eaeaeaeaeaeaeaeaeaeaeaea";
+
+			if (itemsPlacement.ItemsLocations.Find(x => x.Content == Items.Mask).Location == Locations.Volcano)
+			{
+				maskRoutine = "c905d008a992224e97008010";
+			}
+			string mirrorRoutine = "eaeaeaeaeaeaeaeaeaeaeaeaeaeaeaea";
+
+			if (itemsPlacement.ItemsLocations.Find(x => x.Content == Items.MagicMirror).Location == Locations.IcePyramid)
+			{
+				mirrorRoutine = "c906d00ca992224e9700a994224e9700";
+			}
+
+			PutInBank(0x11, 0x9200, Blob.FromHex("224e9700ad9e000bf4d0002b" + maskRoutine + mirrorRoutine + "2b6b"));
+			PutInBank(0x00, 0xDB87, Blob.FromHex("22009211"));
 		}
 
 		public void BugFixes()

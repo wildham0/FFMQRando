@@ -35,7 +35,17 @@ namespace FFMQLib
 	{
 		public List<Items> StartingItems { get; set; }
 		public List<TreasureObject> ItemsLocations { get; }
+		private class RegionWeight
+		{ 
+			public MapRegions Region { get; set; }
+			public int Weight { get; set; }
 
+			public RegionWeight(MapRegions _region, int _weight)
+			{
+				Region = _region;
+				Weight = _weight;
+			}
+		}
 		public ItemsPlacement(FFMQRom rom, Flags flags, MT19337 rng)
 		{
 			bool badPlacement = true;
@@ -48,10 +58,18 @@ namespace FFMQLib
 			List<Items> consumableList = rom.GetFromBank(0x01, 0x801E, 0xDD).ToBytes().Select(x => (Items)x).ToList();
 			List<Items> finalConsumables = rom.GetFromBank(0x01, 0x80F2, 0x04).ToBytes().Select(x => (Items)x).ToList();
 
+
+			List<RegionWeight> regionsWeight = new() { new RegionWeight(MapRegions.Foresta, 1), new RegionWeight(MapRegions.Aquaria, 1), new RegionWeight(MapRegions.Fireburg, 1), new RegionWeight(MapRegions.Windia, 1) };
+
 			while (badPlacement)
 			{
 				badPlacement = false;
 				placedChests = 0;
+
+				regionsWeight.Find(x => x.Region == MapRegions.Foresta).Weight = 1;
+				regionsWeight.Find(x => x.Region == MapRegions.Aquaria).Weight = 1;
+				regionsWeight.Find(x => x.Region == MapRegions.Fireburg).Weight = 1;
+				regionsWeight.Find(x => x.Region == MapRegions.Windia).Weight = 1;
 
 				List<Items> itemsList = RandomizeItemsOrder(flags, rng);
 
@@ -79,35 +97,38 @@ namespace FFMQLib
 
 				while (itemsList.Any())
 				{
-					List<TreasureObject> validLocations;
-					
+					List<TreasureObject> validLocations = new();
+
+					List<TreasureObject> validLocationsPriorized = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && x.Prioritize == true).ToList();
+					List<TreasureObject> validLocationsLoose = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false).ToList();
+
 					int diceRoll = rng.Between(1, itemsList.Count);
 
-					if (diceRoll <= prioritizedItemsCount)
+					if ((validLocationsPriorized.Any() && validLocationsLoose.Any() && diceRoll <= prioritizedItemsCount) ||
+						(validLocationsPriorized.Any() && !validLocationsLoose.Any()))
 					{
-						validLocations = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && x.Prioritize == true).ToList();
-						if (!validLocations.Any())
-						{
-							validLocations = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false).ToList();
-							looseItemsCount--;
-						}
-						else
-						{
-							prioritizedItemsCount--;
-						}
+						validLocations = validLocationsPriorized;
+						prioritizedItemsCount--;
 					}
 					else
 					{
-						validLocations = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false).ToList();
-						if (!validLocations.Any())
-						{
-							validLocations = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && x.Prioritize == true).ToList();
-							prioritizedItemsCount--;
-						}
-						else
-						{
-							looseItemsCount--;
-						}
+						validLocations = validLocationsLoose;
+						looseItemsCount--;
+					}
+
+					List<MapRegions> weightedRegionList = new();
+					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Foresta, 8 / regionsWeight.Find(x => x.Region == MapRegions.Foresta).Weight ));
+					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Aquaria, 16 / regionsWeight.Find(x => x.Region == MapRegions.Aquaria).Weight));
+					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Fireburg, 16 / regionsWeight.Find(x => x.Region == MapRegions.Fireburg).Weight));
+					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Windia, 16 / regionsWeight.Find(x => x.Region == MapRegions.Windia).Weight));
+
+					MapRegions favoredRegion = rng.PickFrom(weightedRegionList);
+
+					List<TreasureObject> validLocationsFavored = validLocations.Where(x => ItemLocations.ReturnRegion(x.Location) == favoredRegion).ToList();
+
+					if (validLocationsFavored.Any())
+					{
+						validLocations = validLocationsFavored;
 					}
 
 					if (!validLocations.Any() && itemsList.Any())
@@ -124,7 +145,9 @@ namespace FFMQLib
 					itemsList.RemoveAt(0);
 					targetLocation.Content = itemToPlace;
 					targetLocation.IsPlaced = true;
-					if(targetLocation.Type == TreasureType.Chest || targetLocation.Type == TreasureType.Box)
+					regionsWeight.Find(x => x.Region == ItemLocations.ReturnRegion(targetLocation.Location)).Weight++;
+
+					if (targetLocation.Type == TreasureType.Chest || targetLocation.Type == TreasureType.Box)
 					{ 
 						targetLocation.Type = TreasureType.Chest;
 						placedChests++;
