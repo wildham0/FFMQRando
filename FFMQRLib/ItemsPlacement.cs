@@ -250,7 +250,6 @@ namespace FFMQLib
 			List<Items> ProgressionAxes = new() { Items.Axe, Items.BattleAxe, Items.GiantsAxe };
 			List<Items> ProgressionClaws = new() { Items.CatClaw, Items.CharmClaw };
 			List<Items> InitialProgressionItems = new() { Items.SandCoin, Items.RiverCoin };
-			List<Items> ProgressionCoins = new() { Items.SunCoin };
 			List<Items> ProgressionItems = new()
 			{
 				Items.TreeWither, // NPC
@@ -264,6 +263,7 @@ namespace FFMQLib
 				Items.MegaGrenade, //NPC
 				Items.Elixir, // NPC
 				Items.WakeWater, // NPC
+				Items.SunCoin
 			};
 			List<Items> NonProgressionItems = new()
 			{
@@ -323,12 +323,7 @@ namespace FFMQLib
 			ProgressionItems.Add(rng.TakeFrom(ProgressionBombs));
 			ProgressionItems.Add(rng.TakeFrom(ProgressionAxes));
 			ProgressionItems.Add(rng.TakeFrom(ProgressionClaws));
-			if (flags.ChestsShuffle == ItemShuffleChests.Prioritize)
-			{
-				ProgressionItems.AddRange(InitialProgressionItems);
-				ProgressionItems.AddRange(ProgressionCoins); 
-			}
-			//ProgressionItems.AddRange(InitialProgressionItems);
+			ProgressionItems.AddRange(InitialProgressionItems);
 			ProgressionItems.Shuffle(rng);
 
 			// Put Everything else in Non Progression Items
@@ -349,18 +344,8 @@ namespace FFMQLib
 
 			List<Items> Tier1 = NonProgressionItems.GetRange(0, 5);
 			NonProgressionItems.RemoveRange(0, 5);
-			if (flags.ChestsShuffle == ItemShuffleChests.Prioritize)
-			{
-				Tier1.AddRange(ProgressionItems.GetRange(0, 5));
-				ProgressionItems.RemoveRange(0, 5);
-			}
-			else
-			{
-				Tier1.AddRange(ProgressionItems.GetRange(0, 3));
-				ProgressionItems.RemoveRange(0, 3);
-				Tier1.AddRange(InitialProgressionItems);
-				Tier1.AddRange(ProgressionCoins);
-			}
+			Tier1.AddRange(ProgressionItems.GetRange(0, 5));
+			ProgressionItems.RemoveRange(0, 5);
 			
 			// Tier2 is everything else
 			List<Items> Tier2 = ProgressionItems.ToList();
