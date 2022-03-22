@@ -90,6 +90,18 @@ namespace FFMQLib
 			PutInBank(0x0B, 0x8599, Blob.FromHex("80"));
 			PutInBank(0x0B, 0x85A4, Blob.FromHex("80"));
 		}
+		public void RemoveStrobing()
+		{
+			// Crystal flash, simply skip the flash routine
+			PutInBank(0x01, 0xD4C9, Blob.FromHex("EAEAEA"));
+			PutInBank(0x01, 0xD4DB, Blob.FromHex("EAEAEA"));
+			PutInBank(0x01, 0xD55A, Blob.FromHex("EAEAEA"));
+
+			// Hero status, same, then rts early to avoid the big flash at the end
+			PutInBank(0x01, 0xDC2A, Blob.FromHex("EAEAEA"));
+			PutInBank(0x01, 0xDC37, Blob.FromHex("EAEAEA"));
+			PutInBank(0x01, 0xDDBA, Blob.FromHex("60"));
+		}
 		public void SmallFixes()
 		{
 			// Fix Bomb and JumboBomb to work everywhere

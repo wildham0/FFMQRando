@@ -92,12 +92,6 @@ namespace FFMQLib
             {
                 throw new Exception("Selected flags don't allow enough locations to place all Quest Items. Change flags to include more locations.");
             }
-
-            // This is required so all Prioritize doesn't end up putting items brown chests if it meets a roadblock.
-            if (ChestsShuffle == ItemShuffleChests.Prioritize && NPCsShuffle == ItemShuffleNPCsBattlefields.Prioritize && BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Prioritize && BoxesShuffle == ItemShuffleBoxes.Include)
-            {
-                BoxesShuffle = ItemShuffleBoxes.Exclude;
-            }
         }
     }
 

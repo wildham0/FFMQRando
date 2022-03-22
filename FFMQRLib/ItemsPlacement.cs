@@ -110,10 +110,14 @@ namespace FFMQLib
 						validLocations = validLocationsPriorized;
 						prioritizedItemsCount--;
 					}
-					else
+					else if (looseItemsCount > 0)
 					{
 						validLocations = validLocationsLoose;
 						looseItemsCount--;
+					}
+					else
+					{
+						validLocations = new();
 					}
 
 					List<MapRegions> weightedRegionList = new();

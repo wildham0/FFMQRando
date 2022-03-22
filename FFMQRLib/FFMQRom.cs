@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.3.05";
+		public static string VersionNumber = "0.3.06";
 		public static string Version = VersionNumber + "-beta";
 	}
 	
@@ -139,6 +139,7 @@ namespace FFMQLib
 			FastMovement();
 			DefaultSettings();
 			RemoveClouds();
+			RemoveStrobing();
 			SmallFixes();
 			BugFixes();
 			CompanionRoutines();
