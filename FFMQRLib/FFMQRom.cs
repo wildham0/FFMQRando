@@ -104,6 +104,8 @@ namespace FFMQLib
 		}
 		public void Randomize(Blob seed, Flags flags)
 		{
+			flags.FlagSanityCheck();
+
 			MT19337 rng;
 			using (SHA256 hasher = SHA256.Create())
 			{

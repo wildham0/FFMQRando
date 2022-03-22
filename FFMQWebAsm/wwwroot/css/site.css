@@ -12,3 +12,11 @@
 .form-check {
     margin-left: 1.25em;
 }
+
+h3 {
+    font-size: 1.25em;
+    border-bottom-style: solid;
+    border-bottom-color: white;
+    border-bottom-width: medium;
+}
+
