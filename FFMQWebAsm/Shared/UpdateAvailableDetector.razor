@@ -16,12 +16,7 @@
         await RegisterForUpdateAvailableNotification();
     }
 
-    private Task ReloadPage()
-    {
-        window.pushUpdate();
-        window.location.reload();
-    }
-
+  
     private async Task RegisterForUpdateAvailableNotification()
     {
         await _jsRuntime.InvokeAsync<object>(

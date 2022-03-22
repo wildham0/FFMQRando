@@ -32,10 +32,3 @@ window.registerForUpdateAvailableNotification = (caller, methodName) => {
         }
     });
 };
-
-window.pushUpdate = () => {
-    if (navigator.serviceWorker.controller) {
-        registration.waiting.postMessage('skipWaiting');
-        config.onUpdateInstalled();
-    }
-}
