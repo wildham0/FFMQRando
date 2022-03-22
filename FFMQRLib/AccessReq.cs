@@ -445,7 +445,7 @@ namespace FFMQLib
 			{ Locations.LibraTemple, new List<AccessReqs> { AccessReqs.SandCoin  } },
 			{ Locations.Aquaria, new List<AccessReqs> { AccessReqs.SandCoin } },
 			{ Locations.WintryCave, new List<AccessReqs> { AccessReqs.SandCoin  } },
-			{ Locations.LifeTemple, new List<AccessReqs> { AccessReqs.SandCoin } },
+			{ Locations.LifeTemple, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.LibraCrest } },
 			{ Locations.FallsBasin, new List<AccessReqs> { AccessReqs.SandCoin } },
 			{ Locations.IcePyramid, new List<AccessReqs> { AccessReqs.SandCoin } },
 			{ Locations.SpencersPlace, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater, AccessReqs.Sword, AccessReqs.Claw } },
