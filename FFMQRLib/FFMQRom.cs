@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.3.06";
+		public static string VersionNumber = "0.3.07";
 		public static string Version = VersionNumber + "-beta";
 	}
 	
@@ -144,6 +144,7 @@ namespace FFMQLib
 			BugFixes();
 			CompanionRoutines();
 			SetLevelingCurve(flags);
+			ProgressiveGears(flags);
 
 			MapObjects.SetEnemiesDensity(flags, rng);
 			MapObjects.ShuffleEnemiesPosition(mapList, flags, rng);

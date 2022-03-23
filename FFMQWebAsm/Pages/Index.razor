@@ -131,6 +131,14 @@
         </Tooltip>
     </Switch>
 </Field>
+<Field>
+    <Switch TValue="bool" @bind-Checked="@flags.ProgressiveGear">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Progressive Gear</Text>
+        <Tooltip Text="Pieces of gear are always acquired from weakest to strongest in a set.<br/><br/>Eg. you'll always received the Steel Sword first, then the Knight Sword and finally Excalibur, irrespective of the order the chests are opened." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
+</Field>
 
 <div><br /></div>
 <h3 id="optionsSection" class="text-secondary">Enemies</h3>

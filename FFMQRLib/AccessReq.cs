@@ -331,6 +331,18 @@ namespace FFMQLib
 			for (int i = 0; i < properties.Count; i++)
 			{
 				properties[i].AccessRequirements.AddRange(LocationAccessReq[properties[i].Location]);
+				if (flags.ProgressiveGear)
+				{
+					if (properties[i].AccessRequirements.Contains(AccessReqs.DragonClaw))
+					{
+						properties[i].AccessRequirements.AddRange(new List<AccessReqs> { AccessReqs.CatClaw, AccessReqs.CharmClaw });
+					}
+
+					if (properties[i].AccessRequirements.Contains(AccessReqs.MegaGrenade))
+					{
+						properties[i].AccessRequirements.AddRange(new List<AccessReqs> { AccessReqs.SmallBomb, AccessReqs.JumboBomb });
+					}
+				}
 			}
 
 			// Set Priorization
@@ -556,11 +568,11 @@ namespace FFMQLib
 			{ Items.Axe, new List<AccessReqs> { AccessReqs.Axe } },
 			{ Items.BattleAxe, new List<AccessReqs> { AccessReqs.Axe } },
 			{ Items.GiantsAxe, new List<AccessReqs> { AccessReqs.Axe } },
-			{ Items.CatClaw, new List<AccessReqs> { AccessReqs.Claw } },
-			{ Items.CharmClaw, new List<AccessReqs> { AccessReqs.Claw } },
+			{ Items.CatClaw, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.CatClaw } },
+			{ Items.CharmClaw, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.CharmClaw } },
 			{ Items.DragonClaw, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.DragonClaw } },
-			{ Items.Bomb, new List<AccessReqs> { AccessReqs.Bomb } },
-			{ Items.JumboBomb, new List<AccessReqs> { AccessReqs.Bomb } },
+			{ Items.Bomb, new List<AccessReqs> { AccessReqs.Bomb, AccessReqs.SmallBomb } },
+			{ Items.JumboBomb, new List<AccessReqs> { AccessReqs.Bomb, AccessReqs.JumboBomb } },
 			{ Items.MegaGrenade, new List<AccessReqs> { AccessReqs.Bomb, AccessReqs.MegaGrenade } },
 		};
 	}
