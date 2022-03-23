@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.3.07";
+		public static string VersionNumber = "0.3.08";
 		public static string Version = VersionNumber + "-beta";
 	}
 	
@@ -161,7 +161,7 @@ namespace FFMQLib
 
 			itemsPlacement.WriteChests(this);
 			
-			UpdateScripts(itemsPlacement, rng);
+			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
 
@@ -184,7 +184,7 @@ namespace FFMQLib
 
 			this.Header = Array.Empty<byte>();
 		}
-		public void UpdateScripts(ItemsPlacement fullItemsPlacement, MT19337 rng)
+		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, MT19337 rng)
 		{
 			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
 		
@@ -433,6 +433,7 @@ namespace FFMQLib
 			TalkScripts.AddScript((int)TalkScriptsList.AquariaSellerGirl,
 				new ScriptBuilder(new List<string>{
 					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.WomanAquaria]:X2}",
+					flags.ProgressiveGear ? "09309411" : "",
 					"2BFC",
 					$"2E{(int)NewGameFlagsList.AquariaSellerItemBought:X2}BFFE",
 					"0E0115C80000", // set price
@@ -761,6 +762,7 @@ namespace FFMQLib
 			TalkScripts.AddScript((int)TalkScriptsList.FireburgSellerGirl,
 				new ScriptBuilder(new List<string>{
 					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.WomanFireburg]:X2}",
+					flags.ProgressiveGear ? "09309411" : "",
 					"2BFC",
 					$"2E{(int)NewGameFlagsList.FireburgSellerItemBought:X2}BFFE",
 					"0E0115F40100", // set price
@@ -969,6 +971,7 @@ namespace FFMQLib
 			TalkScripts.AddScript((int)TalkScriptsList.WindiaSellerGirl,
 				new ScriptBuilder(new List<string>{
 					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.GirlWindia]:X2}",
+					flags.ProgressiveGear ? "09309411" : "",
 					"2BFC",
 					$"2E{(int)NewGameFlagsList.WindiaSellerItemBought:X2}BFFE",
 					"0E01152C0100", // set price
