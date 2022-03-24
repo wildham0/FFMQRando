@@ -86,7 +86,7 @@ namespace FFMQLib
 		public static TreasureObject MacShip06 = new TreasureObject(0xE0, (int)MapList.MacShipInterior, Locations.MacsShip, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject MacShip07 = new TreasureObject(0xE1, (int)MapList.MacShipInterior, Locations.MacsShip, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject MacShip08 = new TreasureObject(0xE2, (int)MapList.MacShipInterior, Locations.MacsShip, TreasureType.Box, new List<AccessReqs> { });
-		public static TreasureObject MacShip09 = new TreasureObject(0xE3, (int)MapList.MacShipInterior, Locations.MacsShip, TreasureType.Box, new List<AccessReqs> { });
+		//public static TreasureObject MacShip09 = new TreasureObject(0xE3, (int)MapList.MacShipInterior, Locations.MacsShip, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject MacShip10 = new TreasureObject(0xE4, (int)MapList.MacShipInterior, Locations.MacsShip, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw });
 		public static TreasureObject MacShip11 = new TreasureObject(0xE5, (int)MapList.MacShipInterior, Locations.MacsShip, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw });
 		public static TreasureObject MacShip12 = new TreasureObject(0xE6, (int)MapList.MacShipInterior, Locations.MacsShip, TreasureType.Box, new List<AccessReqs> { });
@@ -218,7 +218,7 @@ namespace FFMQLib
 		public static TreasureObject Caves09 = new TreasureObject(0x7E, (int)MapList.Caves, Locations.SealedTemple, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject Caves10 = new TreasureObject(0x7D, (int)MapList.Caves, Locations.SealedTemple, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject Caves11 = new TreasureObject(0xC1, (int)MapList.Caves, Locations.KaidgeTemple, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
-		//public static TreasureObject Caves12 = new TreasureObject(0xD8, (int)MapList.Caves, Locations.Windia, TreasureType.Box, new List<AccessReqs> { }); // ???
+		public static TreasureObject Caves12 = new TreasureObject(0xD8, (int)MapList.Caves, Locations.KaidgeTemple, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.MobiusCrest }); // Light Temple single chest
 		public static TreasureObject ForestaHouse01 = new TreasureObject(0x05, (int)MapList.ForestaInterior, Locations.Foresta, TreasureType.Chest, new List<AccessReqs> { });
 		public static TreasureObject ForestaHouse02 = new TreasureObject(0x2E, (int)MapList.ForestaInterior, Locations.Foresta, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject ForestaHouse03 = new TreasureObject(0x2F, (int)MapList.ForestaInterior, Locations.Foresta, TreasureType.Box, new List<AccessReqs> { });
@@ -480,7 +480,7 @@ namespace FFMQLib
 			{ Locations.PazuzusTower, new List<AccessReqs> { AccessReqs.SunCoin } },
 			{ Locations.ShipDock, new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.MobiusCrest } },
 			{ Locations.DoomCastle, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.RiverCoin, AccessReqs.SunCoin, AccessReqs.SkyCoin, AccessReqs.MobiusCrest, AccessReqs.CaptainCap, AccessReqs.ThunderRock, AccessReqs.Sword, AccessReqs.MegaGrenade, AccessReqs.DragonClaw } }, // Maybe put to ALL
-			{ Locations.LightTemple, new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.MobiusCrest, AccessReqs.CaptainCap, AccessReqs.ThunderRock, AccessReqs.Sword, AccessReqs.MegaGrenade, AccessReqs.DragonClaw } }, // Anything there?
+			{ Locations.LightTemple, new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.Claw, AccessReqs.MobiusCrest } },
 			{ Locations.MacsShip, new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.MobiusCrest, AccessReqs.ThunderRock, AccessReqs.MegaGrenade } },
 		};
 		public static MapRegions ReturnRegion(Locations location)
