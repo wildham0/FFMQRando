@@ -1,15 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
   </PropertyGroup>
 
-	<PropertyGroup>
-		<RunAOTCompilation>true</RunAOTCompilation>
-  </PropertyGroup>
-
-	<ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Blazorise" Version="0.9.5.3" />
     <PackageReference Include="Blazorise.Bootstrap5" Version="0.9.5.3" />
     <PackageReference Include="Blazorise.Components" Version="0.9.5.3" />
