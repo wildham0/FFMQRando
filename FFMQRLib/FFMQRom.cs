@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.3.08";
+		public static string VersionNumber = "0.3.09";
 		public static string Version = VersionNumber + "-beta";
 	}
 	
@@ -332,12 +332,15 @@ namespace FFMQLib
 			GameFlags[0xC9] = false;
 			TileScripts.AddScript((int)TileScriptsList.BoneDungeonTristamBomb,
 				new ScriptBuilder(new List<string> {
-					$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[12]",
-					$"050f{(int)Companion.Tristam:X2}[12]",
+					$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[15]",
+					$"050f{(int)Companion.Tristam:X2}[15]",
 					"2a3046104130441054ffff",
-					"1a85" + TextToHex("Care to invest in my ") + $"1E{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}" + TextToHex(" venture? I'll give you an early prototype!") + "36",
+					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}",
+					flags.ProgressiveGear ? "09309411" : "",
+					"2BFC",
+					"1a85" + TextToHex("Care to invest in my ") + "087DFE" + TextToHex(" venture? I'll give you an early prototype!") + "36",
 					"08D0FD",
-					"050BFB[09]",
+					"050BFB[12]",
 					"1a85" + TextToHex("That's fine, not everyone is cut out for massive profits and a lifetime of riches.") + "36",
 					"2a10434046ffff",
 					"00",
