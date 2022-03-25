@@ -222,6 +222,28 @@ namespace FFMQLib
 			// Vendor Routine
 			PutInBank(0x11, 0x9430, Blob.FromHex("e230ad0015c920901dc92f9005c940900c6b202093981869208d00156b20809398692f8d00156b"));
 		}
+		public void NonSpoilerDemoplay()
+		{
+			// Don't cycle through the 3 demoplays, just do the first one
+			PutInBank(0x00, 0x8184, Blob.FromHex("eaeaeaeaeaeaeaeaeaeaeaeaeaa900"));
+
+			// Small routine to load the extra byte we add to the header
+			PutInBank(0x00, 0x81A0, Blob.FromHex("22808711eaea"));
+			PutInBank(0x11, 0x8780, Blob.FromHex("bfd581008d880ebfdd81008d910e6b"));
+
+			// New header to load in fireburg, there's an extra byte to start in the actual city which clober the next demoplay, but we don't care about that
+			PutInBank(0x00, 0x81D5, Blob.FromHex("263335000caa2ea831"));
+
+			// Halve the input timer because of speedhack
+			PutInBank(0x00, 0x934E, Blob.FromHex("07"));
+
+			// Remove Tristam from the demoplay gameflags so he don't show up
+			PutInBank(0x0C, 0xAA16, Blob.FromHex("A3"));
+
+			// First input series to wake up, climb out, got to inn and trigger band, then go wild, while also removing the end of the first serie to bleed into the second series
+			PutInBank(0x0C, 0xA82E, Blob.FromHex("33338aaa888aaaa33333553a8888888b8bbb2bbbbb2b8bbb33bbbbbbbb99b9bbb73373373338"));
+			PutInBank(0x0C, 0xA8C0, Blob.FromHex("33"));
+		}
 		public void BugFixes()
 		{
 			// Fix vendor buy 0 bug
