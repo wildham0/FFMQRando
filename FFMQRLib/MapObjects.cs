@@ -6,6 +6,7 @@ using System.Linq;
 using System.IO;
 using System.Diagnostics;
 using System.ComponentModel;
+using static System.Math;
 
 namespace FFMQLib
 {
@@ -198,8 +199,9 @@ namespace FFMQLib
 					new List<(int, int)> { },
 					new List<(int, int)> { },
 				};
-				
-				
+
+				List<int> hookMaps = new() { 0x0D, 0x0E, 0x10, 0x12, 0x19, 0x1A, 0x21, 0x22, 0x23 };
+
 				if (flags.ShuffleEnemiesPosition == false)
 				{
 					return;
@@ -225,17 +227,17 @@ namespace FFMQLib
 
 					List<(byte, byte)> selectedPositions = _collections[i].Where(x => x.Type != MapObjectType.Battle).Select(x => (x.X, x.Y)).ToList();
 
-					if (targetmap == 0x0D || targetmap == 0x0E) // Special exception for Living Tree's hooks
+					if (hookMaps.Contains(targetmap)) // Creat an exclusion zone around hooks
 					{
 						var hookList = _collections[i].Where(x => x.Sprite == 0x28).ToList();
 						foreach (var hook in hookList)
 						{
-							for (int j = minx; j <= maxx; j++)
+							for (int j = Max(hook.X - 5, miny); j <= Min(hook.X + 5, maxx); j++)
 							{
 								selectedPositions.Add(((byte)j, (byte)hook.Y));
 							}
 
-							for (int j = miny; j <= maxy; j++)
+							for (int j = Max(hook.Y - 5, miny); j <= Min(hook.Y + 5, maxy); j++)
 							{
 								selectedPositions.Add(((byte)hook.X, (byte)j));
 							}
