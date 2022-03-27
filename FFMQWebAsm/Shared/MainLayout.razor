@@ -12,6 +12,7 @@
             <a href="#"><Icon Name="IconName.Bars" IconSize="IconSize.x2" class="text-secondary" Margin="Margin.Is3" Clicked="@ToggleSidebar"/></a>
         </LayoutHeader>
         <LayoutContent>
+
             <div class="page">
                 <div class="main">
                     <div class="content">
@@ -21,9 +22,9 @@
             </div>
         </LayoutContent>
     </Layout>
-
-
 </Layout>
+
+<UpdateAvailableDetector/>
 
 @code{
     Sidebar sidebar;
@@ -67,6 +68,12 @@
                 Text = " GitHub",
                 Icon = "fab fa-github",
                 To = "https://github.com/wildham0/FFMQRando",
+            },
+            new SidebarItemInfo
+            {
+                Text = " Beta",
+                Icon = IconName.Server,
+                To = "https://nervous-noether-a51f4b.netlify.app/",
             },
         }
     };
