@@ -220,7 +220,7 @@ namespace FFMQLib
 			PutInBank(0x11, 0x9410, Blob.FromHex("a8f435102b225a970060"));
 
 			// Vendor Routine
-			PutInBank(0x11, 0x9430, Blob.FromHex("e230ad0015c920901dc92f9005c940900c6b202093981869208d00156b20809398692f8d00156b"));
+			PutInBank(0x11, 0x9430, Blob.FromHex("e230ad0015c920901dc92f9005c940900c6b202093981869208d00156b20a09398692f8d00156b"));
 		}
 		public void NonSpoilerDemoplay()
 		{

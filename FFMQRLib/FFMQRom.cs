@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.3.13";
+		public static string VersionNumber = "0.3.14";
 		public static string Version = VersionNumber + "-beta";
 	}
 	
@@ -971,6 +971,17 @@ namespace FFMQLib
 				}));
 
 			/*** Windia ***/
+			TalkScripts.AddMobileScript(0x5D);
+			TalkScripts.AddMobileScript(0x5E);
+			TalkScripts.AddMobileScript(0x5F);
+			TalkScripts.AddMobileScript(0x60);
+			TalkScripts.AddMobileScript(0x61);
+			TalkScripts.AddMobileScript(0x62);
+            TalkScripts.AddMobileScript(0x63);
+            TalkScripts.AddMobileScript(0x64);
+            TalkScripts.AddMobileScript(0x65);
+			TalkScripts.AddMobileScript(0x66);
+
 			// Seller in Windia
 			TalkScripts.AddScript((int)TalkScriptsList.WindiaSellerGirl,
 				new ScriptBuilder(new List<string>{
