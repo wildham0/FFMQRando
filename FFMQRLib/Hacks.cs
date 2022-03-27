@@ -90,6 +90,18 @@ namespace FFMQLib
 			PutInBank(0x0B, 0x8599, Blob.FromHex("80"));
 			PutInBank(0x0B, 0x85A4, Blob.FromHex("80"));
 		}
+		public void RemoveStrobing()
+		{
+			// Crystal flash, simply skip the flash routine
+			PutInBank(0x01, 0xD4C9, Blob.FromHex("EAEAEA"));
+			PutInBank(0x01, 0xD4DB, Blob.FromHex("EAEAEA"));
+			PutInBank(0x01, 0xD55A, Blob.FromHex("EAEAEA"));
+
+			// Hero status, same, then rts early to avoid the big flash at the end
+			PutInBank(0x01, 0xDC2A, Blob.FromHex("EAEAEA"));
+			PutInBank(0x01, 0xDC37, Blob.FromHex("EAEAEA"));
+			PutInBank(0x01, 0xDDBA, Blob.FromHex("60"));
+		}
 		public void SmallFixes()
 		{
 			// Fix Bomb and JumboBomb to work everywhere
@@ -188,7 +200,50 @@ namespace FFMQLib
 			PutInBank(0x11, 0x9200, Blob.FromHex("224e9700ad9e000bf4d0002b" + maskRoutine + mirrorRoutine + "2b6b"));
 			PutInBank(0x00, 0xDB87, Blob.FromHex("22009211"));
 		}
+		public void ProgressiveGears(Flags flags)
+		{
+			if (!flags.ProgressiveGear)
+			{
+				return;
+			}
+			
+			// Replace cat claw check routine when giving weapons and jump to new routine to figure out what's the next weapon in line
+			PutInBank(0x00, 0xDB9C, Blob.FromHex("22009311eaeaeaeaeaeaeaeaeaeaeaeaeaeaea"));
+			PutInBank(0x11, 0x9300, Blob.FromHex("0b202093f432102b98224e9700981869208d60018d9e002b6b"));
+			PutInBank(0x11, 0x9320, Blob.FromHex("c923900ac9269019c92990288039a900200094f043a901200094f03ca902a88037a903200094f030a904200094f029a905a88024a906200094f01da907200094f016a908a88011a909200094f00aa90a200094f003a90ba860"));
+			PutInBank(0x11, 0x9400, Blob.FromHex("a8f432102b225a970060"));
 
+			// New routine for armors and figure out what's the next armor in line
+			PutInBank(0x00, 0xDBBE, Blob.FromHex("22809311eaeaeaeaeaeaeaeaeaea"));
+			PutInBank(0x11, 0x9380, Blob.FromHex("0b20a093f435102b98224e97009818692f8d60018d9e002b6b"));
+			PutInBank(0x11, 0x93A0, Blob.FromHex("c932900ac9399019c93d90288039a900201094f043a901201094f03ca902a88037a903201094f030a904201094f029a905a88024a90a201094f01da90b201094f016a90ca88011a90e201094f00aa90f201094f003a910a860"));
+			PutInBank(0x11, 0x9410, Blob.FromHex("a8f435102b225a970060"));
+
+			// Vendor Routine
+			PutInBank(0x11, 0x9430, Blob.FromHex("e230ad0015c920901dc92f9005c940900c6b202093981869208d00156b20809398692f8d00156b"));
+		}
+		public void NonSpoilerDemoplay()
+		{
+			// Don't cycle through the 3 demoplays, just do the first one
+			PutInBank(0x00, 0x8184, Blob.FromHex("eaeaeaeaeaeaeaeaeaeaeaeaeaa900"));
+
+			// Small routine to load the extra byte we add to the header
+			PutInBank(0x00, 0x81A0, Blob.FromHex("22808711eaea"));
+			PutInBank(0x11, 0x8780, Blob.FromHex("bfd581008d880ebfdd81008d910e6b"));
+
+			// New header to load in fireburg, there's an extra byte to start in the actual city which clober the next demoplay, but we don't care about that
+			PutInBank(0x00, 0x81D5, Blob.FromHex("263335000caa2ea831"));
+
+			// Halve the input timer because of speedhack
+			PutInBank(0x00, 0x934E, Blob.FromHex("07"));
+
+			// Remove Tristam from the demoplay gameflags so he don't show up
+			PutInBank(0x0C, 0xAA16, Blob.FromHex("A3"));
+
+			// First input series to wake up, climb out, got to inn and trigger band, then go wild, while also removing the end of the first serie to bleed into the second series
+			PutInBank(0x0C, 0xA82E, Blob.FromHex("33338aaa888aaaa33333553a8888888b8bbb2bbbbb2b8bbb33bbbbbbbb99b9bbb73373373338"));
+			PutInBank(0x0C, 0xA8C0, Blob.FromHex("33"));
+		}
 		public void BugFixes()
 		{
 			// Fix vendor buy 0 bug

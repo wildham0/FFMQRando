@@ -21,12 +21,12 @@
 </style>
 
 <div class="center-logo"><img height=100 src="@titleLetters[0]" /><img height=100 src="@titleLetters[1]" /><img height=100 src="@titleLetters[2]" /><img height=100 src="@titleLetters[3]" /><img height=100 src="@titleLetters[4]" /><img height=100 src="@titleLetters[5]" /><img height=100 src="logo/mqlogo_.png" /><img height=100 src="@titleLetters[6]" /><img height=100 src="@titleLetters[7]" /><img height=100 src="@titleLetters[8]" /><img height=100 src="@titleLetters[9]" /><img height=100 src="@titleLetters[10]" /></div>
-<h5 class="text-secondary text-center">A FFMQ Randomizer</h5>
-<h6 class="text-secondary text-center">@("v" + @FFMQLib.Metadata.Version)</h6>
+<h1 class="text-secondary text-center" style="font-size: 1em">A FFMQ Randomizer<br />@("v" + @FFMQLib.Metadata.Version)</h1>
+
 
 <div><br /><br /><br /></div>
 
-<h3 id="fileSection" class="text-secondary">File</h3>
+<h2 id="fileSection" class="text-secondary">File</h2>
 
 <Field>
     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel> 
@@ -57,12 +57,21 @@
 </Field>
 
 <div><br /><br /><br /></div>
-<h3 id="optionsSection" class="text-secondary">Options</h3>
+<h2 id="optionsSection" class="text-secondary">Options</h2>
 
-<div><br /></div>
-<h4 id="optionsSection" class="text-secondary">Items Shuffling</h4>
+<h3 class="text-secondary" style="font-size: 1.25em">
+    Items Shuffling
+    <Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>    
+</h3>
+
 <Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Original Chests</FieldLabel> 
+    
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Original Chests</FieldLabel>
+    <Tooltip Text="Original Chests are all the red chests locations in the original game, except the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave, which count as NPCs.<br /><br />If a chest doesn't contain a Quest Item, it will show up as a brown box." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
     <Select @bind-SelectedValue="@flags.ChestsShuffle">
         @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffleChests>())
         {
@@ -71,7 +80,10 @@
     </Select>
 </Field>
 <Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">NPCs</FieldLabel> 
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">NPCs</FieldLabel>
+    <Tooltip Text="NPCs are all the NPC locations in the original game, as well as the new Reuben item in Mine, the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
     <Select @bind-SelectedValue="@flags.NPCsShuffle">
         @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffleNPCsBattlefields>())
         {
@@ -81,6 +93,9 @@
 </Field>
 <Field>
     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Battlefields</FieldLabel> 
+    <Tooltip Text="Battlefields are all the battlefields that gave a Quest Item in the original game; if Shuffle Battlefields Rewards is enabled, the locations will change, but the same number of battlefields will offer an item." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
     <Select @bind-SelectedValue="@flags.BattlefieldsShuffle">
         @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffleNPCsBattlefields>())
         {
@@ -89,7 +104,10 @@
     </Select>
 </Field>
 <Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Brown Boxes</FieldLabel> 
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Brown Boxes</FieldLabel>
+    <Tooltip Text="Brown Boxes are all the boxes that contained a consumable in the original game.<br /><br />If a brown box is selected to contain a Quest Item, it will show up as a red chest." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
     <Select @bind-SelectedValue="@flags.BoxesShuffle">
         @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffleBoxes>())
         {
@@ -98,20 +116,46 @@
     </Select>
 </Field>
 <Field>
-    <Switch TValue="bool" @bind-Checked="@flags.ShuffleBoxesContent"><Text TextColor="TextColor.Secondary" class="fw-bold">Shuffle Brown Boxes' Content</Text></Switch>
+    <Switch TValue="bool" @bind-Checked="@flags.ShuffleBoxesContent">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Shuffle Brown Boxes' Content</Text>
+        <Tooltip Text="If enabled, the content of brown boxes will be shuffled amongst themselves." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
 </Field>
 <Field>
-    <Switch TValue="bool" @bind-Checked="@flags.RandomStartingWeapon"><Text TextColor="TextColor.Secondary" class="fw-bold">Random Starting Weapon</Text></Switch>
+    <Switch TValue="bool" @bind-Checked="@flags.RandomStartingWeapon">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Random Starting Weapon</Text>
+        <Tooltip Text="Replace the usual starting weapon with the Steel Sword, the Axe, the Cat Claw or the Bomb." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
+</Field>
+<Field>
+    <Switch TValue="bool" @bind-Checked="@flags.ProgressiveGear">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Progressive Gear</Text>
+        <Tooltip Text="Pieces of gear are always acquired from weakest to strongest in a set.<br/><br/>Eg. you'll always received the Steel Sword first, then the Knight Sword and finally Excalibur, irrespective of the order the chests are opened." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
 </Field>
 
 <div><br /></div>
-<h4 id="optionsSection" class="text-secondary">Enemies</h4>
+<h3 id="optionsSection" class="text-secondary">Enemies</h3>
 
 <Field>
-    <Switch TValue="bool" @bind-Checked="@flags.ShuffleEnemiesPosition"><Text TextColor="TextColor.Secondary" class="fw-bold">Shuffle Enemies' Positions</Text></Switch>
+    <Switch TValue="bool" @bind-Checked="@flags.ShuffleEnemiesPosition">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Shuffle Enemies' Positions</Text>
+        <Tooltip Text="Instead of their original position in a given map, enemies are randomly placed." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
 </Field>
 <Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Enemies Density</FieldLabel> 
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Enemies Density</FieldLabel>
+    <Tooltip Text="Set how many enemies are on each maps." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
     <Select @bind-SelectedValue="@flags.EnemiesDensity">
         @foreach(var item in Enum.GetValues<FFMQLib.EnemiesDensity>())
         {
@@ -121,6 +165,9 @@
 </Field>
 <Field>
     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Enemies' Stats Scaling</FieldLabel> 
+    <Tooltip Text="Adjust enemies stats by the selected percentage." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
     <Select @bind-SelectedValue="@flags.EnemiesScaling">
         @foreach(var item in Enum.GetValues<FFMQLib.EnemiesScaling>())
         {
@@ -129,7 +176,10 @@
     </Select>
 </Field>
 <Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Scaling Spread</FieldLabel> 
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Scaling Spread</FieldLabel>
+    <Tooltip Text="Add random variation to stats scaling of enemies.<br/><br/>The percentages are additive: eg. scaling of 100% with a spread of 25% means the stats scaling will vary between 75% and 125%." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
     <Select @bind-SelectedValue="@flags.EnemiesScalingSpread">
         @foreach(var item in Enum.GetValues<FFMQLib.EnemiesScalingSpread>())
         {
@@ -139,10 +189,13 @@
 </Field>
 
 <div><br /></div>
-<h4 id="optionsSection" class="text-secondary">Misc</h4>
+<h3 id="optionsSection" class="text-secondary">Misc</h3>
 
 <Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Leveling Curve</FieldLabel> 
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Leveling Curve</FieldLabel>
+    <Tooltip Text="Adjust the quantity of XP needed to gain levels.<br/><br/>A curve of 2x means that leveling will be twice faster." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
     <Select @bind-SelectedValue="@flags.LevelingCurve">
         @foreach(var item in Enum.GetValues<FFMQLib.LevelingCurve>())
         {
@@ -151,10 +204,18 @@
     </Select>
 </Field>
 <Field>
-    <Switch TValue="bool" @bind-Checked="@flags.ShuffleBattlefieldRewards"><Text TextColor="TextColor.Secondary" class="fw-bold">Shuffle Battlefields Rewards</Text></Switch>
+    <Switch TValue="bool" @bind-Checked="@flags.ShuffleBattlefieldRewards">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Shuffle Battlefields Rewards</Text>
+        <Tooltip Text="Shuffle the type of reward (Item, XP, GP) given by battlefields and color code them by reward type.<br/><br/>Blue: Give an item.<br/><br/>Grey: Give XP.<br/><br/>Green: Give GP." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
 </Field>
 <Field>
     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Battlefields Battles Quantity</FieldLabel> 
+    <Tooltip Text="Adjust the number of battles that need to be fought to get a battlefield's reward." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
     <Select @bind-SelectedValue="@flags.BattlesQuantity">
         @foreach(var item in Enum.GetValues<FFMQLib.BattlesQty>())
         {

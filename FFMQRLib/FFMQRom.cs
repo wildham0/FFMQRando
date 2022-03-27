@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.3.03";
+		public static string VersionNumber = "0.3.13";
 		public static string Version = VersionNumber + "-beta";
 	}
 	
@@ -104,6 +104,8 @@ namespace FFMQLib
 		}
 		public void Randomize(Blob seed, Flags flags)
 		{
+			flags.FlagSanityCheck();
+
 			MT19337 rng;
 			using (SHA256 hasher = SHA256.Create())
 			{
@@ -137,10 +139,13 @@ namespace FFMQLib
 			FastMovement();
 			DefaultSettings();
 			RemoveClouds();
+			RemoveStrobing();
 			SmallFixes();
 			BugFixes();
+			NonSpoilerDemoplay();
 			CompanionRoutines();
 			SetLevelingCurve(flags);
+			ProgressiveGears(flags);
 
 			MapObjects.SetEnemiesDensity(flags, rng);
 			MapObjects.ShuffleEnemiesPosition(mapList, flags, rng);
@@ -157,7 +162,7 @@ namespace FFMQLib
 
 			itemsPlacement.WriteChests(this);
 			
-			UpdateScripts(itemsPlacement, rng);
+			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
 
@@ -180,7 +185,7 @@ namespace FFMQLib
 
 			this.Header = Array.Empty<byte>();
 		}
-		public void UpdateScripts(ItemsPlacement fullItemsPlacement, MT19337 rng)
+		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, MT19337 rng)
 		{
 			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
 		
@@ -328,12 +333,15 @@ namespace FFMQLib
 			GameFlags[0xC9] = false;
 			TileScripts.AddScript((int)TileScriptsList.BoneDungeonTristamBomb,
 				new ScriptBuilder(new List<string> {
-					$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[12]",
-					$"050f{(int)Companion.Tristam:X2}[12]",
+					$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[15]",
+					$"050f{(int)Companion.Tristam:X2}[15]",
 					"2a3046104130441054ffff",
-					"1a85" + TextToHex("Care to invest in my ") + $"1E{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}" + TextToHex(" venture? I'll give you an early prototype!") + "36",
+					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}",
+					flags.ProgressiveGear ? "09309411" : "",
+					"2BFC",
+					"1a85" + TextToHex("Care to invest in my ") + "087DFE" + TextToHex(" venture? I'll give you an early prototype!") + "36",
 					"08D0FD",
-					"050BFB[09]",
+					"050BFB[12]",
 					"1a85" + TextToHex("That's fine, not everyone is cut out for massive profits and a lifetime of riches.") + "36",
 					"2a10434046ffff",
 					"00",
@@ -429,6 +437,7 @@ namespace FFMQLib
 			TalkScripts.AddScript((int)TalkScriptsList.AquariaSellerGirl,
 				new ScriptBuilder(new List<string>{
 					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.WomanAquaria]:X2}",
+					flags.ProgressiveGear ? "09309411" : "",
 					"2BFC",
 					$"2E{(int)NewGameFlagsList.AquariaSellerItemBought:X2}BFFE",
 					"0E0115C80000", // set price
@@ -757,6 +766,7 @@ namespace FFMQLib
 			TalkScripts.AddScript((int)TalkScriptsList.FireburgSellerGirl,
 				new ScriptBuilder(new List<string>{
 					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.WomanFireburg]:X2}",
+					flags.ProgressiveGear ? "09309411" : "",
 					"2BFC",
 					$"2E{(int)NewGameFlagsList.FireburgSellerItemBought:X2}BFFE",
 					"0E0115F40100", // set price
@@ -965,6 +975,7 @@ namespace FFMQLib
 			TalkScripts.AddScript((int)TalkScriptsList.WindiaSellerGirl,
 				new ScriptBuilder(new List<string>{
 					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.GirlWindia]:X2}",
+					flags.ProgressiveGear ? "09309411" : "",
 					"2BFC",
 					$"2E{(int)NewGameFlagsList.WindiaSellerItemBought:X2}BFFE",
 					"0E01152C0100", // set price

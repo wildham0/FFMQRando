@@ -23,6 +23,7 @@ namespace FFMQLib
         public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;
         public bool ShuffleBattlefieldRewards { get; set; } = false;
         public bool RandomStartingWeapon { get; set; } = false;
+        public bool ProgressiveGear { get; set; } = false;
 
         public string GenerateFlagString()
         {
@@ -82,6 +83,15 @@ namespace FFMQLib
                     
                     numflagstring /= enumValues.Length;
                 }
+            }
+        }
+
+        public void FlagSanityCheck()
+        {
+            // Throw an error if the settings don't offer enough locations.
+            if ((NPCsShuffle == ItemShuffleNPCsBattlefields.Exclude || BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Exclude) && BoxesShuffle == ItemShuffleBoxes.Exclude)
+            {
+                throw new Exception("Selected flags don't allow enough locations to place all Quest Items. Change flags to include more locations.");
             }
         }
     }
