@@ -129,6 +129,8 @@ namespace FFMQLib
 			Overworld = new(this);
 			TitleScreen titleScreen = new(this);
 
+
+			var foresta = new Map(0x02, this);
 			List<Map> mapList = new();
 			for (int i = 0; i < 0x2C; i++)
 			{

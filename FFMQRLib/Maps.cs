@@ -82,10 +82,13 @@ namespace FFMQLib
 					var currentChunk = rom.Get(_address + i, 2);
 					_rawMap += currentChunk;
 
+					Console.WriteLine($"Chunk {i}: {currentChunk[0]:X2}{currentChunk[1]:X2}");
+
 					var chunckLength = currentChunk[0] & 0x0F;
 					if ((currentChunk[0] & 0x0F) > 0)
 					{
 						Array.Copy(rom.Get(refChunkPosition, chunckLength).ToBytes(), 0, _maparray, mapPosition, chunckLength);
+						Console.WriteLine(rom.Get(refChunkPosition, chunckLength).ToHex());
 						refChunkPosition += chunckLength;
 						mapPosition += chunckLength;
 					}
