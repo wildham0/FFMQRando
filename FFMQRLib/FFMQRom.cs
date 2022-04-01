@@ -130,7 +130,8 @@ namespace FFMQLib
 			TitleScreen titleScreen = new(this);
 
 
-			var foresta = new Map(0x02, this);
+
+
 			List<Map> mapList = new();
 			for (int i = 0; i < 0x2C; i++)
 			{
@@ -148,6 +149,9 @@ namespace FFMQLib
 			CompanionRoutines();
 			SetLevelingCurve(flags);
 			ProgressiveGears(flags);
+
+			var foresta = new Map(0x02, this);
+			foresta.CompressMap();
 
 			MapObjects.SetEnemiesDensity(flags, rng);
 			MapObjects.ShuffleEnemiesPosition(mapList, flags, rng);

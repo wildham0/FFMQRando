@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using RomUtilities;
+using static System.Math;
 
 namespace FFMQLib
 {
@@ -43,264 +44,433 @@ namespace FFMQLib
 			return new byte[] { Byte1, Byte2 };
 		}
 	}
-	public partial class FFMQRom : SnesRom
+
+	public class GameMaps
 	{
-		public static readonly byte[] BitConverter = { 0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
-		public class Map
+
+		private List<Map> _gameMaps;
+
+
+		public GameMaps(FFMQRom rom)
 		{
+			_gameMaps = new();
 
-			private int _address;
-			private int _referenceChunksAddress;
-			public byte[] _maparray = new byte[128 * 128];
-			private (int,int) _dimensions;
-			private byte[] _areaattributes = new byte[0x0A];
-			private byte[] _tiledata = new byte[0x100];
-			private int _mapId;
-			private byte[] _rawMap;
-			//public int MapId { get; set; }
-
-			public Map(int mapID, FFMQRom rom)
+			for (int i = 0; i < 0x2C; i++)
 			{
-				_mapId = mapID;
+				_gameMaps.Add(new Map(i, rom));
+			}
+		}
 
-				_areaattributes = rom.Get(RomOffsets.MapAttributes + mapID * 0x0A, 0x0A).ToBytes();
+		public void Write(FFMQRom rom)
+		{
+			List<int> validBanks = new() { 0x08, 0x13 };
 
-				var rawAddress = rom.Get(RomOffsets.MapDataAddresses + (mapID * 3), 3);
-				_address = rawAddress[2] * 0x8000 + (rawAddress[1] * 0x100 + rawAddress[0] - 0x8000);
-				var rawRefAddress = rom.Get(_address, 2);
 
-				_referenceChunksAddress = _address + 2 + rawRefAddress[1] * 0x100 + rawRefAddress[0];
+		
+		
+		
+		}
+	
+	}
 
-				var refChunkPosition = _referenceChunksAddress;
+	public class Map
+	{
 
-				var mapPosition = 0;
-				_rawMap = new byte[0];
+		private int _address;
+		private int _referenceChunksAddress;
+		public byte[] _maparray;
+		private (int, int) _dimensions;
+		private byte[] _areaattributes = new byte[0x0A];
+		private byte[] _tiledata = new byte[0x100];
+		private int _mapId;
+		private byte[] _rawMap;
+		public int CompressedMapSize { get; }
+		//public int MapId { get; set; }
 
-				for (int i = 2; i < (_referenceChunksAddress - _address); i += 2)
+		public static readonly byte[] BitConverter = { 0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
+		public Map(int mapID, FFMQRom rom)
+		{
+			CompressedMapSize = 0;
+
+			_mapId = mapID;
+
+			_areaattributes = rom.Get(RomOffsets.MapAttributes + mapID * 0x0A, 0x0A).ToBytes();
+
+			var rawAddress = rom.Get(RomOffsets.MapDataAddresses + (mapID * 3), 3);
+			_address = rawAddress[2] * 0x8000 + (rawAddress[1] * 0x100 + rawAddress[0] - 0x8000);
+			var rawRefAddress = rom.Get(_address, 2);
+
+			_referenceChunksAddress = _address + 2 + rawRefAddress[1] * 0x100 + rawRefAddress[0];
+
+			var refChunkPosition = _referenceChunksAddress;
+
+			var mapPosition = 0;
+			_rawMap = new byte[0];
+
+			var tempdimensions = rom.Get(RomOffsets.MapDimensionsTable + (_areaattributes[0] & 0xF0) / 8, 2);
+			_dimensions = (tempdimensions[0], tempdimensions[1]);
+
+			_maparray = new byte[64 * 64];
+
+			for (int i = 2; i < (_referenceChunksAddress - _address); i += 2)
+			{
+
+				var currentChunk = rom.Get(_address + i, 2);
+				_rawMap += currentChunk;
+
+				var chunckLength = currentChunk[0] & 0x0F;
+				if ((currentChunk[0] & 0x0F) > 0)
 				{
+					Array.Copy(rom.Get(refChunkPosition, chunckLength).ToBytes(), 0, _maparray, mapPosition, chunckLength);
+					refChunkPosition += chunckLength;
+					mapPosition += chunckLength;
+				}
 
-					var currentChunk = rom.Get(_address + i, 2);
-					_rawMap += currentChunk;
+				var higherbits = (currentChunk[0] & 0xF0) / 16;
+				if (higherbits > 0)
+				{
+					var targetPosition = mapPosition - currentChunk[1] - 1;
+					var tempArray = new byte[higherbits + 2];
 
-					Console.WriteLine($"Chunk {i}: {currentChunk[0]:X2}{currentChunk[1]:X2}");
-
-					var chunckLength = currentChunk[0] & 0x0F;
-					if ((currentChunk[0] & 0x0F) > 0)
+					for (int j = 0; j < higherbits + 2; j++)
 					{
-						Array.Copy(rom.Get(refChunkPosition, chunckLength).ToBytes(), 0, _maparray, mapPosition, chunckLength);
-						Console.WriteLine(rom.Get(refChunkPosition, chunckLength).ToHex());
-						refChunkPosition += chunckLength;
-						mapPosition += chunckLength;
+						_maparray[mapPosition] = _maparray[targetPosition];
+						mapPosition++;
+						targetPosition++;
 					}
-
-					var higherbits = (currentChunk[0] & 0xF0) / 16;
-					if (higherbits > 0)
-					{
-						var targetPosition = mapPosition - currentChunk[1] - 1;
-						var tempArray = new byte[higherbits + 2];
-
-						for (int j = 0; j < higherbits + 2; j++)
-						{
-							_maparray[mapPosition] = _maparray[targetPosition];
-							mapPosition++;
-							targetPosition++;
-						}
-					}
-					else
-					{
-						i--;
-					}
-				}
-
-				var tempdimensions = rom.Get(RomOffsets.MapDimensionsTable + (_areaattributes[0] & 0xF0) / 8, 2);
-				_dimensions = (tempdimensions[0], tempdimensions[1]);
-
-				_tiledata = rom.Get(RomOffsets.MapTileData + (_areaattributes[0] & 0x0F) * 0x100, 0x100).ToBytes();
-			}
-
-			public void DataDump()
-			{
-				for (int i = 0; i < (_dimensions.Item2); i++)
-				{
-					var tempmap = _maparray[(i * _dimensions.Item1)..((i + 1) * _dimensions.Item1)];
-
-					string myStringOutput = String.Join("", tempmap.Select(p => p.ToString("X2")).ToArray());
-
-					Console.WriteLine(myStringOutput);
-				}
-				Console.WriteLine("----------------");
-
-				string rawMapString = String.Join("", _rawMap.Select(p => p.ToString("X2")).ToArray());
-				Console.WriteLine(rawMapString);
-			}
-
-			public void WalkableDump()
-			{
-				for (int i = 0; i < (_dimensions.Item2); i++)
-				{
-					var tempmap = _maparray[(i * _dimensions.Item1)..((i + 1) * _dimensions.Item1)].Select(x => ((_tiledata[(x & 0x7F)*2] & 0x07) == 0x07) ? 0xFF : (_tiledata[(x & 0x7F) * 2] & 0x0F));
-
-					string myStringOutput = String.Join("", tempmap.Select(p => p.ToString("X2")).ToArray());
-
-					Console.WriteLine(myStringOutput);
-				}
-			}
-			public byte WalkableByte(int x, int y)
-			{ 
-				return (byte)(_tiledata[(_maparray[(y * _dimensions.Item1) + x] & 0x7F) * 2] & 0x07);
-			}
-			public bool IsScriptTile(int x, int y)
-			{
-				return (_tiledata[((_maparray[(y * _dimensions.Item1) + x] & 0x7F) * 2) + 1] & 0x80) == 0x80;
-			}
-			public byte TileValue(int x, int y)
-			{
-				return (byte)(_maparray[(y * _dimensions.Item1) + x] & 0x7F);
-			}
-			private byte tileconverter(byte[] tiledata)
-			{
-				if ((tiledata[0] & 0x07) == 0x07)
-				{
-					return 0xFF;
-				}
-				else if ((tiledata[0] & 0x07) == 0x0B)
-				{
-					return 0xC0;
-				}
-				else if ((tiledata[0] & 0x07) == 0x00 && tiledata[1] > 0x95 && tiledata[1] < 0x9a)
-				{
-					return 0xFF;
 				}
 				else
 				{
-					return (byte)(tiledata[0] & 0x07);
+					i--;
 				}
 			}
-			public void CreateAreas()
+
+			_tiledata = rom.Get(RomOffsets.MapTileData + (_areaattributes[0] & 0x0F) * 0x100, 0x100).ToBytes();
+		}
+
+		public class ZipAction
+		{
+			public byte CopyLength { get; set; }
+			public byte ChunkLength { get; set; }
+			public byte Offset { get; set; }
+
+			public ZipAction(byte copy, byte chunk, byte offset)
 			{
-				var tempmap = _maparray[0..(_dimensions.Item1 * _dimensions.Item2)].Select(x => tileconverter(new byte[] { _tiledata[(x & 0x7F) * 2], _tiledata[((x & 0x7F) * 2) + 1] })).ToArray();
-
-				byte marker = 0x10;
-				//int start = 0;
-
-				while (true)
-				{
-					var start = tempmap.ToList().FindIndex(x => x < 0x10);
-					if (start == -1)
-					//if (start > 214)
-						break;
-
-					var start_y = start / _dimensions.Item1;
-					var start_x = start % _dimensions.Item1;
-
-					Fill(start_x, start_y, tempmap[start_y * _dimensions.Item1 + start_x], tempmap, marker);
-					marker++;
-				}
-
-				for (int i = 0; i < (_dimensions.Item2); i++)
-				{
-					string myStringOutput = String.Join("", tempmap[(i * _dimensions.Item1)..((i + 1) * _dimensions.Item1)].Select(p => p == 0xFF ? "██" : p.ToString("X2")).ToArray());
-
-					Console.WriteLine(myStringOutput);
-				}
+				CopyLength = copy;
+				ChunkLength = chunk;
+				Offset = offset;
 			}
-			private void Fill(int x, int y, int origin, byte[] map, byte marker)
+
+			public byte[] GetBytes()
 			{
-				if (x < 0)
-					x = (_dimensions.Item1 - 1);
-				if (x >= _dimensions.Item1)
-					x = 0;
-
-				if (y < 0)
-					y = (_dimensions.Item2 - 1);
-				if (y >= _dimensions.Item2)
-					y = 0;
-
-				if (!IsInside((byte)map[y * _dimensions.Item1 + x], (byte)origin))
-					return;
-
-				int originback;
-
-				if ((map[y * _dimensions.Item1 + x] & 0xC0) == 0xC0)
+				if (CopyLength == 0x00)
 				{
-					originback = origin;
-					map[y * _dimensions.Item1 + x] |= BitConverter[origin];
+					return new byte[] { ChunkLength };
 				}
 				else
 				{
-					originback = map[y * _dimensions.Item1 + x];
-					map[y * _dimensions.Item1 + x] = marker;
-				}
-
-				Fill(x, y + 1, originback, map, marker);
-				Fill(x, y - 1, originback, map, marker);
-				Fill(x + 1, y, originback, map, marker);
-				Fill(x - 1, y, originback, map, marker);
-			}
-			private bool IsInside(byte tile, byte origin)
-			{
-				if (tile == 0xFF)
-					return false;
-				else if (tile < 0xC0 && tile > 0x0F)
-					return false;
-				else if ((tile & 0xC0) == 0xC0 && (BitConverter[origin] & tile) == 0)
-					return true;
-				else if (origin == 0x00 || tile == 0x00)
-					return true;
-				else if (tile == origin)
-					return true;
-				else
-					return false;
-			}
-			public void ChestLocationDump(ObjectList mapobjects)
-			{
-				var tempmap = _maparray[0..(_dimensions.Item1 * _dimensions.Item2)].Select(x => ((_tiledata[(x & 0x7F) * 2] & 0x07) == 0x07) ? 0xFF : 0x00).ToArray();
-				/*
-				for (int i = 0; i < 0x6B; i++)
-				{
-					if (mapobjects.GetAreaMapId(i) == _mapId)
-					{
-						var validchests = mapobjects.ChestList.Where(x => x.Item2 == i).ToList();
-
-						foreach (var chest in validchests)
-						{
-							tempmap[chest.Y * _dimensions.Item1 + chest.X] = (byte)chest.TreasureId;
-						}
-					}
-				}*/
-
-				for (int i = 0; i < (_dimensions.Item2); i++)
-				{
-					string myStringOutput = String.Join("", tempmap[(i * _dimensions.Item1)..((i + 1) * _dimensions.Item1)].Select(p => p == 0x00 ? "__" : p == 0xFF ? "██" : p.ToString("X2")).ToArray());
-
-					Console.WriteLine(myStringOutput);
-				}
-			}
-
-			public void ExitLocationDump(ExitList exits, MapUtilities maputilities)
-			{
-				var tempmap = _maparray[0..(_dimensions.Item1 * _dimensions.Item2)].Select(x => ((_tiledata[(x & 0x7F) * 2] & 0x07) == 0x07) ? 0xFF : 0x00).ToArray();
-
-				var areaexittile = exits.GetAreaExitTiles(_mapId, maputilities);
-
-
-				foreach (var exittile in areaexittile)
-				{
-					if ((exittile.Y * _dimensions.Item1 + exittile.X) < (_dimensions.Item2 * _dimensions.Item1))
-					{
-						tempmap[exittile.Y * _dimensions.Item1 + exittile.X] = (byte)exittile.TargetExit;
-					}
-				}
-
-				for (int i = 0; i < (_dimensions.Item2); i++)
-				{
-					string myStringOutput = String.Join("", tempmap[(i * _dimensions.Item1)..((i + 1) * _dimensions.Item1)].Select(p => p == 0x00 ? "__" : p == 0xFF ? "██" : p.ToString("X2")).ToArray());
-
-					Console.WriteLine(myStringOutput);
+					return new byte[] { (byte)((Max(0, (CopyLength - 2)) * 0x10) | ChunkLength), Offset };
 				}
 			}
 		}
+		public (int, int) Seek(List<int> validPositions, int offset, int currentposition)
+		{
+			int bestCandidate = validPositions.First();
+
+			if (offset >= 0x11)
+			{
+				return (bestCandidate, offset);
+			}
+
+			List<int> tempPositions = new(validPositions);
+
+			foreach (int position in tempPositions)
+			{
+				if (_maparray[currentposition - position - 1 + offset] != _maparray[currentposition + offset])
+				{
+					validPositions.Remove(position);
+				}
+			}
+
+			if (validPositions.Any())
+			{
+				return Seek(validPositions, offset + 1, currentposition);
+			}
+			else
+			{
+				return (bestCandidate, offset);
+			}
+		}
+		public List<byte> CompressMap()
+		{
+			List<int> validPositionsTemplate = Enumerable.Range(0, 0x100).ToList();
+
+			int endsize = _maparray.Length;
+			int currentposition = 1;
+
+			List<ZipAction> ActionsList = new();
+
+			bool writeChunkBuffer = false;
+			int tempChunkSize = 1;
+			int tempChunkAddress = 0;
+			List<byte> referenceChunks = new();
+
+			while (currentposition < _dimensions.Item1 * _dimensions.Item2)
+			{
+				if (writeChunkBuffer)
+				{
+					byte[] newChunk = new byte[tempChunkSize];
+					Array.Copy(_maparray, tempChunkAddress, newChunk, 0, tempChunkSize);
+
+					referenceChunks.AddRange(_maparray[tempChunkAddress..(tempChunkAddress + tempChunkSize)].ToList());
+
+					if (ActionsList.Last().ChunkLength > 0)
+					{
+						ActionsList.Add(new ZipAction(0, (byte)tempChunkSize, 0));
+					}
+					else
+					{
+						ActionsList.Last().ChunkLength = (byte)tempChunkSize;
+					}
+					tempChunkSize = 0;
+					writeChunkBuffer = false;
+				}
+
+				List<int> validPositions;
+
+				if (currentposition > 0x100)
+				{
+					validPositions = new(validPositionsTemplate);
+				}
+				else
+				{
+					validPositions = new(validPositionsTemplate.Where(x => x < currentposition));
+				}
+
+				(int, int) result = Seek(validPositions, 0, currentposition);
+
+				if (result.Item2 > 2)
+				{
+					ActionsList.Add(new ZipAction((byte)result.Item2, 0, (byte)result.Item1));
+					currentposition += result.Item2;
+					if (tempChunkSize > 0)
+					{
+						writeChunkBuffer = true;
+					}
+					continue;
+				}
+
+				if (tempChunkSize > 0)
+				{
+					tempChunkSize++;
+					currentposition++;
+					if (tempChunkSize >= 0x0F)
+					{
+						writeChunkBuffer = true;
+					}
+				}
+				else
+				{
+					tempChunkSize++;
+					tempChunkAddress = currentposition;
+					currentposition++;
+				}
+			}
+
+			ActionsList.Add(new ZipAction(0, 0, 0));
+			List<byte> finalResult = ActionsList.SelectMany(x => x.GetBytes()).ToList();
+			
+			finalResult.InsertRange(0, Blob.FromUShorts(new ushort[] { (ushort)finalResult.Count }).ToBytes());
+
+			finalResult.AddRange(referenceChunks);
+
+			return finalResult;
+		}
+		public void Write(FFMQRom rom, int bank, int address)
+		{
+			rom.PutInBank(bank, address, CompressMap().ToArray());
+		}
+		public void DataDump()
+		{
+			for (int i = 0; i < (_dimensions.Item2); i++)
+			{
+				var tempmap = _maparray[(i * _dimensions.Item1)..((i + 1) * _dimensions.Item1)];
+
+				string myStringOutput = String.Join("", tempmap.Select(p => p.ToString("X2")).ToArray());
+
+				Console.WriteLine(myStringOutput);
+			}
+			Console.WriteLine("----------------");
+
+			string rawMapString = String.Join("", _rawMap.Select(p => p.ToString("X2")).ToArray());
+			Console.WriteLine(rawMapString);
+		}
+		public void WalkableDump()
+		{
+			for (int i = 0; i < (_dimensions.Item2); i++)
+			{
+				var tempmap = _maparray[(i * _dimensions.Item1)..((i + 1) * _dimensions.Item1)].Select(x => ((_tiledata[(x & 0x7F) * 2] & 0x07) == 0x07) ? 0xFF : (_tiledata[(x & 0x7F) * 2] & 0x0F));
+
+				string myStringOutput = String.Join("", tempmap.Select(p => p.ToString("X2")).ToArray());
+
+				Console.WriteLine(myStringOutput);
+			}
+		}
+		public byte WalkableByte(int x, int y)
+		{
+			return (byte)(_tiledata[(_maparray[(y * _dimensions.Item1) + x] & 0x7F) * 2] & 0x07);
+		}
+		public bool IsScriptTile(int x, int y)
+		{
+			return (_tiledata[((_maparray[(y * _dimensions.Item1) + x] & 0x7F) * 2) + 1] & 0x80) == 0x80;
+		}
+		public byte TileValue(int x, int y)
+		{
+			return (byte)(_maparray[(y * _dimensions.Item1) + x] & 0x7F);
+		}
+		private byte tileconverter(byte[] tiledata)
+		{
+			if ((tiledata[0] & 0x07) == 0x07)
+			{
+				return 0xFF;
+			}
+			else if ((tiledata[0] & 0x07) == 0x0B)
+			{
+				return 0xC0;
+			}
+			else if ((tiledata[0] & 0x07) == 0x00 && tiledata[1] > 0x95 && tiledata[1] < 0x9a)
+			{
+				return 0xFF;
+			}
+			else
+			{
+				return (byte)(tiledata[0] & 0x07);
+			}
+		}
+		public void CreateAreas()
+		{
+			var tempmap = _maparray[0..(_dimensions.Item1 * _dimensions.Item2)].Select(x => tileconverter(new byte[] { _tiledata[(x & 0x7F) * 2], _tiledata[((x & 0x7F) * 2) + 1] })).ToArray();
+
+			byte marker = 0x10;
+			//int start = 0;
+
+			while (true)
+			{
+				var start = tempmap.ToList().FindIndex(x => x < 0x10);
+				if (start == -1)
+					//if (start > 214)
+					break;
+
+				var start_y = start / _dimensions.Item1;
+				var start_x = start % _dimensions.Item1;
+
+				Fill(start_x, start_y, tempmap[start_y * _dimensions.Item1 + start_x], tempmap, marker);
+				marker++;
+			}
+
+			for (int i = 0; i < (_dimensions.Item2); i++)
+			{
+				string myStringOutput = String.Join("", tempmap[(i * _dimensions.Item1)..((i + 1) * _dimensions.Item1)].Select(p => p == 0xFF ? "██" : p.ToString("X2")).ToArray());
+
+				Console.WriteLine(myStringOutput);
+			}
+		}
+		private void Fill(int x, int y, int origin, byte[] map, byte marker)
+		{
+			if (x < 0)
+				x = (_dimensions.Item1 - 1);
+			if (x >= _dimensions.Item1)
+				x = 0;
+
+			if (y < 0)
+				y = (_dimensions.Item2 - 1);
+			if (y >= _dimensions.Item2)
+				y = 0;
+
+			if (!IsInside((byte)map[y * _dimensions.Item1 + x], (byte)origin))
+				return;
+
+			int originback;
+
+			if ((map[y * _dimensions.Item1 + x] & 0xC0) == 0xC0)
+			{
+				originback = origin;
+				map[y * _dimensions.Item1 + x] |= BitConverter[origin];
+			}
+			else
+			{
+				originback = map[y * _dimensions.Item1 + x];
+				map[y * _dimensions.Item1 + x] = marker;
+			}
+
+			Fill(x, y + 1, originback, map, marker);
+			Fill(x, y - 1, originback, map, marker);
+			Fill(x + 1, y, originback, map, marker);
+			Fill(x - 1, y, originback, map, marker);
+		}
+		private bool IsInside(byte tile, byte origin)
+		{
+			if (tile == 0xFF)
+				return false;
+			else if (tile < 0xC0 && tile > 0x0F)
+				return false;
+			else if ((tile & 0xC0) == 0xC0 && (BitConverter[origin] & tile) == 0)
+				return true;
+			else if (origin == 0x00 || tile == 0x00)
+				return true;
+			else if (tile == origin)
+				return true;
+			else
+				return false;
+		}
+		public void ChestLocationDump(FFMQRom.ObjectList mapobjects)
+		{
+			var tempmap = _maparray[0..(_dimensions.Item1 * _dimensions.Item2)].Select(x => ((_tiledata[(x & 0x7F) * 2] & 0x07) == 0x07) ? 0xFF : 0x00).ToArray();
+			/*
+			for (int i = 0; i < 0x6B; i++)
+			{
+				if (mapobjects.GetAreaMapId(i) == _mapId)
+				{
+					var validchests = mapobjects.ChestList.Where(x => x.Item2 == i).ToList();
+
+					foreach (var chest in validchests)
+					{
+						tempmap[chest.Y * _dimensions.Item1 + chest.X] = (byte)chest.TreasureId;
+					}
+				}
+			}*/
+
+			for (int i = 0; i < (_dimensions.Item2); i++)
+			{
+				string myStringOutput = String.Join("", tempmap[(i * _dimensions.Item1)..((i + 1) * _dimensions.Item1)].Select(p => p == 0x00 ? "__" : p == 0xFF ? "██" : p.ToString("X2")).ToArray());
+
+				Console.WriteLine(myStringOutput);
+			}
+		}
+		public void ExitLocationDump(FFMQRom.ExitList exits, MapUtilities maputilities)
+		{
+			var tempmap = _maparray[0..(_dimensions.Item1 * _dimensions.Item2)].Select(x => ((_tiledata[(x & 0x7F) * 2] & 0x07) == 0x07) ? 0xFF : 0x00).ToArray();
+
+			var areaexittile = exits.GetAreaExitTiles(_mapId, maputilities);
+
+
+			foreach (var exittile in areaexittile)
+			{
+				if ((exittile.Y * _dimensions.Item1 + exittile.X) < (_dimensions.Item2 * _dimensions.Item1))
+				{
+					tempmap[exittile.Y * _dimensions.Item1 + exittile.X] = (byte)exittile.TargetExit;
+				}
+			}
+
+			for (int i = 0; i < (_dimensions.Item2); i++)
+			{
+				string myStringOutput = String.Join("", tempmap[(i * _dimensions.Item1)..((i + 1) * _dimensions.Item1)].Select(p => p == 0x00 ? "__" : p == 0xFF ? "██" : p.ToString("X2")).ToArray());
+
+				Console.WriteLine(myStringOutput);
+			}
+		}
 	}
+
 	public class MapChanges
 	{
 		private List<Blob> _pointers;
