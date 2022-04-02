@@ -159,6 +159,7 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
+			GameMaps.RandomGiantTreeMessage(rng);
 
 			credits.Update();
 			
