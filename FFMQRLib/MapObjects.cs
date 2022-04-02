@@ -150,7 +150,7 @@ namespace FFMQLib
 					}
 				}
 			}
-			public void ShuffleEnemiesPosition(List<Map> maps, Flags flags, MT19337 rng)
+			public void ShuffleEnemiesPosition(GameMaps maps, Flags flags, MT19337 rng)
 			{
 				List<List<(int, int)>> barredTiles = new()
 				{
@@ -217,9 +217,9 @@ namespace FFMQLib
 					{
 						continue;
 					}
-					int minx = enemiescollection.Select(x => x.X).Min() - 1;
+					int minx = Max(0, enemiescollection.Select(x => x.X).Min() - 1);
 					int maxx = enemiescollection.Select(x => x.X).Max() + 1;
-					int miny = enemiescollection.Select(x => x.Y).Min() - 1;
+					int miny = Max(0, enemiescollection.Select(x => x.Y).Min() - 1);
 					int maxy = enemiescollection.Select(x => x.Y).Max() + 1;
 
 					var validLayers = enemiescollection.Select(x => x.Layer).Distinct().ToList();

@@ -157,7 +157,7 @@ namespace FFMQLib
 						placedChests++;
 					}
 					placedItems.Add(itemToPlace);
-					//Console.WriteLine(Enum.GetName(targetLocation.Location) + " - " + Enum.GetName(itemToPlace));
+					Console.WriteLine(Enum.GetName(targetLocation.Location) + "_" + targetLocation.ObjectId + " - " + Enum.GetName(itemToPlace));
 
 					List<AccessReqs> result;
 					if (ItemLocations.ItemAccessReq.TryGetValue(itemToPlace, out result))

@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.3.15";
+		public static string VersionNumber = "0.3.16";
 		public static string Version = VersionNumber + "-beta";
 	}
 	
@@ -23,8 +23,8 @@ namespace FFMQLib
 		public GameScriptManager TileScripts;
 		public GameScriptManager TalkScripts;
 		public Battlefields Battlefields;
-		public TilesProperties TilesProperties;
 		public Overworld Overworld;
+		public GameMaps GameMaps;
 		private byte[] originalData;
 
 		public override bool Validate()
@@ -116,7 +116,7 @@ namespace FFMQLib
 			NodeLocations nodeLocations = new(this);
 			EnemiesAttacks enemiesAttacks = new(this);
 			EnemiesStats enemiesStats = new(this);
-			TilesProperties = new(this);
+			GameMaps = new(this);
 			MapObjects = new(this);
 			Credits credits = new(this);
 			//MapUtilities mapUtilities = new(this);
@@ -128,12 +128,6 @@ namespace FFMQLib
 			MapChanges = new(this);
 			Overworld = new(this);
 			TitleScreen titleScreen = new(this);
-
-			List<Map> mapList = new();
-			for (int i = 0; i < 0x2C; i++)
-			{
-				mapList.Add(new Map(i, this));
-			}
 
 			ExpandRom();
 			FastMovement();
@@ -148,7 +142,7 @@ namespace FFMQLib
 			ProgressiveGears(flags);
 
 			MapObjects.SetEnemiesDensity(flags, rng);
-			MapObjects.ShuffleEnemiesPosition(mapList, flags, rng);
+			MapObjects.ShuffleEnemiesPosition(GameMaps, flags, rng);
 			//enemiesAttacks.ScaleAttacks(flags, rng);
 			enemiesStats.ScaleEnemies(flags, rng);
 			nodeLocations.OpenNodes();
@@ -165,15 +159,15 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
-
+			GameMaps.RandomGiantTreeMessage(rng);
 
 			credits.Update();
 			
 			credits.Write(this);
 			enemiesAttacks.Write(this);
 			enemiesStats.Write(this);
+			GameMaps.Write(this);
 			MapChanges.Write(this);
-			TilesProperties.Write(this);
 			TileScripts.Write(this);
 			TalkScripts.Write(this);
 			GameFlags.Write(this);
@@ -188,11 +182,11 @@ namespace FFMQLib
 		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, MT19337 rng)
 		{
 			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
-		
+
 			/*** Overworld ***/
 			// GameStart - Skip Mountain collapse
 			Put(RomOffsets.GameStartScript, Blob.FromHex("23222b7a2a0b2700200470002ab05320501629ffff00"));
-			
+
 			GameFlags[(int)GameFlagsList.ShowPazuzuBridge] = true;
 
 			for (int i = 0; i < 4; i++)
@@ -315,7 +309,7 @@ namespace FFMQLib
 			MapObjects[0x12][0x00].Orientation = 0x02;
 			MapObjects[0x12][0x00].UnknownIndex = 0x02;
 			MapObjects[0x12][0x01].Gameflag = 0xFE;
-			
+
 			TalkScripts.AddScript((int)TalkScriptsList.TristamChest,
 				new ScriptBuilder(new List<string> {
 					TextToHex("Defeat evil? Treasure hunting? Sounds like a great business opportunity here. I'm in!") + "36",
@@ -367,7 +361,7 @@ namespace FFMQLib
 					"2B06",
 					"00"
 				}));
-			
+
 			// Tristam Quit Party Tile
 			TileScripts.AddScript((int)TileScriptsList.TristamQuitPartyBoneDungeon,
 				new ScriptBuilder(new List<string> { "00" }));
@@ -379,7 +373,7 @@ namespace FFMQLib
 
 			// Venus Chest
 			MapObjects[0x0A][0x08].Gameflag = (byte)NewGameFlagsList.VenusChestUnopened;
-			GameFlags[(int)NewGameFlagsList.VenusChestUnopened] = true; 
+			GameFlags[(int)NewGameFlagsList.VenusChestUnopened] = true;
 
 			TalkScripts.AddScript((int)TalkScriptsList.VenusChest,
 				new ScriptBuilder(new List<string>{
@@ -452,7 +446,7 @@ namespace FFMQLib
 			// Bomb vendor in Aquaria
 			TalkScripts.AddMobileScript((int)TalkScriptsList.AquariaInnKeeper);
 			TalkScripts.AddMobileScript((int)TalkScriptsList.AquariaPotionVendor);
-			
+
 			TalkScripts.AddScript((int)TalkScriptsList.AquariaExplosiveVendor,
 				new ScriptBuilder(new List<string>{
 					"2D" + ScriptItemFlags[Items.Bomb].Item1,
@@ -475,7 +469,7 @@ namespace FFMQLib
 					"9A4A41BB5EBF48BB4BB545B4C540B9C5C2CD564DC67266B64F7E7ABE40C0591E1053",
 					"00"
 				}));
-			
+
 			// Update Fireburg and Windia Bomb vendors to same script
 			MapObjects[0x2F][0x01].Value = (byte)TalkScriptsList.AquariaExplosiveVendor;
 			MapObjects[0x52][0x09].Value = (byte)TalkScriptsList.AquariaExplosiveVendor;
@@ -501,7 +495,7 @@ namespace FFMQLib
 
 			// Wintry Squid
 			MapObjects[0x1F][0x0B].Gameflag = 0xFE;
-			
+
 			TalkScripts.AddScript((int)TalkScriptsList.FightSquid,
 				new ScriptBuilder(new List<string>{
 					"04",
@@ -512,7 +506,7 @@ namespace FFMQLib
 					"23E0",
 					"00"
 				}));
-			
+
 			// Reproduce script for space
 			TalkScripts.AddScript(0x2E,
 				new ScriptBuilder(new List<string>{
@@ -557,17 +551,17 @@ namespace FFMQLib
 				}));
 
 			// Exit Fall Basin
-			TilesProperties[0x0A][0x22].Byte2 = 0x08;
+			GameMaps.TilesProperties[0x0A][0x22].Byte2 = 0x08;
 
 			/*** Ice Pyramid ***/
 			// Change entrance tile to disable script
-			PutInBank(0x08, 0xD047, Blob.FromHex("05"));
+			GameMaps[(int)MapList.IcePyramidA].ModifyMap(0x15, 0x20, 0x05);
 
 			// Add teleport coordinates
 			PutInBank(0x05, 0xFED5, Blob.FromHex("2F364D"));
 
 			// Change tile properties from falling tile to script tile
-			TilesProperties[0x06][0x1E].Byte2 = 0x88;
+			GameMaps.TilesProperties[0x06][0x1E].Byte2 = 0x88;
 
 			TileScripts.AddScript((int)TileScriptsList.EnterIcePyramid,
 				new ScriptBuilder(new List<string>
@@ -622,8 +616,7 @@ namespace FFMQLib
 			GameFlags[(int)NewGameFlagsList.TristamChestUnopened] = true; // Tristam Chest
 
 			// Block spencer's place exit
-			Data[0x046E3D] = 0x5B;
-			Data[0x046E4E] = 0x5C;
+			GameMaps[(int)MapList.SpencerCave].ModifyMap(0x11, 0x28, new List<List<byte>> { new List<byte> { 0x5B }, new List<byte> { 0x5C } });
 
 			// Change map objects
 			MapObjects[0x2C][0x02].RawOverwrite(MapObjects[0x2C][0x04].RawArray()); // Copy box over Phoebe
@@ -793,7 +786,8 @@ namespace FFMQLib
 
 			// Grenade Man's Door - Prevent softlock
 			// Set door tile to one that jump to a script
-			PutInBank(0x08, 0xF854, Blob.FromHex("C9"));
+			GameMaps[(int)MapList.HouseInterior].ModifyMap(0x37, 0x3C, 0xC9);
+
 			// Hijack Phoebe's FallBasin script since we don't use it
 			PutInBank(0x05, 0xFBC2, Blob.FromHex($"{(int)TileScriptsList.FallBasinGiveJumboBomb:X2}")); 
 
@@ -955,7 +949,7 @@ namespace FFMQLib
 			// Set door to chests in Giant Tree to open only once chimera is defeated
 			var treeDoorChangeId = MapChanges.Add(Blob.FromHex("3806122F3F"));
 			MapObjects[0x46][0x04].RawOverwrite(Blob.FromHex("0002073816002C")); // Put new map object to talk to
-			Data[0x0437F4] = 0x3E; // Change map to block exit
+			GameMaps[(int)MapList.GiantTreeB].ModifyMap(0x38, 0x07, 0x3E); // Change map to block exit
 			Data[0x02F65D] = 0x08; // Change exit coordinate
 
 
