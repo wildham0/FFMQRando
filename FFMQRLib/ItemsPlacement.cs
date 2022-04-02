@@ -31,6 +31,13 @@ namespace FFMQLib
 		[Description("Exclude")]
 		Exclude,
 	}
+	public enum LogicOptions : int
+	{
+		[Description("Friendly")]
+		Friendly = 0,
+		[Description("Standard")]
+		Standard,
+	}
 	public class ItemsPlacement
 	{
 		public List<Items> StartingItems { get; set; }
@@ -65,6 +72,9 @@ namespace FFMQLib
 			{
 				badPlacement = false;
 				placedChests = 0;
+
+				bool placedMirror = false;
+				bool placedMask = false;
 
 				regionsWeight.Find(x => x.Region == MapRegions.Foresta).Weight = 1;
 				regionsWeight.Find(x => x.Region == MapRegions.Aquaria).Weight = 1;
@@ -142,11 +152,55 @@ namespace FFMQLib
 						badPlacement = true;
 						break;
 					}
+					
+					var itemToPlace = itemsList.First();
+					var itemIndex = 0;
+
+					if (itemToPlace == Items.MagicMirror)
+					{ 
+						placedMirror = true;
+					}
+					else if (itemToPlace == Items.Mask)
+                    {
+						placedMask = true;
+					}
+
+					if (flags.LogicOptions == LogicOptions.Friendly && !placedMirror && validLocations.Where(x => x.Location == Locations.IcePyramid).Any())
+					{
+						validLocations = validLocations.Where(x => x.Location != Locations.IcePyramid).ToList();
+						
+						if (!validLocations.Any())
+						{
+							Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
+							counter++;
+							badPlacement = true;
+							break;
+						}
+
+						itemIndex = itemsList.FindIndex(x => x == Items.MagicMirror);
+						itemToPlace = Items.MagicMirror;
+						placedMirror = true;
+					}
+					else if (flags.LogicOptions == LogicOptions.Friendly && !placedMask && validLocations.Where(x => x.Location == Locations.Volcano).Any())
+					{
+						validLocations = validLocations.Where(x => x.Location != Locations.Volcano).ToList();
+
+						if (!validLocations.Any())
+						{
+							Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
+							counter++;
+							badPlacement = true;
+							break;
+						}
+
+						itemIndex = itemsList.FindIndex(x => x == Items.Mask);
+						itemToPlace = Items.Mask;
+						placedMask= true;
+					}
+					
+					itemsList.RemoveAt(itemIndex);
 
 					TreasureObject targetLocation = rng.PickFrom(validLocations);
-					var itemToPlace = itemsList.First();
-
-					itemsList.RemoveAt(0);
 					targetLocation.Content = itemToPlace;
 					targetLocation.IsPlaced = true;
 					regionsWeight.Find(x => x.Region == ItemLocations.ReturnRegion(targetLocation.Location)).Weight++;

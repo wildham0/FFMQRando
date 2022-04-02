@@ -325,10 +325,43 @@ namespace FFMQLib
 				}
 			}
 
+			List<(Locations, List<AccessReqs>)> friendlyAccessReqs = new();
+
+			if (flags.LogicOptions == LogicOptions.Friendly)
+			{
+				foreach (var location in LocationAccessReq.Select(x => x.Key).ToList())
+				{
+					List<AccessReqs> globalAccessReqs = properties.Where(x => x.Location == location).SelectMany(x => x.AccessRequirements).Distinct().ToList();
+					friendlyAccessReqs.Add((location, globalAccessReqs));
+				}
+
+				friendlyAccessReqs.Find(x => x.Item1 == Locations.LevelForest).Item2.Remove(AccessReqs.Axe);
+				friendlyAccessReqs.Find(x => x.Item1 == Locations.LevelForest).Item2.Remove(AccessReqs.TreeWither);
+
+				friendlyAccessReqs.Find(x => x.Item1 == Locations.Foresta).Item2.Remove(AccessReqs.Axe);
+				friendlyAccessReqs.Find(x => x.Item1 == Locations.Windia).Item2.Remove(AccessReqs.Elixir);
+
+				friendlyAccessReqs.Find(x => x.Item1 == Locations.FocusTowerNorth).Item2.Clear();
+				friendlyAccessReqs.Find(x => x.Item1 == Locations.FocusTowerEast).Item2.Clear();
+				friendlyAccessReqs.Find(x => x.Item1 == Locations.FocusTowerWest).Item2.Clear();
+				friendlyAccessReqs.Find(x => x.Item1 == Locations.FocusTowerSouth).Item2.Clear();
+				friendlyAccessReqs.Find(x => x.Item1 == Locations.FocusTowerSouth2).Item2.Clear();
+
+				friendlyAccessReqs.Find(x => x.Item1 == Locations.Mine).Item2.Add(AccessReqs.MegaGrenade);
+
+				//friendlyAccessReqs.Find(x => x.Item1 == Locations.IcePyramid).Item2.Add(AccessReqs.MagicMirror);
+				//friendlyAccessReqs.Find(x => x.Item1 == Locations.Volcano).Item2.Add(AccessReqs.Mask);
+			}
+
 			// Collapse Access Requirements
 			for (int i = 0; i < properties.Count; i++)
 			{
 				properties[i].AccessRequirements.AddRange(LocationAccessReq[properties[i].Location]);
+				if (flags.LogicOptions == LogicOptions.Friendly)
+				{
+					properties[i].AccessRequirements.AddRange(friendlyAccessReqs.Find(x => x.Item1 == properties[i].Location).Item2);
+				}
+
 				if (flags.ProgressiveGear)
 				{
 					if (properties[i].AccessRequirements.Contains(AccessReqs.DragonClaw))
