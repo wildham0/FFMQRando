@@ -47,105 +47,148 @@ namespace FFMQLib
 
 	public class GameMaps
 	{
-
 		private List<Map> _gameMaps;
-
-
+		public TilesProperties TilesProperties { get; set; }
 		public GameMaps(FFMQRom rom)
 		{
+			TilesProperties = new TilesProperties(rom);
 			_gameMaps = new();
 
 			for (int i = 0; i < 0x2C; i++)
 			{
-				_gameMaps.Add(new Map(i, rom));
+				_gameMaps.Add(new Map(i, TilesProperties, rom));
 			}
 		}
 
+		public Map this[int mapID]
+		{
+			get => _gameMaps[mapID];
+			set => _gameMaps[mapID] = value;
+		}
 		public void Write(FFMQRom rom)
 		{
 			List<int> validBanks = new() { 0x08, 0x13 };
+			int currentBank = 0;
+			int currentAddress = 0x8000;
+
+			List<byte> newPointersTable = new();
 
 
-		
-		
-		
+
+			foreach (var map in _gameMaps)
+			{
+				if (map.ModifiedMap)
+				{
+					map.CompressMap();
+				}
+
+				if (currentAddress + map.CompressedMapSize > 0xFFFF)
+				{
+					currentBank++;
+					currentAddress = 0x8000;
+				}
+
+				newPointersTable.AddRange(new List<byte>() { (byte)(currentAddress % 0x100), (byte)(currentAddress / 0x100), (byte)validBanks[currentBank] });
+
+				map.Write(rom, validBanks[currentBank], currentAddress);
+				currentAddress += map.CompressedMapSize;
+			}
+
+			rom.Put(RomOffsets.MapDataAddresses, newPointersTable.ToArray());
+
+			TilesProperties.Write(rom);
 		}
-	
 	}
 
 	public class Map
 	{
-
-		private int _address;
-		private int _referenceChunksAddress;
-		public byte[] _maparray;
+		private int _mapAddress;
+		private byte[] _mapAddressRaw;
+		private int _referenceTableAddress;
+		private byte[] _referenceTableAddressRaw;
 		private (int, int) _dimensions;
-		private byte[] _areaattributes = new byte[0x0A];
-		private byte[] _tiledata = new byte[0x100];
+		private byte[] _mapAttributes = new byte[0x0A];
 		private int _mapId;
-		private byte[] _rawMap;
-		public int CompressedMapSize { get; }
-		//public int MapId { get; set; }
+		private List<byte> _mapUncompressed;
+		private List<byte> _mapCompressedData;
+		private List<SingleTile> _tileData;
+		public bool ModifiedMap { get; set; }
+
+		public int CompressedMapSize => _mapCompressedData.Count;
 
 		public static readonly byte[] BitConverter = { 0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
-		public Map(int mapID, FFMQRom rom)
+
+		public Map(int mapID, TilesProperties tileprop, FFMQRom rom)
 		{
-			CompressedMapSize = 0;
-
 			_mapId = mapID;
+			_mapAttributes = rom.Get(RomOffsets.MapAttributes + mapID * 0x0A, 0x0A).ToBytes();
+			_mapAddressRaw = rom.Get(RomOffsets.MapDataAddresses + (mapID * 3), 3);
+			_mapAddress = _mapAddressRaw[2] * 0x8000 + (_mapAddressRaw[1] * 0x100 + _mapAddressRaw[0] - 0x8000);
+			_referenceTableAddressRaw = rom.Get(_mapAddress, 2);
+			_referenceTableAddress = _mapAddress + 2 + _referenceTableAddressRaw[1] * 0x100 + _referenceTableAddressRaw[0];
+			_tileData = tileprop[_mapAttributes[0] & 0x0F];
 
-			_areaattributes = rom.Get(RomOffsets.MapAttributes + mapID * 0x0A, 0x0A).ToBytes();
+			_mapCompressedData = new();
+			_mapUncompressed = new();
 
-			var rawAddress = rom.Get(RomOffsets.MapDataAddresses + (mapID * 3), 3);
-			_address = rawAddress[2] * 0x8000 + (rawAddress[1] * 0x100 + rawAddress[0] - 0x8000);
-			var rawRefAddress = rom.Get(_address, 2);
+			ModifiedMap = false;
 
-			_referenceChunksAddress = _address + 2 + rawRefAddress[1] * 0x100 + rawRefAddress[0];
-
-			var refChunkPosition = _referenceChunksAddress;
-
-			var mapPosition = 0;
-			_rawMap = new byte[0];
-
-			var tempdimensions = rom.Get(RomOffsets.MapDimensionsTable + (_areaattributes[0] & 0xF0) / 8, 2);
+			var tempdimensions = rom.Get(RomOffsets.MapDimensionsTable + (_mapAttributes[0] & 0xF0) / 8, 2);
 			_dimensions = (tempdimensions[0], tempdimensions[1]);
 
-			_maparray = new byte[64 * 64];
+			List<byte> tempReferenceTable = new();
 
-			for (int i = 2; i < (_referenceChunksAddress - _address); i += 2)
+			var refChunkPosition = _referenceTableAddress;
+			var mapPosition = 0;
+
+
+			bool decompressionIsOnGoing = true;
+			int currrentPosition = _mapAddress + 2;
+			_mapCompressedData.AddRange(_referenceTableAddressRaw);
+
+			while (decompressionIsOnGoing)
 			{
+				var currentAction = rom.Get(currrentPosition, 2);
 
-				var currentChunk = rom.Get(_address + i, 2);
-				_rawMap += currentChunk;
-
-				var chunckLength = currentChunk[0] & 0x0F;
-				if ((currentChunk[0] & 0x0F) > 0)
+				var chunckLength = currentAction[0] & 0x0F;
+				if (chunckLength > 0)
 				{
-					Array.Copy(rom.Get(refChunkPosition, chunckLength).ToBytes(), 0, _maparray, mapPosition, chunckLength);
+					var refChunk = rom.Get(refChunkPosition, chunckLength);
+					_mapUncompressed.AddRange(refChunk.ToBytes());
+					tempReferenceTable.AddRange(refChunk.ToBytes());
 					refChunkPosition += chunckLength;
 					mapPosition += chunckLength;
 				}
 
-				var higherbits = (currentChunk[0] & 0xF0) / 16;
+				var higherbits = (currentAction[0] & 0xF0) / 16;
 				if (higherbits > 0)
 				{
-					var targetPosition = mapPosition - currentChunk[1] - 1;
-					var tempArray = new byte[higherbits + 2];
+					var targetPosition = mapPosition - currentAction[1] - 1;
 
 					for (int j = 0; j < higherbits + 2; j++)
 					{
-						_maparray[mapPosition] = _maparray[targetPosition];
+						_mapUncompressed.Add(_mapUncompressed[targetPosition]);
 						mapPosition++;
 						targetPosition++;
 					}
+
+					currrentPosition += 2;
+					_mapCompressedData.AddRange(currentAction.ToBytes());
+				}
+				else if (currentAction[0] == 0x00)
+				{ 
+					decompressionIsOnGoing = false;
+					_mapCompressedData.Add(0x00);
 				}
 				else
 				{
-					i--;
+					currrentPosition++;
+					_mapCompressedData.Add(currentAction[0]);
 				}
 			}
 
-			_tiledata = rom.Get(RomOffsets.MapTileData + (_areaattributes[0] & 0x0F) * 0x100, 0x100).ToBytes();
+			_mapCompressedData.AddRange(tempReferenceTable);
+			_mapCompressedData.Add(0x00);
 		}
 
 		public class ZipAction
@@ -177,7 +220,7 @@ namespace FFMQLib
 		{
 			int bestCandidate = validPositions.First();
 
-			if (offset >= 0x11)
+			if (offset >= 0x11 || currentposition + offset >= _mapUncompressed.Count)
 			{
 				return (bestCandidate, offset);
 			}
@@ -186,7 +229,7 @@ namespace FFMQLib
 
 			foreach (int position in tempPositions)
 			{
-				if (_maparray[currentposition - position - 1 + offset] != _maparray[currentposition + offset])
+				if (_mapUncompressed[currentposition - position - 1 + offset] != _mapUncompressed[currentposition + offset])
 				{
 					validPositions.Remove(position);
 				}
@@ -201,28 +244,28 @@ namespace FFMQLib
 				return (bestCandidate, offset);
 			}
 		}
-		public List<byte> CompressMap()
+		public void CompressMap()
 		{
 			List<int> validPositionsTemplate = Enumerable.Range(0, 0x100).ToList();
 
-			int endsize = _maparray.Length;
 			int currentposition = 1;
 
 			List<ZipAction> ActionsList = new();
 
 			bool writeChunkBuffer = false;
+			bool delayChunkWrite = false;
 			int tempChunkSize = 1;
 			int tempChunkAddress = 0;
 			List<byte> referenceChunks = new();
 
 			while (currentposition < _dimensions.Item1 * _dimensions.Item2)
 			{
-				if (writeChunkBuffer)
+				if (writeChunkBuffer && !delayChunkWrite)
 				{
 					byte[] newChunk = new byte[tempChunkSize];
-					Array.Copy(_maparray, tempChunkAddress, newChunk, 0, tempChunkSize);
+					Array.Copy(_mapUncompressed.ToArray(), tempChunkAddress, newChunk, 0, tempChunkSize);
 
-					referenceChunks.AddRange(_maparray[tempChunkAddress..(tempChunkAddress + tempChunkSize)].ToList());
+					referenceChunks.AddRange(_mapUncompressed.GetRange(tempChunkAddress, tempChunkSize).ToList());
 
 					if (ActionsList.Last().ChunkLength > 0)
 					{
@@ -256,7 +299,15 @@ namespace FFMQLib
 					if (tempChunkSize > 0)
 					{
 						writeChunkBuffer = true;
+						delayChunkWrite = false;
 					}
+					continue;
+				}
+
+				if (delayChunkWrite)
+				{
+					delayChunkWrite = false;
+					writeChunkBuffer = true;
 					continue;
 				}
 
@@ -266,7 +317,7 @@ namespace FFMQLib
 					currentposition++;
 					if (tempChunkSize >= 0x0F)
 					{
-						writeChunkBuffer = true;
+						delayChunkWrite = true;
 					}
 				}
 				else
@@ -281,20 +332,38 @@ namespace FFMQLib
 			List<byte> finalResult = ActionsList.SelectMany(x => x.GetBytes()).ToList();
 			
 			finalResult.InsertRange(0, Blob.FromUShorts(new ushort[] { (ushort)finalResult.Count }).ToBytes());
-
 			finalResult.AddRange(referenceChunks);
+			finalResult.Add(0x00);
 
-			return finalResult;
+			_mapCompressedData = finalResult;
 		}
 		public void Write(FFMQRom rom, int bank, int address)
 		{
-			rom.PutInBank(bank, address, CompressMap().ToArray());
+			rom.PutInBank(bank, address, _mapCompressedData.ToArray());
+		}
+		public void ModifyMap(int destx, int desty, List<List<byte>> modifications)
+		{
+			for (int y = 0; y < modifications.Count; y++)
+			{
+				for (int x = 0; x < modifications[y].Count; x++)
+				{
+					_mapUncompressed[(destx + x) + ((desty + y) * _dimensions.Item1)] = modifications[y][x];
+				}
+			}
+
+			ModifiedMap = true;
+		}
+		public void ModifyMap(int destx, int desty, byte modifications)
+		{
+			_mapUncompressed[destx + (desty * _dimensions.Item1)] = modifications;
+
+			ModifiedMap = true;
 		}
 		public void DataDump()
 		{
 			for (int i = 0; i < (_dimensions.Item2); i++)
 			{
-				var tempmap = _maparray[(i * _dimensions.Item1)..((i + 1) * _dimensions.Item1)];
+				var tempmap = _mapUncompressed.GetRange((i * _dimensions.Item1), _dimensions.Item1);
 
 				string myStringOutput = String.Join("", tempmap.Select(p => p.ToString("X2")).ToArray());
 
@@ -302,14 +371,14 @@ namespace FFMQLib
 			}
 			Console.WriteLine("----------------");
 
-			string rawMapString = String.Join("", _rawMap.Select(p => p.ToString("X2")).ToArray());
+			string rawMapString = String.Join("", _mapCompressedData.Select(p => p.ToString("X2")).ToArray());
 			Console.WriteLine(rawMapString);
 		}
 		public void WalkableDump()
 		{
 			for (int i = 0; i < (_dimensions.Item2); i++)
 			{
-				var tempmap = _maparray[(i * _dimensions.Item1)..((i + 1) * _dimensions.Item1)].Select(x => ((_tiledata[(x & 0x7F) * 2] & 0x07) == 0x07) ? 0xFF : (_tiledata[(x & 0x7F) * 2] & 0x0F));
+				var tempmap = _mapUncompressed.GetRange((i * _dimensions.Item1), _dimensions.Item1).Select(x => ((_tileData[(x & 0x7F)].Byte1 & 0x07) == 0x07) ? 0xFF : (_tileData[(x & 0x7F)].Byte1 & 0x0F));
 
 				string myStringOutput = String.Join("", tempmap.Select(p => p.ToString("X2")).ToArray());
 
@@ -318,15 +387,15 @@ namespace FFMQLib
 		}
 		public byte WalkableByte(int x, int y)
 		{
-			return (byte)(_tiledata[(_maparray[(y * _dimensions.Item1) + x] & 0x7F) * 2] & 0x07);
+			return (byte)(_tileData[_mapUncompressed[(y * _dimensions.Item1) + x] & 0x7F].Byte1 & 0x07);
 		}
 		public bool IsScriptTile(int x, int y)
 		{
-			return (_tiledata[((_maparray[(y * _dimensions.Item1) + x] & 0x7F) * 2) + 1] & 0x80) == 0x80;
+			return (_tileData[_mapUncompressed[(y * _dimensions.Item1) + x] & 0x7F].Byte2 & 0x80) == 0x80;
 		}
 		public byte TileValue(int x, int y)
 		{
-			return (byte)(_maparray[(y * _dimensions.Item1) + x] & 0x7F);
+			return (byte)(_mapUncompressed[(y * _dimensions.Item1) + x] & 0x7F);
 		}
 		private byte tileconverter(byte[] tiledata)
 		{
@@ -349,7 +418,7 @@ namespace FFMQLib
 		}
 		public void CreateAreas()
 		{
-			var tempmap = _maparray[0..(_dimensions.Item1 * _dimensions.Item2)].Select(x => tileconverter(new byte[] { _tiledata[(x & 0x7F) * 2], _tiledata[((x & 0x7F) * 2) + 1] })).ToArray();
+			var tempmap = _mapUncompressed.GetRange(0,(_dimensions.Item1 * _dimensions.Item2)).Select(x => tileconverter(new byte[] { _tileData[(x & 0x7F)].Byte1, _tileData[x & 0x7F].Byte2 })).ToArray();
 
 			byte marker = 0x10;
 			//int start = 0;
@@ -425,7 +494,7 @@ namespace FFMQLib
 		}
 		public void ChestLocationDump(FFMQRom.ObjectList mapobjects)
 		{
-			var tempmap = _maparray[0..(_dimensions.Item1 * _dimensions.Item2)].Select(x => ((_tiledata[(x & 0x7F) * 2] & 0x07) == 0x07) ? 0xFF : 0x00).ToArray();
+			var tempmap = _mapUncompressed.GetRange(0, _dimensions.Item1 * _dimensions.Item2).Select(x => ((_tileData[(x & 0x7F)].Byte1 & 0x07) == 0x07) ? 0xFF : 0x00).ToArray();
 			/*
 			for (int i = 0; i < 0x6B; i++)
 			{
@@ -449,7 +518,7 @@ namespace FFMQLib
 		}
 		public void ExitLocationDump(FFMQRom.ExitList exits, MapUtilities maputilities)
 		{
-			var tempmap = _maparray[0..(_dimensions.Item1 * _dimensions.Item2)].Select(x => ((_tiledata[(x & 0x7F) * 2] & 0x07) == 0x07) ? 0xFF : 0x00).ToArray();
+			var tempmap = _mapUncompressed.GetRange(0, _dimensions.Item1 * _dimensions.Item2).Select(x => ((_tileData[(x & 0x7F)].Byte1 & 0x07) == 0x07) ? 0xFF : 0x00).ToArray();
 
 			var areaexittile = exits.GetAreaExitTiles(_mapId, maputilities);
 
