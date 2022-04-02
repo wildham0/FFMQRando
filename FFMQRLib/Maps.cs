@@ -358,7 +358,7 @@ namespace FFMQLib
 				" SCI+ENCE",   // kaiten619
 				"GOOD+DAY!",   // guardianmarcus
 				"WOOP+WOOP",   // Chanigan
-				"POWER+ ON!",  // x10power
+				"POWER+  ON!",  // x10power
 			};
 
 			string newMessage = rng.PickFrom(customMessages);
