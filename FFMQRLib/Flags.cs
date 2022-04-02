@@ -25,6 +25,7 @@ namespace FFMQLib
         public bool ShuffleBattlefieldRewards { get; set; } = false;
         public bool RandomStartingWeapon { get; set; } = false;
         public bool ProgressiveGear { get; set; } = false;
+        public bool TweakedDungeons { get; set; } = false;
 
         public string GenerateFlagString()
         {

@@ -354,7 +354,11 @@ namespace FFMQLib
 			List<string> customMessages = new()
 			{
 				"GO ON+KID!!", // original
-				"BORK?+BORK", // wildham
+				"BORK?+BORK",  // wildham
+				" SCI+ENCE",   // kaiten619
+				"GOOD+DAY!",   // guardianmarcus
+				"WOOP+WOOP",   // Chanigan
+				"POWER+ ON!",  // x10power
 			};
 
 			string newMessage = rng.PickFrom(customMessages);
@@ -379,6 +383,67 @@ namespace FFMQLib
 				currentX += letters[c][0].Count;
 			}
 		}
+		public void LessObnoxiousMaps(Flags flags, MT19337 rng, FFMQRom.ObjectList mapobjects)
+		{
+			if (!flags.TweakedDungeons)
+			{
+				return;
+			}
+
+			// Ice Pyramid
+			// Add shortcuts to 1F
+			_gameMaps[(int)MapList.IcePyramidA].ModifyMap(0x26, 0x17, new List<List<byte>> {
+				new List<byte> { 0x06 },
+				new List<byte> { 0x06 },
+				new List<byte> { 0x07 },
+			});
+
+			_gameMaps[(int)MapList.IcePyramidA].ModifyMap(0x1B, 0x0A, new List<List<byte>> {
+				new List<byte> { 0x06, 0x05 },
+				new List<byte> { 0x06, 0x05 },
+				new List<byte> { 0x07, 0x05 },
+			});
+
+			_gameMaps[(int)MapList.IcePyramidA].ModifyMap(0x04, 0x16, new List<List<byte>> {
+				new List<byte> { 0x04, 0x06, 0x05, 0x04, 0x04 },
+				new List<byte> { 0x14, 0x07, 0x05, 0x14, 0x14 },
+				new List<byte> { 0x05, 0x05, 0x05, 0x05, 0x05 },
+			});
+
+			// Giant Tree
+			// Trim down mushrooms
+			_gameMaps[(int)MapList.GiantTreeA].RandomReplaceTile(rng, 0x08, 0x10, 0.5f);
+			_gameMaps[(int)MapList.GiantTreeA].RandomReplaceTile(rng, 0x3C, 0x1E, 0.5f);
+			_gameMaps[(int)MapList.GiantTreeB].RandomReplaceTile(rng, 0x08, 0x10, 0.5f);
+
+			// Extend platform on 1F to reach hook
+			_gameMaps[(int)MapList.GiantTreeA].ModifyMap(0x17, 0x05, new List<List<byte>> { 
+				new List<byte> { 0x02, 0x02 },
+				new List<byte> { 0x1C, 0x1E },
+				new List<byte> { 0x1C, 0x1E },
+				new List<byte> { 0x0A, 0x0A },
+				new List<byte> { 0x1A, 0x1A },
+			});
+
+			// Move Hook
+			mapobjects[0x44][0x14].X = 0x11;
+			mapobjects[0x44][0x14].Y = 0x06;
+
+			// Open up passage on 5F
+			_gameMaps[(int)MapList.GiantTreeB].ModifyMap(0x0A, 0x13, new List<List<byte>> {
+				new List<byte> { 0x21 },
+				new List<byte> { 0x22 },
+				new List<byte> { 0x1E },
+			});
+
+			// Pazuzu's Tower
+			// Remove enemies from stair cases
+			for (int i = 0x5A; i < 0x5F; i++)
+			{
+				mapobjects[i].Where(x => x.Type == MapObjectType.Battle).ToList().ForEach(x => x.Gameflag = 0xFE);
+			}
+		}
+
 		public void Write(FFMQRom rom)
 		{
 			List<int> validBanks = new() { 0x08, 0x13 };
@@ -386,8 +451,6 @@ namespace FFMQLib
 			int currentAddress = 0x8000;
 
 			List<byte> newPointersTable = new();
-
-
 
 			foreach (var map in _gameMaps)
 			{
@@ -429,6 +492,8 @@ namespace FFMQLib
 		public bool ModifiedMap { get; set; }
 
 		public int CompressedMapSize => _mapCompressedData.Count;
+		public int SizeX => _dimensions.Item1;
+		public int SizeY => _dimensions.Item2;
 
 		public static readonly byte[] BitConverter = { 0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
 
@@ -676,6 +741,23 @@ namespace FFMQLib
 
 			ModifiedMap = true;
 		}
+		public void RandomReplaceTile(MT19337 rng, byte originTile, byte replaceTile, float ratio)
+		{
+			var tileList = _mapUncompressed.Select((value, index) => new { value, index })
+										.Where(x => x.value == originTile)
+										.Select(x => x.index)
+										.ToList();
+
+			tileList.Shuffle(rng);
+			tileList = tileList.GetRange(0, (int)(tileList.Count * ratio));
+
+			foreach (var tile in tileList)
+			{
+				_mapUncompressed[tile] = replaceTile;
+			}
+			
+			ModifiedMap = true;
+		}
 		public void DataDump()
 		{
 			for (int i = 0; i < (_dimensions.Item2); i++)
@@ -705,6 +787,10 @@ namespace FFMQLib
 		public byte WalkableByte(int x, int y)
 		{
 			return (byte)(_tileData[_mapUncompressed[(y * _dimensions.Item1) + x] & 0x7F].Byte1 & 0x07);
+		}
+		public byte this[int x, int y]
+		{
+			get => (byte)(_mapUncompressed[(y * _dimensions.Item1) + x]);
 		}
 		public bool IsScriptTile(int x, int y)
 		{

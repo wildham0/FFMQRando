@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.3.17";
+		public static string VersionNumber = "0.3.18";
 		public static string Version = VersionNumber + "-beta";
 	}
 	
@@ -141,6 +141,9 @@ namespace FFMQLib
 			SetLevelingCurve(flags);
 			ProgressiveGears(flags);
 
+			GameMaps.RandomGiantTreeMessage(rng);
+			GameMaps.LessObnoxiousMaps(flags, rng, MapObjects);
+
 			MapObjects.SetEnemiesDensity(flags, rng);
 			MapObjects.ShuffleEnemiesPosition(GameMaps, flags, rng);
 			//enemiesAttacks.ScaleAttacks(flags, rng);
@@ -159,7 +162,8 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
-			GameMaps.RandomGiantTreeMessage(rng);
+			
+
 
 			credits.Update();
 			
