@@ -353,12 +353,15 @@ namespace FFMQLib
 
 			List<string> customMessages = new()
 			{
-				"GO ON+KID!!", // original
-				"BORK?+BORK",  // wildham
-				" SCI+ENCE",   // kaiten619
-				"GOOD+DAY!",   // guardianmarcus
-				"WOOP+WOOP",   // Chanigan
-				"POWER+  ON!",  // x10power
+				"GO ON +KID!!",     // original
+				"BORK?+BORK",       // wildham
+				" SCI   +ENCE",     // kaiten619
+				"GOOD  +DAY! ",     // guardianmarcus
+				"WOOP +WOOP",       // Chanigan
+				" LOG   +  IN! ",   // x10power
+				"BEST  +  FF! ",    // keddril
+				"JERK  +BIRD",      // DarkPaladin
+				"FLY  +HIGH",       // JJBlu
 			};
 
 			string newMessage = rng.PickFrom(customMessages);
@@ -418,7 +421,7 @@ namespace FFMQLib
 
 			// Extend platform on 1F to reach hook
 			_gameMaps[(int)MapList.GiantTreeA].ModifyMap(0x17, 0x05, new List<List<byte>> { 
-				new List<byte> { 0x02, 0x02 },
+				new List<byte> { 0x1C, 0x02 },
 				new List<byte> { 0x1C, 0x1E },
 				new List<byte> { 0x1C, 0x1E },
 				new List<byte> { 0x0A, 0x0A },
@@ -427,7 +430,7 @@ namespace FFMQLib
 
 			// Move Hook
 			mapobjects[0x44][0x14].X = 0x11;
-			mapobjects[0x44][0x14].Y = 0x06;
+			mapobjects[0x44][0x14].Y = 0x05;
 
 			// Open up passage on 5F
 			_gameMaps[(int)MapList.GiantTreeB].ModifyMap(0x0A, 0x13, new List<List<byte>> {
