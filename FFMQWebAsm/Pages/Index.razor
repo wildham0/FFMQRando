@@ -67,7 +67,18 @@
 </h3>
 
 <Field>
-    
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Logic</FieldLabel>
+    <Tooltip Text="Placement logic sets the rules that will be applied when placing items.<br /><br />Friendly: Required Items to clear a dungeon will never be placed in that dungeon to avoid the need to revisit it. Also, the Magic Mirror and the Mask will always be available before Ice Pyramid and Volcano, respectively.<br /><br />Standard: Items are randomly placed and logic merely verifies that they're all accessible." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
+    <Select @bind-SelectedValue="@flags.LogicOptions">
+        @foreach(var item in Enum.GetValues<FFMQLib.LogicOptions>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
+<Field>
     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Original Chests</FieldLabel>
     <Tooltip Text="Original Chests are all the red chests locations in the original game, except the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave, which count as NPCs.<br /><br />If a chest doesn't contain a Quest Item, it will show up as a brown box." Inline Multiline Placement="TooltipPlacement.Right">
         <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
@@ -202,6 +213,14 @@
             <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
         }
     </Select>
+</Field>
+<Field>
+    <Switch TValue="bool" @bind-Checked="@flags.TweakedDungeons">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Tweak Frustrating Dungeons</Text>
+        <Tooltip Text="Make some small changes to a few of the most annoying dungeons.<br/><br/>Ice Pyramid: Add 3 shortcuts on the 1st floor.<br/><br/>Giant Tree: Add shortcuts on the 1st and 4th floors and curtail mushrooms population.<br/><br/>Pazuzu's Tower: Staircases are devoid of enemies (regardless of Enemies Density settings)." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
 </Field>
 <Field>
     <Switch TValue="bool" @bind-Checked="@flags.ShuffleBattlefieldRewards">

@@ -16,6 +16,7 @@ namespace FFMQLib
         public bool ShuffleBoxesContent { get; set; } = false;
         public ItemShuffleNPCsBattlefields NPCsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
         public ItemShuffleNPCsBattlefields BattlefieldsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
+        public LogicOptions LogicOptions { get; set; } = LogicOptions.Friendly;
         public bool ShuffleEnemiesPosition { get; set; } = false;
         public EnemiesScaling EnemiesScaling { get; set; } = EnemiesScaling.Normal;
         public EnemiesScalingSpread EnemiesScalingSpread { get; set; } = EnemiesScalingSpread.None;
@@ -24,6 +25,7 @@ namespace FFMQLib
         public bool ShuffleBattlefieldRewards { get; set; } = false;
         public bool RandomStartingWeapon { get; set; } = false;
         public bool ProgressiveGear { get; set; } = false;
+        public bool TweakedDungeons { get; set; } = false;
 
         public string GenerateFlagString()
         {
