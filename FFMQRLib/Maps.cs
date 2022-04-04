@@ -353,15 +353,20 @@ namespace FFMQLib
 
 			List<string> customMessages = new()
 			{
-				"GO ON +KID!!",     // original
-				"BORK?+BORK",       // wildham
-				" SCI   +ENCE",     // kaiten619
-				"GOOD  +DAY! ",     // guardianmarcus
-				"WOOP +WOOP",       // Chanigan
-				" LOG   +  IN! ",   // x10power
-				"BEST  +  FF! ",    // keddril
-				"JERK  +BIRD",      // DarkPaladin
-				"FLY  +HIGH",       // JJBlu
+				// 6 letters on first line, 4 on second (to cover the whole message)
+				" GO ON+KID!!",  // original
+
+				"BORK?+BORK",    // wildham
+				" GOOD+ DAY!",   // guardianmarcus
+				" WOOP+WOOP",    // Chanigan
+				" JERK+BIRD",    // DarkPaladin
+				" BEST+ FF!",    // keddril
+				" SCI+ENCE",     // kaiten619
+				" FLY+HIGH",     // JJBlu
+				" LOG+ IN!",     // x10power
+
+
+
 			};
 
 			string newMessage = rng.PickFrom(customMessages);
@@ -376,6 +381,11 @@ namespace FFMQLib
 			{
 				if (c == '+')
 				{
+					for (int i = currentX; i < 30; i += 3)
+					{
+						_gameMaps[(int)MapList.BackgroundD].ModifyMap(currentX, yPositions[currentYindex], letters[' ']);
+					}
+					
 					currentYindex++;
 					currentX = xPositions[currentYindex];
 					continue;
