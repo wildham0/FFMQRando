@@ -200,7 +200,7 @@ namespace FFMQLib
 					new List<(int, int)> { },
 				};
 
-				List<int> hookMaps = new() { 0x0D, 0x0E, 0x10, 0x12, 0x19, 0x1A, 0x21, 0x22, 0x23 };
+				List<int> hookMaps = new() { (int)MapList.GiantTreeA, (int)MapList.GiantTreeB, (int)MapList.MountGale, (int)MapList.MacShipInterior, (int)MapList.PazuzuTowerA, (int)MapList.PazuzuTowerB, (int)MapList.FocusTowerBase, (int)MapList.DoomCastleIce, (int)MapList.DoomCastleLava };
 
 				if (flags.ShuffleEnemiesPosition == false)
 				{
