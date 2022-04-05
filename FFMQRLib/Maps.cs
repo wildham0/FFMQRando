@@ -364,9 +364,6 @@ namespace FFMQLib
 				" SCI+ENCE",     // kaiten619
 				" FLY+HIGH",     // JJBlu
 				" LOG+ IN!",     // x10power
-
-
-
 			};
 
 			string newMessage = rng.PickFrom(customMessages);
@@ -381,7 +378,7 @@ namespace FFMQLib
 			{
 				if (c == '+')
 				{
-					for (int i = currentX; i < 30; i += 3)
+					for ( ; currentX < 30; currentX += 2)
 					{
 						_gameMaps[(int)MapList.BackgroundD].ModifyMap(currentX, yPositions[currentYindex], letters[' ']);
 					}
@@ -394,6 +391,11 @@ namespace FFMQLib
 				_gameMaps[(int)MapList.BackgroundD].ModifyMap(currentX, yPositions[currentYindex], letters[c]);
 
 				currentX += letters[c][0].Count;
+			}
+
+			for (; currentX < 30; currentX += 2)
+			{
+				_gameMaps[(int)MapList.BackgroundD].ModifyMap(currentX, yPositions[currentYindex], letters[' ']);
 			}
 		}
 		public void LessObnoxiousMaps(Flags flags, MT19337 rng, FFMQRom.ObjectList mapobjects)
