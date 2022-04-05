@@ -193,10 +193,14 @@ namespace FFMQLib
 
 			GameFlags[(int)GameFlagsList.ShowPazuzuBridge] = true;
 
-			for (int i = 0; i < 4; i++)
+			// Remove Mine Boulder
+			for (int i = 0; i < 6; i++)
 			{
 				Overworld.RemoveObject(i);
 			}
+
+			// Put bridge to access temple
+			GameMaps[(int)MapList.Overworld].ModifyMap(0x0F, 0x0E, 0x56);
 
 			/*** Level Forest ***/
 			// Enter Level Forest
