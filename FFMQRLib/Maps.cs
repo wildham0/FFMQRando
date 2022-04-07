@@ -459,6 +459,15 @@ namespace FFMQLib
 			}
 		}
 
+		public void UpdateCloudMap()
+		{
+			// We do this manually since we change a lot of things
+			List<byte> CloudMap = new() {
+			};
+		
+		
+		}
+
 		public void Write(FFMQRom rom)
 		{
 			List<int> validBanks = new() { 0x08, 0x13 };
@@ -933,6 +942,10 @@ namespace FFMQLib
 
 				Console.WriteLine(myStringOutput);
 			}
+		}
+		public List<byte> UsedBytes()
+		{
+			return _mapUncompressed.Distinct().ToList();
 		}
 		public void ExitLocationDump(FFMQRom.ExitList exits, MapUtilities maputilities)
 		{

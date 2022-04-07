@@ -152,7 +152,7 @@ namespace FFMQLib
 			}
 			public void ShuffleEnemiesPosition(GameMaps maps, Flags flags, MT19337 rng)
 			{
-				List<List<(int, int)>> barredTiles = new()
+				List<List<(int, int)>> barredCoordinates = new()
 				{
 					new List<(int, int)> { },
 					new List<(int, int)> { },
@@ -200,6 +200,16 @@ namespace FFMQLib
 					new List<(int, int)> { },
 				};
 
+				Dictionary<MapList, List<byte>> excludedTiles = new Dictionary<MapList, List<byte>> {
+					{ MapList.LavaDomeExterior, new List<byte> { 0x7E, 0xFE, 0x37, 0x41 } },
+					{ MapList.LavaDomeInteriorA, new List<byte> { 0x7E, 0xFE, 0x37, 0x41 } },
+					{ MapList.LavaDomeInteriorB, new List<byte> { 0x49, 0x4B, 0x7D } },
+					{ MapList.DoomCastleLava, new List<byte> { 0x57, 0x41 } },
+					{ MapList.DoomCastleSky, new List<byte> { 0x0F } },
+					{ MapList.GiantTreeA, new List<byte> { 0x06, 0x16 } },
+					{ MapList.GiantTreeB, new List<byte> { 0x06, 0x16 } },
+				};
+
 				List<int> hookMaps = new() { (int)MapList.GiantTreeA, (int)MapList.GiantTreeB, (int)MapList.MountGale, (int)MapList.MacShipInterior, (int)MapList.PazuzuTowerA, (int)MapList.PazuzuTowerB, (int)MapList.FocusTowerBase, (int)MapList.DoomCastleIce, (int)MapList.DoomCastleLava };
 
 				if (flags.ShuffleEnemiesPosition == false)
@@ -207,8 +217,6 @@ namespace FFMQLib
 					return;
 				}
 
-				List<byte> excludedTiles = new();
-				
 				for (int i = 0; i < _collections.Count; i++)
 				{
 					
@@ -225,7 +233,9 @@ namespace FFMQLib
 					var validLayers = enemiescollection.Select(x => x.Layer).Distinct().ToList();
 					var targetmap = GetAreaMapId(i);
 
-					List<(byte, byte)> selectedPositions = _collections[i].Where(x => x.Type != MapObjectType.Battle).Select(x => (x.X, x.Y)).ToList();
+					var currentExcludedTiles = excludedTiles.ContainsKey((MapList)targetmap) ? excludedTiles[(MapList)targetmap] : new List<byte>();
+					
+					List <(byte, byte)> selectedPositions = _collections[i].Where(x => x.Type != MapObjectType.Battle).Select(x => (x.X, x.Y)).ToList();
 
 					if (hookMaps.Contains(targetmap)) // Creat an exclusion zone around hooks
 					{
@@ -244,27 +254,6 @@ namespace FFMQLib
 						}
 					}
 
-					if (targetmap == (int)MapList.LavaDomeExterior || targetmap == (int)MapList.LavaDomeInteriorA)
-					{
-						excludedTiles = new() { 0x7E, 0xFE, 0x37, 0x41 };
-					}
-					else if (targetmap == (int)MapList.LavaDomeInteriorB)
-					{
-						excludedTiles = new() { 0x49, 0x4B, 0x7D };
-					}
-					else if (targetmap == (int)MapList.DoomCastleLava)
-					{
-						excludedTiles = new() { 0x57, 0x41 };
-					}
-					else if (targetmap == (int)MapList.GiantTreeA || targetmap == (int)MapList.GiantTreeB)
-					{
-						excludedTiles = new() { 0x06, 0x16 };
-					}
-					else
-					{
-						excludedTiles = new();
-					}
-
 					// Worm Party
 					if (i == _pointerCollectionPairs[0x48] && rng.Between(1,20) == 10)
 					{
@@ -279,10 +268,10 @@ namespace FFMQLib
 							byte newx = (byte)rng.Between(minx, maxx);
 							byte newy = (byte)rng.Between(miny, maxy);
 							if (!selectedPositions.Contains((newx, newy))
-								&& !barredTiles[targetmap].Contains((newx, newy))
+								&& !barredCoordinates[targetmap].Contains((newx, newy))
 								&& validLayers.Contains(maps[targetmap].WalkableByte((int)newx, (int)newy))
 								&& !maps[targetmap].IsScriptTile((int)newx, (int)newy)
-								&& !excludedTiles.Contains(maps[targetmap].TileValue((int)newx, (int)newy)))
+								&& !currentExcludedTiles.Contains(maps[targetmap].TileValue((int)newx, (int)newy)))
 							{
 								selectedPositions.Add((newx, newy));
 								enemy.X = newx;
