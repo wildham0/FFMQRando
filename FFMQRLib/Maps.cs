@@ -353,15 +353,17 @@ namespace FFMQLib
 
 			List<string> customMessages = new()
 			{
-				"GO ON +KID!!",     // original
-				"BORK?+BORK",       // wildham
-				" SCI   +ENCE",     // kaiten619
-				"GOOD  +DAY! ",     // guardianmarcus
-				"WOOP +WOOP",       // Chanigan
-				" LOG   +  IN! ",   // x10power
-				"BEST  +  FF! ",    // keddril
-				"JERK  +BIRD",      // DarkPaladin
-				"FLY  +HIGH",       // JJBlu
+				// 6 letters on first line, 4 on second (to cover the whole message)
+				" GO ON+KID!!",  // original
+
+				"BORK?+BORK",    // wildham
+				" GOOD+ DAY!",   // guardianmarcus
+				" WOOP+WOOP",    // Chanigan
+				" JERK+BIRD",    // DarkPaladin
+				" BEST+ FF!",    // keddril
+				" SCI+ENCE",     // kaiten619
+				" FLY+HIGH",     // JJBlu
+				" LOG+ IN!",     // x10power
 			};
 
 			string newMessage = rng.PickFrom(customMessages);
@@ -376,6 +378,11 @@ namespace FFMQLib
 			{
 				if (c == '+')
 				{
+					for ( ; currentX < 30; currentX += 2)
+					{
+						_gameMaps[(int)MapList.BackgroundD].ModifyMap(currentX, yPositions[currentYindex], letters[' ']);
+					}
+					
 					currentYindex++;
 					currentX = xPositions[currentYindex];
 					continue;
@@ -384,6 +391,11 @@ namespace FFMQLib
 				_gameMaps[(int)MapList.BackgroundD].ModifyMap(currentX, yPositions[currentYindex], letters[c]);
 
 				currentX += letters[c][0].Count;
+			}
+
+			for (; currentX < 30; currentX += 2)
+			{
+				_gameMaps[(int)MapList.BackgroundD].ModifyMap(currentX, yPositions[currentYindex], letters[' ']);
 			}
 		}
 		public void LessObnoxiousMaps(Flags flags, MT19337 rng, FFMQRom.ObjectList mapobjects)
@@ -445,6 +457,15 @@ namespace FFMQLib
 			{
 				mapobjects[i].Where(x => x.Type == MapObjectType.Battle).ToList().ForEach(x => x.Gameflag = 0xFE);
 			}
+		}
+
+		public void UpdateCloudMap()
+		{
+			// We do this manually since we change a lot of things
+			List<byte> CloudMap = new() {
+			};
+		
+		
 		}
 
 		public void Write(FFMQRom rom)
@@ -921,6 +942,10 @@ namespace FFMQLib
 
 				Console.WriteLine(myStringOutput);
 			}
+		}
+		public List<byte> UsedBytes()
+		{
+			return _mapUncompressed.Distinct().ToList();
 		}
 		public void ExitLocationDump(FFMQRom.ExitList exits, MapUtilities maputilities)
 		{

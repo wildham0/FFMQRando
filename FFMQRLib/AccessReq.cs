@@ -147,7 +147,7 @@ namespace FFMQLib
 		public static TreasureObject LavaDome05 = new TreasureObject(0x13, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Chest, new List<AccessReqs> { AccessReqs.MegaGrenade });
 		public static TreasureObject LavaDome06 = new TreasureObject(0x14, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Chest, new List<AccessReqs> { });
 		public static TreasureObject LavaDome07 = new TreasureObject(0x1C, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Chest, new List<AccessReqs> { AccessReqs.MegaGrenade });
-		public static TreasureObject LavaDome08 = new TreasureObject(0x91, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
+		public static TreasureObject LavaDome08 = new TreasureObject(0x91, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { AccessReqs.MegaGrenade });
 		public static TreasureObject LavaDome09 = new TreasureObject(0x92, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject LavaDome10 = new TreasureObject(0x93, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject LavaDome11 = new TreasureObject(0x94, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
