@@ -209,8 +209,8 @@ namespace FFMQLib
 		//public static TreasureObject Caves02 = new TreasureObject(0x34, (int)MapList.Caves, Locations.Windia, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject Caves03 = new TreasureObject(0x40, (int)MapList.Caves, Locations.LibraTemple, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject Caves04 = new TreasureObject(0x4E, (int)MapList.Caves, Locations.LifeTemple, TreasureType.Box, new List<AccessReqs> { }); // Libra Crest
-		public static TreasureObject Caves05 = new TreasureObject(0x70, (int)MapList.Caves, Locations.WintryTemple, TreasureType.Box, new List<AccessReqs> { }); // Gemini Crest
-		public static TreasureObject Caves06 = new TreasureObject(0x71, (int)MapList.Caves, Locations.WintryTemple, TreasureType.Box, new List<AccessReqs> { }); // Gemini Crest
+		public static TreasureObject Caves05 = new TreasureObject(0x70, (int)MapList.Caves, Locations.SealedTemple, TreasureType.Box, new List<AccessReqs> { AccessReqs.GeminiCrest }); // Wintry Temple Entrance
+		public static TreasureObject Caves06 = new TreasureObject(0x71, (int)MapList.Caves, Locations.SealedTemple, TreasureType.Box, new List<AccessReqs> { AccessReqs.GeminiCrest }); // Wintry Temple Entrance
 		//public static TreasureObject Caves07 = new TreasureObject(0x72, (int)MapList.Caves, Locations.Windia, TreasureType.Box, new List<AccessReqs> { }); // in Wintry Temple, but not there
 		//public static TreasureObject Caves08 = new TreasureObject(0x73, (int)MapList.Caves, Locations.Windia, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject Caves09 = new TreasureObject(0x7E, (int)MapList.Caves, Locations.SealedTemple, TreasureType.Box, new List<AccessReqs> { });
