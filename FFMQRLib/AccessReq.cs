@@ -492,7 +492,7 @@ namespace FFMQLib
 			{ Locations.FallsBasin, new List<AccessReqs> { AccessReqs.SandCoin } },
 			{ Locations.IcePyramid, new List<AccessReqs> { AccessReqs.SandCoin } },
 			{ Locations.SpencersPlace, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater, AccessReqs.Sword, AccessReqs.Claw } },
-			{ Locations.WintryTemple, new List<AccessReqs> { AccessReqs.SandCoin } },
+			{ Locations.WintryTemple, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater } },
 			{ Locations.FocusTowerNorth, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater } },
 			{ Locations.FocusTowerEast, new List<AccessReqs> { AccessReqs.RiverCoin } },
 			{ Locations.Fireburg, new List<AccessReqs> { AccessReqs.RiverCoin } },
