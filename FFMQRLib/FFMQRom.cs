@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.3.22";
+		public static string VersionNumber = "0.3.23";
 		public static string Version = VersionNumber + "-beta";
 	}
 	
@@ -975,7 +975,7 @@ namespace FFMQLib
 			/*** Windia ***/
 			TalkScripts.AddMobileScript(0x5D);
 			TalkScripts.AddMobileScript(0x5E);
-			TalkScripts.AddMobileScript(0x5F);
+			//TalkScripts.AddMobileScript(0x5F);
 			TalkScripts.AddMobileScript(0x60);
 			TalkScripts.AddMobileScript(0x61);
 			TalkScripts.AddMobileScript(0x62);
@@ -983,6 +983,24 @@ namespace FFMQLib
             TalkScripts.AddMobileScript(0x64);
             TalkScripts.AddMobileScript(0x65);
 			TalkScripts.AddMobileScript(0x66);
+
+			// Captain Mac in Windia
+			List<string> captainMacSilence = new()
+			{
+				"...",
+				"I have nothing to say.",
+				"I'm speechless...",
+				"Silence is golden.",
+				"I'm trying to sleep, kid."
+			};
+
+			TalkScripts.AddScript((int)TalkScriptsList.CaptainMacWindia,
+				new ScriptBuilder(new List<string>{
+					TextToHex(rng.PickFrom(captainMacSilence)),
+					"36",
+					"00"
+				}));
+
 
 			// Seller in Windia
 			TalkScripts.AddScript((int)TalkScriptsList.WindiaSellerGirl,
