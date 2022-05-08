@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.3.23";
+		public static string VersionNumber = "0.3.24";
 		public static string Version = VersionNumber + "-beta";
 	}
 	
@@ -45,10 +45,18 @@ namespace FFMQLib
 					dataToHash[i] = 0;
 				}
 
-				Blob hash = hasher.ComputeHash(dataToHash);
+				// benjamin's palette
+				for (int i = 0x3D826; i < (0x3D826 + 0x0E); i++)
+				{
+					dataToHash[i] = 0;
+				}
 
+				Blob hash = hasher.ComputeHash(dataToHash);
+				
+				//Console.WriteLine(BitConverter.ToString(hash).Replace("-", ""));
 				// if (hash == Blob.FromHex("F71817F55FEBD32FD1DCE617A326A77B6B062DD0D4058ECD289F64AF1B7A1D05")) unadultered hash
-				if (hash == Blob.FromHex("3B488D148358EA263FB7E800ABA92BBF6D3CE41E5E33C3C1F6CA1EF5E23C6CFC"))
+				
+				if (hash == Blob.FromHex("92F625478568B1BE262E3F9D62347977CE7EE345E9FF353B4778E8560E16C7CA"))
 				{
 					return true;
 				}
