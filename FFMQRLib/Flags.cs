@@ -98,4 +98,9 @@ namespace FFMQLib
         }
     }
 
+    public class Preferences
+    {
+        public bool RandomBenjaminPalette { get; set; } = false;
+    }
+
 }

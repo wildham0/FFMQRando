@@ -527,6 +527,7 @@ namespace FFMQLib
 		FightHeadlessKnight = 0x54,
 		KaeliWindia = 0x5B,
 		Otto = 0x5C,
+		CaptainMacWindia = 0x5F,
 		WindiaExplosiveVendor = 0x66,
 		WindiaSellerGirl = 0x67,
 		CaptainMacOnShip = 0x75,

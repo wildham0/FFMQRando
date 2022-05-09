@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.3.22";
+		public static string VersionNumber = "0.3.24";
 		public static string Version = VersionNumber + "-beta";
 	}
 	
@@ -45,10 +45,18 @@ namespace FFMQLib
 					dataToHash[i] = 0;
 				}
 
-				Blob hash = hasher.ComputeHash(dataToHash);
+				// benjamin's palette
+				for (int i = 0x3D826; i < (0x3D826 + 0x0E); i++)
+				{
+					dataToHash[i] = 0;
+				}
 
+				Blob hash = hasher.ComputeHash(dataToHash);
+				
+				//Console.WriteLine(BitConverter.ToString(hash).Replace("-", ""));
 				// if (hash == Blob.FromHex("F71817F55FEBD32FD1DCE617A326A77B6B062DD0D4058ECD289F64AF1B7A1D05")) unadultered hash
-				if (hash == Blob.FromHex("3B488D148358EA263FB7E800ABA92BBF6D3CE41E5E33C3C1F6CA1EF5E23C6CFC"))
+				
+				if (hash == Blob.FromHex("92F625478568B1BE262E3F9D62347977CE7EE345E9FF353B4778E8560E16C7CA"))
 				{
 					return true;
 				}
@@ -102,15 +110,17 @@ namespace FFMQLib
 			Data = new byte[0x80000];
 			Array.Copy(originalData, Data, 0x80000);
 		}
-		public void Randomize(Blob seed, Flags flags)
+		public void Randomize(Blob seed, Flags flags, Preferences preferences)
 		{
 			flags.FlagSanityCheck();
 
 			MT19337 rng;
+			MT19337 sillyrng;
 			using (SHA256 hasher = SHA256.Create())
 			{
 				Blob hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
+				sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
 
 			NodeLocations nodeLocations = new(this);
@@ -162,8 +172,9 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
-			
 
+			sillyrng.Next();
+			RandomBenjaminPalette(preferences, sillyrng);
 
 			credits.Update();
 			
@@ -975,7 +986,7 @@ namespace FFMQLib
 			/*** Windia ***/
 			TalkScripts.AddMobileScript(0x5D);
 			TalkScripts.AddMobileScript(0x5E);
-			TalkScripts.AddMobileScript(0x5F);
+			//TalkScripts.AddMobileScript(0x5F);
 			TalkScripts.AddMobileScript(0x60);
 			TalkScripts.AddMobileScript(0x61);
 			TalkScripts.AddMobileScript(0x62);
@@ -983,6 +994,24 @@ namespace FFMQLib
             TalkScripts.AddMobileScript(0x64);
             TalkScripts.AddMobileScript(0x65);
 			TalkScripts.AddMobileScript(0x66);
+
+			// Captain Mac in Windia
+			List<string> captainMacSilence = new()
+			{
+				"...",
+				"I have nothing to say.",
+				"I'm speechless...",
+				"Silence is golden.",
+				"I'm trying to sleep, kid."
+			};
+
+			TalkScripts.AddScript((int)TalkScriptsList.CaptainMacWindia,
+				new ScriptBuilder(new List<string>{
+					TextToHex(rng.PickFrom(captainMacSilence)),
+					"36",
+					"00"
+				}));
+
 
 			// Seller in Windia
 			TalkScripts.AddScript((int)TalkScriptsList.WindiaSellerGirl,
