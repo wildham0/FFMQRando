@@ -52,7 +52,7 @@ namespace FFMQLib
 				(byte)(((highlightColor.green * 32) & 0xE0) + highlightColor.red),
 				(byte)(highlightColor.blue * 4 + highlightColor.green / 8),
 				
-				(byte)(((hairColor.green * 32) & 0xE0) + hairColor.blue),
+				(byte)(((hairColor.green * 32) & 0xE0) + hairColor.red),
 				(byte)(hairColor.blue * 4 + hairColor.green / 8),
 				
 				(byte)(((armorLightColor.green * 32) & 0xE0) + armorLightColor.red),
