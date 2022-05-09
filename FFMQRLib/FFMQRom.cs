@@ -110,15 +110,17 @@ namespace FFMQLib
 			Data = new byte[0x80000];
 			Array.Copy(originalData, Data, 0x80000);
 		}
-		public void Randomize(Blob seed, Flags flags)
+		public void Randomize(Blob seed, Flags flags, Preferences preferences)
 		{
 			flags.FlagSanityCheck();
 
 			MT19337 rng;
+			MT19337 sillyrng;
 			using (SHA256 hasher = SHA256.Create())
 			{
 				Blob hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
+				sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
 
 			NodeLocations nodeLocations = new(this);
@@ -170,8 +172,9 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
-			
 
+			sillyrng.Next();
+			RandomBenjaminPalette(preferences, sillyrng);
 
 			credits.Update();
 			

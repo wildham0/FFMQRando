@@ -243,6 +243,18 @@
     </Select>
 </Field>
 
+<div><br /></div>
+<h3 id="sillySection" class="text-secondary">Customization</h3>
+<div class="text-secondary">Customization doesn't affect the randomization and can be enabled/disabled without any impact on gameplay.</div>
+<Field>
+    <Switch TValue="bool" @bind-Checked="@preferences.RandomBenjaminPalette">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Randomize Benjamin's Palette</Text>
+        <Tooltip Text="Select randomly Benjamin's palette, giving him a brand new look!" Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
+</Field>
+
 <div><br /><br /><br /></div>
 
 <Information />
@@ -263,6 +275,7 @@
     private Blob seed = new byte[4];
     private string showSeed;
     private Flags flags = new();
+    private Preferences preferences = new();
     private bool generatedRom = false;
     private string seedMessage = "";
     private string romMessage = "";
@@ -316,7 +329,7 @@
 
         try
         {            
-            newRom.Randomize(seed, flags);
+            newRom.Randomize(seed, flags, preferences);
 
             romMessage = "ROM file generated successfully.";
 
