@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "0.3.24";
+		public static string VersionNumber = "0.3.25";
 		public static string Version = VersionNumber + "-beta";
 	}
 	
@@ -1117,6 +1117,11 @@ namespace FFMQLib
 			MapObjects[0x60][0x03].Gameflag = 0xFE; // Hide ship because cutescene enable it's flag anyway
 
 			/*** Mac's Ship ***/
+			// Put the same chests in pre-cap's mapobject list as post-cap list
+			MapObjects[0x62][0x0E].RawOverwrite(MapObjects[0x64][0x06].RawArray());
+			MapObjects[0x62][0x0F].RawOverwrite(MapObjects[0x64][0x07].RawArray());
+			MapObjects[0x62][0x10].RawOverwrite(MapObjects[0x64][0x08].RawArray());
+
 			// Captain Mac on Ship
 			TalkScripts.AddScript((int)TalkScriptsList.CaptainMacOnShip,
 				new ScriptBuilder(new List<string> {
