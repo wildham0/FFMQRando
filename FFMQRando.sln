@@ -1,13 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31410.357
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMQRLib", "FFMQRLib\FFMQRLib.csproj", "{8B72365D-A8A1-4A79-A245-C960A52B2003}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMQRLib", "FFMQRLib\FFMQRLib.csproj", "{8B72365D-A8A1-4A79-A245-C960A52B2003}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMQRWin", "FFMQRWin\FFMQRWin.csproj", "{C6DA08E1-3BFB-4F96-82B7-826EBE172CDC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMQRWin", "FFMQRWin\FFMQRWin.csproj", "{C6DA08E1-3BFB-4F96-82B7-826EBE172CDC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMQWebAsm", "FFMQWebAsm\FFMQWebAsm.csproj", "{D6282F05-5F5F-4124-8B37-9548EE84CFD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMQWebAsm", "FFMQWebAsm\FFMQWebAsm.csproj", "{D6282F05-5F5F-4124-8B37-9548EE84CFD2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D2F238B4-3541-4A3D-A97D-957E78D9A03A}"
+	ProjectSection(SolutionItems) = preProject
+		netlify.toml = netlify.toml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
