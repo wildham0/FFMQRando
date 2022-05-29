@@ -36,7 +36,7 @@
 <Fields>
     <Field>
         <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Seed</FieldLabel> 
-        <TextEdit Placeholder="Seed" Text="@showSeed" FocusOut="@OnSeedLoseFocus" TextChanged="@OnChangeSeed"/>
+        <TextEdit Placeholder="Seed" Text="@showSeed" FocusOut="@SeedOnLoseFocus" KeyUp="@SeedOnKeyUp" TextChanged="@SeedOnChanged"/>
         <FieldHelp>@seedMessage</FieldHelp>
     </Field>
      <Field>
@@ -47,7 +47,7 @@
 <Fields>
     <Field>
         <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Flag String</FieldLabel> 
-        <TextEdit Placeholder="Flag string" Text="@flagString" TextChanged="@OnNameChanged"/>
+        <TextEdit Placeholder="Flag string" Text="@flagString" FocusOut="@FlagsOnLoseFocus" KeyUp="@FlagsOnKeyUp" TextChanged="@FlagsOnChanged"/>
         <FieldHelp>@flagsMessage</FieldHelp>
     </Field>
 </Fields>
@@ -281,20 +281,29 @@
     private string romMessage = "";
     private string flagsMessage = "";
     private List<string> titleLetters = new List<string> { "logo/mqlogoM.png", "logo/mqlogoy.png", "logo/mqlogos.png", "logo/mqlogot.png", "logo/mqlogoi.png", "logo/mqlogoc.png", "logo/mqlogoQ.png", "logo/mqlogou.png", "logo/mqlogoe.png", "logo/mqlogos2.png", "logo/mqlogot2.png" };
+    private bool updateFlagString = true;
+    private string tempFlagString;
+
 
     [Parameter]
     public string flagString
     {
         get
         {
-            var tempString = flags.GenerateFlagString();
-            UpdateUrl();
-            return tempString;
+            if (updateFlagString)
+            {
+                tempFlagString = flags.GenerateFlagString();                
+                UpdateUrl();
+            }
+            return tempFlagString;
         }
         set
         {
-            SetFlags(value);
-            UpdateUrl();
+            if (updateFlagString)
+            {
+                SetFlags(value);
+                UpdateUrl();
+            }
         }
     }
 
@@ -398,73 +407,147 @@
         NavigationManager.NavigateTo(test);
     }
 
+    private string MakeParsableUriString(string uristring)
+    {
+        var qmarkIndex = uristring.IndexOf('?');
+        var hashIndex = uristring.IndexOf('#');
+
+        if (qmarkIndex == -1)
+        {
+            return ""; 
+        }
+        else if (qmarkIndex > hashIndex)
+        {
+            return uristring.Remove(0, qmarkIndex);
+        }
+        else
+        { 
+            return uristring.Remove(hashIndex).Remove(0, qmarkIndex);
+        }
+    }
+
     protected override void OnInitialized()
     {
         var uri = new Uri(NavigationManager.Uri);
-        //string seed;
 
-        try { 
-            var seedParameter = HttpUtility.ParseQueryString(uri.Query).Get("s");
+        string parsableUri = MakeParsableUriString(uri.OriginalString);
+
+        var seedParameter = HttpUtility.ParseQueryString(parsableUri).Get("s");
+        if (seedParameter != null)
+        {
             SetSeed(seedParameter);
-        }
-        catch
-        {
-            RollSeed();
-        }
-
-        var flagsParameter = HttpUtility.ParseQueryString(uri.Query).Get("f");
-        if (flagsParameter != null)
-        {
-            SetFlags(flagsParameter);                
-        }
-    }
-
-    Task OnChangeSeed(string value)
-    {
-        SetSeed(value);
-        UpdateUrl();
-        return Task.CompletedTask;
-    }
-
-    Task SetSeed(string value)
-    { 
-        showSeed = value;
-
-        if (showSeed.Length <= 8)
-        {
-            try
-            {
-                showSeed = showSeed.PadLeft(8, '0');
-                seed = Blob.FromHex(showSeed);
-                seedMessage = "";
-            }
-            catch (Exception ex)
-            {
-                seedMessage = "Invalid Seed: " + ex.Message;
-            }
         }
         else
         {
-            seedMessage = "Invalid Seed: Seed string is too long (max 8 digits).";
+            RollSeed();            
         }
+
+        var flagsParameter = HttpUtility.ParseQueryString(parsableUri).Get("f");
+        if (flagsParameter != null)
+        {
+            flagString = flagsParameter;
+        }
+        else
+        {
+            flagsMessage = "Using default flags.";
+        }
+
+    }
+
+    // Seed Field Functions
+    Task SeedOnChanged(string value)
+    {
+        showSeed = value;
+        EvaluateSeed(showSeed);
         return Task.CompletedTask;
     }
 
-    Task OnSeedLoseFocus()
+    Task SeedOnKeyUp(KeyboardEventArgs value)
     {
-        showSeed = showSeed.PadLeft(8, '0');
+        if (value.Key == "Enter")
+        {
+            EvaluateSeed(showSeed);
+            SetSeed(showSeed);
+            UpdateUrl();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    Task SeedOnLoseFocus()
+    {
+        EvaluateSeed(showSeed);
+        SetSeed(showSeed);
         UpdateUrl();
         return Task.CompletedTask;
     }
+
+    private void EvaluateSeed(string value)
+    {
+        if (value.Length < 8)
+        {
+            seedMessage = "Invalid Seed: Seed string is too short (min 8 digits).";
+        }
+        else if (value.Length > 8)
+        {
+            seedMessage = "Invalid Seed: Seed string is too long (max 8 digits).";
+        }
+        else
+        {
+            seedMessage = "";
+        }
+    }
+
+    private void SetSeed(string value)
+    {
+        showSeed = value;
+        try
+        {
+            if (showSeed.Length > 8)
+            { 
+                showSeed = showSeed.Remove(8);
+            }
+            showSeed = showSeed.PadLeft(8, '0');
+            seed = Blob.FromHex(showSeed);
+            seedMessage = "";
+        }
+        catch (Exception ex)
+        {
+            seedMessage = "Invalid Seed: " + ex.Message;
+        }
+    }
+
+
 
     private async Task CopyTextToClipboard()
     {
         await JS.InvokeVoidAsync("copyClipboard");
     }
 
-    Task OnNameChanged( string value )
+    // Flag Field Functions
+    Task FlagsOnChanged( string value )
     {
-        SetFlags(value);
+        updateFlagString = false;
+        tempFlagString = value;
+        return Task.CompletedTask;
+    }
+
+    Task FlagsOnKeyUp(KeyboardEventArgs value)
+    {
+        if (value.Key == "Enter")
+        {
+            updateFlagString = true;
+            flagString = tempFlagString;
+            UpdateUrl();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    Task FlagsOnLoseFocus()
+    {
+        updateFlagString = true;
+        flagString = tempFlagString;
         UpdateUrl();
         return Task.CompletedTask;
     }
@@ -475,7 +558,6 @@
         {
             flags.ReadFlagString(value);
             flagsMessage = "Flags loaded successfully.";
-            UpdateUrl();
         }
         catch (Exception)
         {

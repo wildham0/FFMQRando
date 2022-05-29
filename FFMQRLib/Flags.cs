@@ -10,22 +10,22 @@ namespace FFMQLib
 {
     public class Flags
     { 
-        public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.All;
+        public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.ThreeQuarter;
         public ItemShuffleChests ChestsShuffle { get; set; } = ItemShuffleChests.Prioritize;
         public ItemShuffleBoxes BoxesShuffle { get; set; } = ItemShuffleBoxes.Exclude;
         public bool ShuffleBoxesContent { get; set; } = false;
         public ItemShuffleNPCsBattlefields NPCsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
         public ItemShuffleNPCsBattlefields BattlefieldsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
         public LogicOptions LogicOptions { get; set; } = LogicOptions.Friendly;
-        public bool ShuffleEnemiesPosition { get; set; } = false;
-        public EnemiesScaling EnemiesScaling { get; set; } = EnemiesScaling.Normal;
-        public EnemiesScalingSpread EnemiesScalingSpread { get; set; } = EnemiesScalingSpread.None;
-        public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
-        public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;
+        public bool ShuffleEnemiesPosition { get; set; } = true;
+        public EnemiesScaling EnemiesScaling { get; set; } = EnemiesScaling.Half;
+        public EnemiesScalingSpread EnemiesScalingSpread { get; set; } = EnemiesScalingSpread.Quarter;
+        public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Triple;
+        public BattlesQty BattlesQuantity { get; set; } = BattlesQty.RandomLow;
         public bool ShuffleBattlefieldRewards { get; set; } = false;
         public bool RandomStartingWeapon { get; set; } = false;
         public bool ProgressiveGear { get; set; } = false;
-        public bool TweakedDungeons { get; set; } = false;
+        public bool TweakedDungeons { get; set; } = true;
 
         public string GenerateFlagString()
         {
