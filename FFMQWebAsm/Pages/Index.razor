@@ -21,7 +21,7 @@
 </style>
 
 <div class="center-logo"><img height=100 src="@titleLetters[0]" /><img height=100 src="@titleLetters[1]" /><img height=100 src="@titleLetters[2]" /><img height=100 src="@titleLetters[3]" /><img height=100 src="@titleLetters[4]" /><img height=100 src="@titleLetters[5]" /><img height=100 src="logo/mqlogo_.png" /><img height=100 src="@titleLetters[6]" /><img height=100 src="@titleLetters[7]" /><img height=100 src="@titleLetters[8]" /><img height=100 src="@titleLetters[9]" /><img height=100 src="@titleLetters[10]" /></div>
-<h1 class="text-secondary text-center" style="font-size: 1em">A FFMQ Randomizer<br />@("v" + @FFMQLib.Metadata.Version)</h1>
+<h1 class="text-secondary text-center" style="font-size: 1em">A FFMQ Randomizer<br />@("v" + @FFMQLib.Metadata.VersionNumber + @GetBetaStatus())</h1>
 
 
 <div><br /><br /><br /></div>
@@ -307,6 +307,20 @@
         }
     }
 
+    private string GetBetaStatus()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+
+        string fullUrl = uri.OriginalString;
+        int index = fullUrl.IndexOf("dev");
+        if (index >= 0)
+        {
+            return "-beta";
+        }
+
+        return "";
+    }
+
     private async Task OnGenerate()
     {
         isGenerating = true;
@@ -334,6 +348,11 @@
         {
             romMessage = "Invalid ROM file.";
             return;
+        }
+
+        if (GetBetaStatus() != "")
+        {
+            newRom.beta = true;
         }
 
         try

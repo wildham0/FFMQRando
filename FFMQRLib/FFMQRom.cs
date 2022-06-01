@@ -25,7 +25,9 @@ namespace FFMQLib
 		public Battlefields Battlefields;
 		public Overworld Overworld;
 		public GameMaps GameMaps;
+		public MapSprites MapSpriteSets;
 		private byte[] originalData;
+		public bool beta = false;
 
 		public override bool Validate()
 		{
@@ -137,6 +139,7 @@ namespace FFMQLib
 			Battlefields = new(this);
 			MapChanges = new(this);
 			Overworld = new(this);
+			MapSpriteSets = new(this);
 			TitleScreen titleScreen = new(this);
 
 			ExpandRom();
@@ -190,6 +193,7 @@ namespace FFMQLib
 			Battlefields.Write(this);
 			Overworld.Write(this);
 			MapObjects.WriteAll(this);
+			MapSpriteSets.Write(this);
 			titleScreen.Write(this, Metadata.VersionNumber, seed, flags);
 
 			this.Header = Array.Empty<byte>();

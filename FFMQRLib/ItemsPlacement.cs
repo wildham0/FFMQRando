@@ -156,48 +156,42 @@ namespace FFMQLib
 					var itemToPlace = itemsList.First();
 					var itemIndex = 0;
 
-					if (itemToPlace == Items.MagicMirror)
-					{ 
-						placedMirror = true;
-					}
-					else if (itemToPlace == Items.Mask)
-                    {
-						placedMask = true;
-					}
-
-					if (flags.LogicOptions == LogicOptions.Friendly && !placedMirror && validLocations.Where(x => x.Location == Locations.IcePyramid).Any())
+					if (flags.LogicOptions == LogicOptions.Friendly)
 					{
-						validLocations = validLocations.Where(x => x.Location != Locations.IcePyramid).ToList();
-						
-						if (!validLocations.Any())
+						if ((!placedMirror && validLocations.Where(x => x.Location == Locations.IcePyramid).Any()) || (itemToPlace == Items.MagicMirror))
 						{
-							Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
-							counter++;
-							badPlacement = true;
-							break;
+							validLocations = validLocations.Where(x => x.Location != Locations.IcePyramid).ToList();
+
+							if (!validLocations.Any())
+							{
+								Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
+								counter++;
+								badPlacement = true;
+								break;
+							}
+
+							itemIndex = itemsList.FindIndex(x => x == Items.MagicMirror);
+							itemToPlace = Items.MagicMirror;
+							placedMirror = true;
 						}
-
-						itemIndex = itemsList.FindIndex(x => x == Items.MagicMirror);
-						itemToPlace = Items.MagicMirror;
-						placedMirror = true;
-					}
-					else if (flags.LogicOptions == LogicOptions.Friendly && !placedMask && validLocations.Where(x => x.Location == Locations.Volcano).Any())
-					{
-						validLocations = validLocations.Where(x => x.Location != Locations.Volcano).ToList();
-
-						if (!validLocations.Any())
+						else if ((!placedMask && validLocations.Where(x => x.Location == Locations.Volcano).Any()) || (itemToPlace == Items.Mask))
 						{
-							Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
-							counter++;
-							badPlacement = true;
-							break;
-						}
+							validLocations = validLocations.Where(x => x.Location != Locations.Volcano).ToList();
 
-						itemIndex = itemsList.FindIndex(x => x == Items.Mask);
-						itemToPlace = Items.Mask;
-						placedMask= true;
+							if (!validLocations.Any())
+							{
+								Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
+								counter++;
+								badPlacement = true;
+								break;
+							}
+
+							itemIndex = itemsList.FindIndex(x => x == Items.Mask);
+							itemToPlace = Items.Mask;
+							placedMask = true;
+						}
 					}
-					
+
 					itemsList.RemoveAt(itemIndex);
 
 					TreasureObject targetLocation = rng.PickFrom(validLocations);
