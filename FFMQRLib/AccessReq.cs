@@ -32,10 +32,10 @@ namespace FFMQLib
 		public static TreasureObject WintryCave10 = new TreasureObject(0x4B, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Bomb });
 		public static TreasureObject WintryCave11 = new TreasureObject(0x4C, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Bomb });
 		public static TreasureObject WintryCave12 = new TreasureObject(0x4D, (int)MapList.WintryCave, Locations.WintryCave, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb });
-		public static TreasureObject MineCliff01 = new TreasureObject(0x79, (int)MapList.VolcanoTop, Locations.Volcano, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
-		public static TreasureObject MineCliff02 = new TreasureObject(0x7A, (int)MapList.VolcanoTop, Locations.Volcano, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
-		public static TreasureObject MineCliff03 = new TreasureObject(0x7B, (int)MapList.VolcanoTop, Locations.Volcano, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
-		public static TreasureObject MineCliff04 = new TreasureObject(0x7C, (int)MapList.VolcanoTop, Locations.Volcano, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
+		public static TreasureObject MineCliff01 = new TreasureObject(0x79, (int)MapList.VolcanoTop, Locations.Mine, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
+		public static TreasureObject MineCliff02 = new TreasureObject(0x7A, (int)MapList.VolcanoTop, Locations.Mine, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
+		public static TreasureObject MineCliff03 = new TreasureObject(0x7B, (int)MapList.VolcanoTop, Locations.Mine, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
+		public static TreasureObject MineCliff04 = new TreasureObject(0x7C, (int)MapList.VolcanoTop, Locations.Mine, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
 		public static TreasureObject VolcanoTop01 = new TreasureObject(0x12, (int)MapList.VolcanoTop, Locations.Volcano, TreasureType.Chest, new List<AccessReqs> { });
 		public static TreasureObject VolcanoTop02 = new TreasureObject(0x82, (int)MapList.VolcanoTop, Locations.Volcano, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject VolcanoTop03 = new TreasureObject(0x83, (int)MapList.VolcanoTop, Locations.Volcano, TreasureType.Box, new List<AccessReqs> { });
@@ -360,6 +360,15 @@ namespace FFMQLib
 				if (flags.LogicOptions == LogicOptions.Friendly)
 				{
 					properties[i].AccessRequirements.AddRange(friendlyAccessReqs.Find(x => x.Item1 == properties[i].Location).Item2);
+					if (properties[i].Location == Locations.MacsShip)
+					{
+						properties[i].AccessRequirements.Add(AccessReqs.CaptainCap);
+					}
+
+					if (properties[i].Location == Locations.Mine)
+					{
+						properties[i].AccessRequirements.Add(AccessReqs.MegaGrenade);
+					}
 				}
 
 				if (flags.ProgressiveGear)

@@ -269,16 +269,22 @@ namespace FFMQLib
 		private const int offsetFFMRando = 0x8EDD;
 		private const int lengthFFMRando = 14;
 		private const int offsetVersion = 0x8EEB;
+		private const int offsetVersionBranch = 0x8F08;
 		private const int lengthVersion = 8;
+		private const int lengthVersionBranch = 2;
 		private const int offsetHash = 0x8F0A;
 		private const int lengthHash = 8;
 
 		private List<Blob> titleSprites;
 
+		private string versionText;
+
 		public TitleScreen(FFMQRom rom)
 		{
 			titleSprites = rom.GetFromBank(titleScreenBank, offsetSprites, lengthSprites * qtySprites).Chunk(lengthSprites);
-			UpdateSprites();
+			versionText = "v" + FFMQLib.Metadata.VersionNumber + (rom.beta ? "b" : "");
+			UpdateSprites(rom.beta);
+			
 			//UpdateText();
 		}
 
@@ -288,7 +294,11 @@ namespace FFMQLib
 			rom.PutInBank(titleScreenBank, offsetSprites, titleSprites.SelectMany(x => x.ToBytes()).ToArray());
 
 			rom.PutInBank(titleScreenBank, offsetFFMRando, Blob.FromHex("9f9fa6aaabb4c1b7c2c0bccdb8c5"));
-			rom.PutInBank(titleScreenBank, offsetVersion, Blob.FromHex(rom.TextToHex("v" + version + "b")));
+
+			versionText = versionText.PadRight(10, ' ');
+
+			rom.PutInBank(titleScreenBank, offsetVersion, Blob.FromHex(rom.TextToHex(versionText.Substring(0,8))));
+			rom.PutInBank(titleScreenBank, offsetVersionBranch, Blob.FromHex(rom.TextToHex(versionText.Substring(8, 2))));
 
 			byte[] hash;
 
@@ -313,12 +323,12 @@ namespace FFMQLib
 
 			return encodedString;
 		}
-		private void UpdateSprites()
+		private void UpdateSprites(bool beta)
 		{
-			List<int> spritesToErase = new() { 20, 21, 22, 41 };
+			List<int> spritesToErase = new() { 20, 21, 22 };
 			List<int> spritesFFMQ = new() { 29, 30 };
 			List<int> spritesRandomizer = new() { 19, 33, 34, 35, 36 };
-			List<int> spritesVersion = new() { 37, 38, 39, 40 };
+			List<int> spritesVersion = new() { 37, 38, 39, 40, 41 };
 			List<int> spritesHash = new() { 42, 43, 44, 45 };
 
 			byte offsetX = 0;
@@ -349,7 +359,7 @@ namespace FFMQLib
 				offsetX += 0x10;
 			}
 
-			offsetX = 0x60;
+			offsetX = (byte)(0x80 - (versionText.Length * 0x04));
 			offsetY = 0xC3;
 
 			foreach (var sprite in spritesVersion)

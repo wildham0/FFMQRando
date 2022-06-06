@@ -662,7 +662,7 @@ namespace FFMQLib
 			int tempChunkAddress = 0;
 			List<byte> referenceChunks = new();
 
-			while (currentposition < _dimensions.Item1 * _dimensions.Item2)
+			while (currentposition < _dimensions.Item1 * _dimensions.Item2 || writeChunkBuffer != false)
 			{
 				if (writeChunkBuffer && !delayChunkWrite)
 				{
@@ -682,6 +682,11 @@ namespace FFMQLib
 					}
 					tempChunkSize = 0;
 					writeChunkBuffer = false;
+
+					if (currentposition >= _dimensions.Item1 * _dimensions.Item2)
+					{
+						continue;
+					}
 				}
 
 				List<int> validPositions;
