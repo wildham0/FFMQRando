@@ -26,6 +26,7 @@ namespace FFMQLib
         public bool RandomStartingWeapon { get; set; } = false;
         public bool ProgressiveGear { get; set; } = false;
         public bool TweakedDungeons { get; set; } = true;
+        public DoomCastleModes DoomCastleMode { get; set; } = DoomCastleModes.Standard;
 
         public string GenerateFlagString()
         {

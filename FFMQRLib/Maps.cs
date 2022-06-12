@@ -398,7 +398,7 @@ namespace FFMQLib
 				_gameMaps[(int)MapList.BackgroundD].ModifyMap(currentX, yPositions[currentYindex], letters[' ']);
 			}
 		}
-		public void LessObnoxiousMaps(Flags flags, MT19337 rng, FFMQRom.ObjectList mapobjects)
+		public void LessObnoxiousMaps(Flags flags, MT19337 rng, FFMQLib.ObjectList mapobjects)
 		{
 			if (!flags.TweakedDungeons)
 			{
@@ -658,12 +658,25 @@ namespace FFMQLib
 			bool writeChunkBuffer = false;
 			bool delayChunkWrite = false;
 			bool writeOrphanChunk = false;
+			bool keepCompressing = true;
 			int tempChunkSize = 1;
 			int tempChunkAddress = 0;
 			List<byte> referenceChunks = new();
 
-			while (currentposition < _dimensions.Item1 * _dimensions.Item2 || writeChunkBuffer != false)
+			//while (currentposition < _dimensions.Item1 * _dimensions.Item2 || writeChunkBuffer != false)
+			while (keepCompressing)
 			{
+				if (currentposition >= ((_dimensions.Item1 * _dimensions.Item2) - 1))
+				{
+					keepCompressing = false;
+					if(tempChunkSize > 0)
+					{
+						writeChunkBuffer = true;
+						writeOrphanChunk = true;
+						delayChunkWrite = false;
+					}
+				}
+
 				if (writeChunkBuffer && !delayChunkWrite)
 				{
 					byte[] newChunk = new byte[tempChunkSize];
@@ -671,7 +684,7 @@ namespace FFMQLib
 
 					referenceChunks.AddRange(_mapUncompressed.GetRange(tempChunkAddress, tempChunkSize).ToList());
 
-					if (ActionsList.Last().ChunkLength > 0 && writeOrphanChunk)
+					if ((ActionsList.Last().ChunkLength > 0 || !keepCompressing) && writeOrphanChunk)
 					{
 						ActionsList.Add(new ZipAction(0, (byte)tempChunkSize, 0));
 						writeOrphanChunk = false;
@@ -682,11 +695,11 @@ namespace FFMQLib
 					}
 					tempChunkSize = 0;
 					writeChunkBuffer = false;
+				}
 
-					if (currentposition >= _dimensions.Item1 * _dimensions.Item2)
-					{
-						continue;
-					}
+				if (!keepCompressing)
+				{
+					break;
 				}
 
 				List<int> validPositions;
@@ -741,7 +754,6 @@ namespace FFMQLib
 
 			ActionsList.Add(new ZipAction(0, 0, 0));
 			List<byte> finalResult = ActionsList.SelectMany(x => x.GetBytes()).ToList();
-			
 			finalResult.InsertRange(0, Blob.FromUShorts(new ushort[] { (ushort)finalResult.Count }).ToBytes());
 			finalResult.AddRange(referenceChunks);
 			finalResult.Add(0x00);
@@ -924,7 +936,7 @@ namespace FFMQLib
 			else
 				return false;
 		}
-		public void ChestLocationDump(FFMQRom.ObjectList mapobjects)
+		public void ChestLocationDump(FFMQLib.ObjectList mapobjects)
 		{
 			var tempmap = _mapUncompressed.GetRange(0, _dimensions.Item1 * _dimensions.Item2).Select(x => ((_tileData[(x & 0x7F)].Byte1 & 0x07) == 0x07) ? 0xFF : 0x00).ToArray();
 			/*

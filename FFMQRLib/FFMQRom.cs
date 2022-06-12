@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "1.0.00";
+		public static string VersionNumber = "1.1.00";
 		public static string Version = VersionNumber + "-beta";
 	}
 	
@@ -141,6 +141,7 @@ namespace FFMQLib
 			Overworld = new(this);
 			MapSpriteSets = new(this);
 			TitleScreen titleScreen = new(this);
+			
 
 			ExpandRom();
 			FastMovement();
@@ -171,7 +172,9 @@ namespace FFMQLib
 			MapObjects.UpdateChests(flags, itemsPlacement);
 
 			itemsPlacement.WriteChests(this);
-			
+
+			DoomCastle doomCastle = new(flags, GameMaps, MapChanges, MapObjects, MapSpriteSets, TalkScripts, this);
+
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
@@ -642,7 +645,7 @@ namespace FFMQLib
 			GameMaps[(int)MapList.SpencerCave].ModifyMap(0x11, 0x28, new List<List<byte>> { new List<byte> { 0x5B }, new List<byte> { 0x5C } });
 
 			// Change map objects
-			MapObjects[0x2C][0x02].RawOverwrite(MapObjects[0x2C][0x04].RawArray()); // Copy box over Phoebe
+			MapObjects[0x2C][0x02].CopyFrom(MapObjects[0x2C][0x04]); // Copy box over Phoebe
 			MapObjects[0x2C].RemoveAt(0x04); // Delete box
 			MapObjects[0x2C][0x03].Sprite = 0x78; // Make Reuben invisible
 
@@ -706,8 +709,8 @@ namespace FFMQLib
 			var spencerObject = new MapObject(0, this);
 			var tristamChestObject = new MapObject(0, this);
 
-			spencerObject.RawOverwrite(MapObjects[0x02C][0x00].RawArray());
-			tristamChestObject.RawOverwrite(MapObjects[0x02C][0x01].RawArray());
+			spencerObject.CopyFrom(MapObjects[0x02C][0x00]);
+			tristamChestObject.CopyFrom(MapObjects[0x02C][0x01]);
 
 			tristamChestObject.X = 0x2E;
 			tristamChestObject.Y = 0x12;
@@ -1122,9 +1125,9 @@ namespace FFMQLib
 
 			/*** Mac's Ship ***/
 			// Put the same chests in pre-cap's mapobject list as post-cap list
-			MapObjects[0x62][0x0E].RawOverwrite(MapObjects[0x64][0x06].RawArray());
-			MapObjects[0x62][0x0F].RawOverwrite(MapObjects[0x64][0x07].RawArray());
-			MapObjects[0x62][0x10].RawOverwrite(MapObjects[0x64][0x08].RawArray());
+			MapObjects[0x62][0x0E].CopyFrom(MapObjects[0x64][0x06]);
+			MapObjects[0x62][0x0F].CopyFrom(MapObjects[0x64][0x07]);
+			MapObjects[0x62][0x10].CopyFrom(MapObjects[0x64][0x08]);
 
 			// Captain Mac on Ship
 			TalkScripts.AddScript((int)TalkScriptsList.CaptainMacOnShip,

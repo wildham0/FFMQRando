@@ -200,6 +200,30 @@
 </Field>
 
 <div><br /></div>
+<h3 id="optionsSection" class="text-secondary">Maps</h3>
+
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Doom Castle</FieldLabel>
+    <Tooltip Text="Change how you reach the Dark King.<br/><br/>Standard: You need to defeat all four bosses and their floors to reach the Dark King.<br/><br/>Boss Rush: Only the bosses are blocking your way in the corridor to the Dark King's room.<br/><br/>Dark King Only: The way to the Dark King is free of any obstacle." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
+    <Select @bind-SelectedValue="@flags.DoomCastleMode">
+        @foreach(var item in Enum.GetValues<FFMQLib.DoomCastleModes>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
+<Field>
+    <Switch TValue="bool" @bind-Checked="@flags.TweakedDungeons">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Tweak Frustrating Dungeons</Text>
+        <Tooltip Text="Make some small changes to a few of the most annoying dungeons.<br/><br/>Ice Pyramid: Add 3 shortcuts on the 1st floor.<br/><br/>Giant Tree: Add shortcuts on the 1st and 4th floors and curtail mushrooms population.<br/><br/>Pazuzu's Tower: Staircases are devoid of enemies (regardless of Enemies Density settings)." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
+</Field>
+
+<div><br /></div>
 <h3 id="optionsSection" class="text-secondary">Misc</h3>
 
 <Field>
@@ -213,14 +237,6 @@
             <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
         }
     </Select>
-</Field>
-<Field>
-    <Switch TValue="bool" @bind-Checked="@flags.TweakedDungeons">
-        <Text TextColor="TextColor.Secondary" class="fw-bold">Tweak Frustrating Dungeons</Text>
-        <Tooltip Text="Make some small changes to a few of the most annoying dungeons.<br/><br/>Ice Pyramid: Add 3 shortcuts on the 1st floor.<br/><br/>Giant Tree: Add shortcuts on the 1st and 4th floors and curtail mushrooms population.<br/><br/>Pazuzu's Tower: Staircases are devoid of enemies (regardless of Enemies Density settings)." Inline Multiline Placement="TooltipPlacement.Right">
-            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-        </Tooltip>
-    </Switch>
 </Field>
 <Field>
     <Switch TValue="bool" @bind-Checked="@flags.ShuffleBattlefieldRewards">

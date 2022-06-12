@@ -63,6 +63,12 @@ namespace FFMQLib
 
             LoadMonsterSprites = (spriteList[5] & 0x01) > 0;
         }
+        public MapSpriteSet(List<byte> palette, List<SpriteAddressor> adressors, bool loadmonsters)
+        {
+            LoadMonsterSprites = loadmonsters;
+            Palette = palette;
+            AdressorList = adressors;
+        }
         public List<byte> GetDataArray()
         {
             List<byte> positionList = new() { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
