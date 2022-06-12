@@ -669,7 +669,7 @@ namespace FFMQLib
 				if (currentposition >= ((_dimensions.Item1 * _dimensions.Item2) - 1))
 				{
 					keepCompressing = false;
-					if(tempChunkSize > 0)
+					if(tempChunkSize > 0 && !writeChunkBuffer)
 					{
 						writeChunkBuffer = true;
 						writeOrphanChunk = true;
@@ -1027,8 +1027,21 @@ namespace FFMQLib
 		{
 			_mapchanges[index] = mapchange;
 		}
+		private void UpdatePointers()
+		{
+			_pointers.Clear();
+			ushort currentpointer = 0x0000;
+
+			foreach (var change in _mapchanges)
+			{
+				_pointers.Add(new byte[] { (byte)(currentpointer % 0x100), (byte)(currentpointer / 0x100) });
+				currentpointer += (ushort)change.Length;
+			}
+		}
 		public void Write(FFMQRom rom)
 		{
+			UpdatePointers();
+
 			rom.PutInBank(RomOffsets.MapChangesBankNew, RomOffsets.MapChangesPointersNew, _pointers.SelectMany(x => x.ToBytes()).ToArray());
 			rom.PutInBank(RomOffsets.MapChangesBankNew, RomOffsets.MapChangesEntriesNew, _mapchanges.SelectMany(x => x.ToBytes()).ToArray());
 
