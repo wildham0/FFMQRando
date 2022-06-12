@@ -21,6 +21,8 @@ namespace FFMQLib
         OneAndHalf,
         [Description("2x")]
         Double,
+        [Description("2.5x")]
+        DoubleHalf,
         [Description("3x")]
         Triple,
         [Description("4x")]
@@ -50,6 +52,10 @@ namespace FFMQLib
                 case LevelingCurve.Double:
                     xpconst1 = 0x1C;
                     xpconst2 = 0x06;
+                    break;
+                case LevelingCurve.DoubleHalf:
+                    xpconst1 = 0x18;
+                    xpconst2 = 0x05;
                     break;
                 case LevelingCurve.Triple:
                     xpconst1 = 0x14;
