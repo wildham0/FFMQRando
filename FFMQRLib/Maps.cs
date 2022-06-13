@@ -684,7 +684,7 @@ namespace FFMQLib
 
 					referenceChunks.AddRange(_mapUncompressed.GetRange(tempChunkAddress, tempChunkSize).ToList());
 
-					if ((ActionsList.Last().ChunkLength > 0 || !keepCompressing) && writeOrphanChunk)
+					if (writeOrphanChunk)
 					{
 						ActionsList.Add(new ZipAction(0, (byte)tempChunkSize, 0));
 						writeOrphanChunk = false;
