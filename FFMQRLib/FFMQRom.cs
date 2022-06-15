@@ -173,7 +173,7 @@ namespace FFMQLib
 
 			itemsPlacement.WriteChests(this);
 
-			DoomCastle doomCastle = new(flags, GameMaps, MapChanges, MapObjects, MapSpriteSets, TalkScripts, this);
+			SetDoomCastleMode(flags);
 
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);

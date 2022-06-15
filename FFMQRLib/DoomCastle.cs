@@ -16,21 +16,22 @@ namespace FFMQLib
 		[Description("Dark King Only")]
 		DarkKingOnly,
 	}
-	public class DoomCastle
+	public partial class FFMQRom : SnesRom
 	{
-		private int DoomCastleObjectsId = 0x65;
-
-		public DoomCastle(Flags flags, GameMaps gamemaps, MapChanges mapchanges, ObjectList mapobjects, MapSprites mapsrites, GameScriptManager talkscripts, FFMQRom rom)
+		public void SetDoomCastleMode(Flags flags)
 		{
+			int DoomCastleObjectsId = 0x65;
+
 			if (flags.DoomCastleMode == DoomCastleModes.Standard)
 			{
 				return;
 			}
 
 			byte mapsritesindex = 0x01;
+
 			if (flags.DoomCastleMode == DoomCastleModes.DarkKingOnly)
 			{
-				gamemaps[(int)MapList.FocusTower].ModifyMap(0x39, 0x00, new List<List<byte>> {
+				GameMaps[(int)MapList.FocusTower].ModifyMap(0x39, 0x00, new List<List<byte>> {
 					new List<byte> {  0x84, 0x91, 0x91, 0x91, 0x91 },
 					new List<byte> {  0x84, 0x91, 0x91, 0x91, 0x91 },
 					new List<byte> {  0xA1, 0x91, 0x91, 0x91, 0xA1 },
@@ -57,30 +58,30 @@ namespace FFMQLib
 					new List<byte> {  0x84, 0x91, 0x91, 0x91, 0x91 },
 				});
 
-				mapobjects[DoomCastleObjectsId].Add(new MapObject(mapobjects[0x67][0x0A]));
-				mapobjects[DoomCastleObjectsId].Add(new MapObject(mapobjects[0x67][0x0B]));
-				mapobjects[DoomCastleObjectsId].Add(new MapObject(mapobjects[0x67][0x0C]));
-				mapobjects[DoomCastleObjectsId].Add(new MapObject(mapobjects[0x67][0x0D]));
+				MapObjects[DoomCastleObjectsId].Add(new MapObject(MapObjects[0x67][0x0A]));
+				MapObjects[DoomCastleObjectsId].Add(new MapObject(MapObjects[0x67][0x0B]));
+				MapObjects[DoomCastleObjectsId].Add(new MapObject(MapObjects[0x67][0x0C]));
+				MapObjects[DoomCastleObjectsId].Add(new MapObject(MapObjects[0x67][0x0D]));
 
-				mapobjects[DoomCastleObjectsId][0x00].Coord = (0x39, 0x06);
-				mapobjects[DoomCastleObjectsId][0x01].Coord = (0x39, 0x07);
-				mapobjects[DoomCastleObjectsId][0x02].Coord = (0x3D, 0x0E);
-				mapobjects[DoomCastleObjectsId][0x03].Coord = (0x3D, 0x0F);
+				MapObjects[DoomCastleObjectsId][0x00].Coord = (0x39, 0x06);
+				MapObjects[DoomCastleObjectsId][0x01].Coord = (0x39, 0x07);
+				MapObjects[DoomCastleObjectsId][0x02].Coord = (0x3D, 0x0E);
+				MapObjects[DoomCastleObjectsId][0x03].Coord = (0x3D, 0x0F);
 
-				mapobjects[DoomCastleObjectsId].Add(new MapObject(mapobjects[0x68][0x13]));
-				mapobjects[DoomCastleObjectsId].Add(new MapObject(mapobjects[0x68][0x14]));
+				MapObjects[DoomCastleObjectsId].Add(new MapObject(MapObjects[0x68][0x13]));
+				MapObjects[DoomCastleObjectsId].Add(new MapObject(MapObjects[0x68][0x14]));
 
-				mapobjects[DoomCastleObjectsId][0x04].Coord = (0x3D, 0x00);
-				mapobjects[DoomCastleObjectsId][0x05].Coord = (0x3D, 0x01);
+				MapObjects[DoomCastleObjectsId][0x04].Coord = (0x3D, 0x00);
+				MapObjects[DoomCastleObjectsId][0x05].Coord = (0x3D, 0x01);
 
-				for (int i = 0; i < mapobjects[DoomCastleObjectsId].Count; i++)
+				for (int i = 0; i < MapObjects[DoomCastleObjectsId].Count; i++)
 				{
-					mapobjects[DoomCastleObjectsId][i].Layer = 0x02;
+					MapObjects[DoomCastleObjectsId][i].Layer = 0x02;
 				}
 			}
 			else if(flags.DoomCastleMode == DoomCastleModes.BossRush)
 			{
-				gamemaps[(int)MapList.FocusTower].ModifyMap(0x39, 0x00, new List<List<byte>> {
+				GameMaps[(int)MapList.FocusTower].ModifyMap(0x39, 0x00, new List<List<byte>> {
 					new List<byte> {  0x84, 0x91, 0x91, 0x91, 0x91 },
 					new List<byte> {  0x84, 0x91, 0x91, 0x91, 0x91 },
 					new List<byte> {  0xA1, 0xA1, 0xA1, 0x91, 0x91 },
@@ -127,16 +128,16 @@ namespace FFMQLib
 				{
 					for (int i = 0; i < 4; i++)
 					{
-						mapobjects[DoomCastleObjectsId].Add(new MapObject(mapobjects[boss.map][0x00 + i]));
-						mapobjects[DoomCastleObjectsId][boss.id * 4 + i].Coord = ((byte)(boss.coords.x + coordOffset[i].x), (byte)(boss.coords.y + coordOffset[i].y));
-						mapobjects[DoomCastleObjectsId][boss.id * 4 + i].Sprite = boss.sprite;
-						mapobjects[DoomCastleObjectsId][boss.id * 4 + i].Palette = boss.palette;
+						MapObjects[DoomCastleObjectsId].Add(new MapObject(MapObjects[boss.map][0x00 + i]));
+						MapObjects[DoomCastleObjectsId][boss.id * 4 + i].Coord = ((byte)(boss.coords.x + coordOffset[i].x), (byte)(boss.coords.y + coordOffset[i].y));
+						MapObjects[DoomCastleObjectsId][boss.id * 4 + i].Sprite = boss.sprite;
+						MapObjects[DoomCastleObjectsId][boss.id * 4 + i].Palette = boss.palette;
 					}
 				}
 
-				mapsritesindex = (byte)mapsrites.MapSpriteSets.Count;
+				mapsritesindex = (byte)MapSpriteSets.MapSpriteSets.Count;
 
-				mapsrites.MapSpriteSets.Add(new MapSpriteSet(
+				MapSpriteSets.MapSpriteSets.Add(new MapSpriteSet(
 					new List<byte> { 0x52, 0x50, 0x56, 0x54, 0x1f, 0x1e },
 					new List<SpriteAddressor> {
 						new SpriteAddressor(4, 0x13, SpriteSize.Tiles16),
@@ -148,7 +149,7 @@ namespace FFMQLib
 					true
 					));
 
-				talkscripts.AddScript(0x01,
+				TalkScripts.AddScript(0x01,
 					new ScriptBuilder(new List<string> {
 						"04",
 						"05E4C10E",
@@ -158,7 +159,7 @@ namespace FFMQLib
 						"00"
 						}));
 
-				talkscripts.AddScript(0x77,
+				TalkScripts.AddScript(0x77,
 					new ScriptBuilder(new List<string> {
 						"04",
 						"05E4C513",
@@ -168,7 +169,7 @@ namespace FFMQLib
 						"00"
 					}));
 
-				talkscripts.AddScript(0x78,
+				TalkScripts.AddScript(0x78,
 					new ScriptBuilder(new List<string> {
 						"04",
 						"05E4C906",
@@ -178,7 +179,7 @@ namespace FFMQLib
 						"00"
 					}));
 
-				talkscripts.AddScript(0x79,
+				TalkScripts.AddScript(0x79,
 					new ScriptBuilder(new List<string> {
 						"04",
 						"05E4CD08",
@@ -189,72 +190,73 @@ namespace FFMQLib
 					}));
 
 				// Change script to mae sure the right boss tiles are removed when defeated
-				rom.PutInBank(0x12, 0xC000, Blob.FromHex("2a01214046414642464346ffff00"));
-				rom.PutInBank(0x12, 0xC010, Blob.FromHex("2a01214446454646464746ffff00"));
-				rom.PutInBank(0x12, 0xC020, Blob.FromHex("2a0121484649464A464B46ffff00"));
-				rom.PutInBank(0x12, 0xC030, Blob.FromHex("2a01214C464D464E464F46ffff00"));
+				PutInBank(0x12, 0xC000, Blob.FromHex("2a01214046414642464346ffff00"));
+				PutInBank(0x12, 0xC010, Blob.FromHex("2a01214446454646464746ffff00"));
+				PutInBank(0x12, 0xC020, Blob.FromHex("2a0121484649464A464B46ffff00"));
+				PutInBank(0x12, 0xC030, Blob.FromHex("2a01214C464D464E464F46ffff00"));
 
 				// Modify the boss explosion animation to add a check for the boss rush room, and select the correction position accordingly
-				rom.PutInBank(0x01, 0xCFB2, Blob.FromHex("22009511eaeaeaeaeaea"));
-				rom.PutInBank(0x11, 0x9500, Blob.FromHex("c916f00cc92af008c940f004c965f0016BADE819AABD8B1A4A4A0A0AAAA9006B"));
+				PutInBank(0x01, 0xCFB2, Blob.FromHex("22009511eaeaeaeaeaea"));
+				PutInBank(0x11, 0x9500, Blob.FromHex("c916f00cc92af008c940f004c965f0016BADE819AABD8B1A4A4A0A0AAAA9006B"));
 
 				// Move boxes
-				mapobjects[DoomCastleObjectsId].Add(new MapObject(mapobjects[0x67][0x0A]));
-				mapobjects[DoomCastleObjectsId].Add(new MapObject(mapobjects[0x67][0x0B]));
-				mapobjects[DoomCastleObjectsId].Add(new MapObject(mapobjects[0x67][0x0C]));
-				mapobjects[DoomCastleObjectsId].Add(new MapObject(mapobjects[0x67][0x0D]));
-				mapobjects[DoomCastleObjectsId].Add(new MapObject(mapobjects[0x68][0x13]));
-				mapobjects[DoomCastleObjectsId].Add(new MapObject(mapobjects[0x68][0x14]));
+				MapObjects[DoomCastleObjectsId].Add(new MapObject(MapObjects[0x67][0x0A]));
+				MapObjects[DoomCastleObjectsId].Add(new MapObject(MapObjects[0x67][0x0B]));
+				MapObjects[DoomCastleObjectsId].Add(new MapObject(MapObjects[0x67][0x0C]));
+				MapObjects[DoomCastleObjectsId].Add(new MapObject(MapObjects[0x67][0x0D]));
+				MapObjects[DoomCastleObjectsId].Add(new MapObject(MapObjects[0x68][0x13]));
+				MapObjects[DoomCastleObjectsId].Add(new MapObject(MapObjects[0x68][0x14]));
 
-				mapobjects[DoomCastleObjectsId][0x10].Coord = (0x3D, 0x18);
-				mapobjects[DoomCastleObjectsId][0x11].Coord = (0x3D, 0x19);
-				
-				mapobjects[DoomCastleObjectsId][0x12].Coord = (0x3D, 0x0C);
-				mapobjects[DoomCastleObjectsId][0x13].Coord = (0x39, 0x06);
+				MapObjects[DoomCastleObjectsId][0x10].Coord = (0x3D, 0x18);
+				MapObjects[DoomCastleObjectsId][0x11].Coord = (0x3D, 0x19);
 
-				mapobjects[DoomCastleObjectsId][0x14].Coord = (0x39, 0x00);
-				mapobjects[DoomCastleObjectsId][0x15].Coord = (0x39, 0x01);
+				MapObjects[DoomCastleObjectsId][0x12].Coord = (0x3D, 0x0C);
+				MapObjects[DoomCastleObjectsId][0x13].Coord = (0x39, 0x06);
 
-				for (int i = 0; i < mapobjects[DoomCastleObjectsId].Count; i++)
+				MapObjects[DoomCastleObjectsId][0x14].Coord = (0x39, 0x00);
+				MapObjects[DoomCastleObjectsId][0x15].Coord = (0x39, 0x01);
+
+				for (int i = 0; i < MapObjects[DoomCastleObjectsId].Count; i++)
 				{
-					mapobjects[DoomCastleObjectsId][i].Layer = 0x02;
+					MapObjects[DoomCastleObjectsId][i].Layer = 0x02;
 				}
 
 			}
 
-			mapobjects.ModifyAreaAttribute(DoomCastleObjectsId, 2, mapsritesindex);
+			MapObjects.ModifyAreaAttribute(DoomCastleObjectsId, 2, mapsritesindex);
 
 			// Kill blocking stones map changes
-			mapchanges.Replace(0x0F, Blob.FromHex("0000110F"));
-			mapchanges.Replace(0x10, Blob.FromHex("0000110F"));
-			mapchanges.Replace(0x11, Blob.FromHex("0000110F"));
+			MapChanges.Replace(0x0F, Blob.FromHex("0000110F"));
+			MapChanges.Replace(0x10, Blob.FromHex("0000110F"));
+			MapChanges.Replace(0x11, Blob.FromHex("0000110F"));
 
 			// Add an extra space in focus tower for extra boxes
-			gamemaps[(int)MapList.FocusTower].ModifyMap(0x0E, 0x1C, new List<List<byte>> {
+			GameMaps[(int)MapList.FocusTower].ModifyMap(0x0E, 0x1C, new List<List<byte>> {
 					new List<byte> { 0x04, 0x11, 0x11, 0x11, 0x11 },
 				});
 
 			// Move boxes
-			mapobjects[0x09].Add(new MapObject(mapobjects[0x66][0x0A]));
-			mapobjects[0x09].Add(new MapObject(mapobjects[0x66][0x0B]));
-			mapobjects[0x09].Add(new MapObject(mapobjects[0x66][0x0C]));
-			mapobjects[0x09].Add(new MapObject(mapobjects[0x66][0x0D]));
+			MapObjects[0x09].Add(new MapObject(MapObjects[0x66][0x0A]));
+			MapObjects[0x09].Add(new MapObject(MapObjects[0x66][0x0B]));
+			MapObjects[0x09].Add(new MapObject(MapObjects[0x66][0x0C]));
+			MapObjects[0x09].Add(new MapObject(MapObjects[0x66][0x0D]));
 
-			mapobjects[0x09][0x0B].Coord = (0x0E, 0x1B);
-			mapobjects[0x09][0x0C].Coord = (0x0E, 0x1C);
-			mapobjects[0x09][0x0D].Coord = (0x12, 0x1B);
-			mapobjects[0x09][0x0E].Coord = (0x12, 0x1C);
+			MapObjects[0x09][0x0B].Coord = (0x0E, 0x1B);
+			MapObjects[0x09][0x0C].Coord = (0x0E, 0x1C);
+			MapObjects[0x09][0x0D].Coord = (0x12, 0x1B);
+			MapObjects[0x09][0x0E].Coord = (0x12, 0x1C);
 
 			for (int i = 0x0B; i < 0x0F; i++)
 			{
-				mapobjects[0x09][i].Layer = 0x02;
+				MapObjects[0x09][i].Layer = 0x02;
 			}
 
 			// Remove Rex from the sand area
 			for (int i = 0x00; i < 0x04; i++)
 			{
-				mapobjects[0x07][i].Gameflag = 0xFE;
+				MapObjects[0x07][i].Gameflag = 0xFE;
 			}
 		}
 	}
 }
+			
