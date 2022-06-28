@@ -193,6 +193,18 @@ namespace FFMQLib
 			}
 			return byteText.Where(x => x != 0x00).ToArray();
 		}
+		public string BytesToText(byte[] byteSeries)
+		{
+			string text = "";
+			
+			foreach (var byteInSeries in byteSeries)
+			{
+				int letterIndex = TextDTE.FindIndex(x => x.Item2 == byteInSeries);
+				text += (letterIndex >= 0) ? (TextDTE[letterIndex].Item1) : ($"[{byteInSeries:X2}]");
+			}
+
+			return text;
+		}
 	}
 
 	public class Credits

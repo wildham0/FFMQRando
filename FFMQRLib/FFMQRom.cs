@@ -178,6 +178,7 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
+			ScriptsInterpreter test = new(0x03, 0xBC21, 0x3FF, this);
 
 			sillyrng.Next();
 			RandomBenjaminPalette(preferences, sillyrng);
