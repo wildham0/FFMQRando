@@ -132,6 +132,7 @@ namespace FFMQLib
 			rom.PutInBank(NewAreaAttributesBank, NewAreaAttributesPointers, _attributepointers.SelectMany(x => x.ToBytes()).ToArray());
 
 			rom.PutInBank(0x03, 0x82D3, Blob.FromHex("00B011"));
+			rom.PutInBank(0x03, 0x82E0, Blob.FromHex("07B111"));
 			rom.PutInBank(0x03, 0x8317, Blob.FromHex("00B011"));
 			rom.PutInBank(0x03, 0x8353, Blob.FromHex("00B011"));
 			rom.PutInBank(0x0B, 0x81B0, Blob.FromHex("00B011"));
