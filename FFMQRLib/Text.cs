@@ -228,10 +228,12 @@ namespace FFMQLib
 				"Septimus\n" +
 				"rabite\n" +
 				"DarkmoonEX\n" +
+				"Chanigan\n" +
 				"abyssonym\n" +
 				"The FFR Dev Team\n" +
+				"The FFR Community\n" +
 				"&\n" +
-				"The FFR Community\n\n" +
+				"The FFMQR Community\n\n" +
 				"Original FFMQ Credits\n\n"
 				);
 		}
