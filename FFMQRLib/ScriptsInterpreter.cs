@@ -461,27 +461,39 @@ namespace FFMQLib
             int baseAddress = orgAddress;
             int currentbyte = 0;
 
-            code.RemoveRange(0, orgIndex + 1);
+            //code.RemoveRange(0, orgIndex + 1);
 
-            foreach (var line in code)
+            List<ScriptCode> codeList = ScriptCodesList.ScriptCodes();
+            List<string> sizeIndices = new() { "z", "b", "w", "s", "d", "b", "w", "s", "d" };
+
+
+
+            for(int currentLine = orgIndex + 1; currentLine < code.Count; currentLine++)
             {
-                if (line[0] != ' ')
+                
+
+                if (code[currentLine][0] != ' ')
                 {
-                    Labels.Add((line.Substring(0, line.Length - 1), baseAddress + currentbyte));
+                    Labels.Add((code[currentLine].Substring(0, code[currentLine].Length - 1), baseAddress + currentbyte));
                 }
                 else
                 {
-                    var splitLine = line.Substring(2).Split(' ');
+                    List<ScriptCode> validCodeList = codeList;
 
-                    foreach (var segment in splitLine)
+                    var splitLine = code[currentLine].Substring(2).Split(' ');
+
+                    int currentStep = 0;
+                    int argCount = 0;
+
+                    for(int currentSegment = 0; currentSegment < splitLine.Length; currentSegment++)
                     {
-                        string finalSegment = segment;
+                        string workingSegment = splitLine[currentSegment];
                         
-                        if (segment[0] == '[' || segment[0] == '<')
+                        if (workingSegment[0] == '[' || workingSegment[0] == '<')
                         {
-                            char openBracket = segment[0];
-                            char closeBracket = segment[segment.Length - 1];
-                            string middleValue = segment.Substring(1, segment.Length - 2);
+                            char openBracket = workingSegment[0];
+                            char closeBracket = workingSegment[workingSegment.Length - 1];
+                            string middleValue = workingSegment.Substring(1, workingSegment.Length - 2);
 
                             int labelIndex = Labels.FindIndex(x => x.Item1 == middleValue);
 
@@ -491,14 +503,34 @@ namespace FFMQLib
                             }
                             else
                             {
-                                finalSegment = openBracket + $"{Labels[labelIndex].Item2:X2}" + closeBracket;
+                                workingSegment = openBracket + $"{Labels[labelIndex].Item2:X2}" + closeBracket;
                             }
-
-
                         }
 
+                        List<ScriptCode> tempCodeList = validCodeList.Where(x => (x.Command.Split(' ').Length > currentStep) &&
+                            (x.Command.Split(' ')[currentStep] == workingSegment)).ToList();
+
+                        if (!tempCodeList.Any())
+                        {
+                            workingSegment = "arg" + argCount;
+                            argCount++;
+                            tempCodeList = validCodeList.Where(x => (x.Command.Split(' ').Length > currentStep) && (x.Command.Split(' ')[currentStep] == workingSegment)).ToList();
+
+                            if (!tempCodeList.Any())
+                            {
+                                throw new Exception("Invalid code: line " + currentLine);
+                            }
+                        }
                     }
 
+                    if (validCodeList.Count == 1)
+                    {
+
+                    }
+                    else
+                    {
+                        throw new Exception("Invalid code: line " + currentLine);
+                    }
 
                 }
 
