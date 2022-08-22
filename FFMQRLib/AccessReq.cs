@@ -53,7 +53,7 @@ namespace FFMQLib
 		public static TreasureObject GiantTree02 = new TreasureObject(0xA9, (int)MapList.GiantTreeA, Locations.GiantTree, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject GiantTree03 = new TreasureObject(0xAA, (int)MapList.GiantTreeA, Locations.GiantTree, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject GiantTree04 = new TreasureObject(0xAB, (int)MapList.GiantTreeA, Locations.GiantTree, TreasureType.Box, new List<AccessReqs> { });
-		public static TreasureObject GiantTree05 = new TreasureObject(0x16, (int)MapList.GiantTreeA, Locations.GiantTree, TreasureType.Chest, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Axe, AccessReqs.Sword });
+		public static TreasureObject GiantTree05 = new TreasureObject(0x16, (int)MapList.GiantTreeA, Locations.GiantTree, TreasureType.Chest, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Axe, AccessReqs.Sword, AccessReqs.SandCoin, AccessReqs.RiverCoin }); // Prevent Gidrah's chest from getting Sand/River coins
 		public static TreasureObject GiantTree06 = new TreasureObject(0xAC, (int)MapList.GiantTreeA, Locations.GiantTree, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw });
 		public static TreasureObject GiantTree07 = new TreasureObject(0xAD, (int)MapList.GiantTreeA, Locations.GiantTree, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw });
 		public static TreasureObject GiantTree08 = new TreasureObject(0xAE, (int)MapList.GiantTreeA, Locations.GiantTree, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Sword });
@@ -75,7 +75,7 @@ namespace FFMQLib
 		public static TreasureObject GiantTree24 = new TreasureObject(0xBE, (int)MapList.GiantTreeB, Locations.GiantTree, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Axe, AccessReqs.Sword });
 		public static TreasureObject GiantTree25 = new TreasureObject(0xBF, (int)MapList.GiantTreeB, Locations.GiantTree, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Axe, AccessReqs.Sword });
 		public static TreasureObject GiantTree26 = new TreasureObject(0xC0, (int)MapList.GiantTreeB, Locations.GiantTree, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Axe, AccessReqs.Sword });
-		public static TreasureObject MountGale01 = new TreasureObject(0x17, (int)MapList.MountGale, Locations.MountGale, TreasureType.Chest, new List<AccessReqs> { AccessReqs.DragonClaw });
+		public static TreasureObject MountGale01 = new TreasureObject(0x17, (int)MapList.MountGale, Locations.MountGale, TreasureType.Chest, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.SandCoin, AccessReqs.RiverCoin }); // Prevent Dulahan's chest from getting Sand/River coins
 		public static TreasureObject MountGale02 = new TreasureObject(0xC3, (int)MapList.MountGale, Locations.MountGale, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw });
 		public static TreasureObject MountGale03 = new TreasureObject(0xC4, (int)MapList.MountGale, Locations.MountGale, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject MacShip01 = new TreasureObject(0xD9, (int)MapList.MacShipDeck, Locations.MacsShip, TreasureType.Box, new List<AccessReqs> { });
@@ -186,7 +186,7 @@ namespace FFMQLib
 		public static TreasureObject PazuzuTower08 = new TreasureObject(0xD5, (int)MapList.PazuzuTowerA, Locations.PazuzusTower, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw });
 		public static TreasureObject PazuzuTower09 = new TreasureObject(0xD6, (int)MapList.PazuzuTowerA, Locations.PazuzusTower, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw });
 		public static TreasureObject PazuzuTower10 = new TreasureObject(0xD7, (int)MapList.PazuzuTowerA, Locations.PazuzusTower, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw });
-		public static TreasureObject PazuzuTower11 = new TreasureObject(0x1A, (int)MapList.PazuzuTowerB, Locations.PazuzusTower, TreasureType.Chest, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Bomb });
+		public static TreasureObject PazuzuTower11 = new TreasureObject(0x1A, (int)MapList.PazuzuTowerB, Locations.PazuzusTower, TreasureType.Chest, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Bomb, AccessReqs.SandCoin, AccessReqs.RiverCoin }); // Prevent Pazuzu's chest from getting Sand/River coins
 		public static TreasureObject PazuzuTower12 = new TreasureObject(0xCA, (int)MapList.PazuzuTowerB, Locations.PazuzusTower, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Bomb });
 		public static TreasureObject PazuzuTower13 = new TreasureObject(0xCB, (int)MapList.PazuzuTowerB, Locations.PazuzusTower, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Bomb });
 		public static TreasureObject PazuzuTower14 = new TreasureObject(0xCC, (int)MapList.PazuzuTowerB, Locations.PazuzusTower, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Bomb });
