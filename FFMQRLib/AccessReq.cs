@@ -186,7 +186,7 @@ namespace FFMQLib
 		public static TreasureObject PazuzuTower08 = new TreasureObject(0xD5, (int)MapList.PazuzuTowerA, Locations.PazuzusTower, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw });
 		public static TreasureObject PazuzuTower09 = new TreasureObject(0xD6, (int)MapList.PazuzuTowerA, Locations.PazuzusTower, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw });
 		public static TreasureObject PazuzuTower10 = new TreasureObject(0xD7, (int)MapList.PazuzuTowerA, Locations.PazuzusTower, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw });
-		public static TreasureObject PazuzuTower11 = new TreasureObject(0x1A, (int)MapList.PazuzuTowerB, Locations.PazuzusTower, TreasureType.Chest, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Bomb, AccessReqs.SandCoin, AccessReqs.RiverCoin }); // Prevent Pazuzu's chest from getting Sand/River coins
+		public static TreasureObject PazuzuTower11 = new TreasureObject(0x1A, (int)MapList.PazuzuTowerB, Locations.PazuzusTower, TreasureType.Chest, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Bomb, AccessReqs.Axe, AccessReqs.SandCoin, AccessReqs.RiverCoin }); // Prevent Pazuzu's chest from getting Sand/River coins
 		public static TreasureObject PazuzuTower12 = new TreasureObject(0xCA, (int)MapList.PazuzuTowerB, Locations.PazuzusTower, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Bomb });
 		public static TreasureObject PazuzuTower13 = new TreasureObject(0xCB, (int)MapList.PazuzuTowerB, Locations.PazuzusTower, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Bomb });
 		public static TreasureObject PazuzuTower14 = new TreasureObject(0xCC, (int)MapList.PazuzuTowerB, Locations.PazuzusTower, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Bomb });
@@ -205,7 +205,7 @@ namespace FFMQLib
 		public static TreasureObject Houses06 = new TreasureObject(0xC7, (int)MapList.HouseInterior, Locations.Windia, TreasureType.Box, new List<AccessReqs> { }); // Windia Inn
 		public static TreasureObject Houses07 = new TreasureObject(0xC8, (int)MapList.HouseInterior, Locations.Windia, TreasureType.Box, new List<AccessReqs> { }); // Windia 
 		public static TreasureObject Houses08 = new TreasureObject(0xC9, (int)MapList.HouseInterior, Locations.Windia, TreasureType.Box, new List<AccessReqs> { }); // Windia
-		public static TreasureObject Caves01 = new TreasureObject(0x0F, (int)MapList.Caves, Locations.SpencersPlace, TreasureType.Chest, new List<AccessReqs> { AccessReqs.MegaGrenade, AccessReqs.ThunderRock, AccessReqs.SunCoin, AccessReqs.LibraCrest });
+		public static TreasureObject Caves01 = new TreasureObject(0x0F, (int)MapList.Caves, Locations.SpencersPlace, TreasureType.Chest, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.MegaGrenade, AccessReqs.ThunderRock, AccessReqs.SunCoin, AccessReqs.LibraCrest });
 		//public static TreasureObject Caves02 = new TreasureObject(0x34, (int)MapList.Caves, Locations.Windia, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject Caves03 = new TreasureObject(0x40, (int)MapList.Caves, Locations.LibraTemple, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject Caves04 = new TreasureObject(0x4E, (int)MapList.Caves, Locations.LifeTemple, TreasureType.Box, new List<AccessReqs> { }); // Libra Crest
@@ -500,7 +500,7 @@ namespace FFMQLib
 			{ Locations.LifeTemple, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.LibraCrest } },
 			{ Locations.FallsBasin, new List<AccessReqs> { AccessReqs.SandCoin } },
 			{ Locations.IcePyramid, new List<AccessReqs> { AccessReqs.SandCoin } },
-			{ Locations.SpencersPlace, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater, AccessReqs.Sword, AccessReqs.Claw } },
+			{ Locations.SpencersPlace, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater } },
 			{ Locations.WintryTemple, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater } },
 			{ Locations.FocusTowerNorth, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater } },
 			{ Locations.FocusTowerEast, new List<AccessReqs> { AccessReqs.RiverCoin } },
