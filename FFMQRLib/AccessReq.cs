@@ -512,7 +512,7 @@ namespace FFMQLib
 			{ Locations.FocusTowerSouth2, new List<AccessReqs> { AccessReqs.SunCoin } },
 			{ Locations.RopeBridge, new List<AccessReqs> { AccessReqs.SunCoin } },
 			{ Locations.AliveForest, new List<AccessReqs> { AccessReqs.SunCoin } },
-			{ Locations.GiantTree, new List<AccessReqs> { AccessReqs.SunCoin } },
+			{ Locations.GiantTree, new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.Axe } },
 			{ Locations.KaidgeTemple, new List<AccessReqs> { AccessReqs.SunCoin } },
 			{ Locations.Windia, new List<AccessReqs> { AccessReqs.SunCoin } },
 			{ Locations.WindholeTemple, new List<AccessReqs> { AccessReqs.SunCoin } },
