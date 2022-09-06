@@ -708,9 +708,11 @@ namespace FFMQLib
 			// Reproduce spencer/tristam chest to avoid softlock
 			var spencerObject = new MapObject(0, this);
 			var tristamChestObject = new MapObject(0, this);
+			var boxObject = new MapObject(0, this);
 
 			spencerObject.CopyFrom(MapObjects[0x02C][0x00]);
 			tristamChestObject.CopyFrom(MapObjects[0x02C][0x01]);
+			boxObject.CopyFrom(MapObjects[0x02C][0x02]);
 
 			tristamChestObject.X = 0x2E;
 			tristamChestObject.Y = 0x12;
@@ -720,10 +722,15 @@ namespace FFMQLib
 			spencerObject.Y = 0x13;
 			spencerObject.Layer = 0x03;
 
+			boxObject.X = 0x2C;
+			boxObject.Y = 0x0F;
+			boxObject.Layer = 0x03;
+
 			MapObjects[0x2D].RemoveAt(0);
+			MapObjects[0x2D].Insert(0, boxObject);
 			MapObjects[0x2D].Insert(0, tristamChestObject);
 			MapObjects[0x2D].Insert(0, spencerObject);
-
+			
 			/*** Fireburg ***/
 
 			// Reuben
