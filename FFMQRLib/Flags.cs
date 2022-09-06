@@ -20,6 +20,7 @@ namespace FFMQLib
         public bool ShuffleEnemiesPosition { get; set; } = true;
         public EnemiesScaling EnemiesScaling { get; set; } = EnemiesScaling.Half;
         public EnemiesScalingSpread EnemiesScalingSpread { get; set; } = EnemiesScalingSpread.Quarter;
+        public EnemizerAttacks EnemizerAttacks { get; set; } = EnemizerAttacks.Normal;
         public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Triple;
         public BattlesQty BattlesQuantity { get; set; } = BattlesQty.RandomLow;
         public bool ShuffleBattlefieldRewards { get; set; } = false;

@@ -39,6 +39,17 @@ namespace FFMQLib
         [Description("100%")]
         Full,
     }
+    public enum EnemizerAttacks : int
+    {
+        [Description("Standard")]
+        Normal = 0,
+        [Description("Safe")]
+        Safe,
+        [Description("Chaos")]
+        Chaos,
+        [Description("Self-Destruct")]
+        SelfDestruct,
+    }
     public class EnemiesStats
     {
         private List<Enemy> _enemies;
@@ -52,10 +63,14 @@ namespace FFMQLib
                 _enemies.Add(new Enemy(i, rom));
             }
         }
-        public Enemy this[int enemyid]
+        public Enemy this[int id]
         {
-            get => _enemies[enemyid];
-            set => _enemies[enemyid] = value;
+            get => _enemies[id];
+            set => _enemies[id] = value;
+        }
+        public IList<Enemy> Enemies()
+        {
+            return _enemies.AsReadOnly();
         }
         public void Write(FFMQRom rom)
         {
@@ -136,12 +151,16 @@ namespace FFMQLib
         public byte Accuracy { get; set; }
         public byte Evasion { get; set; }
         private int _Id;
-
-        public Enemy(int enemyId, FFMQRom rom)
+        public int Id()
         {
-            _rawBytes = rom.GetFromBank(RomOffsets.EnemiesStatsBank, RomOffsets.EnemiesStatsAddress + (enemyId * RomOffsets.EnemiesStatsLength), RomOffsets.EnemiesStatsLength);
+            return _Id;
+        }
 
-            _Id = enemyId;
+        public Enemy(int id, FFMQRom rom)
+        {
+            _rawBytes = rom.GetFromBank(RomOffsets.EnemiesStatsBank, RomOffsets.EnemiesStatsAddress + (id * RomOffsets.EnemiesStatsLength), RomOffsets.EnemiesStatsLength);
+
+            _Id = id;
             HP = (ushort)(_rawBytes[1] * 0x100 + _rawBytes[0]);
             AttackPower = _rawBytes[2];
             DamageReduction = _rawBytes[3];
@@ -163,27 +182,195 @@ namespace FFMQLib
             rom.PutInBank(RomOffsets.EnemiesStatsBank, RomOffsets.EnemiesStatsAddress + (_Id * RomOffsets.EnemiesStatsLength), _rawBytes);
         }
     }
-    public class EnemiesAttacks
+    // link from link table, from the SQL world, describing a many-to-many relationship
+    public class EnemyAttackLink
     {
-        private List<EnemyAttack> _enemyAttacks;
-
-        public EnemiesAttacks(FFMQRom rom)
+        private Blob _rawBytes;
+        
+        public byte Unknown1 { get; set; }
+        public byte[] Attacks { get; set; }
+        public byte Unknown2 { get; set; }
+        public byte Unknown3 { get; set; }
+        private int _Id;
+        public int Id()
         {
-            _enemyAttacks = new List<EnemyAttack>();
-
-            for (int i = 0; i < RomOffsets.EnemiesAttacksQty; i++)
-            {
-                _enemyAttacks.Add(new EnemyAttack(i, rom));
-            }
+            return _Id;
         }
-        public EnemyAttack this[int attackid]
+        public List<int> NeedsSlotsFilled()
         {
-            get => _enemyAttacks[attackid];
-            set => _enemyAttacks[attackid] = value;
+            // Twinhead Wyvern needs its 4th attack slot filled, or the game locks up.
+            if(_Id == 77)
+            {
+                return new List<int>(3);
+            }
+            return new List<int>();
+        }
+
+        public EnemyAttackLink(int id, FFMQRom rom)
+        {
+            _rawBytes = rom.GetFromBank(RomOffsets.EnemiesAttacksBank, RomOffsets.EnemiesAttacksAddress + (id * RomOffsets.EnemiesAttacksLength), RomOffsets.EnemiesAttacksLength);
+
+            _Id = id;
+            Unknown1 = _rawBytes[0];
+            Attacks = new byte[6];
+            Attacks[0] = _rawBytes[1];
+            Attacks[1] = _rawBytes[2];
+            Attacks[2] = _rawBytes[3];
+            Attacks[3] = _rawBytes[4];
+            Attacks[4] = _rawBytes[5];
+            Attacks[5] = _rawBytes[6];
+            Unknown2 = _rawBytes[7];
+            Unknown3 = _rawBytes[8];
         }
         public void Write(FFMQRom rom)
         {
-            foreach (EnemyAttack e in _enemyAttacks)
+            _rawBytes[0] = Unknown1;
+            _rawBytes[1] = Attacks[0];
+            _rawBytes[2] = Attacks[1];
+            _rawBytes[3] = Attacks[2];
+            _rawBytes[4] = Attacks[3];
+            _rawBytes[5] = Attacks[4];
+            _rawBytes[6] = Attacks[5];
+            _rawBytes[7] = Unknown2;
+            _rawBytes[8] = Unknown3;
+            rom.PutInBank(RomOffsets.EnemiesAttacksBank, RomOffsets.EnemiesAttacksAddress + (_Id * RomOffsets.EnemiesAttacksLength), _rawBytes);
+        }
+    }
+    // link from link table, from the SQL world, describing a many-to-many relationship
+    public class EnemyAttackLinks
+    {
+        private List<EnemyAttackLink> _EnemyAttackLinks;
+
+        public EnemyAttackLinks(FFMQRom rom)
+        {
+            _EnemyAttackLinks = new List<EnemyAttackLink>();
+
+            for (int i = 0; i < RomOffsets.EnemiesAttacksQty; i++)
+            {
+                _EnemyAttackLinks.Add(new EnemyAttackLink(i, rom));
+            }
+        }
+        public EnemyAttackLink this[int attackid]
+        {
+            get => _EnemyAttackLinks[attackid];
+            set => _EnemyAttackLinks[attackid] = value;
+        }
+        public IList<EnemyAttackLink> AllAttacks()
+        {
+            return _EnemyAttackLinks.AsReadOnly();
+        }
+        public void Write(FFMQRom rom, Flags flags)
+        {
+            foreach (EnemyAttackLink e in _EnemyAttackLinks)
+            {
+                e.Write(rom);
+            }
+        }
+        public void ShuffleAttacks(Flags flags, MT19337 rng)
+        {
+            var possibleAttacks = new List<byte>();
+            possibleAttacks.Add(0x19);
+            possibleAttacks.Add(0x1B);
+            for(byte i = 0x40; i <= 0xDB; i++)
+            {
+                possibleAttacks.Add(i);
+            }
+
+            switch (flags.EnemizerAttacks) 
+            {
+                case EnemizerAttacks.Safe:
+                    // Remove self destruct as it makes bosses super easy and some regular monster super hard
+                    possibleAttacks.Remove(0xC1);
+                    // Remove dark king attacks as they make regular monsters impossible early on
+                    for(byte i = 0xCA; i <= 0xD6; i++)
+                    {
+                        possibleAttacks.Remove(i);
+                    }
+                    _ShuffleAttacks(possibleAttacks, rng);
+                    break;
+                case EnemizerAttacks.Chaos:
+                    _ShuffleAttacks(possibleAttacks, rng);
+                    break;
+                case EnemizerAttacks.SelfDestruct:
+                    foreach(var ea in _EnemyAttackLinks)
+                    {
+                        ea.Attacks[0] = 0xC1;
+                        ea.Attacks[1] = 0xFF;
+                        ea.Attacks[2] = 0xFF;
+                        ea.Attacks[3] = 0xFF;
+                        ea.Attacks[4] = 0xFF;
+                        ea.Attacks[5] = 0xFF;
+                    }
+                    break;
+                default:
+                    break;
+
+            }
+        }
+
+        private void _ShuffleAttacks(List<byte> possibleAttacks, MT19337 rng)
+        {
+            foreach(var ea in _EnemyAttackLinks)
+            {
+                uint noOfAttacks = (rng.Next() % 5) + 1;
+                for(uint i = 0; i < 6; i++)
+                {
+                    ea.Attacks[i] = 0xFF;
+                }
+                for(uint i = 0; i < noOfAttacks; i++)
+                {
+                    ea.Attacks[i] = possibleAttacks[(int)(rng.Next() % possibleAttacks.Count)]; 
+                }
+
+                // Some values of Unknown1 (e.g. 0x0B) result in the third (or other) attack slot being used
+                // regardless of it being 0xFF (which is an ignored slot for most other Unknown1 values)
+                if(noOfAttacks < 3)
+                {
+                    ea.Unknown1 = 0x01;
+                }
+
+                // Similarly, most Unknown1 values do not use attack slots 5 and 6, but 0x0D and 0x0C do.
+                if(noOfAttacks > 4)
+                {
+                    ea.Unknown1 = 0x0D;
+                }
+
+                // Some enemies require certain slots to be filled, or the game locks up
+                foreach(var slot in ea.NeedsSlotsFilled())
+                {
+                    if(ea.Attacks[slot] == 0xFF)
+                    {
+                        ea.Attacks[slot] = possibleAttacks[(int)(rng.Next() % possibleAttacks.Count)];
+                    }
+                }
+            }
+        }
+    }
+    public class Attacks
+    {
+        private List<Attack> _attacks;
+
+        public Attacks(FFMQRom rom)
+        {
+            _attacks = new List<Attack>();
+
+            for (int i = 0; i < RomOffsets.AttacksQty; i++)
+            {
+                _attacks.Add(new Attack(i, rom));
+            }
+        }
+        public Attack this[int attackid]
+        {
+            get => _attacks[attackid];
+            set => _attacks[attackid] = value;
+        }
+        public IList<Attack> AllAttacks()
+        {
+            return _attacks.AsReadOnly();
+        }
+        public void Write(FFMQRom rom, Flags flags)
+        {
+            foreach (Attack e in _attacks)
             {
                 e.Write(rom);
             }
@@ -212,7 +399,7 @@ namespace FFMQLib
                 case EnemiesScalingSpread.Full: spread = 100; break;
             }
 
-            foreach (EnemyAttack e in _enemyAttacks)
+            foreach (Attack e in _attacks)
             {
                 int randomizedScaling = scaling;
                 if (spread != 0)
@@ -226,23 +413,47 @@ namespace FFMQLib
             }
         }
     }
-    public class EnemyAttack
+    public class Attack
     {
         private Blob _rawBytes;
+        public byte Unknown1 { get; set; }
+        public byte Unknown2 { get; set; }
         public byte Power { get; set; }
+        public byte AttackType { get; set; }
+        public byte AttackSound { get; set; }
+        // my suspicion is that this unknown (or one of the other two) are responsible for targeting self, one PC or both PC.
+        public byte Unknown3 { get; set; }
+        public byte AttackTargetAnimation { get; set; }
         private int _Id;
 
-        public EnemyAttack(int attackId, FFMQRom rom)
+        public Attack(int id, FFMQRom rom)
         {
-            _rawBytes = rom.GetFromBank(RomOffsets.EnemiesAttacksBank, RomOffsets.EnemiesAttacksAddress + (attackId * RomOffsets.EnemiesAttacksLength), RomOffsets.EnemiesAttacksLength);
-            
-            _Id = attackId;
+            _rawBytes = rom.GetFromBank(RomOffsets.AttacksBank, RomOffsets.AttacksAddress + (id * RomOffsets.AttacksLength), RomOffsets.AttacksLength);
+
+            _Id = id;
+            Unknown1 = _rawBytes[0];
+            Unknown2 = _rawBytes[1];
             Power = _rawBytes[2];
+            AttackType = _rawBytes[3];
+            AttackSound = _rawBytes[4];
+            Unknown3 = _rawBytes[5];
+            AttackTargetAnimation = _rawBytes[6];
         }
+        public int Id()
+        {
+            return _Id;
+        }
+
         public void Write(FFMQRom rom)
-        { 
+        {
+            _rawBytes[0] = Unknown1;
+            _rawBytes[1] = Unknown2;
             _rawBytes[2] = Power;
-            rom.PutInBank(RomOffsets.EnemiesAttacksBank, RomOffsets.EnemiesAttacksAddress + (_Id * RomOffsets.EnemiesAttacksLength), _rawBytes);
+            _rawBytes[3] = AttackType;
+            _rawBytes[4] = AttackSound;
+            _rawBytes[5] = Unknown3;
+            _rawBytes[6] = AttackTargetAnimation;
+            rom.PutInBank(RomOffsets.AttacksBank, RomOffsets.AttacksAddress + (_Id * RomOffsets.AttacksLength), _rawBytes);
         }
     }
 }
