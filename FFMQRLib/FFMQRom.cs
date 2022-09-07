@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "1.2.00";
+		public static string VersionNumber = "1.2.01";
 		public static string Version = VersionNumber + "-beta";
 	}
 	
@@ -1012,7 +1012,7 @@ namespace FFMQLib
 				{
 					"2e28[04]",
 					TextToHex("You may enter.") + "36",
-					$"2a{treeDoorChangeId:X2}2a10505eff9700ffff",
+					$"2a{treeDoorChangeId:X2}2a10505eff9700ffff2bf3",
 					"00",
 					TextToHex("Defeat Gidrah and I'll let you pass.") + "36",
 					"00"
