@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "1.1.10";
+		public static string VersionNumber = "1.2.00";
 		public static string Version = VersionNumber + "-beta";
 	}
 	
@@ -28,6 +28,8 @@ namespace FFMQLib
 		public MapSprites MapSpriteSets;
 		private byte[] originalData;
 		public bool beta = false;
+		public bool spoilers = false;
+		public string spoilersText;
 
 		public override bool Validate()
 		{
@@ -84,6 +86,23 @@ namespace FFMQLib
 		public Stream DataStream()
 		{
 			return new MemoryStream(Data);
+		}
+
+		public Stream SpoilerStream()
+		{
+			if (spoilers)
+			{
+				var stream = new MemoryStream();
+				var writer = new StreamWriter(stream);
+				writer.Write(spoilersText);
+				writer.Flush();
+				stream.Position = 0;
+				return stream;
+			}
+			else
+			{
+				return null;
+			}
 		}
 
 		public void PutInBank(int bank, int address, Blob data)
@@ -178,7 +197,7 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
-
+			
 			sillyrng.Next();
 			RandomBenjaminPalette(preferences, sillyrng);
 
@@ -198,6 +217,8 @@ namespace FFMQLib
 			MapObjects.WriteAll(this);
 			MapSpriteSets.Write(this);
 			titleScreen.Write(this, Metadata.VersionNumber, seed, flags);
+			spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
+			spoilers = flags.EnableSpoilers;
 
 			this.Header = Array.Empty<byte>();
 		}

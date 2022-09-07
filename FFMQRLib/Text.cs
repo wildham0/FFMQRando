@@ -279,7 +279,8 @@ namespace FFMQLib
 
 		private List<Blob> titleSprites;
 
-		private string versionText;
+		public string versionText;
+		public string hashText;
 
 		public TitleScreen(FFMQRom rom)
 		{
@@ -309,7 +310,8 @@ namespace FFMQLib
 				hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
 			}
 
-			rom.PutInBank(titleScreenBank, offsetHash, rom.TextToByte(EncodeTo32(hash).Substring(0, 8)));
+			hashText = EncodeTo32(hash).Substring(0, 8);
+			rom.PutInBank(titleScreenBank, offsetHash, rom.TextToByte(hashText));
 		}
 		private string EncodeTo32(byte[] bytesToEncode)
 		{

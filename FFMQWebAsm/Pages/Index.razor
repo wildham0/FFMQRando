@@ -258,6 +258,14 @@
         }
     </Select>
 </Field>
+<Field>
+    <Switch TValue="bool" @bind-Checked="@flags.EnableSpoilers">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Generate Spoilers File</Text>
+        <Tooltip Text="Generate a .txt file with each Key Item's locations." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
+</Field>
 
 <div><br /></div>
 <h3 id="sillySection" class="text-secondary">Customization</h3>
@@ -372,7 +380,7 @@
         }
 
         try
-        {            
+        {
             newRom.Randomize(seed, flags, preferences);
 
             romMessage = "ROM file generated successfully.";
@@ -383,6 +391,16 @@
             using var streamRef = new DotNetStreamReference(stream: fs);
 
             await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+
+            if (flags.EnableSpoilers)
+            {
+                var fsSpoilers = newRom.SpoilerStream();
+                var fileNameSpoilers = "FFMQR_Spoilers_" + FFMQLib.Metadata.VersionNumber + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".txt";
+
+                using var streamRefSpoilers = new DotNetStreamReference(stream: fsSpoilers);
+
+                await JS.InvokeVoidAsync("downloadFileFromStream", fileNameSpoilers, streamRefSpoilers);
+            }
         }
         catch (Exception ex)
         {
