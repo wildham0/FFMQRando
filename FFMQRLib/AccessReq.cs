@@ -105,9 +105,9 @@ namespace FFMQLib
 		public static TreasureObject BoneDungeon12 = new TreasureObject(0x3D, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Box, new List<AccessReqs> { AccessReqs.Bomb });
 		public static TreasureObject BoneDungeon13 = new TreasureObject(0x3E, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Box, new List<AccessReqs> { AccessReqs.Bomb });
 		public static TreasureObject BoneDungeon14 = new TreasureObject(0x3F, (int)MapList.BoneDungeon, Locations.BoneDungeon, TreasureType.Box, new List<AccessReqs> { AccessReqs.Bomb });
-		public static TreasureObject IcePyramid01 = new TreasureObject(0x0C, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Chest, "Maze Chest", new List<AccessReqs> { AccessReqs.Sword });
-		public static TreasureObject IcePyramid02 = new TreasureObject(0x0D, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Chest, "Drop Chest", new List<AccessReqs> { AccessReqs.Sword });
-		public static TreasureObject IcePyramid03 = new TreasureObject(0x0E, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Chest, "Diamond Chest", new List<AccessReqs> { AccessReqs.Sword, AccessReqs.Bomb, AccessReqs.Claw });
+		public static TreasureObject IcePyramid01 = new TreasureObject(0x0C, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Chest, "Drop Chest", new List<AccessReqs> { AccessReqs.Sword });
+		public static TreasureObject IcePyramid02 = new TreasureObject(0x0D, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Chest, "Maze Chest", new List<AccessReqs> { AccessReqs.Sword });
+		public static TreasureObject IcePyramid03 = new TreasureObject(0x0E, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Chest, "Golem Chest", new List<AccessReqs> { AccessReqs.Sword, AccessReqs.Bomb, AccessReqs.Claw });
 		public static TreasureObject IcePyramid04 = new TreasureObject(0x53, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
 		public static TreasureObject IcePyramid05 = new TreasureObject(0x54, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
 		public static TreasureObject IcePyramid06 = new TreasureObject(0x55, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
@@ -130,7 +130,7 @@ namespace FFMQLib
 		public static TreasureObject IcePyramid23 = new TreasureObject(0x6C, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
 		public static TreasureObject IcePyramid24 = new TreasureObject(0x6D, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword, AccessReqs.Claw, AccessReqs.Bomb });
 		public static TreasureObject IcePyramid25 = new TreasureObject(0x6E, (int)MapList.IcePyramidA, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword });
-		public static TreasureObject IcePyramid28 = new TreasureObject(0x0B, (int)MapList.IcePyramidB, Locations.IcePyramid, TreasureType.Chest, "Golem Chest", new List<AccessReqs> { AccessReqs.Sword, AccessReqs.Bomb, AccessReqs.Claw });
+		public static TreasureObject IcePyramid28 = new TreasureObject(0x0B, (int)MapList.IcePyramidB, Locations.IcePyramid, TreasureType.Chest, "Diamond Chest", new List<AccessReqs> { AccessReqs.Sword, AccessReqs.Bomb, AccessReqs.Claw });
 		public static TreasureObject IcePyramid29 = new TreasureObject(0x50, (int)MapList.IcePyramidB, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword, AccessReqs.Bomb, AccessReqs.Claw });
 		public static TreasureObject IcePyramid30 = new TreasureObject(0x51, (int)MapList.IcePyramidB, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword, AccessReqs.Bomb, AccessReqs.Claw });
 		public static TreasureObject IcePyramid31 = new TreasureObject(0x52, (int)MapList.IcePyramidB, Locations.IcePyramid, TreasureType.Box, new List<AccessReqs> { AccessReqs.Sword, AccessReqs.Bomb, AccessReqs.Claw });
@@ -144,9 +144,9 @@ namespace FFMQLib
 		public static TreasureObject LavaDome02 = new TreasureObject(0x89, (int)MapList.LavaDomeExterior, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject LavaDome03 = new TreasureObject(0x8A, (int)MapList.LavaDomeExterior, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { AccessReqs.Claw });
 		public static TreasureObject LavaDome04 = new TreasureObject(0x8B, (int)MapList.LavaDomeExterior, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
-		public static TreasureObject LavaDome05 = new TreasureObject(0x13, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Chest, "Entrance Chest", new List<AccessReqs> { AccessReqs.MegaGrenade });
+		public static TreasureObject LavaDome05 = new TreasureObject(0x13, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Chest, "Left Path Chest", new List<AccessReqs> { AccessReqs.MegaGrenade });
 		public static TreasureObject LavaDome06 = new TreasureObject(0x14, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Chest, "Hydra Chest", new List<AccessReqs> { });
-		public static TreasureObject LavaDome07 = new TreasureObject(0x1C, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Chest, "Corner Chest", new List<AccessReqs> { AccessReqs.MegaGrenade });
+		public static TreasureObject LavaDome07 = new TreasureObject(0x1C, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Chest, "Right Path Chest", new List<AccessReqs> { AccessReqs.MegaGrenade });
 		public static TreasureObject LavaDome08 = new TreasureObject(0x91, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { AccessReqs.MegaGrenade });
 		public static TreasureObject LavaDome09 = new TreasureObject(0x92, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject LavaDome10 = new TreasureObject(0x93, (int)MapList.LavaDomeInteriorA, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
@@ -176,8 +176,8 @@ namespace FFMQLib
 		public static TreasureObject LavaDome34 = new TreasureObject(0xF9, (int)MapList.LavaDomeInteriorB, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject LavaDome35 = new TreasureObject(0xFA, (int)MapList.LavaDomeInteriorB, Locations.LavaDome, TreasureType.Box, new List<AccessReqs> { });
 
-		public static TreasureObject PazuzuTower01 = new TreasureObject(0x18, (int)MapList.PazuzuTowerA, Locations.PazuzusTower, TreasureType.Chest, "Corridor Chest", new List<AccessReqs> { AccessReqs.DragonClaw });
-		public static TreasureObject PazuzuTower02 = new TreasureObject(0x19, (int)MapList.PazuzuTowerA, Locations.PazuzusTower, TreasureType.Chest, "Square Room Chest", new List<AccessReqs> { AccessReqs.DragonClaw });
+		public static TreasureObject PazuzuTower01 = new TreasureObject(0x18, (int)MapList.PazuzuTowerA, Locations.PazuzusTower, TreasureType.Chest, "Square Room Chest", new List<AccessReqs> { AccessReqs.DragonClaw });
+		public static TreasureObject PazuzuTower02 = new TreasureObject(0x19, (int)MapList.PazuzuTowerA, Locations.PazuzusTower, TreasureType.Chest, "Corridor Chest", new List<AccessReqs> { AccessReqs.DragonClaw });
 		public static TreasureObject PazuzuTower03 = new TreasureObject(0xD0, (int)MapList.PazuzuTowerA, Locations.PazuzusTower, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject PazuzuTower04 = new TreasureObject(0xD1, (int)MapList.PazuzuTowerA, Locations.PazuzusTower, TreasureType.Box, new List<AccessReqs> { });
 		public static TreasureObject PazuzuTower05 = new TreasureObject(0xD2, (int)MapList.PazuzuTowerA, Locations.PazuzusTower, TreasureType.Box, new List<AccessReqs> { AccessReqs.DragonClaw });
