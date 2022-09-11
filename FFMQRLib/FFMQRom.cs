@@ -219,7 +219,7 @@ namespace FFMQLib
 			titleScreen.Write(this, Metadata.VersionNumber, seed, flags);
 			spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
 			spoilers = flags.EnableSpoilers;
-
+			
 			this.Header = Array.Empty<byte>();
 		}
 		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, MT19337 rng)

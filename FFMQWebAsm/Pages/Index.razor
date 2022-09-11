@@ -3,6 +3,7 @@
 @using System.IO;
 @using System;
 @using System.Web
+@using System.Text;
 @using FFMQLib;
 @using Microsoft.JSInterop;
 @using Microsoft.JSInterop.WebAssembly;
@@ -24,9 +25,9 @@
 <h1 class="text-secondary text-center" style="font-size: 1em">A FFMQ Randomizer<br />@("v" + @FFMQLib.Metadata.VersionNumber + @GetBetaStatus())</h1>
 
 
-<div><br /><br /><br /></div>
+<div id="fileSection"><br /><br /><br /></div>
 
-<h2 id="fileSection" class="text-secondary">File</h2>
+<h2 class="text-secondary">File</h2>
 
 <Field>
     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel> 
@@ -51,18 +52,18 @@
         <FieldHelp>@flagsMessage</FieldHelp>
     </Field>
 </Fields>
-
 <Field>
     <Button Color="Color.Primary" Loading="@isGenerating" Clicked="@OnGenerate" Disabled="@isLoadingRom">Generate</Button>
 </Field>
 
-<div><br /><br /><br /></div>
-<h2 id="optionsSection" class="text-secondary">Options</h2>
 
-<h3 class="text-secondary" style="font-size: 1.25em">
+<div id="optionsSection"><br /><br /><br /></div>
+<h2 class="text-secondary">Options</h2>
+
+<h3 class="text-secondary">
     Items Shuffling
     <Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small style="font-size: 0.600em"/> 
     </Tooltip>    
 </h3>
 
@@ -95,7 +96,7 @@
     <Tooltip Text="NPCs are all the NPC locations in the original game, as well as the new Reuben item in Mine, the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave." Inline Multiline Placement="TooltipPlacement.Right">
         <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
     </Tooltip>
-    <Select @bind-SelectedValue="@flags.NPCsShuffle">
+    <Select @bind-SelectedValue="@flags.NpcsShuffle">
         @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffleNPCsBattlefields>())
         {
             <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
@@ -279,7 +280,29 @@
     </Switch>
 </Field>
 
-<div><br /><br /><br /></div>
+<div id="presetSection"><br /><br /><br /></div>
+
+<h2 class="text-secondary">Yaml Preset</h2>
+
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">
+        Load Yaml Preset
+        <Tooltip Text="Load the flags selection from a Yaml configuration file.<br/><br/>With a text editor, each options can be manually weighted. If a Yaml file is loaded, each time a seed is rolled, the flags will be configured randomly using the weighted values. Exporting to file reset the weighting." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>     
+    </FieldLabel> 
+    <FileEdit Filter="*.yaml" AutoReset="false" Changed="@LoadYaml"></FileEdit>
+    <FieldHelp>@yamlMessage</FieldHelp>
+</Field>
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Yaml Name</FieldLabel> 
+    <TextEdit @bind-Text="@yamlName"></TextEdit>
+</Field>
+<Field>
+    <Button Color="Color.Primary" Clicked="@OnExportYaml">Export Yaml Preset</Button>
+</Field>
+
+<div id="infoSection"><br /><br /><br /></div>
 
 <Information />
 
@@ -307,6 +330,10 @@
     private List<string> titleLetters = new List<string> { "logo/mqlogoM.png", "logo/mqlogoy.png", "logo/mqlogos.png", "logo/mqlogot.png", "logo/mqlogoi.png", "logo/mqlogoc.png", "logo/mqlogoQ.png", "logo/mqlogou.png", "logo/mqlogoe.png", "logo/mqlogos2.png", "logo/mqlogot2.png" };
     private bool updateFlagString = true;
     private string tempFlagString;
+
+    private string yamlPreset = "";
+    private string yamlMessage = "";
+    private string yamlName = "default";
 
 
     [Parameter]
@@ -437,6 +464,35 @@
         }
     }
 
+    private async Task LoadYaml(FileChangedEventArgs e)
+    {
+        try
+        {
+            using (StreamReader streamReader = new StreamReader(e.Files.First().OpenReadStream(maxFileSize), Encoding.UTF8))
+            {
+                yamlPreset = await streamReader.ReadToEndAsync();
+            }
+
+            yamlName = flags.ReadYaml(yamlPreset, seed);
+            yamlMessage = "Yaml preset file loaded succesfully.";
+        }
+        catch (Exception ex)
+        {
+            yamlMessage = ex.Message;
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private async Task OnExportYaml()
+    {
+        var yamlStream = flags.YamlStream(yamlName);
+        var filenameYaml = yamlName + ".yaml";
+        using var streamRefSpoilers = new DotNetStreamReference(stream: yamlStream);
+        {
+            await JS.InvokeVoidAsync("downloadFileFromStream", filenameYaml, streamRefSpoilers);
+        }
+    }
+
     private void RollSeed()
     {
         var rng = new Random();
@@ -444,6 +500,12 @@
         MT19337 rng2 = new MT19337((uint)seed.ToUInts().Sum(x => x));
         titleLetters.Shuffle(rng2);
         showSeed = seed.ToHex();
+
+        if (yamlPreset != "")
+        {
+            flags.ReadYaml(yamlPreset, seed);
+        }
+
         UpdateUrl();
     }
 

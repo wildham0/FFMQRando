@@ -391,11 +391,11 @@ namespace FFMQLib
 				properties.Where(x => x.Type == TreasureType.Chest && x.ObjectId < 0x20).ToList().ForEach(x => x.Prioritize = true);
 			}
 
-			if (flags.NPCsShuffle == ItemShuffleNPCsBattlefields.Prioritize)
+			if (flags.NpcsShuffle == ItemShuffleNPCsBattlefields.Prioritize)
 			{
 				properties.Where(x => x.Type == TreasureType.NPC).ToList().ForEach(x => x.Prioritize = true);
 			}
-			else if (flags.NPCsShuffle == ItemShuffleNPCsBattlefields.Exclude)
+			else if (flags.NpcsShuffle == ItemShuffleNPCsBattlefields.Exclude)
 			{
 				properties.Where(x => x.Type == TreasureType.NPC).ToList().ForEach(x => x.Exclude = true);
 			}
