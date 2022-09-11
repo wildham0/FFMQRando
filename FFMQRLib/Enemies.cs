@@ -198,17 +198,17 @@ namespace FFMQLib
         }
         public List<int> NeedsSlotsFilled()
         {
-            // Twinhead Wyvern needs its 4th attack slot filled, or the game locks up.
-            if(_Id == 77)
+            // Twinhead Wyvern and Twinhead Hydra need their 4th attack slot filled, or the game locks up.
+            if(_Id == 76 || _Id == 77)
             {
-                return new List<int>(3);
+                return new List<int>(new int[] {3});
             }
             return new List<int>();
         }
 
         public EnemyAttackLink(int id, FFMQRom rom)
         {
-            _rawBytes = rom.GetFromBank(RomOffsets.EnemiesAttacksBank, RomOffsets.EnemiesAttacksAddress + (id * RomOffsets.EnemiesAttacksLength), RomOffsets.EnemiesAttacksLength);
+            _rawBytes = rom.GetFromBank(RomOffsets.EnemiesAttackLinksBank, RomOffsets.EnemiesAttackLinksAddress + (id * RomOffsets.EnemiesAttackLinksLength), RomOffsets.EnemiesAttackLinksLength);
 
             _Id = id;
             Unknown1 = _rawBytes[0];
@@ -233,22 +233,25 @@ namespace FFMQLib
             _rawBytes[6] = Attacks[5];
             _rawBytes[7] = Unknown2;
             _rawBytes[8] = Unknown3;
-            rom.PutInBank(RomOffsets.EnemiesAttacksBank, RomOffsets.EnemiesAttacksAddress + (_Id * RomOffsets.EnemiesAttacksLength), _rawBytes);
+            rom.PutInBank(RomOffsets.EnemiesAttackLinksBank, RomOffsets.EnemiesAttackLinksAddress + (_Id * RomOffsets.EnemiesAttackLinksLength), _rawBytes);
         }
     }
     // link from link table, from the SQL world, describing a many-to-many relationship
     public class EnemyAttackLinks
     {
         private List<EnemyAttackLink> _EnemyAttackLinks;
+        private Blob _darkKingAttackLinkBytes;
 
         public EnemyAttackLinks(FFMQRom rom)
         {
             _EnemyAttackLinks = new List<EnemyAttackLink>();
 
-            for (int i = 0; i < RomOffsets.EnemiesAttacksQty; i++)
+            for (int i = 0; i < RomOffsets.EnemiesAttackLinksQty; i++)
             {
                 _EnemyAttackLinks.Add(new EnemyAttackLink(i, rom));
             }
+
+            _darkKingAttackLinkBytes = rom.GetFromBank(RomOffsets.DarkKingAttackLinkBank, RomOffsets.DarkKingAttackLinkAddress, RomOffsets.DarkKingAttackLinkQty);
         }
         public EnemyAttackLink this[int attackid]
         {
@@ -265,6 +268,8 @@ namespace FFMQLib
             {
                 e.Write(rom);
             }
+
+            rom.PutInBank(RomOffsets.DarkKingAttackLinkBank, RomOffsets.DarkKingAttackLinkAddress, _darkKingAttackLinkBytes);
         }
         public void ShuffleAttacks(Flags flags, MT19337 rng)
         {
@@ -294,12 +299,25 @@ namespace FFMQLib
                 case EnemizerAttacks.SelfDestruct:
                     foreach(var ea in _EnemyAttackLinks)
                     {
+                        ea.Unknown1 = 0x01;
                         ea.Attacks[0] = 0xC1;
                         ea.Attacks[1] = 0xFF;
                         ea.Attacks[2] = 0xFF;
                         ea.Attacks[3] = 0xFF;
                         ea.Attacks[4] = 0xFF;
                         ea.Attacks[5] = 0xFF;
+
+                        // Some enemies require certain slots to be filled, or the game locks up
+                        foreach(var slot in ea.NeedsSlotsFilled())
+                        {
+                            ea.Attacks[slot] = 0xC1;
+                        }
+                    }
+
+                    // See the comment in _ShuffleAttacks() for more info
+                    for(int i = 0; i < RomOffsets.DarkKingAttackLinkQty; i++)
+                    {
+                        _darkKingAttackLinkBytes[i] = 0xC1;
                     }
                     break;
                 default:
@@ -313,10 +331,12 @@ namespace FFMQLib
             foreach(var ea in _EnemyAttackLinks)
             {
                 uint noOfAttacks = (rng.Next() % 5) + 1;
+
                 for(uint i = 0; i < 6; i++)
                 {
                     ea.Attacks[i] = 0xFF;
                 }
+
                 for(uint i = 0; i < noOfAttacks; i++)
                 {
                     ea.Attacks[i] = possibleAttacks[(int)(rng.Next() % possibleAttacks.Count)]; 
@@ -343,6 +363,13 @@ namespace FFMQLib
                         ea.Attacks[slot] = possibleAttacks[(int)(rng.Next() % possibleAttacks.Count)];
                     }
                 }
+            }
+
+            // Dark King has its own byte range on top of attack links ids 79 through 82
+            // TODO: The Ice Golem has a special healing blizzard it does when it has < 50% HP, probably want to randomise that as well? Maybe more enemies have a similar thing?
+            for(int i = 0; i < RomOffsets.DarkKingAttackLinkQty; i++)
+            {
+                _darkKingAttackLinkBytes[i] = possibleAttacks[(int)(rng.Next() % possibleAttacks.Count)];
             }
         }
     }
