@@ -198,6 +198,18 @@
         }
     </Select>
 </Field>
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Enemizer Attacks</FieldLabel>
+    <Tooltip Text="Shuffles enemy attacks.<br /><br />Safe: shuffle but don't add self destruct and Dark Knight attacks<br /><br />chaos: shuffle and include self destruct and Dark Knight attacks<br /><br />self-destruct: every enemy self destructs" Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
+    <Select @bind-SelectedValue="@flags.EnemizerAttacks">
+        @foreach(var item in Enum.GetValues<FFMQLib.EnemizerAttacks>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
 
 <div><br /></div>
 <h3 id="optionsSection" class="text-secondary">Maps</h3>

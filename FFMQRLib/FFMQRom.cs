@@ -26,6 +26,9 @@ namespace FFMQLib
 		public Overworld Overworld;
 		public GameMaps GameMaps;
 		public MapSprites MapSpriteSets;
+		public EnemyAttackLinks EnemyAttackLinks;
+		public Attacks Attacks;
+		public EnemiesStats enemiesStats;
 		private byte[] originalData;
 		public bool beta = false;
 		public bool spoilers = false;
@@ -115,6 +118,10 @@ namespace FFMQLib
 			int offset = (bank * 0x8000) + (address - 0x8000);
 			return Get(offset, length);
 		}
+		public int GetOffset(int bank, int address)
+		{
+			return (bank * 0x8000) + (address - 0x8000);
+		}
 		public void ExpandRom()
 		{
 			Blob newData = new byte[0x100000];
@@ -145,8 +152,9 @@ namespace FFMQLib
 			}
 
 			NodeLocations nodeLocations = new(this);
-			EnemiesAttacks enemiesAttacks = new(this);
-			EnemiesStats enemiesStats = new(this);
+			EnemyAttackLinks = new(this);
+			Attacks = new(this);
+			enemiesStats = new(this);
 			GameMaps = new(this);
 			MapObjects = new(this);
 			Credits credits = new(this);
@@ -179,7 +187,8 @@ namespace FFMQLib
 
 			MapObjects.SetEnemiesDensity(flags, rng);
 			MapObjects.ShuffleEnemiesPosition(GameMaps, flags, rng);
-			//enemiesAttacks.ScaleAttacks(flags, rng);
+			EnemyAttackLinks.ShuffleAttacks(flags, rng);
+			//Attacks.ScaleAttacks(flags, rng);
 			enemiesStats.ScaleEnemies(flags, rng);
 			nodeLocations.OpenNodes();
 			Battlefields.SetBattlesQty(flags, rng);
@@ -204,7 +213,8 @@ namespace FFMQLib
 			credits.Update();
 			
 			credits.Write(this);
-			enemiesAttacks.Write(this);
+			EnemyAttackLinks.Write(this, flags);
+			Attacks.Write(this, flags);
 			enemiesStats.Write(this);
 			GameMaps.Write(this);
 			MapChanges.Write(this);
