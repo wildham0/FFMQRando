@@ -10,10 +10,10 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "1.2.02";
+		public static string VersionNumber = "1.2.04";
 		public static string Version = VersionNumber + "-beta";
 	}
-	
+
 	public partial class FFMQRom : SnesRom
 	{
 
@@ -59,10 +59,10 @@ namespace FFMQLib
 				}
 
 				Blob hash = hasher.ComputeHash(dataToHash);
-				
+
 				//Console.WriteLine(BitConverter.ToString(hash).Replace("-", ""));
 				// if (hash == Blob.FromHex("F71817F55FEBD32FD1DCE617A326A77B6B062DD0D4058ECD289F64AF1B7A1D05")) unadultered hash
-				
+
 				if (hash == Blob.FromHex("92F625478568B1BE262E3F9D62347977CE7EE345E9FF353B4778E8560E16C7CA"))
 				{
 					return true;
@@ -91,6 +91,12 @@ namespace FFMQLib
 			return new MemoryStream(Data);
 		}
 
+		public void Load(byte[] _data)
+		{
+			Data = new byte[0x80000];
+			Array.Copy(_data, Data, 0x80000);
+		}
+		public byte[] DataReadOnly { get => Data; }
 		public Stream SpoilerStream()
 		{
 			if (spoilers)
@@ -229,7 +235,7 @@ namespace FFMQLib
 			titleScreen.Write(this, Metadata.VersionNumber, seed, flags);
 			spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
 			spoilers = flags.EnableSpoilers;
-
+			
 			this.Header = Array.Empty<byte>();
 		}
 		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, MT19337 rng)
