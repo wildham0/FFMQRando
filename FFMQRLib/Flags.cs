@@ -220,6 +220,8 @@ namespace FFMQLib
     public class Preferences
     {
         public bool RandomBenjaminPalette { get; set; } = false;
+        public bool RememberRom { get; set; } = false;
+        public string RomPath { get; set; } = "";
     }
 
 }
