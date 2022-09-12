@@ -38,6 +38,7 @@ Length = 9
 | 16 | Land Worm |
 | 32 | Centaur |
 | 75 | Ice Golem |
+| 76 | Twinhead Hydra |
 | 77 | Twinhead Wyvern |
 | 79 | Dark Knight Phase 1 |
 | 80 | Dark Knight Phase 2 |
