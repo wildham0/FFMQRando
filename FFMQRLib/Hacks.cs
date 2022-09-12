@@ -97,6 +97,10 @@ namespace FFMQLib
 			PutInBank(0x01, 0xD4DB, Blob.FromHex("EAEAEA"));
 			PutInBank(0x01, 0xD55A, Blob.FromHex("EAEAEA"));
 
+			// Spencer's cave bombing
+			PutInBank(0x01, 0xDA4E, Blob.FromHex("EAEAEA"));
+			PutInBank(0x01, 0xDA62, Blob.FromHex("EAEAEA"));
+
 			// Hero status, same, then rts early to avoid the big flash at the end
 			PutInBank(0x01, 0xDC2A, Blob.FromHex("EAEAEA"));
 			PutInBank(0x01, 0xDC37, Blob.FromHex("EAEAEA"));
