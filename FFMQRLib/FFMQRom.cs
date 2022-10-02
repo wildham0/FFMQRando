@@ -26,6 +26,7 @@ namespace FFMQLib
 		public Overworld Overworld;
 		public GameMaps GameMaps;
 		public MapSprites MapSpriteSets;
+		public ScriptsInterpreter TextualScript;
 		private byte[] originalData;
 		public bool beta = false;
 
@@ -178,7 +179,7 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
-			ScriptsInterpreter test = new(0x03, 0xBC21, 0x3FF, this);
+			TextualScript = new(0x03, 0xD5E5, 0x222C, this);
 
 			sillyrng.Next();
 			RandomBenjaminPalette(preferences, sillyrng);

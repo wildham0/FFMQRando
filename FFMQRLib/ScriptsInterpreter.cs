@@ -421,6 +421,7 @@ namespace FFMQLib
         private int Address;
         private int Length;
         private FFMQRom Rom;
+        public string TextualData;
 
         public ScriptsInterpreter(int bank, int address, int length, FFMQRom rom)
         {
@@ -433,13 +434,16 @@ namespace FFMQLib
             foreach (var label in Labels)
             {
                 Console.WriteLine(label.Item1 + " = " + $"{label.Item2:X6}");
+                TextualData += label.Item1 + " = " + $"{label.Item2:X6}" + "\n";
             }
 
             Console.WriteLine("-----");
+            TextualData += "-----" + "\n";
 
             foreach (var line in Lines)
             {
                 Console.WriteLine(line.line);
+                TextualData += line.line + "\n";
             }
         }
 
