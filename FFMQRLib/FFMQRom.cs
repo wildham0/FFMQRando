@@ -29,6 +29,7 @@ namespace FFMQLib
 		public EnemyAttackLinks EnemyAttackLinks;
 		public Attacks Attacks;
 		public EnemiesStats enemiesStats;
+		public ScriptsInterpreter TextualScript;
 		private byte[] originalData;
 		public bool beta = false;
 		public bool spoilers = false;
@@ -99,11 +100,14 @@ namespace FFMQLib
 		public byte[] DataReadOnly { get => Data; }
 		public Stream SpoilerStream()
 		{
-			if (spoilers)
+			if (true)
+			//if (spoilers)
 			{
 				var stream = new MemoryStream();
 				var writer = new StreamWriter(stream);
-				writer.Write(spoilersText);
+				
+				//writer.Write(spoilersText);
+				writer.Write(TextualScript.TextualData);
 				writer.Flush();
 				stream.Position = 0;
 				return stream;
