@@ -3,6 +3,7 @@
 @using System.IO;
 @using System;
 @using System.Web
+@using System.Text;
 @using FFMQLib;
 @using Microsoft.JSInterop;
 @using Microsoft.JSInterop.WebAssembly;
@@ -11,6 +12,7 @@
 @using Microsoft.AspNetCore.Components
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
+@inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
 
 <style>
     body {
@@ -24,13 +26,13 @@
 <h1 class="text-secondary text-center" style="font-size: 1em">A FFMQ Randomizer<br />@("v" + @FFMQLib.Metadata.VersionNumber + @GetBetaStatus())</h1>
 
 
-<div><br /><br /><br /></div>
+<div id="fileSection"><br /><br /><br /></div>
 
-<h2 id="fileSection" class="text-secondary">File</h2>
+<h2 class="text-secondary">File</h2>
 
 <Field>
     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel> 
-    <FileEdit Filter="*.sfc" AutoReset="false" Changed="@LoadFiles"></FileEdit>
+    <FileEdit Filter=".sfc" AutoReset="false" Changed="@LoadFiles"></FileEdit>
     <FieldHelp>@romMessage</FieldHelp>
 </Field>
 <Fields>
@@ -51,18 +53,18 @@
         <FieldHelp>@flagsMessage</FieldHelp>
     </Field>
 </Fields>
-
 <Field>
     <Button Color="Color.Primary" Loading="@isGenerating" Clicked="@OnGenerate" Disabled="@isLoadingRom">Generate</Button>
 </Field>
 
-<div><br /><br /><br /></div>
-<h2 id="optionsSection" class="text-secondary">Options</h2>
 
-<h3 class="text-secondary" style="font-size: 1.25em">
+<div id="optionsSection"><br /><br /><br /></div>
+<h2 class="text-secondary">Options</h2>
+
+<h3 class="text-secondary">
     Items Shuffling
     <Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small style="font-size: 0.600em"/> 
     </Tooltip>    
 </h3>
 
@@ -95,7 +97,7 @@
     <Tooltip Text="NPCs are all the NPC locations in the original game, as well as the new Reuben item in Mine, the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave." Inline Multiline Placement="TooltipPlacement.Right">
         <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
     </Tooltip>
-    <Select @bind-SelectedValue="@flags.NPCsShuffle">
+    <Select @bind-SelectedValue="@flags.NpcsShuffle">
         @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffleNPCsBattlefields>())
         {
             <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
@@ -198,6 +200,18 @@
         }
     </Select>
 </Field>
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Enemizer Attacks</FieldLabel>
+    <Tooltip Text="Shuffles enemy attacks.<br /><br />Safe: Shuffle but don't add self destruct and Dark King attacks<br /><br />Chaos: Shuffle and include self destruct and Dark King attacks<br /><br />Self-destruct: Every enemy self destructs" Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
+    <Select @bind-SelectedValue="@flags.EnemizerAttacks">
+        @foreach(var item in Enum.GetValues<FFMQLib.EnemizerAttacks>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
 
 <div><br /></div>
 <h3 id="optionsSection" class="text-secondary">Maps</h3>
@@ -258,10 +272,18 @@
         }
     </Select>
 </Field>
+<Field>
+    <Switch TValue="bool" @bind-Checked="@flags.EnableSpoilers">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Generate Spoilers File</Text>
+        <Tooltip Text="Generate a .txt file with each Key Item's locations." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
+</Field>
 
 <div><br /></div>
-<h3 id="sillySection" class="text-secondary">Customization</h3>
-<div class="text-secondary">Customization doesn't affect the randomization and can be enabled/disabled without any impact on gameplay.</div>
+<h3 id="sillySection" class="text-secondary">Preferences</h3>
+<div class="text-secondary">Preferences and customizations doesn't affect the randomization and can be enabled/disabled without any impact on gameplay.</div>
 <Field>
     <Switch TValue="bool" @bind-Checked="@preferences.RandomBenjaminPalette">
         <Text TextColor="TextColor.Secondary" class="fw-bold">Randomize Benjamin's Palette</Text>
@@ -270,8 +292,41 @@
         </Tooltip>
     </Switch>
 </Field>
+<Field>
+    <Switch TValue="bool" @bind-Checked="@preferences.RememberRom">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Remember ROM</Text>
+        <Tooltip Text="Automatically load the selected ROM file when loading the randomizer." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
+</Field>
+<Field>
+    <Button Color="Color.Primary" Clicked="@SavePreferences">Save Preferences</Button>
+</Field>
 
-<div><br /><br /><br /></div>
+<div id="presetSection"><br /><br /><br /></div>
+
+<h2 class="text-secondary">Yaml Preset</h2>
+
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">
+        Load Yaml Preset
+        <Tooltip Text="Load the flags selection from a Yaml configuration file.<br/><br/>With a text editor, each options can be manually weighted. If a Yaml file is loaded, each time a seed is rolled, the flags will be configured randomly using the weighted values. Exporting to file reset the weighting." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>     
+    </FieldLabel> 
+    <FileEdit Filter=".yaml" AutoReset="false" Changed="@LoadYaml"></FileEdit>
+    <FieldHelp>@yamlMessage</FieldHelp>
+</Field>
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Yaml Name</FieldLabel> 
+    <TextEdit @bind-Text="@yamlName"></TextEdit>
+</Field>
+<Field>
+    <Button Color="Color.Primary" Clicked="@OnExportYaml">Export Yaml Preset</Button>
+</Field>
+
+<div id="infoSection"><br /><br /><br /></div>
 
 <Information />
 
@@ -300,6 +355,9 @@
     private bool updateFlagString = true;
     private string tempFlagString;
 
+    private string yamlPreset = "";
+    private string yamlMessage = "";
+    private string yamlName = "default";
 
     [Parameter]
     public string flagString
@@ -372,7 +430,7 @@
         }
 
         try
-        {            
+        {
             newRom.Randomize(seed, flags, preferences);
 
             romMessage = "ROM file generated successfully.";
@@ -383,6 +441,16 @@
             using var streamRef = new DotNetStreamReference(stream: fs);
 
             await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+
+            if (flags.EnableSpoilers)
+            {
+                var fsSpoilers = newRom.SpoilerStream();
+                var fileNameSpoilers = "FFMQR_Spoilers_" + FFMQLib.Metadata.VersionNumber + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".txt";
+
+                using var streamRefSpoilers = new DotNetStreamReference(stream: fsSpoilers);
+
+                await JS.InvokeVoidAsync("downloadFileFromStream", fileNameSpoilers, streamRefSpoilers);
+            }
         }
         catch (Exception ex)
         {
@@ -419,6 +487,35 @@
         }
     }
 
+    private async Task LoadYaml(FileChangedEventArgs e)
+    {
+        try
+        {
+            using (StreamReader streamReader = new StreamReader(e.Files.First().OpenReadStream(maxFileSize), Encoding.UTF8))
+            {
+                yamlPreset = await streamReader.ReadToEndAsync();
+            }
+
+            yamlName = flags.ReadYaml(yamlPreset, seed);
+            yamlMessage = "Yaml preset file loaded succesfully.";
+        }
+        catch (Exception ex)
+        {
+            yamlMessage = ex.Message;
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private async Task OnExportYaml()
+    {
+        var yamlStream = flags.YamlStream(yamlName);
+        var filenameYaml = yamlName + ".yaml";
+        using var streamRefSpoilers = new DotNetStreamReference(stream: yamlStream);
+        {
+            await JS.InvokeVoidAsync("downloadFileFromStream", filenameYaml, streamRefSpoilers);
+        }
+    }
+
     private void RollSeed()
     {
         var rng = new Random();
@@ -426,6 +523,12 @@
         MT19337 rng2 = new MT19337((uint)seed.ToUInts().Sum(x => x));
         titleLetters.Shuffle(rng2);
         showSeed = seed.ToHex();
+
+        if (yamlPreset != "")
+        {
+            flags.ReadYaml(yamlPreset, seed);
+        }
+
         UpdateUrl();
     }
 
@@ -487,6 +590,72 @@
             flagsMessage = "Using default flags.";
         }
 
+        LoadPreferences();
+    }
+
+    public void SavePreferences()
+    {
+        if (!newRom.IsEmpty() && preferences.RememberRom)
+        {
+            newRom.RestoreOriginalData();
+            preferences.RomPath = Convert.ToBase64String(newRom.DataReadOnly);
+        }
+        else
+        {
+            preferences.RomPath = "";
+        }
+
+        var prefList = preferences.GetType().GetProperties().ToList();
+
+        foreach(var pref in prefList)
+        {
+            localStorage.SetItem(pref.Name, pref.GetValue(preferences, null));
+        }
+    }
+
+    public void LoadPreferences()
+    {
+        var prefList = preferences.GetType().GetProperties().ToList();
+
+        foreach(var pref in prefList)
+        {
+            if(pref.PropertyType == typeof(bool))
+            {
+                pref.SetValue(preferences, localStorage.GetItem<bool>(pref.Name));
+            }
+            else if(pref.PropertyType == typeof(string))
+            { 
+                pref.SetValue(preferences, localStorage.GetItem<string>(pref.Name));
+            }
+        }
+
+        if (preferences.RememberRom)
+        {
+            newRom.Load(Convert.FromBase64String(preferences.RomPath));
+            romMessage = "Loading...";
+            isLoadingRom = true;
+            StateHasChanged();
+
+            try
+            {
+                if (!newRom.Validate())
+                {
+                    romMessage = "Invalid ROM file.";
+                    isLoadingRom = false;
+                    return;
+                }
+                else
+                {
+                    romMessage = "ROM file loaded from memory succesfully.";
+                    isLoadingRom = false;
+                    newRom.BackupOriginalData();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
     }
 
     // Seed Field Functions

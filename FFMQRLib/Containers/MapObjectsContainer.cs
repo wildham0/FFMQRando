@@ -132,8 +132,11 @@ namespace FFMQLib
 			rom.PutInBank(NewAreaAttributesBank, NewAreaAttributesPointers, _attributepointers.SelectMany(x => x.ToBytes()).ToArray());
 
 			rom.PutInBank(0x03, 0x82D3, Blob.FromHex("00B011"));
+			rom.PutInBank(0x03, 0x82E0, Blob.FromHex("07B111")); // Location name // 07b01a
 			rom.PutInBank(0x03, 0x8317, Blob.FromHex("00B011"));
+			rom.PutInBank(0x03, 0x8324, Blob.FromHex("05B111")); // Location floor // 07b018
 			rom.PutInBank(0x03, 0x8353, Blob.FromHex("00B011"));
+			rom.PutInBank(0x03, 0x8360, Blob.FromHex("05B111")); // Location floor
 			rom.PutInBank(0x0B, 0x81B0, Blob.FromHex("00B011"));
 
 			rom.PutInBank(0x01, 0x90F0, Blob.FromHex("00B111"));

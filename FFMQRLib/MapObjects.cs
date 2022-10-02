@@ -96,7 +96,7 @@ namespace FFMQLib
 			Dictionary<MapList, List<byte>> excludedTiles = new Dictionary<MapList, List<byte>> {
 				{ MapList.GiantTreeA, new List<byte> { 0x06, 0x16 } },
 				{ MapList.GiantTreeB, new List<byte> { 0x06, 0x16 } },
-				{ MapList.LavaDomeExterior, new List<byte> { 0x7E, 0xFE, 0x37, 0x41 } },
+				{ MapList.LavaDomeExterior, new List<byte> { 0x7E, 0xFE, 0x37, 0x41, 0x19, 0x1A, 0x1B } },
 				{ MapList.LavaDomeInteriorA, new List<byte> { 0x7E, 0xFE, 0x37, 0x41 } },
 				{ MapList.LavaDomeInteriorB, new List<byte> { 0x49, 0x4B, 0x7D } },
 				{ MapList.DoomCastleLava, new List<byte> { 0x57, 0x41 } },

@@ -36,17 +36,28 @@ namespace FFMQLib
 		public const int CreditsLengthReadTo = 0x9AD2; // Bank 00
 		public const int CreditsLengthTheEnd = 0x80B8; // Bank 03
 
-		// Enemies' Attacks
-		public const int EnemiesAttacksAddress = 0xBC78; // Bank 02
-		public const int EnemiesAttacksBank = 0x02;
-		public const int EnemiesAttacksQty = 0xA9;
-		public const int EnemiesAttacksLength = 0x07;
+		// Attacks
+		public const int AttacksAddress = 0xBC78; // Bank 02
+		public const int AttacksBank = 0x02;
+		public const int AttacksQty = 0xA9;
+		public const int AttacksLength = 0x07;
 
 		// Enemies' Stats
 		public const int EnemiesStatsAddress = 0xC275; // Bank 02
 		public const int EnemiesStatsBank = 0x02;
 		public const int EnemiesStatsQty = 0x53;
 		public const int EnemiesStatsLength = 0x0e;
+
+		// Enemies' Attacks
+		public const int EnemiesAttackLinksAddress = 0xC6FF; // Bank 02
+		public const int EnemiesAttackLinksBank = 0x02;
+		public const int EnemiesAttackLinksQty = 0x53;
+		public const int EnemiesAttackLinksLength = 0x09;
+
+		// Dark King Attack Links, separate from EnemiesAttacks
+		public const int DarkKingAttackLinkAddress = 0xD09E; // Bank 02
+		public const int DarkKingAttackLinkBank = 0x02;
+		public const int DarkKingAttackLinkQty = 0x0C;
 
 		// Scripts
 		public const int GameStartScript = 0x01f811;

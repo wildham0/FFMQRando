@@ -412,6 +412,59 @@ namespace FFMQLib
 
 			return FinalItems;
 		}
+		public string GenerateSpoilers(FFMQRom rom, string version, string hash, string flags, string seed)
+		{
+			List<Items> invalidItems = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
+			
+			string spoilers = "";
+
+			spoilers += "--- Spoilers File --- \n";
+			spoilers += "FFMQR " + version + "\n";
+			spoilers += "Flags: " + flags + "\n";
+			spoilers += "Seed: " + seed + "\n";
+			spoilers += "Hash: " + hash + "\n";
+
+			spoilers += "\n";
+			spoilers += "--- Starting Items ---\n";
+
+			foreach (var item in StartingItems)
+			{
+				spoilers += "  " + item + "\n";
+			}
+
+			spoilers += "\n--- Placed Items ---\n";
+			var keyItems = ItemsLocations.Where(x => !invalidItems.Contains(x.Content)).ToList();
+			var forestaKi = keyItems.Where(x => ItemLocations.ReturnRegion(x.Location) == MapRegions.Foresta).OrderBy(x => x.Location).ToList();
+			var aquariaKi = keyItems.Where(x => ItemLocations.ReturnRegion(x.Location) == MapRegions.Aquaria).OrderBy(x => x.Location).ToList();
+			var fireburgKi = keyItems.Where(x => ItemLocations.ReturnRegion(x.Location) == MapRegions.Fireburg).OrderBy(x => x.Location).ToList();
+			var windiaKi = keyItems.Where(x => ItemLocations.ReturnRegion(x.Location) == MapRegions.Windia).OrderBy(x => x.Location).ToList();
+
+			spoilers += "Foresta\n";
+			foreach (var item in forestaKi)
+			{
+				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + item.Content + "\n";
+			}
+
+			spoilers += "\nAquaria\n";
+			foreach (var item in aquariaKi)
+			{
+				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + item.Content + "\n";
+			}
+
+			spoilers += "\nFireburg\n";
+			foreach (var item in fireburgKi)
+			{
+				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + item.Content + "\n";
+			}
+
+			spoilers += "\nWindia\n";
+			foreach (var item in windiaKi)
+			{
+				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + item.Content + "\n";
+			}
+
+			return spoilers;
+		}
 	}
 
 	public partial class FFMQRom : SnesRom

@@ -97,6 +97,10 @@ namespace FFMQLib
 			PutInBank(0x01, 0xD4DB, Blob.FromHex("EAEAEA"));
 			PutInBank(0x01, 0xD55A, Blob.FromHex("EAEAEA"));
 
+			// Spencer's cave bombing
+			PutInBank(0x01, 0xDA4E, Blob.FromHex("EAEAEA"));
+			PutInBank(0x01, 0xDA62, Blob.FromHex("EAEAEA"));
+
 			// Hero status, same, then rts early to avoid the big flash at the end
 			PutInBank(0x01, 0xDC2A, Blob.FromHex("EAEAEA"));
 			PutInBank(0x01, 0xDC37, Blob.FromHex("EAEAEA"));
@@ -268,6 +272,12 @@ namespace FFMQLib
 			// Fix Cure Overflow Bug
 			PutInBank(0x02, 0x95CA, Blob.FromHex("EAEAEAEA22008611"));
 			PutInBank(0x11, 0x8600, Blob.FromHex("A514186D7704B002C5166B")); // Same as original except we skip comparing to max hp if carry is set
+
+			// Fix crashing when transitioning from door and switching weapon at the same time (experimental)
+			// We skip a PHA/PLP in an interrupt routine that seems to use vertical scanline location (OPVCT) to compute the status register ???
+			//  vertscanline x3 + $0f (or + $9a)
+			PutInBank(0x00, 0xB8C0, Blob.FromHex("EAEA"));
+			PutInBank(0x00, 0xB852, Blob.FromHex("EAEA"));
 		}
 	}
 }

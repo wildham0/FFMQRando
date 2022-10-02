@@ -51,6 +51,7 @@ namespace FFMQLib
 		public bool Prioritize { get; set; }
 		public bool Exclude { get; set; }
 		public List<AccessReqs> AccessRequirements { get; set; }
+		public string Name { get; set; }
 
 		public TreasureObject(int mapobjid, int mapid, Locations location, TreasureType type, List<AccessReqs> access)
 		{
@@ -63,7 +64,21 @@ namespace FFMQLib
 			Prioritize = false;
 			Exclude = false;
 			AccessRequirements = access;
+			Name = "";
+		}
 
+		public TreasureObject(int mapobjid, int mapid, Locations location, TreasureType type, string name, List<AccessReqs> access)
+		{
+			ObjectId = mapobjid;
+			Content = (Items)0xFF;
+			Location = location;
+			Type = type;
+			MapId = mapid;
+			IsPlaced = false;
+			Prioritize = false;
+			Exclude = false;
+			AccessRequirements = access;
+			Name = name;
 		}
 
 		public TreasureObject(TreasureObject treasure)
@@ -77,6 +92,21 @@ namespace FFMQLib
 			Prioritize = treasure.Prioritize;
 			Exclude = treasure.Exclude;
 			AccessRequirements = treasure.AccessRequirements.ToList();
+			Name = treasure.Name;
+		}
+
+		public TreasureObject(TreasureObject treasure, string name)
+		{
+			ObjectId = treasure.ObjectId;
+			Content = treasure.Content;
+			Location = treasure.Location;
+			Type = treasure.Type;
+			MapId = treasure.MapId;
+			IsPlaced = treasure.IsPlaced;
+			Prioritize = treasure.Prioritize;
+			Exclude = treasure.Exclude;
+			AccessRequirements = treasure.AccessRequirements.ToList();
+			Name = treasure.Name == "" ? name : treasure.Name;
 		}
 	}
 	public class GameFlags
