@@ -10,10 +10,10 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "1.1.08";
+		public static string VersionNumber = "1.2.06";
 		public static string Version = VersionNumber + "-beta";
 	}
-	
+
 	public partial class FFMQRom : SnesRom
 	{
 
@@ -26,8 +26,13 @@ namespace FFMQLib
 		public Overworld Overworld;
 		public GameMaps GameMaps;
 		public MapSprites MapSpriteSets;
+		public EnemyAttackLinks EnemyAttackLinks;
+		public Attacks Attacks;
+		public EnemiesStats enemiesStats;
 		private byte[] originalData;
 		public bool beta = false;
+		public bool spoilers = false;
+		public string spoilersText;
 
 		public override bool Validate()
 		{
@@ -54,10 +59,10 @@ namespace FFMQLib
 				}
 
 				Blob hash = hasher.ComputeHash(dataToHash);
-				
+
 				//Console.WriteLine(BitConverter.ToString(hash).Replace("-", ""));
 				// if (hash == Blob.FromHex("F71817F55FEBD32FD1DCE617A326A77B6B062DD0D4058ECD289F64AF1B7A1D05")) unadultered hash
-				
+
 				if (hash == Blob.FromHex("92F625478568B1BE262E3F9D62347977CE7EE345E9FF353B4778E8560E16C7CA"))
 				{
 					return true;
@@ -86,6 +91,29 @@ namespace FFMQLib
 			return new MemoryStream(Data);
 		}
 
+		public void Load(byte[] _data)
+		{
+			Data = new byte[0x80000];
+			Array.Copy(_data, Data, 0x80000);
+		}
+		public byte[] DataReadOnly { get => Data; }
+		public Stream SpoilerStream()
+		{
+			if (spoilers)
+			{
+				var stream = new MemoryStream();
+				var writer = new StreamWriter(stream);
+				writer.Write(spoilersText);
+				writer.Flush();
+				stream.Position = 0;
+				return stream;
+			}
+			else
+			{
+				return null;
+			}
+		}
+
 		public void PutInBank(int bank, int address, Blob data)
 		{
 			int offset = (bank * 0x8000) + (address - 0x8000);
@@ -95,6 +123,10 @@ namespace FFMQLib
 		{
 			int offset = (bank * 0x8000) + (address - 0x8000);
 			return Get(offset, length);
+		}
+		public int GetOffset(int bank, int address)
+		{
+			return (bank * 0x8000) + (address - 0x8000);
 		}
 		public void ExpandRom()
 		{
@@ -126,8 +158,9 @@ namespace FFMQLib
 			}
 
 			NodeLocations nodeLocations = new(this);
-			EnemiesAttacks enemiesAttacks = new(this);
-			EnemiesStats enemiesStats = new(this);
+			EnemyAttackLinks = new(this);
+			Attacks = new(this);
+			enemiesStats = new(this);
 			GameMaps = new(this);
 			MapObjects = new(this);
 			Credits credits = new(this);
@@ -160,7 +193,8 @@ namespace FFMQLib
 
 			MapObjects.SetEnemiesDensity(flags, rng);
 			MapObjects.ShuffleEnemiesPosition(GameMaps, flags, rng);
-			//enemiesAttacks.ScaleAttacks(flags, rng);
+			EnemyAttackLinks.ShuffleAttacks(flags, rng);
+			//Attacks.ScaleAttacks(flags, rng);
 			enemiesStats.ScaleEnemies(flags, rng);
 			nodeLocations.OpenNodes();
 			Battlefields.SetBattlesQty(flags, rng);
@@ -178,14 +212,15 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
-
+			
 			sillyrng.Next();
 			RandomBenjaminPalette(preferences, sillyrng);
 
 			credits.Update();
 			
 			credits.Write(this);
-			enemiesAttacks.Write(this);
+			EnemyAttackLinks.Write(this, flags);
+			Attacks.Write(this, flags);
 			enemiesStats.Write(this);
 			GameMaps.Write(this);
 			MapChanges.Write(this);
@@ -198,7 +233,9 @@ namespace FFMQLib
 			MapObjects.WriteAll(this);
 			MapSpriteSets.Write(this);
 			titleScreen.Write(this, Metadata.VersionNumber, seed, flags);
-
+			spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
+			spoilers = flags.EnableSpoilers;
+			
 			this.Header = Array.Empty<byte>();
 		}
 		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, MT19337 rng)
@@ -659,7 +696,7 @@ namespace FFMQLib
 					"00",
 					"2304",
 					"231A",
-					"2A10503346305418251825182521255EFF07062A250F0161FFFFFF", 
+					"2A105033463054182521255EFF07062A250F0161FFFFFF", 
 					"00",
 					"2C0F01",
 					"00"
@@ -708,9 +745,11 @@ namespace FFMQLib
 			// Reproduce spencer/tristam chest to avoid softlock
 			var spencerObject = new MapObject(0, this);
 			var tristamChestObject = new MapObject(0, this);
+			var boxObject = new MapObject(0, this);
 
 			spencerObject.CopyFrom(MapObjects[0x02C][0x00]);
 			tristamChestObject.CopyFrom(MapObjects[0x02C][0x01]);
+			boxObject.CopyFrom(MapObjects[0x02C][0x02]);
 
 			tristamChestObject.X = 0x2E;
 			tristamChestObject.Y = 0x12;
@@ -720,10 +759,15 @@ namespace FFMQLib
 			spencerObject.Y = 0x13;
 			spencerObject.Layer = 0x03;
 
+			boxObject.X = 0x2C;
+			boxObject.Y = 0x0F;
+			boxObject.Layer = 0x03;
+
 			MapObjects[0x2D].RemoveAt(0);
+			MapObjects[0x2D].Insert(0, boxObject);
 			MapObjects[0x2D].Insert(0, tristamChestObject);
 			MapObjects[0x2D].Insert(0, spencerObject);
-
+			
 			/*** Fireburg ***/
 
 			// Reuben
@@ -984,7 +1028,7 @@ namespace FFMQLib
 				{
 					"2e28[04]",
 					TextToHex("You may enter.") + "36",
-					$"2a{treeDoorChangeId:X2}2a10505eff9700ffff",
+					$"2a{treeDoorChangeId:X2}2a10505eff9700ffff2bf3",
 					"00",
 					TextToHex("Defeat Gidrah and I'll let you pass.") + "36",
 					"00"

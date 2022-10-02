@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Blazorise;
 using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
+using Blazored.LocalStorage;
 
 namespace FFMQWebAsm
 {
@@ -33,6 +34,8 @@ namespace FFMQWebAsm
             });
 
             builder.RootComponents.Add<App>("#app");
+
+            builder.Services.AddBlazoredLocalStorage();
 
             var host = builder.Build();
 
