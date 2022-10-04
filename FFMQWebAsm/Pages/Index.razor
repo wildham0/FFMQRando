@@ -630,7 +630,7 @@
             }
         }
 
-        if (preferences.RememberRom)
+        if (preferences.RememberRom && preferences.RomPath != "")
         {
             newRom.Load(Convert.FromBase64String(preferences.RomPath));
             romMessage = "Loading...";
