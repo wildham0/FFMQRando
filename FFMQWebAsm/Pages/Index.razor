@@ -294,6 +294,14 @@
     </Switch>
 </Field>
 <Field>
+    <Switch TValue="bool" @bind-Checked="@preferences.RandomMusic">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Randomize Music</Text>
+        <Tooltip Text="Shuffle the music tracks." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
+</Field>
+<Field>
     <Switch TValue="bool" @bind-Checked="@preferences.RememberRom">
         <Text TextColor="TextColor.Secondary" class="fw-bold">Remember ROM</Text>
         <Tooltip Text="Automatically load the selected ROM file when loading the randomizer." Inline Multiline Placement="TooltipPlacement.Right">

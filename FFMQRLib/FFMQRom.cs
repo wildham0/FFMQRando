@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "1.2.07";
+		public static string VersionNumber = "1.2.08";
 		public static string Version = VersionNumber + "-beta";
 	}
 
@@ -174,7 +174,6 @@ namespace FFMQLib
 			Overworld = new(this);
 			MapSpriteSets = new(this);
 			TitleScreen titleScreen = new(this);
-			
 
 			ExpandRom();
 			FastMovement();
@@ -187,6 +186,7 @@ namespace FFMQLib
 			CompanionRoutines();
 			SetLevelingCurve(flags);
 			ProgressiveGears(flags);
+			Msu1SupportRandom(sillyrng, preferences.RandomMusic);
 
 			GameMaps.RandomGiantTreeMessage(rng);
 			GameMaps.LessObnoxiousMaps(flags, rng, MapObjects);
@@ -215,6 +215,7 @@ namespace FFMQLib
 			
 			sillyrng.Next();
 			RandomBenjaminPalette(preferences, sillyrng);
+			
 
 			credits.Update();
 			
