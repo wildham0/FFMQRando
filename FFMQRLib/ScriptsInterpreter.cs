@@ -126,7 +126,7 @@ namespace FFMQLib
         public static ScriptCode Code0504 = new(0x0504, "IF [9E] < arg0 GOTO arg1", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1), new ScriptArgument(ScriptArgumentType.Address, 2, true), });
         public static ScriptCode Code0505 = new(0x0505, "IF [9E] <= arg0 GOTO arg1", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1), new ScriptArgument(ScriptArgumentType.Address, 2, true), });
         public static ScriptCode Code0506 = new(0x0506, "IF [9E] > arg0 GOTO arg1", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1), new ScriptArgument(ScriptArgumentType.Address, 2, true), });
-        public static ScriptCode Code0507 = new(0x0507, "IF [9E] <= arg0 GOTO arg1", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1), new ScriptArgument(ScriptArgumentType.Address, 2, true), });
+        public static ScriptCode Code0507 = new(0x0507, "IF [9E] >= arg0 GOTO arg1", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1), new ScriptArgument(ScriptArgumentType.Address, 2, true), });
         public static ScriptCode Code0508 = new(0x0508, "UNUSED_08");
         public static ScriptCode Code0509 = new(0x0509, "IF [9E] != arg0 GOTO arg1", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1), new ScriptArgument(ScriptArgumentType.Address, 2, true), });
         public static ScriptCode Code050A = new(0x050A, "UNUSED_0A");
