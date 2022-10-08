@@ -96,8 +96,8 @@ namespace FFMQLib
         public static ScriptCode Code0017 = new(0x1700, "SYSFLAG arg0 = FALSE", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1) });
         public static ScriptCode Code0018 = new(0x1800, "UNKNOWN_18");
         public static ScriptCode Code0019 = new(0x1900, "UNKNOWN_19");
-        public static ScriptCode Code001A = new(0x1A00, "UNKNOWN_1A arg0", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1) });
-        public static ScriptCode Code001B = new(0x1B00, "UNKNOWN_1B arg0", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1) });
+        public static ScriptCode Code001A = new(0x1A00, "PRIMARYTEXTBOX arg0", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1) });
+        public static ScriptCode Code001B = new(0x1B00, "SECONDARYTEXTBOX arg0", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1) });
         public static ScriptCode Code001C = new(0x1C00, "UNKNOWN_1C");
         public static ScriptCode Code001D = new(0x1D00, "COMPANION arg0", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1) });
         public static ScriptCode Code001E = new(0x1E00, "ITEM arg0", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1) });
@@ -349,7 +349,7 @@ namespace FFMQLib
         public static ScriptCode Code05E3 = new(0x05E3, "UNKNOWN_E3");
         public static ScriptCode Code05E4 = new(0x05E4, "UNKNOWN_E4 arg0", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 2) });
         public static ScriptCode Code05E5 = new(0x05E5, "UNKNOWN_E5");
-        public static ScriptCode Code05E6 = new(0x05E6, "UNKNOWN_E6 arg0", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1) });
+        public static ScriptCode Code05E6 = new(0x05E6, "ADDCOMPANION arg0", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1) });
         public static ScriptCode Code05E7 = new(0x05E7, "UNKNOWN_E7");
         public static ScriptCode Code05E8 = new(0x05E8, "UNKNOWN_E8");
         public static ScriptCode Code05E9 = new(0x05E9, "UNKNOWN_E9 arg0", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1) });
@@ -422,6 +422,7 @@ namespace FFMQLib
         private int Length;
         private FFMQRom Rom;
         public string TextualData;
+        private List<byte> ByteList;
 
         public ScriptsInterpreter(int bank, int address, int length, FFMQRom rom)
         {
@@ -429,6 +430,7 @@ namespace FFMQLib
             Address = address;
             Length = length;
             Rom = rom;
+            ByteList = Rom.GetFromBank(Bank, Address, Length).ToBytes().ToList();
             Interpret();
 
             foreach (var label in Labels)
@@ -447,6 +449,35 @@ namespace FFMQLib
             }
         }
 
+        public ScriptsInterpreter(string address, List<byte> code)
+        {
+            ByteList = code;
+            Bank = (int)Convert.FromHexString(address.Substring(0, 2))[0];
+            var sub = address.Substring(2, 4);
+            var array = Convert.FromHexString(sub).ToArray();
+            var intval = Int32.Parse(sub, System.Globalization.NumberStyles.HexNumber);
+
+            Address = intval;
+            //Address = BitConverter.ToInt32(Convert.FromHexString(address.Substring(2, 4)));
+            Length = code.Count;
+            Rom = new FFMQRom();
+            Interpret();
+
+            foreach (var label in Labels)
+            {
+                Console.WriteLine(label.Item1 + " = " + $"{label.Item2:X6}");
+                TextualData += label.Item1 + " = " + $"{label.Item2:X6}" + "\n";
+            }
+
+            Console.WriteLine("-----");
+            TextualData += "-----" + "\n";
+
+            foreach (var line in Lines)
+            {
+                Console.WriteLine(line.line);
+                TextualData += line.line + "\n";
+            }
+        }
         public ScriptsInterpreter(List<string> code)
         {
             int orgIndex = code.FindIndex(x => x.Split(' ')[0] == "ORG");
@@ -560,7 +591,7 @@ namespace FFMQLib
 
         private void Interpret()
         {
-            Blob byteList = Rom.GetFromBank(Bank, Address, Length);
+            Blob byteList = ByteList.ToArray();
             List<ScriptCode> codeList = ScriptCodesList.ScriptCodes();
             List<string> sizeIndices = new() { "z", "b", "w", "s", "d", "b", "w", "s", "d" };
 
@@ -644,7 +675,7 @@ namespace FFMQLib
                         if (selectedCommand.Arguments[i].Type == ScriptArgumentType.Value)
                         {
                             string argumentFormat = "X" + (selectedCommand.Arguments[i].Size * 2);
-                            dividedString[argumentIndex] = sizeIndices[selectedCommand.Arguments[i].Size] + argumentInt.ToString(argumentFormat);
+                            dividedString[argumentIndex] = "#$" + argumentInt.ToString(argumentFormat);
                         }
                         else
                         {
