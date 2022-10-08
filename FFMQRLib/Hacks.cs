@@ -279,14 +279,7 @@ namespace FFMQLib
 		}
 		public void SkyCoinMode()
 		{
-			int skycoindmode = 0;
 
-			if (skycoindmode == 4)
-			{
-				// show sky coin shards qty				
-				PutInBank(0x03, 0x9811, Blob.FromHex("0700C11204"));
-				PutInBank(0x12, 0xC100, Blob.FromHex("0b0f0a90115e00058a00115e00058a0f930e052007ef970305210f5f0100"));
-			}
 		}
 		public void Msu1SupportRandom(MT19337 rng, bool randomizesong)
 		{

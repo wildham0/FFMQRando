@@ -1189,6 +1189,9 @@ namespace FFMQLib
 					"1A75" + TextToHex("Gonna hit the bunk now.") + "36",
 					"00"
 				}));
+
+			/*** Doom Castle ***/
+
 		}
 
 		public void SetStartingWeapons(ItemsPlacement itemsPlacement)
