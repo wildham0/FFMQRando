@@ -13,7 +13,7 @@ using System.Security.Cryptography;
 namespace FFMQLib
 {
     public class Flags
-    { 
+    {
         public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.ThreeQuarter;
         public ItemShuffleChests ChestsShuffle { get; set; } = ItemShuffleChests.Prioritize;
         public ItemShuffleBoxes BoxesShuffle { get; set; } = ItemShuffleBoxes.Exclude;
@@ -32,6 +32,7 @@ namespace FFMQLib
         public bool ProgressiveGear { get; set; } = false;
         public bool TweakedDungeons { get; set; } = true;
         public DoomCastleModes DoomCastleMode { get; set; } = DoomCastleModes.Standard;
+        public SkyCoinModes SkyCoinMode { get; set; } = SkyCoinModes.ShatteredSkyCoin;
         public bool EnableSpoilers { get; set; } = false;
 
         public string GenerateFlagString()

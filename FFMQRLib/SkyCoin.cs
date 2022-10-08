@@ -20,11 +20,11 @@ namespace FFMQLib
 	}
 	public enum SkyCoinShardsQty : int
 	{
-		[Description("Low (12)")]
+		[Description("Low (16)")]
 		Low = 0,
 		[Description("Mid (24)")]
 		Mid,
-		[Description("High (36)")]
+		[Description("High (32)")]
 		High,
 		[Description("Random")]
 		Random,
@@ -33,10 +33,23 @@ namespace FFMQLib
 	{
 		public void SkyCoin(Flags flags, MT19337 rng)
 		{
-			int skycoindmode = 4;
-			int skycoinqtyflag = 0;
-			if (skycoindmode == 4)
+			if (flags.SkyCoinMode == SkyCoinModes.Standard)
 			{
+				return;
+			}
+			else if (flags.SkyCoinMode == SkyCoinModes.StartWith)
+			{
+				// Start With SkyCoin
+				PutInBank(0x0C, 0xD3A3, Blob.FromHex("01"));
+			}
+			else if (flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals)
+			{
+				//change 4 crystals flags, give sky coin if all 4 sets(remove skycoin requirement from logic)
+			}
+			else if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
+			{
+				SkyCoinShardsQty skycoinqtyflag = SkyCoinShardsQty.Low;
+
 				List<(int, int)> test = new()
 				{
 					(0, 16),
@@ -45,7 +58,7 @@ namespace FFMQLib
 					(3, rng.PickFrom(new List<int>() { 16, 24, 32 }))
 				};
 
-				int skycointqty = test[skycoinqtyflag].Item2;
+				int skycointqty = test[(int)skycoinqtyflag].Item2;
 
 				// show sky coin shards qty				
 				PutInBank(0x03, 0x9811, Blob.FromHex("0700C11204"));
@@ -60,23 +73,22 @@ namespace FFMQLib
 
 				TalkScripts.AddScript(0x06,
 					new ScriptBuilder(new List<string> {
+						"04",
 						"050220C112",
 						"00"
 					}));
 
 				var newSkyDoorScript = new ScriptBuilder(new List<string> {
-						"04",
 						"0F930E",
-						$"0504{skycointqty:X2}[05]",
+						$"0506{skycointqty:X2}[04]",
 						"232F2B33",
 						"050202FC03",
-						"1A33" + TextToHex($"You need {skycointqty} Sky Coin pieces to open this door.") + "36",
+						"1A06" + TextToHex($"You need {skycointqty} Sky Coin pieces to open this door.") + "36",
 						"00"
 					});
 				
 				newSkyDoorScript.WriteAt(0x12, 0xC120, this);
 			}
-
 		}
 	}
 }

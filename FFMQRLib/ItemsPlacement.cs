@@ -92,8 +92,10 @@ namespace FFMQLib
 
 				List<Items> placedItems = new();
 
+				List<Items> nonRequiredItems = flags.SkyCoinMode == SkyCoinModes.Standard ? StartingItems : StartingItems.Append(Items.SkyCoin).ToList();
+
 				// Apply starting items access
-				foreach (var item in StartingItems)
+				foreach (var item in nonRequiredItems)
 				{
 					List<AccessReqs> result;
 					if (ItemLocations.ItemAccessReq.TryGetValue(item, out result))
@@ -225,6 +227,29 @@ namespace FFMQLib
 				}
 			}
 
+			// Sky Coins
+			if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
+			{
+				var validSkyCoinLocations = ItemsLocations.Where(x => x.IsPlaced == false && x.Prioritize == false && x.Exclude == false && x.Location != Locations.DoomCastle).ToList();
+
+				if(validSkyCoinLocations.Count < 40)
+                {
+					throw new Exception("Sky Coin Pieces error: not enough valid locations");
+                }
+
+				for (int i = 0; i < 40; i++)
+				{
+					TreasureObject targetLocation = rng.TakeFrom(validSkyCoinLocations);
+					targetLocation.Content = Items.SkyCoin;
+					targetLocation.IsPlaced = true;
+
+					if (targetLocation.Type == TreasureType.Chest || targetLocation.Type == TreasureType.Box)
+					{
+						targetLocation.Type = TreasureType.Chest;
+					}
+				}
+			}
+
 			// Fill excluded and unfilled locations
 			List<Items> consumables = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed };
 			
@@ -310,7 +335,6 @@ namespace FFMQLib
 				Items.ThunderRock, // NPC
 				Items.CaptainCap, // NPC
 				Items.MobiusCrest,
-				Items.SkyCoin,
 				Items.DragonClaw, // NPC
 				Items.MegaGrenade, //NPC
 				Items.Elixir, // NPC
@@ -352,7 +376,18 @@ namespace FFMQLib
 				Items.CupidLock // NPC
 			};
 
-			
+
+			// SkyCoin
+			if (flags.SkyCoinMode == SkyCoinModes.Standard)
+			{
+				ProgressionItems.Add(Items.SkyCoin);
+			}
+			else if(flags.SkyCoinMode == SkyCoinModes.StartWith)
+			{
+				StartingItems.Add(Items.SkyCoin);
+			}
+
+
 			// Remove Starting Items
 			ProgressionBombs.RemoveAll(x => StartingItems.Contains(x));
 			ProgressionSwords.RemoveAll(x => StartingItems.Contains(x));
