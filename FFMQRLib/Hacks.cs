@@ -130,8 +130,6 @@ namespace FFMQLib
 			PutInBank(0x03, 0xA4A3, Blob.FromHex("2E"));
 			PutInBank(0x03, 0xA625, Blob.FromHex("7B"));
 		}
-
-
 		public void ChestsHacks(ItemsPlacement itemsPlacement)
 		{
 			// Include chests when loading graphics for empty boxes
@@ -278,6 +276,17 @@ namespace FFMQLib
 			//  vertscanline x3 + $0f (or + $9a)
 			PutInBank(0x00, 0xB8C0, Blob.FromHex("EAEA"));
 			PutInBank(0x00, 0xB852, Blob.FromHex("EAEA"));
+		}
+		public void SkyCoinMode()
+		{
+			int skycoindmode = 0;
+
+			if (skycoindmode == 4)
+			{
+				// show sky coin shards qty				
+				PutInBank(0x03, 0x9811, Blob.FromHex("0700C11204"));
+				PutInBank(0x12, 0xC100, Blob.FromHex("0b0f0a90115e00058a00115e00058a0f930e052007ef970305210f5f0100"));
+			}
 		}
 		public void Msu1SupportRandom(MT19337 rng, bool randomizesong)
 		{
