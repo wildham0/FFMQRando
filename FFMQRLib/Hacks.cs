@@ -277,10 +277,6 @@ namespace FFMQLib
 			PutInBank(0x00, 0xB8C0, Blob.FromHex("EAEA"));
 			PutInBank(0x00, 0xB852, Blob.FromHex("EAEA"));
 		}
-		public void SkyCoinMode()
-		{
-
-		}
 		public void Msu1SupportRandom(MT19337 rng, bool randomizesong)
 		{
 			// see 10_8000_MSUSupport.asm

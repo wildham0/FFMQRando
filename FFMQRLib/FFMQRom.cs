@@ -212,7 +212,7 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
-			SkyCoin(flags, rng);
+			SkyCoinMode(flags, rng);
 
 
 			sillyrng.Next();

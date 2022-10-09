@@ -31,7 +31,7 @@ namespace FFMQLib
 	}
 	public partial class FFMQRom : SnesRom
 	{
-		public void SkyCoin(Flags flags, MT19337 rng)
+		public void SkyCoinMode(Flags flags, MT19337 rng)
 		{
 			if (flags.SkyCoinMode == SkyCoinModes.Standard)
 			{
