@@ -130,8 +130,6 @@ namespace FFMQLib
 			PutInBank(0x03, 0xA4A3, Blob.FromHex("2E"));
 			PutInBank(0x03, 0xA625, Blob.FromHex("7B"));
 		}
-
-
 		public void ChestsHacks(ItemsPlacement itemsPlacement)
 		{
 			// Include chests when loading graphics for empty boxes

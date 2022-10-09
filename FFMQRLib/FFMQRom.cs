@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "1.2.08";
+		public static string VersionNumber = "1.2.09";
 		public static string Version = VersionNumber + "-beta";
 	}
 
@@ -212,7 +212,9 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
-			
+			SkyCoinMode(flags, rng);
+
+
 			sillyrng.Next();
 			RandomBenjaminPalette(preferences, sillyrng);
 			
@@ -420,10 +422,10 @@ namespace FFMQLib
 					"2E01[06]",
 					"1A1BA0C5C55301B243D14AC1B8C96AB55E42C0B8D23066576741C3586A5A413DFF5A9EB4C53FCE",
 					"05E4210C",
-					"2A42FF3054005500541D2529E6FFFF",
+					"2A42FF1D2529E6FFFF",
 					"2301",
 					"2B06",
-					"00"
+					(flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals) ? "050260C11200" : "00"
 				}));
 
 			// Tristam Quit Party Tile
@@ -664,8 +666,12 @@ namespace FFMQLib
 					"2B50",
 					"2B07",
 					"23CD",
-					"00"
+					(flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals) ? "050260C11200" : "00"
 				}));
+
+			// Update crystal to not show up after wakewater use
+			MapObjects[0x02A][0x06].Gameflag = 0x12;
+			MapObjects[0x02A][0x07].Gameflag = 0x12;
 
 			/*** Spencer's Cave Pre-bomb ***/
 
@@ -991,11 +997,11 @@ namespace FFMQLib
 					"05E47D06",
 					"2364",
 					"2B08",
-					"2A42FF10501F2529E6FFFF",
-					"2A082700200B275EFF2825052A61FFFFFF",
+					"2A42FF10501F2529E608270020052aFFFF",
 					"2BC7",
 					"23CC",
 					"2303",
+					(flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals) ? "050260C11200" : "00",
 					"00"
 				}));
 
@@ -1189,6 +1195,7 @@ namespace FFMQLib
 					"1A75" + TextToHex("Gonna hit the bunk now.") + "36",
 					"00"
 				}));
+
 		}
 
 		public void SetStartingWeapons(ItemsPlacement itemsPlacement)

@@ -189,7 +189,7 @@ namespace FFMQLib
 						"00"
 					}));
 
-				// Change script to mae sure the right boss tiles are removed when defeated
+				// Change script to make sure the right boss tiles are removed when defeated
 				PutInBank(0x12, 0xC000, Blob.FromHex("2a01214046414642464346ffff00"));
 				PutInBank(0x12, 0xC010, Blob.FromHex("2a01214446454646464746ffff00"));
 				PutInBank(0x12, 0xC020, Blob.FromHex("2a0121484649464A464B46ffff00"));
