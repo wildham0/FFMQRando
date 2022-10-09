@@ -152,6 +152,33 @@
         </Tooltip>
     </Switch>
 </Field>
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Sky Coin Modes</FieldLabel>
+    <Tooltip Text="Configure how the Sky Coin is acquired.<br /><br />Standard: The Sky Coin will be found in a chest.<br /><br />Start With: The Sky Coin will be in your inventory at the start of the game.<br /><br />Save the Crystals: The Sky Coin will be acquired once you save all 4 crystals.<br /><br />Shattered: The Sky Coin is splitted in 40 fragments; you can enter Doom Castle once the required amount is found." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
+    <Select @bind-SelectedValue="@flags.SkyCoinMode">
+        @foreach(var item in Enum.GetValues<FFMQLib.SkyCoinModes>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
+@if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
+{ 
+    <Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Sky Coin Fragments Required Quantity</FieldLabel>
+    <Tooltip Text="Set the number of Sky Coin Fragments required to enter Doom Castle.<br /><br />Random select one of the 3 previous options at random." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
+    <Select @bind-SelectedValue="@flags.SkyCoinFragmentsQty">
+        @foreach(var item in Enum.GetValues<FFMQLib.SkyCoinFragmentsQty>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
+}
 
 <div><br /></div>
 <h3 id="optionsSection" class="text-secondary">Enemies</h3>

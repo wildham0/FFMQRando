@@ -32,7 +32,8 @@ namespace FFMQLib
         public bool ProgressiveGear { get; set; } = false;
         public bool TweakedDungeons { get; set; } = true;
         public DoomCastleModes DoomCastleMode { get; set; } = DoomCastleModes.Standard;
-        public SkyCoinModes SkyCoinMode { get; set; } = SkyCoinModes.ShatteredSkyCoin;
+        public SkyCoinModes SkyCoinMode { get; set; } = SkyCoinModes.Standard;
+        public SkyCoinFragmentsQty SkyCoinFragmentsQty { get; set; } = SkyCoinFragmentsQty.Mid24;
         public bool EnableSpoilers { get; set; } = false;
 
         public string GenerateFlagString()
@@ -102,6 +103,12 @@ namespace FFMQLib
             if ((NpcsShuffle == ItemShuffleNPCsBattlefields.Exclude || BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Exclude) && BoxesShuffle == ItemShuffleBoxes.Exclude)
             {
                 throw new Exception("Selected flags don't allow enough locations to place all Quest Items. Change flags to include more locations.");
+            }
+            
+            // Throw an error if the settings don't offer enough locations.
+            if (SkyCoinMode == SkyCoinModes.ShatteredSkyCoin && BoxesShuffle == ItemShuffleBoxes.Exclude)
+            {
+                throw new Exception("Selected flags don't allow enough locations to place all Sky Coin Fragments. Set Brown Boxes to Include.");
             }
         }
         public string GenerateYaml(string name)

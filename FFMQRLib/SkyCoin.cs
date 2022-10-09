@@ -18,14 +18,14 @@ namespace FFMQLib
 		[Description("Shattered Sky Coin")]
 		ShatteredSkyCoin,
 	}
-	public enum SkyCoinShardsQty : int
+	public enum SkyCoinFragmentsQty : int
 	{
 		[Description("Low (16)")]
-		Low = 0,
+		Low16 = 0,
 		[Description("Mid (24)")]
-		Mid,
+		Mid24,
 		[Description("High (32)")]
-		High,
+		High32,
 		[Description("Random")]
 		Random,
 	}
@@ -45,20 +45,51 @@ namespace FFMQLib
 			else if (flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals)
 			{
 				//change 4 crystals flags, give sky coin if all 4 sets(remove skycoin requirement from logic)
+				var crystalSkyCoinScript = new ScriptBuilder(new List<string> {
+						"2F",
+						"050C0F[07]",
+						"050B01[07]",
+						"050B12[07]",
+						"050B03[07]",
+						"050B05[07]",
+						$"0D5F01{(int)Items.SkyCoin:X2}0162",
+						"00"
+					});
+
+				var pazuzuScript = new ScriptBuilder(new List<string> {
+						"2B47",
+						"2B48",
+						"2B49",
+						"2B40",
+						"2B41",
+						"2B42",
+						"2B43",
+						"2B44",
+						"2B45",
+						"2B46",
+						"050260C11200",
+						"00"
+					});
+
+				var pazuzuJumpScript = new ScriptBuilder(new List<string> {
+						"0502A0C11200"
+					});
+
+				crystalSkyCoinScript.WriteAt(0x12, 0xC160, this);
+				pazuzuScript.WriteAt(0x12, 0xC1A0, this);
+				pazuzuJumpScript.WriteAt(0x03, 0xFDAD, this);
 			}
 			else if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
 			{
-				SkyCoinShardsQty skycoinqtyflag = SkyCoinShardsQty.Low;
-
-				List<(int, int)> test = new()
+				List<(SkyCoinFragmentsQty, int)> fragmentQtySelector = new()
 				{
-					(0, 16),
-					(1, 24),
-					(2, 36),
-					(3, rng.PickFrom(new List<int>() { 16, 24, 32 }))
+					(SkyCoinFragmentsQty.Low16, 16),
+					(SkyCoinFragmentsQty.Mid24, 24),
+					(SkyCoinFragmentsQty.High32, 36),
+					(SkyCoinFragmentsQty.Random, rng.PickFrom(new List<int>() { 16, 24, 32 }))
 				};
 
-				int skycointqty = test[(int)skycoinqtyflag].Item2;
+				int skycointqty = fragmentQtySelector[(int)flags.SkyCoinFragmentsQty].Item2;
 
 				// show sky coin shards qty				
 				PutInBank(0x03, 0x9811, Blob.FromHex("0700C11204"));
@@ -88,6 +119,15 @@ namespace FFMQLib
 					});
 				
 				newSkyDoorScript.WriteAt(0x12, 0xC120, this);
+
+				// Sky Coin new name
+				PutInBank(0x0C, 0xC1D4, Blob.FromHex("acbeccff9fc5b4bac0b8c1c7"));
+
+				// Sky Coin Fragment sprites
+				PutInBank(0x04, 0x8450, Blob.FromHex("0D081F0037076B0FDF9FFC3E7F3FFF3F0A000F18BE35AC2C"));
+				PutInBank(0x04, 0x8468, Blob.FromHex("7010F010E0E0E0E0C0C04040C0C080809010E02040C04080"));
+				PutInBank(0x04, 0x85D0, Blob.FromHex("7D3FFD3FBE2EFC945808280810100000B43D6E9428181000"));
+				PutInBank(0x04, 0x85E8, Blob.FromHex("808000000000000000000000000000008000000000000000"));
 			}
 		}
 	}
