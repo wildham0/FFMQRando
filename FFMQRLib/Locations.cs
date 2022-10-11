@@ -254,40 +254,165 @@ namespace FFMQLib
 	public class NodeLocations
 	{
 		private List<Blob> _movementArrows = new();
-		private const int OWMovementArrows = 0x03EE84;
+		private List<Node> Nodes = new();
+		private List<byte> ShipWestSteps = new();
+		private List<byte> ShipEastSteps = new();
+		private const int OWMovementBank = 0x07;
+		private const int OWMovementArrows = 0xEE84;
+		private const int OWWalkStepsPointers = 0xF011;
+		private const int OwNodesQty = 0x38;
+		private const int NewOWWalkStepsBank = 0x12;
+		private const int NewOWWalkStepsPointers = 0x9000;
+
 		public NodeLocations(FFMQRom rom)
 		{
-			_movementArrows = rom.Get(OWMovementArrows, (int)Locations.MacsShipDoom * 0x05).Chunk(5);
+			_movementArrows = rom.GetFromBank(OWMovementBank, OWMovementArrows, (OwNodesQty + 1) * 0x05).Chunk(5);
+			ShipWestSteps = rom.GetFromBank(OWMovementBank, 0xF234, 6).ToBytes().ToList();
+			ShipEastSteps = rom.GetFromBank(OWMovementBank, 0xF23A, 6).ToBytes().ToList();
+
+			Nodes = new();
+			foreach (var arrow in _movementArrows)
+			{
+				Nodes.Add(new Node(arrow));
+			}
+
+			var stepspointers = rom.GetFromBank(OWMovementBank, OWWalkStepsPointers, OwNodesQty * 2).Chunk(2);
+
+			for (int i = 0; i < OwNodesQty; i++)
+			{
+				int currentposition = (int)stepspointers[i].ToUShorts()[0];
+				for (int j = 0; j < 4; j++)
+				{
+					var destination = rom.GetFromBank(OWMovementBank, currentposition, 1)[0];
+
+					if (destination != 0)
+					{
+						currentposition++;
+						var currentstep = rom.GetFromBank(OWMovementBank, currentposition, 1)[0];
+						List<byte> stepList = new();
+
+						while (currentstep > 0x7F)
+						{
+							stepList.Add(currentstep);
+							currentposition++;
+							currentstep = rom.GetFromBank(OWMovementBank, currentposition, 1)[0];
+						}
+
+						Nodes[i+1].AddDestination((Locations)destination, stepList);
+					}
+					else
+					{
+						Nodes[i+1].AddDestination((Locations)destination, new List<byte>());
+						currentposition++;
+					}
+				}
+			}
 		}
 		public void OpenNodes()
 		{
 			for (int i = 0; i <= (int)Locations.PazuzusTower; i++)
 			{
-				for (int y = 1; y < 5; y++)
+				for (int y = 0; y < 4; y++)
 				{
-					if (_movementArrows[i][y] != 0)
+					if (Nodes[i].DirectionFlags[y] != 0)
 					{
-						_movementArrows[i][y] = (int)GameFlagsList.HillCollapsed;
+						Nodes[i].DirectionFlags[y] = (int)GameFlagsList.HillCollapsed;
 					}
 				}
 			}
 
-			_movementArrows[(int)Locations.LibraBattlefield02][(int)NodeMovementOffset.North] = (int)GameFlagsList.WakeWaterUsed;
-			_movementArrows[(int)Locations.LibraTemple][(int)NodeMovementOffset.North] = (int)GameFlagsList.WakeWaterUsed;
-			_movementArrows[(int)Locations.VolcanoBattlefield01][(int)NodeMovementOffset.South] = (int)GameFlagsList.WakeWaterUsed;
-			_movementArrows[(int)Locations.VolcanoBattlefield01][(int)NodeMovementOffset.West] = (int)GameFlagsList.VolcanoErupted;
-			_movementArrows[(int)Locations.Volcano][(int)NodeMovementOffset.East] = (int)GameFlagsList.VolcanoErupted;
+			Nodes[(int)Locations.LibraBattlefield02].DirectionFlags[(int)NodeDirections.North] = (int)GameFlagsList.WakeWaterUsed;
+			Nodes[(int)Locations.LibraTemple].DirectionFlags[(int)NodeDirections.North] = (int)GameFlagsList.WakeWaterUsed;
+			Nodes[(int)Locations.VolcanoBattlefield01].DirectionFlags[(int)NodeDirections.South] = (int)GameFlagsList.WakeWaterUsed;
+			Nodes[(int)Locations.VolcanoBattlefield01].DirectionFlags[(int)NodeDirections.West] = (int)GameFlagsList.VolcanoErupted;
+			Nodes[(int)Locations.Volcano].DirectionFlags[(int)NodeDirections.East] = (int)GameFlagsList.VolcanoErupted;
 
-			_movementArrows[(int)Locations.PazuzusTower][(int)NodeMovementOffset.North] = 0xDC;
-			_movementArrows[(int)Locations.SpencersPlace][(int)NodeMovementOffset.South] = 0xDC;
+			Nodes[(int)Locations.PazuzusTower].DirectionFlags[(int)NodeDirections.North] = 0xDC;
+			Nodes[(int)Locations.SpencersPlace].DirectionFlags[(int)NodeDirections.South] = 0xDC;
+		}
+		public void DoomCastleShortcut()
+		{
+			Nodes[(int)Locations.FocusTowerSouth].DirectionFlags[(int)NodeDirections.South] = (int)GameFlagsList.HillCollapsed;
+			Nodes[(int)Locations.FocusTowerSouth].Destinations[(int)NodeDirections.South] = Locations.DoomCastle;
+			Nodes[(int)Locations.FocusTowerSouth].Steps[(int)NodeDirections.South] = new List<byte> { 0xC6 };
+
+			Nodes[(int)Locations.DoomCastle].DirectionFlags[(int)NodeDirections.North] = (int)GameFlagsList.HillCollapsed;
+			Nodes[(int)Locations.DoomCastle].Destinations[(int)NodeDirections.North] = Locations.FocusTowerSouth;
+			Nodes[(int)Locations.DoomCastle].Steps[(int)NodeDirections.North] = new List<byte> { 0x86 };
 		}
 		public void Write(FFMQRom rom)
 		{
 			// classData.SelectMany(x => x.MagicPermissions()).ToArray()
-			rom.Put(OWMovementArrows, _movementArrows.SelectMany(x => x.ToBytes()).ToArray());
+			rom.PutInBank(OWMovementBank, OWMovementArrows, Nodes.SelectMany(x => x.DirectionFlagsArray()).ToArray());
+
+			var currentpointer = 0x9000 + ((Nodes.Count - 1) * 2);
+			List<byte> pointertable = new();
+			List<byte> stepvalues = new();
+
+			for (int i = 1; i < Nodes.Count; i++)
+			{
+				pointertable.AddRange(new List<byte>() { (byte)(currentpointer % 0x100), (byte)(currentpointer / 0x100) });
+				stepvalues.AddRange(Nodes[i].StepsArray());
+				currentpointer += Nodes[i].StepsArray().Length;
+			}
+
+			var shipwestpointer = new List<byte>() { (byte)(currentpointer % 0x100), (byte)(currentpointer / 0x100) };
+			var shipeastpointer = new List<byte>() { (byte)((currentpointer + ShipWestSteps.Count) % 0x100), (byte)((currentpointer + ShipWestSteps.Count) / 0x100) };
+
+			pointertable.AddRange(stepvalues);
+			pointertable.AddRange(ShipWestSteps);
+			pointertable.AddRange(ShipEastSteps);
+
+			rom.PutInBank(NewOWWalkStepsBank, NewOWWalkStepsPointers, pointertable.ToArray());
+
+			// new location for walk steps
+			rom.PutInBank(0x01, 0xF148, Blob.FromHex("bf009012"));
+			rom.PutInBank(0x01, 0xF150, Blob.FromHex("bf000012"));
+			rom.PutInBank(0x01, 0xF532, Blob.FromHex("bf000012"));
+
+			// new pointers for ship
+			rom.PutInBank(0x01, 0xF5B4, shipwestpointer.ToArray());
+			rom.PutInBank(0x01, 0xF5F4, shipeastpointer.ToArray());
 		}
+	}
 
+	public class Node
+	{
+		public List<byte> DirectionFlags { get; set; }
+		public byte NodeName { get; set; }
+		public List<List<byte>> Steps {get; set;}
+		public List<Locations> Destinations { get; set; }
 
+		public Node(byte[] arrowvalues)
+		{
+			NodeName = arrowvalues[0];
+			DirectionFlags = arrowvalues.ToList().GetRange(1, 4);
+			Steps = new();
+			Destinations = new();
+		}
+		public void AddDestination(Locations destination, List<byte> steps)
+		{
+			Destinations.Add(destination);
+			Steps.Add(steps);
+		}
+		public byte[] DirectionFlagsArray()
+		{ 
+			return DirectionFlags.Prepend(NodeName).ToArray();
+		}
+		public byte[] StepsArray()
+		{
+			List<byte> finalarray = new();
+
+			if (Destinations.Any())
+			{
+				for (int i = 0; i < 4; i++)
+				{
+					finalarray.AddRange(Steps[i].Prepend((byte)Destinations[i]));
+				}
+			}
+
+			return finalarray.ToArray();
+		}
 	}
 
 	public class MapUtilities

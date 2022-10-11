@@ -257,6 +257,55 @@ namespace FFMQLib
 				MapObjects[0x07][i].Gameflag = 0xFE;
 			}
 		}
+
+		public void DoomCastleShortcut(bool enable)
+		{
+			if (!enable)
+			{
+				return;
+			}
+
+			// Add arrow to doom castle
+			NodeLocations.DoomCastleShortcut();
+
+			// Add bridge
+			GameMaps[(int)MapList.Overworld].ModifyMap(0x1C, 0x24, new List<List<byte>> {
+				new List<byte> {  0x56 },
+				new List<byte> {  0x56 },
+				new List<byte> {  0x56 },
+			});
+
+			// Modify Desert floor to not require megagrenade/dragonclaw
+			GameMaps[(int)MapList.FocusTowerBase].ModifyMap(0x1F, 0x11, new List<List<byte>> {
+				new List<byte> {  0x05, 0x06, 0x7F },
+				new List<byte> {  0x08, 0x0B, 0x2D },
+				new List<byte> {  0x08, 0x42, 0x2D },
+				new List<byte> {  0x08, 0x0C, 0x2D },
+				new List<byte> {  0x08, 0x07, 0x2D },
+			});
+
+			GameMaps[(int)MapList.FocusTowerBase].ModifyMap(0x25, 0x10, new List<List<byte>> {
+				new List<byte> {  0x05, 0x06, 0x7F },
+				new List<byte> {  0x08, 0x07, 0x2D },
+				new List<byte> {  0x08, 0x0B, 0x2D },
+				new List<byte> {  0x08, 0x42, 0x2D },
+				new List<byte> {  0x08, 0x0C, 0x2D },
+				new List<byte> {  0x05, 0x19, 0x2D },
+				new List<byte> {  0x01, 0x01, 0x2D },
+				new List<byte> {  0x03, 0x03, 0x2E },
+			});
+
+			GameMaps[(int)MapList.FocusTowerBase].ModifyMap(0x29, 0x1B, new List<List<byte>> {
+				new List<byte> {  0x0F, 0x0F, 0x0F, 0x0F },
+			});
+
+			GameMaps[(int)MapList.FocusTowerBase].ModifyMap(0x1A, 0x16, new List<List<byte>> {
+				new List<byte> {  0x08, 0x08, 0x08, 0x08 },
+				new List<byte> {  0x0C, 0x09, 0x0A, 0x08 },
+				new List<byte> {  0x07, 0x01, 0x01, 0x13 },
+				new List<byte> {  0x07, 0x03, 0x03, 0x13 },
+			});
+		}
 	}
 }
 			

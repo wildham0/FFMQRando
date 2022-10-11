@@ -257,6 +257,14 @@
     </Select>
 </Field>
 <Field>
+    <Switch TValue="bool" @bind-Checked="@flags.DoomCastleShortcut">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Doom Castle Shortcut</Text>
+        <Tooltip Text="Create a shortcut granting access from the start to Doom Castle from Focus Tower's entrance.<br/><br/>Also modify the Desert floor so it can be navigated without the Mega Grenades and the Dragon Claw." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
+</Field>
+<Field>
     <Switch TValue="bool" @bind-Checked="@flags.TweakedDungeons">
         <Text TextColor="TextColor.Secondary" class="fw-bold">Tweak Frustrating Dungeons</Text>
         <Tooltip Text="Make some small changes to a few of the most annoying dungeons.<br/><br/>Ice Pyramid: Add 3 shortcuts on the 1st floor.<br/><br/>Giant Tree: Add shortcuts on the 1st and 4th floors and curtail mushrooms population.<br/><br/>Pazuzu's Tower: Staircases are devoid of enemies (regardless of Enemies Density settings)." Inline Multiline Placement="TooltipPlacement.Right">

@@ -32,6 +32,7 @@ namespace FFMQLib
         public bool ProgressiveGear { get; set; } = false;
         public bool TweakedDungeons { get; set; } = true;
         public DoomCastleModes DoomCastleMode { get; set; } = DoomCastleModes.Standard;
+        public bool DoomCastleShortcut { get; set; } = false;
         public SkyCoinModes SkyCoinMode { get; set; } = SkyCoinModes.Standard;
         public SkyCoinFragmentsQty SkyCoinFragmentsQty { get; set; } = SkyCoinFragmentsQty.Mid24;
         public bool EnableSpoilers { get; set; } = false;

@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string VersionNumber = "1.2.09";
+		public static string VersionNumber = "1.2.10";
 		public static string Version = VersionNumber + "-beta";
 	}
 
@@ -29,6 +29,7 @@ namespace FFMQLib
 		public EnemyAttackLinks EnemyAttackLinks;
 		public Attacks Attacks;
 		public EnemiesStats enemiesStats;
+		public NodeLocations NodeLocations;
 		private byte[] originalData;
 		public bool beta = false;
 		public bool spoilers = false;
@@ -157,7 +158,7 @@ namespace FFMQLib
 				sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
 
-			NodeLocations nodeLocations = new(this);
+			NodeLocations = new(this);
 			EnemyAttackLinks = new(this);
 			Attacks = new(this);
 			enemiesStats = new(this);
@@ -196,7 +197,7 @@ namespace FFMQLib
 			EnemyAttackLinks.ShuffleAttacks(flags, rng);
 			//Attacks.ScaleAttacks(flags, rng);
 			enemiesStats.ScaleEnemies(flags, rng);
-			nodeLocations.OpenNodes();
+			NodeLocations.OpenNodes();
 			Battlefields.SetBattlesQty(flags, rng);
 			Battlefields.ShuffleBattelfieldRewards(flags, rng);
 			Overworld.UpdateBattlefieldsColor(flags, Battlefields);
@@ -208,12 +209,12 @@ namespace FFMQLib
 			itemsPlacement.WriteChests(this);
 
 			SetDoomCastleMode(flags);
+			DoomCastleShortcut(flags.DoomCastleShortcut);
 
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
 			SkyCoinMode(flags, rng);
-
 
 			sillyrng.Next();
 			RandomBenjaminPalette(preferences, sillyrng);
@@ -230,7 +231,7 @@ namespace FFMQLib
 			TileScripts.Write(this);
 			TalkScripts.Write(this);
 			GameFlags.Write(this);
-			nodeLocations.Write(this);
+			NodeLocations.Write(this);
 			Battlefields.Write(this);
 			Overworld.Write(this);
 			MapObjects.WriteAll(this);
