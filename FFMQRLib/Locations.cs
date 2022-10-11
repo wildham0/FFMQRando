@@ -195,9 +195,9 @@ namespace FFMQLib
 				_rewards[(int)(battlefield.Location - 1)][0] = (byte)battlefield.Content;
 			}
 		}
-		public void ShuffleBattelfieldRewards(Flags flags, MT19337 rng)
+		public void ShuffleBattelfieldRewards(bool enable, Overworld overworld, MT19337 rng)
 		{
-			if (!flags.ShuffleBattlefieldRewards)
+			if (!enable)
 			{
 				return;
 			}
@@ -213,6 +213,8 @@ namespace FFMQLib
 					BattlefieldsWithItem.Add((Locations)(i + 1));
 				}
 			}
+
+			overworld.UpdateBattlefieldsColor(this);
 		}
 		public BattlefieldRewardType GetRewardType(Locations targetBattlefield)
 		{
@@ -222,12 +224,12 @@ namespace FFMQLib
 		{
 			return _rewards.Select(x => (BattlefieldRewardType)(x[1] & 0b1100_0000)).ToList();
 		}
-		public void SetBattlesQty(Flags flags, MT19337 rng)
+		public void SetBattlesQty(BattlesQty battlesqty, MT19337 rng)
 		{
 			int battleQty = 10;
 			bool randomQty = false;
 
-			switch (flags.BattlesQuantity)
+			switch (battlesqty)
 			{
 				case BattlesQty.Ten: return;
 				case BattlesQty.Seven: battleQty = 7; break;

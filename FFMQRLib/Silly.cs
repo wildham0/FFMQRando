@@ -8,12 +8,15 @@ namespace FFMQLib
 {
 	public partial class FFMQRom : SnesRom
 	{
-		public void RandomBenjaminPalette(Preferences preferences, MT19337 rng)
+		public void RandomBenjaminPalette(bool enable, MT19337 rng)
 		{
-			if (!preferences.RandomBenjaminPalette)
+			if (!enable)
 			{
+				rng.Next();
 				return;
 			}
+			
+			var rngback = rng;
 
 			List<(int red, int green, int blue)> skinTones = new()
 			{
@@ -66,6 +69,9 @@ namespace FFMQLib
 			};
 
 			PutInBank(0x07, 0xD828, palette.ToArray());
+			
+			rng = rngback;
+			rng.Next();
 		}
 	}
 }

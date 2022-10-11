@@ -18,18 +18,18 @@ namespace FFMQLib
 	}
 	public partial class FFMQRom : SnesRom
 	{
-		public void SetDoomCastleMode(Flags flags)
+		public void SetDoomCastleMode(DoomCastleModes doomcastlemode)
 		{
 			int DoomCastleObjectsId = 0x65;
 
-			if (flags.DoomCastleMode == DoomCastleModes.Standard)
+			if (doomcastlemode == DoomCastleModes.Standard)
 			{
 				return;
 			}
 
 			byte mapsritesindex = 0x01;
 
-			if (flags.DoomCastleMode == DoomCastleModes.DarkKingOnly)
+			if (doomcastlemode == DoomCastleModes.DarkKingOnly)
 			{
 				GameMaps[(int)MapList.FocusTower].ModifyMap(0x39, 0x00, new List<List<byte>> {
 					new List<byte> {  0x84, 0x91, 0x91, 0x91, 0x91 },
@@ -79,7 +79,7 @@ namespace FFMQLib
 					MapObjects[DoomCastleObjectsId][i].Layer = 0x02;
 				}
 			}
-			else if(flags.DoomCastleMode == DoomCastleModes.BossRush)
+			else if(doomcastlemode == DoomCastleModes.BossRush)
 			{
 				GameMaps[(int)MapList.FocusTower].ModifyMap(0x39, 0x00, new List<List<byte>> {
 					new List<byte> {  0x84, 0x91, 0x91, 0x91, 0x91 },

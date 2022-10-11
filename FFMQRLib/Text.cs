@@ -202,11 +202,20 @@ namespace FFMQLib
 		private byte[] header;
 		private int length;
 
+		private const int CreditsHeader = 0x805F;
+		private const int CreditsAddressOld = 0xB7BD;
+		private const int CreditsBankOld = 0x03;
+		private const int CreditsAddressNew = 0x8800;
+		private const int CreditsBankNew = 0x12;
+		private const int CreditsLengthConvert = 0xA57F; // Bank 0C
+		private const int CreditsLengthReadTo = 0x9AD2; // Bank 00
+		private const int CreditsLengthTheEnd = 0x80B8; // Bank 03
+
 		public Credits(FFMQRom rom)
 		{
-			header = rom.GetFromBank(RomOffsets.CreditsBankOld, RomOffsets.CreditsHeader, 8);
+			header = rom.GetFromBank(CreditsBankOld, CreditsHeader, 8);
 			length = header[7] * 0x100 + header[6];
-			originalCredits = rom.GetFromBank(RomOffsets.CreditsBankOld, RomOffsets.CreditsAddressOld, length);
+			originalCredits = rom.GetFromBank(CreditsBankOld, CreditsAddressOld, length);
 			
 		}
 
@@ -247,18 +256,18 @@ namespace FFMQLib
 
 			var lengthBytes = new byte[] { (byte)(length % 0x100), (byte)(length / 0x100) };
 
-			header[0] = (byte)(RomOffsets.CreditsAddressNew % 0x100);
-			header[1] = (byte)(RomOffsets.CreditsAddressNew / 0x100);
-			header[2] = (byte)RomOffsets.CreditsBankNew;
+			header[0] = (byte)(CreditsAddressNew % 0x100);
+			header[1] = (byte)(CreditsAddressNew / 0x100);
+			header[2] = (byte)CreditsBankNew;
 			header[6] = lengthBytes[0];
 			header[7] = lengthBytes[1];
 
-			rom.PutInBank(0x00, RomOffsets.CreditsLengthReadTo, lengthBytes);
-			rom.PutInBank(0x03, RomOffsets.CreditsLengthTheEnd, lengthBytes);
-			rom.PutInBank(0x0C, RomOffsets.CreditsLengthConvert, lengthBytes);
+			rom.PutInBank(0x00, CreditsLengthReadTo, lengthBytes);
+			rom.PutInBank(0x03, CreditsLengthTheEnd, lengthBytes);
+			rom.PutInBank(0x0C, CreditsLengthConvert, lengthBytes);
 
-			rom.PutInBank(RomOffsets.CreditsBankOld, RomOffsets.CreditsHeader, header);
-			rom.PutInBank(RomOffsets.CreditsBankNew, RomOffsets.CreditsAddressNew, newCredits);
+			rom.PutInBank(CreditsBankOld, CreditsHeader, header);
+			rom.PutInBank(CreditsBankNew, CreditsAddressNew, newCredits);
 		}
 	}
 
@@ -287,7 +296,7 @@ namespace FFMQLib
 		public TitleScreen(FFMQRom rom)
 		{
 			titleSprites = rom.GetFromBank(titleScreenBank, offsetSprites, lengthSprites * qtySprites).Chunk(lengthSprites);
-			versionText = "v" + FFMQLib.Metadata.VersionNumber + (rom.beta ? "b" : "");
+			versionText = "v" + FFMQLib.Metadata.Version + (rom.beta ? "b" : "");
 			UpdateSprites(rom.beta);
 			
 			//UpdateText();

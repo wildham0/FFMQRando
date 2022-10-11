@@ -42,6 +42,8 @@ namespace FFMQLib
 	{
 		public List<Items> StartingItems { get; set; }
 		public List<TreasureObject> ItemsLocations { get; }
+		
+		private const int TreasuresOffset = 0x8000;
 		private class RegionWeight
 		{ 
 			public MapRegions Region { get; set; }
@@ -53,7 +55,7 @@ namespace FFMQLib
 				Weight = _weight;
 			}
 		}
-		public ItemsPlacement(FFMQRom rom, Flags flags, MT19337 rng)
+		public ItemsPlacement(Flags flags, Battlefields battlefields, FFMQRom rom, MT19337 rng)
 		{
 			bool badPlacement = true;
 			int counter = 0;
@@ -83,7 +85,7 @@ namespace FFMQLib
 
 				List<Items> itemsList = RandomizeItemsOrder(flags, rng);
 
-				ItemsLocations = new(ItemLocations.Generate(flags, rom.Battlefields).ToList());
+				ItemsLocations = new(ItemLocations.Generate(flags, battlefields).ToList());
 				
 				prioritizedLocationsCount = ItemsLocations.Where(x => x.Prioritize == true).Count();
 
@@ -305,7 +307,7 @@ namespace FFMQLib
 			{
 				if (item.Type == TreasureType.Chest || item.Type == TreasureType.Box)
 				{
-					rom[RomOffsets.TreasuresOffset + item.ObjectId] = (byte)item.Content;
+					rom[TreasuresOffset + item.ObjectId] = (byte)item.Content;
 				}
 			}
 		}
