@@ -120,6 +120,32 @@ namespace FFMQLib
 				
 				newSkyDoorScript.WriteAt(0x12, 0xC120, this);
 
+				List<string> mysteriousmanline = new()
+				{
+					$"Oh oh! Finding {skycointqty} Sky Coin fragments shouldn't be too difficult for the Hero!",
+					$"{skycointqty} Sky Coin fragments for the Dark King on his dark throne,\nin the Doom Castle where the Fiends lie.",
+					$"You're the Seeker of the {skycointqty} Sky Coin fragments.\nFind them before the demons and rescue mankind!",
+					$"Phase 1: Collect {skycointqty} Sky Coin fragments.\nPhase 2: ...\nPhase 3: Profit.",
+					$"Stop. Who would enter the Doom Castle must gather first these Sky Coin fragments {skycointqty}, ere the Dark King he see.",
+					$"Legend says he told Phoebe to go forth and combat evil. To do that, she had to find {skycointqty} Sky Coin fragments."
+				};
+
+				// Mysterious Man tell nomber of fragments
+				TalkScripts.AddScript(0x09,
+					new ScriptBuilder(new List<string> {
+						"04",
+						"0502E0C112",
+						"00"
+					}));
+
+				var newMysteriousManScript = new ScriptBuilder(new List<string> {
+						"1A09" + TextToHex(rng.PickFrom(mysteriousmanline)) + "36",
+						"2B6C",
+						"0502E9FE03"
+					});
+
+				newMysteriousManScript.WriteAt(0x12, 0xC1E0, this);
+
 				// Sky Coin new name
 				PutInBank(0x0C, 0xC1D4, Blob.FromHex("acbeccff9fc5b4bac0b8c1c7"));
 
