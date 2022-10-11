@@ -23,7 +23,7 @@
 </style>
 
 <div class="center-logo"><img height=100 src="@titleLetters[0]" /><img height=100 src="@titleLetters[1]" /><img height=100 src="@titleLetters[2]" /><img height=100 src="@titleLetters[3]" /><img height=100 src="@titleLetters[4]" /><img height=100 src="@titleLetters[5]" /><img height=100 src="logo/mqlogo_.png" /><img height=100 src="@titleLetters[6]" /><img height=100 src="@titleLetters[7]" /><img height=100 src="@titleLetters[8]" /><img height=100 src="@titleLetters[9]" /><img height=100 src="@titleLetters[10]" /></div>
-<h1 class="text-secondary text-center" style="font-size: 1em">A FFMQ Randomizer<br />@("v" + @FFMQLib.Metadata.VersionNumber + @GetBetaStatus())</h1>
+<h1 class="text-secondary text-center" style="font-size: 1em">A FFMQ Randomizer<br />@("v" + @FFMQLib.Metadata.Version + @GetBetaStatus())</h1>
 
 
 <div id="fileSection"><br /><br /><br /></div>
@@ -480,7 +480,7 @@
             romMessage = "ROM file generated successfully.";
 
             var fs = newRom.DataStream();
-            var fileName = "FFMQR_" + FFMQLib.Metadata.VersionNumber + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".sfc";
+            var fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".sfc";
 
             using var streamRef = new DotNetStreamReference(stream: fs);
 
@@ -489,7 +489,7 @@
             if (flags.EnableSpoilers)
             {
                 var fsSpoilers = newRom.SpoilerStream();
-                var fileNameSpoilers = "FFMQR_Spoilers_" + FFMQLib.Metadata.VersionNumber + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".txt";
+                var fileNameSpoilers = "FFMQR_Spoilers_" + FFMQLib.Metadata.Version + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".txt";
 
                 using var streamRefSpoilers = new DotNetStreamReference(stream: fsSpoilers);
 
