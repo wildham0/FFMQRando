@@ -205,7 +205,7 @@ namespace FFMQLib
 			SetStartingWeapons(itemsPlacement);
 			MapObjects.UpdateChests(itemsPlacement);
 			UpdateScripts(flags, itemsPlacement, rng);
-			ChestsHacks(itemsPlacement);
+			ChestsHacks(flags, itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
 
 			// Various

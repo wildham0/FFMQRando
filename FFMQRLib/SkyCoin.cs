@@ -44,6 +44,8 @@ namespace FFMQLib
 			}
 			else if (flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals)
 			{
+				// extra hack in Hacks.cs in ChestsHacks()
+				
 				//change 4 crystals flags, give sky coin if all 4 sets(remove skycoin requirement from logic)
 				var crystalSkyCoinScript = new ScriptBuilder(new List<string> {
 						"2F",
@@ -94,10 +96,6 @@ namespace FFMQLib
 				// show sky coin shards qty				
 				PutInBank(0x03, 0x9811, Blob.FromHex("0700C11204"));
 				PutInBank(0x12, 0xC100, Blob.FromHex("0b0f0ac1115e00058a00115e00058a0f930e052007ef970305210f5f0100"));
-
-				// Increase shard count
-				PutInBank(0x00, 0xDB82, Blob.FromHex("22409211EAEAEAEAEAEA"));
-				PutInBank(0x11, 0x9240, Blob.FromHex("C90FD004EE930E6B0BF4A60E2B224E97002B6B"));
 
 				// Start With SkyCoin
 				PutInBank(0x0C, 0xD3A3, Blob.FromHex("01"));

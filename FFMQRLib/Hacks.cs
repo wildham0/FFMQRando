@@ -130,7 +130,7 @@ namespace FFMQLib
 			PutInBank(0x03, 0xA4A3, Blob.FromHex("2E"));
 			PutInBank(0x03, 0xA625, Blob.FromHex("7B"));
 		}
-		public void ChestsHacks(ItemsPlacement itemsPlacement)
+		public void ChestsHacks(Flags flags, ItemsPlacement itemsPlacement)
 		{
 			// Include chests when loading graphics for empty boxes
 			PutInBank(0x01, 0xB095, Blob.FromHex("00"));
@@ -185,21 +185,26 @@ namespace FFMQLib
 			PutInBank(0x11, 0x8FC0, lutResetBox);
 
 			// Put the Mirror/Mask effect with the give item routine instead, just outright cancel if they're outside their respective dungeons
-			string maskRoutine = "eaeaeaeaeaeaeaeaeaeaeaea";
+			string maskBranch = "ff";
+			string mirrorBranch = "ff";
+			string skyCoinBranch = "ff";
 
 			if (itemsPlacement.ItemsLocations.Find(x => x.Content == Items.Mask).Location == Locations.Volcano)
 			{
-				maskRoutine = "c905d008a992224e97008010";
+				maskBranch = "05";
 			}
-			string mirrorRoutine = "eaeaeaeaeaeaeaeaeaeaeaeaeaeaeaea";
 
 			if (itemsPlacement.ItemsLocations.Find(x => x.Content == Items.MagicMirror).Location == Locations.IcePyramid)
 			{
-				mirrorRoutine = "c906d00ca992224e9700a994224e9700";
+				mirrorBranch = "06";
 			}
 
-			PutInBank(0x11, 0x9200, Blob.FromHex("224e9700ad9e000bf4d0002b" + maskRoutine + mirrorRoutine + "2b6b"));
-			PutInBank(0x00, 0xDB87, Blob.FromHex("22009211"));
+			if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
+			{
+				skyCoinBranch = "0F";
+			}
+			PutInBank(0x11, 0x9200, Blob.FromHex($"C9{maskBranch}F013C9{mirrorBranch}F020C9{skyCoinBranch}F0330BF4A60E2B224E97002B6B0BF4D0002BA992224E97002BAD9E0080E40BF4D0002BA992224E9700A994224E97002BAD9E0080CDEE930E6B"));
+			PutInBank(0x00, 0xDB82, Blob.FromHex("22009211EAEAEAEAEAEA"));
 		}
 		public void NonSpoilerDemoplay()
 		{
