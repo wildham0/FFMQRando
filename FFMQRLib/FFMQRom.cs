@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.2.12";
+		public static string Version = "1.2.13";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -184,10 +184,6 @@ namespace FFMQLib
 			GameMaps.RandomGiantTreeMessage(rng);
 			GameMaps.LessObnoxiousMaps(flags.TweakedDungeons, MapObjects, rng);
 
-			// Doom Castle
-			SetDoomCastleMode(flags.DoomCastleMode);
-			DoomCastleShortcut(flags.DoomCastleShortcut);
-
 			// Enemies
 			MapObjects.SetEnemiesDensity(flags.EnemiesDensity, rng);
 			MapObjects.ShuffleEnemiesPosition(flags.ShuffleEnemiesPosition, GameMaps, rng);
@@ -207,6 +203,10 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(flags, itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
+
+			// Doom Castle
+			SetDoomCastleMode(flags.DoomCastleMode);
+			DoomCastleShortcut(flags.DoomCastleShortcut);
 
 			// Various
 			SetLevelingCurve(flags.LevelingCurve);
@@ -228,6 +228,7 @@ namespace FFMQLib
 			MapChanges.Write(this);
 			TileScripts.Write(this);
 			TalkScripts.Write(this);
+			BadShipHack(flags.DoomCastleShortcut);
 			GameFlags.Write(this);
 			NodeLocations.Write(this);
 			Battlefields.Write(this);
