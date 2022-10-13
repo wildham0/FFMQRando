@@ -123,9 +123,9 @@ namespace FFMQLib
         public static ScriptCode Code0501 = new(0x0501, "UNKNOWN_0501 arg0", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 2) });
         public static ScriptCode Code0502 = new(0x0502, "GOTOL arg0", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Address, 3, true) });
         public static ScriptCode Code0503 = new(0x0503, "GOTO [9E]");
-        public static ScriptCode Code0504 = new(0x0504, "IF [9E] < arg0 GOTO arg1", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1), new ScriptArgument(ScriptArgumentType.Address, 2, true), });
+        public static ScriptCode Code0504 = new(0x0504, "IF [9E] > arg0 GOTO arg1", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1), new ScriptArgument(ScriptArgumentType.Address, 2, true), });
         public static ScriptCode Code0505 = new(0x0505, "IF [9E] <= arg0 GOTO arg1", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1), new ScriptArgument(ScriptArgumentType.Address, 2, true), });
-        public static ScriptCode Code0506 = new(0x0506, "IF [9E] > arg0 GOTO arg1", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1), new ScriptArgument(ScriptArgumentType.Address, 2, true), });
+        public static ScriptCode Code0506 = new(0x0506, "IF [9E] < arg0 GOTO arg1", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1), new ScriptArgument(ScriptArgumentType.Address, 2, true), });
         public static ScriptCode Code0507 = new(0x0507, "IF [9E] >= arg0 GOTO arg1", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1), new ScriptArgument(ScriptArgumentType.Address, 2, true), });
         public static ScriptCode Code0508 = new(0x0508, "UNUSED_08");
         public static ScriptCode Code0509 = new(0x0509, "IF [9E] != arg0 GOTO arg1", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1), new ScriptArgument(ScriptArgumentType.Address, 2, true), });
@@ -624,6 +624,7 @@ namespace FFMQLib
                     var selectedCommand = codeList.Find(x => x.PrimaryIndex == command);
                     Lines.Add((lineAddress, "  " + String.Join(' ', selectedCommand.Command)));
                     currentbyte++;
+
 
                     bool readactions = true;
 
