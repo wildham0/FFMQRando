@@ -203,6 +203,10 @@ namespace FFMQLib
 		{
 			rom.PutInBank(ScriptsBank, _address, OutputBlob());
 		}
+		public void WriteAt(int bank, int address, FFMQRom rom)
+		{
+			rom.PutInBank(bank, address, Update(address));
+		}
 	}
 
 	public partial class FFMQRom : SnesRom

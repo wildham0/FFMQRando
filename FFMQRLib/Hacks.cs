@@ -130,9 +130,7 @@ namespace FFMQLib
 			PutInBank(0x03, 0xA4A3, Blob.FromHex("2E"));
 			PutInBank(0x03, 0xA625, Blob.FromHex("7B"));
 		}
-
-
-		public void ChestsHacks(ItemsPlacement itemsPlacement)
+		public void ChestsHacks(Flags flags, ItemsPlacement itemsPlacement)
 		{
 			// Include chests when loading graphics for empty boxes
 			PutInBank(0x01, 0xB095, Blob.FromHex("00"));
@@ -187,43 +185,28 @@ namespace FFMQLib
 			PutInBank(0x11, 0x8FC0, lutResetBox);
 
 			// Put the Mirror/Mask effect with the give item routine instead, just outright cancel if they're outside their respective dungeons
-			string maskRoutine = "eaeaeaeaeaeaeaeaeaeaeaea";
+			string maskBranch = "ff";
+			string mirrorBranch = "ff";
+			string skyCoinBranch = "ff";
 
 			if (itemsPlacement.ItemsLocations.Find(x => x.Content == Items.Mask).Location == Locations.Volcano)
 			{
-				maskRoutine = "c905d008a992224e97008010";
+				maskBranch = "05";
 			}
-			string mirrorRoutine = "eaeaeaeaeaeaeaeaeaeaeaeaeaeaeaea";
 
 			if (itemsPlacement.ItemsLocations.Find(x => x.Content == Items.MagicMirror).Location == Locations.IcePyramid)
 			{
-				mirrorRoutine = "c906d00ca992224e9700a994224e9700";
+				mirrorBranch = "06";
 			}
 
-			PutInBank(0x11, 0x9200, Blob.FromHex("224e9700ad9e000bf4d0002b" + maskRoutine + mirrorRoutine + "2b6b"));
-			PutInBank(0x00, 0xDB87, Blob.FromHex("22009211"));
-		}
-		public void ProgressiveGears(Flags flags)
-		{
-			if (!flags.ProgressiveGear)
+			if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
 			{
-				return;
+				skyCoinBranch = "0F";
 			}
-			
-			// Replace cat claw check routine when giving weapons and jump to new routine to figure out what's the next weapon in line
-			PutInBank(0x00, 0xDB9C, Blob.FromHex("22009311eaeaeaeaeaeaeaeaeaeaeaeaeaeaea"));
-			PutInBank(0x11, 0x9300, Blob.FromHex("0b202093f432102b98224e9700981869208d60018d9e002b6b"));
-			PutInBank(0x11, 0x9320, Blob.FromHex("c923900ac9269019c92990288039a900200094f043a901200094f03ca902a88037a903200094f030a904200094f029a905a88024a906200094f01da907200094f016a908a88011a909200094f00aa90a200094f003a90ba860"));
-			PutInBank(0x11, 0x9400, Blob.FromHex("a8f432102b225a970060"));
 
-			// New routine for armors and figure out what's the next armor in line
-			PutInBank(0x00, 0xDBBE, Blob.FromHex("22809311eaeaeaeaeaeaeaeaeaea"));
-			PutInBank(0x11, 0x9380, Blob.FromHex("0b20a093f435102b98224e97009818692f8d60018d9e002b6b"));
-			PutInBank(0x11, 0x93A0, Blob.FromHex("c932900ac9399019c93d90288039a900201094f043a901201094f03ca902a88037a903201094f030a904201094f029a905a88024a90a201094f01da90b201094f016a90ca88011a90e201094f00aa90f201094f003a910a860"));
-			PutInBank(0x11, 0x9410, Blob.FromHex("a8f435102b225a970060"));
-
-			// Vendor Routine
-			PutInBank(0x11, 0x9430, Blob.FromHex("e230ad0015c920901dc92f9005c940900c6b202093981869208d00156b20a09398692f8d00156b"));
+			// see 11_9200_ChestHacks.asm
+			PutInBank(0x11, 0x9200, Blob.FromHex($"C9{maskBranch}F013C9{mirrorBranch}F020C9{skyCoinBranch}F02D0BF4A60E2B224E97002B6B0BF4D0002BA992224E97002BAD9E0080E40BF4D0002BA992224E97002BAD9E0080D3EE930E6B"));
+			PutInBank(0x00, 0xDB82, Blob.FromHex("22009211EAEAEAEAEAEA"));
 		}
 		public void NonSpoilerDemoplay()
 		{
@@ -278,6 +261,44 @@ namespace FFMQLib
 			//  vertscanline x3 + $0f (or + $9a)
 			PutInBank(0x00, 0xB8C0, Blob.FromHex("EAEA"));
 			PutInBank(0x00, 0xB852, Blob.FromHex("EAEA"));
+		}
+		public void Msu1SupportRandom(bool randomizesong, MT19337 rng)
+		{
+			var rngback = rng;
+			
+			// see 10_8000_MSUSupport.asm
+			PutInBank(0x0D, 0x8186, Blob.FromHex("5C008010EAEA"));
+			PutInBank(0x0D, 0x81F4, Blob.FromHex("22768010"));
+			PutInBank(0x0D, 0x81FA, Blob.FromHex("229F8010EAEAEAEAEAEA"));
+			PutInBank(0x0D, 0x85D2, Blob.FromHex("5C648010EA"));
+
+			string loadrandomtrack = "EAEAEA";
+			string saverandomtrack = "EAEAEA";
+
+			if (randomizesong)
+			{
+				loadrandomtrack = "20F080";
+				saverandomtrack = "200281";
+
+				List<byte> tracks = Enumerable.Range(0, 0x1A).Select(x => (byte)x).ToList();
+				List<byte> goodordertracks = Enumerable.Range(0, 0x1B).Select(x => (byte)x).ToList();
+				tracks.Remove(0x00);
+				tracks.Remove(0x15);
+
+				tracks.Shuffle(rng);
+				tracks.Insert(0, 0x00);
+				tracks.Insert(0x15, 0x15);
+				tracks.Add(0x1A);
+				List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
+
+				PutInBank(0x10, 0x8120, completetracks.OrderBy(x => x.Item1).Select(x => x.Item2).ToArray());
+				PutInBank(0x10, 0x8140, completetracks.OrderBy(x => x.Item2).Select(x => x.Item1).ToArray());
+			}
+
+			rng = rngback;
+			rng.Next();
+
+			PutInBank(0x10, 0x8000, Blob.FromHex($"{loadrandomtrack}A501C505D0045C8A810D20C2809044AFF0FF7FC501D00664015C8A810D9C0620A5018FF0FF7F8D04209C0520A9012C002070F9AD00202908D01DA9FF8D0620A501C915D004A9018005201081A9038D072064015CED810DA9008FF0FF7F5CED810D8D4021C9F0D0079C07205CD9850D5CED850DA6064820C2809009AD00202908D002686BAFF0FF7FF00D68A501201081A9008FF0FF7F6B682012816BA501D01620C280900FAFF0FF7FF0099C41219C024285056BA5018D412185058D02426BAD0220C953D025AD0320C92DD01EAD0420C94DD017AD0520C953D010AD0620C955D009AD0720C931D00238601860DA08E230A501AABF208110291F850128FA60DA08E230AABF408110291F28FA60A501{saverandomtrack}850960"));
 		}
 	}
 }

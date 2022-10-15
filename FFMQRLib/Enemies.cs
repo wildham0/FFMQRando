@@ -53,12 +53,14 @@ namespace FFMQLib
     public class EnemiesStats
     {
         private List<Enemy> _enemies;
+        
+        private const int EnemiesStatsQty = 0x53;
 
         public EnemiesStats(FFMQRom rom)
         {
             _enemies = new List<Enemy>();
 
-            for (int i = 0; i < RomOffsets.EnemiesStatsQty; i++)
+            for (int i = 0; i < EnemiesStatsQty; i++)
             {
                 _enemies.Add(new Enemy(i, rom));
             }
@@ -151,6 +153,11 @@ namespace FFMQLib
         public byte Accuracy { get; set; }
         public byte Evasion { get; set; }
         private int _Id;
+
+        private const int EnemiesStatsAddress = 0xC275; // Bank 02
+        private const int EnemiesStatsBank = 0x02;
+        private const int EnemiesStatsLength = 0x0e;
+
         public int Id()
         {
             return _Id;
@@ -158,7 +165,7 @@ namespace FFMQLib
 
         public Enemy(int id, FFMQRom rom)
         {
-            _rawBytes = rom.GetFromBank(RomOffsets.EnemiesStatsBank, RomOffsets.EnemiesStatsAddress + (id * RomOffsets.EnemiesStatsLength), RomOffsets.EnemiesStatsLength);
+            _rawBytes = rom.GetFromBank(EnemiesStatsBank, EnemiesStatsAddress + (id * EnemiesStatsLength), EnemiesStatsLength);
 
             _Id = id;
             HP = (ushort)(_rawBytes[1] * 0x100 + _rawBytes[0]);
@@ -179,14 +186,18 @@ namespace FFMQLib
             _rawBytes[5] = MagicPower;
             _rawBytes[0x0a] = Accuracy;
             _rawBytes[0x0b] = Evasion;
-            rom.PutInBank(RomOffsets.EnemiesStatsBank, RomOffsets.EnemiesStatsAddress + (_Id * RomOffsets.EnemiesStatsLength), _rawBytes);
+            rom.PutInBank(EnemiesStatsBank, EnemiesStatsAddress + (_Id * EnemiesStatsLength), _rawBytes);
         }
     }
     // link from link table, from the SQL world, describing a many-to-many relationship
     public class EnemyAttackLink
     {
         private Blob _rawBytes;
-        
+
+        private const int EnemiesAttackLinksAddress = 0xC6FF; // Bank 02
+        private const int EnemiesAttackLinksBank = 0x02;
+        private const int EnemiesAttackLinksLength = 0x09;
+
         public byte Unknown1 { get; set; }
         public byte[] Attacks { get; set; }
         public byte Unknown2 { get; set; }
@@ -208,7 +219,7 @@ namespace FFMQLib
 
         public EnemyAttackLink(int id, FFMQRom rom)
         {
-            _rawBytes = rom.GetFromBank(RomOffsets.EnemiesAttackLinksBank, RomOffsets.EnemiesAttackLinksAddress + (id * RomOffsets.EnemiesAttackLinksLength), RomOffsets.EnemiesAttackLinksLength);
+            _rawBytes = rom.GetFromBank(EnemiesAttackLinksBank, EnemiesAttackLinksAddress + (id * EnemiesAttackLinksLength), EnemiesAttackLinksLength);
 
             _Id = id;
             Unknown1 = _rawBytes[0];
@@ -233,7 +244,7 @@ namespace FFMQLib
             _rawBytes[6] = Attacks[5];
             _rawBytes[7] = Unknown2;
             _rawBytes[8] = Unknown3;
-            rom.PutInBank(RomOffsets.EnemiesAttackLinksBank, RomOffsets.EnemiesAttackLinksAddress + (_Id * RomOffsets.EnemiesAttackLinksLength), _rawBytes);
+            rom.PutInBank(EnemiesAttackLinksBank, EnemiesAttackLinksAddress + (_Id * EnemiesAttackLinksLength), _rawBytes);
         }
     }
     // link from link table, from the SQL world, describing a many-to-many relationship
@@ -241,17 +252,24 @@ namespace FFMQLib
     {
         private List<EnemyAttackLink> _EnemyAttackLinks;
         private Blob _darkKingAttackLinkBytes;
+        
+        private const int EnemiesAttackLinksQty = 0x53;
+
+        // Dark King Attack Links, separate from EnemiesAttacks
+        private const int DarkKingAttackLinkAddress = 0xD09E; // Bank 02
+        private const int DarkKingAttackLinkBank = 0x02;
+        private const int DarkKingAttackLinkQty = 0x0C;
 
         public EnemyAttackLinks(FFMQRom rom)
         {
             _EnemyAttackLinks = new List<EnemyAttackLink>();
 
-            for (int i = 0; i < RomOffsets.EnemiesAttackLinksQty; i++)
+            for (int i = 0; i < EnemiesAttackLinksQty; i++)
             {
                 _EnemyAttackLinks.Add(new EnemyAttackLink(i, rom));
             }
 
-            _darkKingAttackLinkBytes = rom.GetFromBank(RomOffsets.DarkKingAttackLinkBank, RomOffsets.DarkKingAttackLinkAddress, RomOffsets.DarkKingAttackLinkQty);
+            _darkKingAttackLinkBytes = rom.GetFromBank(DarkKingAttackLinkBank, DarkKingAttackLinkAddress, DarkKingAttackLinkQty);
         }
         public EnemyAttackLink this[int attackid]
         {
@@ -262,16 +280,16 @@ namespace FFMQLib
         {
             return _EnemyAttackLinks.AsReadOnly();
         }
-        public void Write(FFMQRom rom, Flags flags)
+        public void Write(FFMQRom rom)
         {
             foreach (EnemyAttackLink e in _EnemyAttackLinks)
             {
                 e.Write(rom);
             }
 
-            rom.PutInBank(RomOffsets.DarkKingAttackLinkBank, RomOffsets.DarkKingAttackLinkAddress, _darkKingAttackLinkBytes);
+            rom.PutInBank(DarkKingAttackLinkBank, DarkKingAttackLinkAddress, _darkKingAttackLinkBytes);
         }
-        public void ShuffleAttacks(Flags flags, MT19337 rng)
+        public void ShuffleAttacks(EnemizerAttacks enemizerattacks, MT19337 rng)
         {
             var possibleAttacks = new List<byte>();
             possibleAttacks.Add(0x19);
@@ -281,7 +299,7 @@ namespace FFMQLib
                 possibleAttacks.Add(i);
             }
 
-            switch (flags.EnemizerAttacks) 
+            switch (enemizerattacks) 
             {
                 case EnemizerAttacks.Safe:
                     // Remove self destruct as it makes bosses super easy and some regular monster super hard
@@ -315,7 +333,7 @@ namespace FFMQLib
                     }
 
                     // See the comment in _ShuffleAttacks() for more info
-                    for(int i = 0; i < RomOffsets.DarkKingAttackLinkQty; i++)
+                    for(int i = 0; i < DarkKingAttackLinkQty; i++)
                     {
                         _darkKingAttackLinkBytes[i] = 0xC1;
                     }
@@ -344,13 +362,13 @@ namespace FFMQLib
 
                 // Some values of Unknown1 (e.g. 0x0B) result in the third (or other) attack slot being used
                 // regardless of it being 0xFF (which is an ignored slot for most other Unknown1 values)
-                if(noOfAttacks < 3)
+                if(noOfAttacks <= 3)
                 {
                     ea.Unknown1 = 0x01;
                 }
 
                 // Similarly, most Unknown1 values do not use attack slots 5 and 6, but 0x0D and 0x0C do.
-                if(noOfAttacks > 4)
+                if(noOfAttacks >= 4)
                 {
                     ea.Unknown1 = 0x0D;
                 }
@@ -367,7 +385,7 @@ namespace FFMQLib
 
             // Dark King has its own byte range on top of attack links ids 79 through 82
             // TODO: The Ice Golem has a special healing blizzard it does when it has < 50% HP, probably want to randomise that as well? Maybe more enemies have a similar thing?
-            for(int i = 0; i < RomOffsets.DarkKingAttackLinkQty; i++)
+            for(int i = 0; i < DarkKingAttackLinkQty; i++)
             {
                 _darkKingAttackLinkBytes[i] = possibleAttacks[(int)(rng.Next() % possibleAttacks.Count)];
             }
@@ -377,11 +395,13 @@ namespace FFMQLib
     {
         private List<Attack> _attacks;
 
+        private const int AttacksQty = 0xA9;
+
         public Attacks(FFMQRom rom)
         {
             _attacks = new List<Attack>();
 
-            for (int i = 0; i < RomOffsets.AttacksQty; i++)
+            for (int i = 0; i < AttacksQty; i++)
             {
                 _attacks.Add(new Attack(i, rom));
             }
@@ -395,7 +415,7 @@ namespace FFMQLib
         {
             return _attacks.AsReadOnly();
         }
-        public void Write(FFMQRom rom, Flags flags)
+        public void Write(FFMQRom rom)
         {
             foreach (Attack e in _attacks)
             {
@@ -453,9 +473,13 @@ namespace FFMQLib
         public byte AttackTargetAnimation { get; set; }
         private int _Id;
 
+        private const int AttacksAddress = 0xBC78; // Bank 02
+        private const int AttacksBank = 0x02;
+        private const int AttacksLength = 0x07;
+
         public Attack(int id, FFMQRom rom)
         {
-            _rawBytes = rom.GetFromBank(RomOffsets.AttacksBank, RomOffsets.AttacksAddress + (id * RomOffsets.AttacksLength), RomOffsets.AttacksLength);
+            _rawBytes = rom.GetFromBank(AttacksBank, AttacksAddress + (id * AttacksLength), AttacksLength);
 
             _Id = id;
             Unknown1 = _rawBytes[0];
@@ -480,7 +504,7 @@ namespace FFMQLib
             _rawBytes[4] = AttackSound;
             _rawBytes[5] = Unknown3;
             _rawBytes[6] = AttackTargetAnimation;
-            rom.PutInBank(RomOffsets.AttacksBank, RomOffsets.AttacksAddress + (_Id * RomOffsets.AttacksLength), _rawBytes);
+            rom.PutInBank(AttacksBank, AttacksAddress + (_Id * AttacksLength), _rawBytes);
         }
     }
 }

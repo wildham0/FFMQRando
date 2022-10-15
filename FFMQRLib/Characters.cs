@@ -32,12 +32,12 @@ namespace FFMQLib
     public partial class FFMQRom : SnesRom
     {
 
-        public void SetLevelingCurve(Flags flags)
+        public void SetLevelingCurve(LevelingCurve levelingcurve)
         {
             byte xpconst1 = 0x3d;
             byte xpconst2 = 0x0d;
 
-            switch (flags.LevelingCurve)
+            switch (levelingcurve)
             {
                 case LevelingCurve.Half:
                     xpconst1 = 0x6E;

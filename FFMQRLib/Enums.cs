@@ -5,12 +5,12 @@ using RomUtilities;
 
 namespace FFMQLib
 {
-	public enum NodeMovementOffset : int
+	public enum NodeDirections : int
 	{
-		North = 1,
-		East = 2,
-		South = 3,
-		West = 4,
+		North = 0,
+		East = 1,
+		South = 2,
+		West = 3,
 	}
 	public enum AccessBits : int
 	{
@@ -576,6 +576,7 @@ namespace FFMQLib
 	}
 	public enum Locations : byte
 	{
+		None = 0x00,
 		ForestaSouthBattlefield = 0x01,
 		ForestaWestBattlefield = 0x02,
 		ForestaEastBattlefield = 0x03,

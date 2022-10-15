@@ -13,7 +13,7 @@ using System.Security.Cryptography;
 namespace FFMQLib
 {
     public class Flags
-    { 
+    {
         public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.ThreeQuarter;
         public ItemShuffleChests ChestsShuffle { get; set; } = ItemShuffleChests.Prioritize;
         public ItemShuffleBoxes BoxesShuffle { get; set; } = ItemShuffleBoxes.Exclude;
@@ -32,6 +32,9 @@ namespace FFMQLib
         public bool ProgressiveGear { get; set; } = false;
         public bool TweakedDungeons { get; set; } = true;
         public DoomCastleModes DoomCastleMode { get; set; } = DoomCastleModes.Standard;
+        public bool DoomCastleShortcut { get; set; } = false;
+        public SkyCoinModes SkyCoinMode { get; set; } = SkyCoinModes.Standard;
+        public SkyCoinFragmentsQty SkyCoinFragmentsQty { get; set; } = SkyCoinFragmentsQty.Mid24;
         public bool EnableSpoilers { get; set; } = false;
 
         public string GenerateFlagString()
@@ -101,6 +104,12 @@ namespace FFMQLib
             if ((NpcsShuffle == ItemShuffleNPCsBattlefields.Exclude || BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Exclude) && BoxesShuffle == ItemShuffleBoxes.Exclude)
             {
                 throw new Exception("Selected flags don't allow enough locations to place all Quest Items. Change flags to include more locations.");
+            }
+            
+            // Throw an error if the settings don't offer enough locations.
+            if (SkyCoinMode == SkyCoinModes.ShatteredSkyCoin && BoxesShuffle == ItemShuffleBoxes.Exclude)
+            {
+                throw new Exception("Selected flags don't allow enough locations to place all Sky Coin Fragments. Set Brown Boxes to Include.");
             }
         }
         public string GenerateYaml(string name)
@@ -221,6 +230,7 @@ namespace FFMQLib
     public class Preferences
     {
         public bool RandomBenjaminPalette { get; set; } = false;
+        public bool RandomMusic { get; set; } = false;
         public bool RememberRom { get; set; } = false;
         public string RomPath { get; set; } = "";
     }

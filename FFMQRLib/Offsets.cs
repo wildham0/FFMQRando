@@ -5,8 +5,6 @@ namespace FFMQLib
 {
 	public class RomOffsets
 	{
-		public const int TreasuresOffset = 0x8000;
-
 		// MapObjects
 		public const int AreaAttributesPointers = 0x3AF3B;
 		public const int AreaAttributesPointersBase = 0x3B013;
@@ -15,49 +13,6 @@ namespace FFMQLib
 
 		public const int MapObjectsAttributes = 0x3B013;
 		public const int MapObjectsAttributesSize = 7;
-
-		// MapChanges
-		public const int MapChangesPointersOld = 0xB93A;
-		public const int MapChangesEntriesOld = 0xBA0E;
-		public const int MapChangesBankOld = 0x06;
-		public const int MapChangesQtyOld = 0x6A;
-		public const int MapChangesPointersNew = 0x8000;
-		public const int MapChangesEntriesNew = 0x8100;
-		public const int MapChangesBankNew = 0x12;
-		public const int MapChangesQtyNew = 0x80;
-
-		// Credits
-		public const int CreditsHeader = 0x805F;
-		public const int CreditsAddressOld = 0xB7BD;
-		public const int CreditsBankOld = 0x03;
-		public const int CreditsAddressNew = 0x8800;
-		public const int CreditsBankNew = 0x12;
-		public const int CreditsLengthConvert = 0xA57F; // Bank 0C
-		public const int CreditsLengthReadTo = 0x9AD2; // Bank 00
-		public const int CreditsLengthTheEnd = 0x80B8; // Bank 03
-
-		// Attacks
-		public const int AttacksAddress = 0xBC78; // Bank 02
-		public const int AttacksBank = 0x02;
-		public const int AttacksQty = 0xA9;
-		public const int AttacksLength = 0x07;
-
-		// Enemies' Stats
-		public const int EnemiesStatsAddress = 0xC275; // Bank 02
-		public const int EnemiesStatsBank = 0x02;
-		public const int EnemiesStatsQty = 0x53;
-		public const int EnemiesStatsLength = 0x0e;
-
-		// Enemies' Attacks
-		public const int EnemiesAttackLinksAddress = 0xC6FF; // Bank 02
-		public const int EnemiesAttackLinksBank = 0x02;
-		public const int EnemiesAttackLinksQty = 0x53;
-		public const int EnemiesAttackLinksLength = 0x09;
-
-		// Dark King Attack Links, separate from EnemiesAttacks
-		public const int DarkKingAttackLinkAddress = 0xD09E; // Bank 02
-		public const int DarkKingAttackLinkBank = 0x02;
-		public const int DarkKingAttackLinkQty = 0x0C;
 
 		// Scripts
 		public const int GameStartScript = 0x01f811;
@@ -84,10 +39,5 @@ namespace FFMQLib
 		public const int MapAttributes = 0x058CD9;
 		public const int MapDimensionsTable = 0x058540;
 		public const int MapTileData = 0x032800;
-
-		// OW Movement Arrows
-		public const int OWMovementArrows = 0x03EE84;
-
-
 	}
 }

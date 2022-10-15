@@ -398,9 +398,9 @@ namespace FFMQLib
 				_gameMaps[(int)MapList.BackgroundD].ModifyMap(currentX, yPositions[currentYindex], letters[' ']);
 			}
 		}
-		public void LessObnoxiousMaps(Flags flags, MT19337 rng, FFMQLib.ObjectList mapobjects)
+		public void LessObnoxiousMaps(bool enable, ObjectList mapobjects, MT19337 rng)
 		{
-			if (!flags.TweakedDungeons)
+			if (!enable)
 			{
 				return;
 			}
@@ -841,6 +841,15 @@ namespace FFMQLib
 		{
 			return (byte)(_mapUncompressed[(y * _dimensions.Item1) + x] & 0x7F);
 		}
+		public void Analysis()
+		{
+			var individualtile = _mapUncompressed.Distinct().OrderBy(x => x).ToList();
+
+			foreach (var tile in individualtile)
+			{ 
+				Console.WriteLine(tile);
+			}
+		}
 		private byte tileconverter(byte[] tiledata)
 		{
 			if ((tiledata[0] & 0x07) == 0x07)
@@ -993,23 +1002,31 @@ namespace FFMQLib
 		private List<Blob> _pointers;
 		private List<Blob> _mapchanges;
 
+		private const int MapChangesPointersOld = 0xB93A;
+		private const int MapChangesEntriesOld = 0xBA0E;
+		private const int MapChangesBankOld = 0x06;
+		private const int MapChangesQtyOld = 0x6A;
+		private const int MapChangesPointersNew = 0x8000;
+		private const int MapChangesEntriesNew = 0x8100;
+		private const int MapChangesBankNew = 0x12;
+		private const int MapChangesQtyNew = 0x80;
 
 		public MapChanges(FFMQRom rom)
 		{
-			_pointers = rom.GetFromBank(RomOffsets.MapChangesBankOld, RomOffsets.MapChangesPointersOld, RomOffsets.MapChangesQtyOld * 2).Chunk(2);
+			_pointers = rom.GetFromBank(MapChangesBankOld, MapChangesPointersOld, MapChangesQtyOld * 2).Chunk(2);
 			_mapchanges = new List<Blob>();
 
 			foreach (var pointer in _pointers)
 			{
 				var test = pointer.ToUShorts()[0];
-				var sizeByte = rom.GetFromBank(RomOffsets.MapChangesBankOld, RomOffsets.MapChangesEntriesOld + pointer.ToUShorts()[0] + 2, 1)[0];
+				var sizeByte = rom.GetFromBank(MapChangesBankOld, MapChangesEntriesOld + pointer.ToUShorts()[0] + 2, 1)[0];
 				var size = (sizeByte & 0x0F) * (sizeByte / 0x10);
-				_mapchanges.Add(rom.GetFromBank(RomOffsets.MapChangesBankOld, RomOffsets.MapChangesEntriesOld + pointer.ToUShorts()[0], size + 3));
+				_mapchanges.Add(rom.GetFromBank(MapChangesBankOld, MapChangesEntriesOld + pointer.ToUShorts()[0], size + 3));
 			}
 		}
 		public byte Add(Blob mapchange)
 		{
-			if (_mapchanges.Count() >= RomOffsets.MapChangesQtyNew)
+			if (_mapchanges.Count() >= MapChangesQtyNew)
 			{
 				throw new Exception("Too many map changes.");
 			}
@@ -1042,8 +1059,8 @@ namespace FFMQLib
 		{
 			UpdatePointers();
 
-			rom.PutInBank(RomOffsets.MapChangesBankNew, RomOffsets.MapChangesPointersNew, _pointers.SelectMany(x => x.ToBytes()).ToArray());
-			rom.PutInBank(RomOffsets.MapChangesBankNew, RomOffsets.MapChangesEntriesNew, _mapchanges.SelectMany(x => x.ToBytes()).ToArray());
+			rom.PutInBank(MapChangesBankNew, MapChangesPointersNew, _pointers.SelectMany(x => x.ToBytes()).ToArray());
+			rom.PutInBank(MapChangesBankNew, MapChangesEntriesNew, _mapchanges.SelectMany(x => x.ToBytes()).ToArray());
 
 			// Change LoadMapChange routine
 			rom.PutInBank(0x01, 0xC593, Blob.FromHex("008012")); // Change pointers table address
