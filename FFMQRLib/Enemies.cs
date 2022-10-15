@@ -362,13 +362,13 @@ namespace FFMQLib
 
                 // Some values of Unknown1 (e.g. 0x0B) result in the third (or other) attack slot being used
                 // regardless of it being 0xFF (which is an ignored slot for most other Unknown1 values)
-                if(noOfAttacks < 3)
+                if(noOfAttacks <= 3)
                 {
                     ea.Unknown1 = 0x01;
                 }
 
                 // Similarly, most Unknown1 values do not use attack slots 5 and 6, but 0x0D and 0x0C do.
-                if(noOfAttacks > 4)
+                if(noOfAttacks >= 4)
                 {
                     ea.Unknown1 = 0x0D;
                 }
