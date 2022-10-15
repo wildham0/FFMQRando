@@ -29,7 +29,6 @@ namespace FFMQLib
 		public EnemyAttackLinks EnemyAttackLinks;
 		public Attacks Attacks;
 		public EnemiesStats enemiesStats;
-		public ScriptsInterpreter TextualScript;
 		private byte[] originalData;
 		public bool beta = false;
 		public bool spoilers = false;
@@ -100,14 +99,12 @@ namespace FFMQLib
 		public byte[] DataReadOnly { get => Data; }
 		public Stream SpoilerStream()
 		{
-			if (true)
-			//if (spoilers)
+			if (spoilers)
 			{
 				var stream = new MemoryStream();
 				var writer = new StreamWriter(stream);
 				
-				//writer.Write(spoilersText);
-				writer.Write(TextualScript.TextualData);
+				writer.Write(spoilersText);
 				writer.Flush();
 				stream.Position = 0;
 				return stream;
@@ -216,7 +213,6 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, rng);
 			ChestsHacks(itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
-			TextualScript = new(0x03, 0xD5E5, 0x222C, this);
 
 			sillyrng.Next();
 			RandomBenjaminPalette(preferences, sillyrng);

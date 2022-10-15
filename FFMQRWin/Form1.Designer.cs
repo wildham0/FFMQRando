@@ -276,11 +276,11 @@ namespace FFMQRWin
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(683, 129);
+            this.button5.Location = new System.Drawing.Point(549, 7);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(101, 27);
+            this.button5.Size = new System.Drawing.Size(101, 23);
             this.button5.TabIndex = 26;
-            this.button5.Text = "button5";
+            this.button5.Text = "Script Tool";
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 

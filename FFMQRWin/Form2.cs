@@ -20,7 +20,18 @@ namespace FFMQRWin
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var interpreter = new ScriptsInterpreter(textBox3.Text, Convert.FromHexString(textBox2.Text.Replace("\n", "").Replace("\r", "")).ToList());
+            var address = textBox3.Text;
+            string addressmask = "008000";
+            if (address.Length < 6)
+            {
+                address = addressmask.Substring(0, 6 - address.Length) + address;
+            }
+            else
+            {
+                address = address.Substring(0, 6);
+            }
+            
+            var interpreter = new ScriptsInterpreter(address, Convert.FromHexString(textBox2.Text.Replace("\n", "").Replace("\r", "").Replace(" ","")).ToList());
             textBox1.Text = interpreter.TextualData.Replace("\n", Environment.NewLine);
         }
 
