@@ -99,6 +99,7 @@ namespace FFMQLib
 			{
 				var stream = new MemoryStream();
 				var writer = new StreamWriter(stream);
+				
 				writer.Write(spoilersText);
 				writer.Flush();
 				stream.Position = 0;
