@@ -197,7 +197,7 @@ namespace FFMQLib
 
 				// Modify the boss explosion animation to add a check for the boss rush room, and select the correction position accordingly
 				PutInBank(0x01, 0xCFB2, Blob.FromHex("22009511eaeaeaeaeaea"));
-				PutInBank(0x11, 0x9500, Blob.FromHex("c916f00cc92af008c940f004c965f0016BADE819AABD8B1A4A4A0A0AAAA9006B"));
+				PutInBank(0x11, 0x9500, Blob.FromHex("c916f00cc92af008c940f004c965f0016BAeE819eaBD8B1A4A4A0A0AAAA9006B"));
 
 				// Move boxes
 				MapObjects[DoomCastleObjectsId].Add(new MapObject(MapObjects[0x67][0x0A]));
