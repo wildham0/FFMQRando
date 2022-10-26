@@ -253,8 +253,9 @@ namespace FFMQLib
 			PutInBank(0x02, 0x9CAA, Blob.FromHex("EAEA")); // Don't branch if resistant to fatal
 
 			// Fix Cure Overflow Bug
-			PutInBank(0x02, 0x95CA, Blob.FromHex("EAEAEAEA22008611"));
-			PutInBank(0x11, 0x8600, Blob.FromHex("A514186D7704B002C5166B")); // Same as original except we skip comparing to max hp if carry is set
+			// see 11_8600_CureOverflow.asm
+			PutInBank(0x02, 0x95CA, Blob.FromHex("22008611eaea"));
+			PutInBank(0x11, 0x8600, Blob.FromHex("a514186d77049008a51638e5148d7704c900809006a9fe7f8d77046b")); // Check for overflow and cap healing to positive value
 
 			// Fix Dark King's crit loop
 			// see 11_87A0_CritCheck.asm
