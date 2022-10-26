@@ -449,6 +449,7 @@ namespace FFMQLib
 			MapObjects[0x02C][0x01].Value = 0x1D; // Assign
 			MapObjects[0x02C][0x01].X = 0x16;
 			MapObjects[0x02C][0x01].Y = 0x30;
+			MapObjects[0x02C][0x01].Palette = 0x01;
 
 			GameFlags[(int)NewGameFlagsList.TristamChestUnopened] = true; // Tristam Chest
 
@@ -459,6 +460,11 @@ namespace FFMQLib
 			MapObjects[0x2C][0x02].CopyFrom(MapObjects[0x2C][0x04]); // Copy box over Phoebe
 			MapObjects[0x2C].RemoveAt(0x04); // Delete box
 			MapObjects[0x2C][0x03].Sprite = 0x78; // Make Reuben invisible
+			MapObjects[0x2C][0x02].Palette = 0x01;
+
+			// Update palette so that chests/boxes don't reflect water
+			MapSpriteSets.MapSpriteSets[0x10].Palette.RemoveAt(0x01);
+			MapSpriteSets.MapSpriteSets[0x10].Palette.Insert(0x01, 0x1E);
 
 			// Enter Tile
 			TileScripts.AddScript((int)TileScriptsList.EnterSpencersPlace,
