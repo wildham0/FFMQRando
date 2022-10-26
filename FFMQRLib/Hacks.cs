@@ -256,6 +256,11 @@ namespace FFMQLib
 			PutInBank(0x02, 0x95CA, Blob.FromHex("EAEAEAEA22008611"));
 			PutInBank(0x11, 0x8600, Blob.FromHex("A514186D7704B002C5166B")); // Same as original except we skip comparing to max hp if carry is set
 
+			// Fix Dark King's crit loop
+			// see 11_87A0_CritCheck.asm
+			PutInBank(0x02, 0x9F24, Blob.FromHex("22A08711900AEAEAEAEA"));
+			PutInBank(0x11, 0x87A0, Blob.FromHex("A53AC949900CC950900AC9CA9004C9D79002386B186B"));
+
 			// Fix crashing when transitioning from door and switching weapon at the same time (experimental)
 			// We skip a PHA/PLP in an interrupt routine that seems to use vertical scanline location (OPVCT) to compute the status register ???
 			//  vertscanline x3 + $0f (or + $9a)
