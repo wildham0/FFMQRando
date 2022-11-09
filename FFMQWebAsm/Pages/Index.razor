@@ -230,7 +230,7 @@
 <Field>
     <span class="badge bg-secondary" style="width: 3rem;">beta</span>
     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Enemizer Attacks</FieldLabel>
-    <Tooltip Text="Shuffles enemy attacks.<br /><br />Safe: Shuffle but don't add self destruct and Dark King attacks<br /><br />Chaos: Shuffle and include self destruct and Dark King attacks<br /><br />Self-destruct: Every enemy self destructs" Inline Multiline Placement="TooltipPlacement.Right">
+    <Tooltip Text="Shuffles enemy attacks.<br /><br />Standard: No shuffle.<br /><br />Safe Randomization: Randomize every attack but leave out self-destruct and Dark King attacks<br /><br />Chaos Randomization: Randomize and include self destruct and Dark King attacks<br /><br />Self-destruct: Every enemy self destructs<br /><br />Simple Shuffle: Instead of randomizing, shuffle one monsters attacks to another. Dark King is left vanilla." Inline Multiline Placement="TooltipPlacement.Right">
         <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
     </Tooltip>
     <Select @bind-SelectedValue="@flags.EnemizerAttacks">
