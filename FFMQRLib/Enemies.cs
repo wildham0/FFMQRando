@@ -43,12 +43,14 @@ namespace FFMQLib
     {
         [Description("Standard")]
         Normal = 0,
-        [Description("Safe")]
+        [Description("Safe Randomization")]
         Safe,
-        [Description("Chaos")]
+        [Description("Chaos Randomization")]
         Chaos,
         [Description("Self-Destruct")]
         SelfDestruct,
+        [Description("Simple Shuffle")]
+        SimpleShuffle,
     }
     public class EnemiesStats
     {
@@ -202,7 +204,7 @@ namespace FFMQLib
         public byte[] Attacks { get; set; }
         public byte Unknown2 { get; set; }
         public byte Unknown3 { get; set; }
-        private int _Id;
+        public int _Id;
         public int Id()
         {
             return _Id;
@@ -336,6 +338,22 @@ namespace FFMQLib
                     for(int i = 0; i < DarkKingAttackLinkQty; i++)
                     {
                         _darkKingAttackLinkBytes[i] = 0xC1;
+                    }
+                    break;
+                case EnemizerAttacks.SimpleShuffle:
+                    var origLinks = new List<EnemyAttackLink>(_EnemyAttackLinks);
+                    _EnemyAttackLinks.Shuffle(rng);
+                    for(int i = 0; i < _EnemyAttackLinks.Count; i++) {
+                        _EnemyAttackLinks[i]._Id = origLinks[i]._Id;
+
+                        // Some enemies require certain slots to be filled, or the game locks up
+                        foreach(var slot in _EnemyAttackLinks[i].NeedsSlotsFilled())
+                        {
+                            if(_EnemyAttackLinks[i].Attacks[slot] == 0xFF)
+                            {
+                                _EnemyAttackLinks[i].Attacks[slot] = possibleAttacks[(int)(rng.Next() % possibleAttacks.Count)];
+                            }
+                        }
                     }
                     break;
                 default:
