@@ -129,6 +129,9 @@ namespace FFMQLib
 			// Fix Giant Tree Axe-less softlock by blocking access from outside the forest
 			PutInBank(0x03, 0xA4A3, Blob.FromHex("2E"));
 			PutInBank(0x03, 0xA625, Blob.FromHex("7B"));
+
+			// Reorder end of battle sequence to check player first
+			PutInBank(0x02, 0x8107, Blob.FromHex("a594d04ca595d030"));
 		}
 		public void ChestsHacks(Flags flags, ItemsPlacement itemsPlacement)
 		{

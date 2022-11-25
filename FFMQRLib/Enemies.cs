@@ -294,8 +294,6 @@ namespace FFMQLib
         public void ShuffleAttacks(EnemizerAttacks enemizerattacks, MT19337 rng)
         {
             var possibleAttacks = new List<byte>();
-            possibleAttacks.Add(0x19);
-            possibleAttacks.Add(0x1B);
             for(byte i = 0x40; i <= 0xDB; i++)
             {
                 possibleAttacks.Add(i);
@@ -304,10 +302,13 @@ namespace FFMQLib
             switch (enemizerattacks) 
             {
                 case EnemizerAttacks.Safe:
-                    // Remove self destruct as it makes bosses super easy and some regular monster super hard
-                    possibleAttacks.Remove(0xC1);
+
+                    possibleAttacks.Remove(0x4A); // Remove heal as it's very powerful early game
+                    possibleAttacks.Remove(0xC1); // Remove self destruct as it makes bosses super easy and some regular monster super hard
+                    possibleAttacks.Remove(0xC9); // Remove strong psychshield
+
                     // Remove dark king attacks as they make regular monsters impossible early on
-                    for(byte i = 0xCA; i <= 0xD6; i++)
+                    for (byte i = 0xCA; i <= 0xD6; i++)
                     {
                         possibleAttacks.Remove(i);
                     }
