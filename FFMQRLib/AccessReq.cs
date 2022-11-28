@@ -282,13 +282,6 @@ namespace FFMQLib
 		public static TreasureObject SellerWindia = new TreasureObject((int)ItemGivingNPCs.GirlWindia, (int)MapList.Windia, Locations.Windia, TreasureType.NPC, "Windia Vendor Girl", new List<AccessReqs> { });
 		//public static TreasureObject Kaeli02 = new TreasureObject(0x04, (int)MapList.Windia, Locations.Windia, TreasureType.NPC, new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.ThunderRock, AccessReqs.MegaGrenade });
 
-		public void GetChestContent(FFMQRom rom)
-		{
-			foreach (var item in AllChests())
-			{
-				item.Content = (Items)rom[RomOffsets.TreasuresOffset + item.ObjectId];
-			}
-		}
 		public static List<TreasureObject> AllChests()
 		{
 			List<TreasureObject> properties = new();

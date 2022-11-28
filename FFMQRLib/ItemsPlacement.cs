@@ -42,6 +42,8 @@ namespace FFMQLib
 	{
 		public List<Items> StartingItems { get; set; }
 		public List<TreasureObject> ItemsLocations { get; }
+		
+		private const int TreasuresOffset = 0x8000;
 		private class RegionWeight
 		{ 
 			public MapRegions Region { get; set; }
@@ -53,7 +55,7 @@ namespace FFMQLib
 				Weight = _weight;
 			}
 		}
-		public ItemsPlacement(FFMQRom rom, Flags flags, MT19337 rng)
+		public ItemsPlacement(Flags flags, Battlefields battlefields, FFMQRom rom, MT19337 rng)
 		{
 			bool badPlacement = true;
 			int counter = 0;
@@ -83,7 +85,7 @@ namespace FFMQLib
 
 				List<Items> itemsList = RandomizeItemsOrder(flags, rng);
 
-				ItemsLocations = new(ItemLocations.Generate(flags, rom.Battlefields).ToList());
+				ItemsLocations = new(ItemLocations.Generate(flags, battlefields).ToList());
 				
 				prioritizedLocationsCount = ItemsLocations.Where(x => x.Prioritize == true).Count();
 
@@ -92,8 +94,10 @@ namespace FFMQLib
 
 				List<Items> placedItems = new();
 
+				List<Items> nonRequiredItems = flags.SkyCoinMode == SkyCoinModes.Standard ? StartingItems : StartingItems.Append(Items.SkyCoin).ToList();
+
 				// Apply starting items access
-				foreach (var item in StartingItems)
+				foreach (var item in nonRequiredItems)
 				{
 					List<AccessReqs> result;
 					if (ItemLocations.ItemAccessReq.TryGetValue(item, out result))
@@ -225,6 +229,29 @@ namespace FFMQLib
 				}
 			}
 
+			// Sky Coins
+			if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
+			{
+				var validSkyCoinLocations = ItemsLocations.Where(x => x.IsPlaced == false && x.Prioritize == false && x.Exclude == false && x.Location != Locations.DoomCastle).ToList();
+
+				if(validSkyCoinLocations.Count < 40)
+                {
+					throw new Exception("Sky Coin Pieces error: not enough valid locations");
+                }
+
+				for (int i = 0; i < 40; i++)
+				{
+					TreasureObject targetLocation = rng.TakeFrom(validSkyCoinLocations);
+					targetLocation.Content = Items.SkyCoin;
+					targetLocation.IsPlaced = true;
+
+					if (targetLocation.Type == TreasureType.Chest || targetLocation.Type == TreasureType.Box)
+					{
+						targetLocation.Type = TreasureType.Chest;
+					}
+				}
+			}
+
 			// Fill excluded and unfilled locations
 			List<Items> consumables = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed };
 			
@@ -280,7 +307,7 @@ namespace FFMQLib
 			{
 				if (item.Type == TreasureType.Chest || item.Type == TreasureType.Box)
 				{
-					rom[RomOffsets.TreasuresOffset + item.ObjectId] = (byte)item.Content;
+					rom[TreasuresOffset + item.ObjectId] = (byte)item.Content;
 				}
 			}
 		}
@@ -310,7 +337,6 @@ namespace FFMQLib
 				Items.ThunderRock, // NPC
 				Items.CaptainCap, // NPC
 				Items.MobiusCrest,
-				Items.SkyCoin,
 				Items.DragonClaw, // NPC
 				Items.MegaGrenade, //NPC
 				Items.Elixir, // NPC
@@ -352,7 +378,18 @@ namespace FFMQLib
 				Items.CupidLock // NPC
 			};
 
-			
+
+			// SkyCoin
+			if (flags.SkyCoinMode == SkyCoinModes.Standard)
+			{
+				ProgressionItems.Add(Items.SkyCoin);
+			}
+			else if(flags.SkyCoinMode == SkyCoinModes.StartWith)
+			{
+				StartingItems.Add(Items.SkyCoin);
+			}
+
+
 			// Remove Starting Items
 			ProgressionBombs.RemoveAll(x => StartingItems.Contains(x));
 			ProgressionSwords.RemoveAll(x => StartingItems.Contains(x));

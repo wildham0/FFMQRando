@@ -12,7 +12,7 @@ namespace FFMQLib
 {
 	public partial class ObjectList
 	{
-		public void UpdateChests(Flags flags, ItemsPlacement itemsPlacement)
+		public void UpdateChests(ItemsPlacement itemsPlacement)
 		{
 			// Update Tristam Elixir Chest so it's taken into account
 			_collections[_pointerCollectionPairs[0x16]][0x05].Type = MapObjectType.Chest;
@@ -48,11 +48,11 @@ namespace FFMQLib
 			_collections[0x09][0x0C + i].CopyFrom(_collections[0x0A][0x0C + i]);
 			}
 		}
-		public void SetEnemiesDensity(Flags flags, MT19337 rng)
+		public void SetEnemiesDensity(EnemiesDensity enemiedensity, MT19337 rng)
 		{
 			int density = 100;
 
-			switch (flags.EnemiesDensity)
+			switch (enemiedensity)
 			{
 				case EnemiesDensity.All: return;
 				case EnemiesDensity.ThreeQuarter: density = 75; break;
@@ -73,7 +73,7 @@ namespace FFMQLib
 				}
 			}
 		}
-		public void ShuffleEnemiesPosition(GameMaps maps, Flags flags, MT19337 rng)
+		public void ShuffleEnemiesPosition(bool enable, GameMaps maps, MT19337 rng)
 		{
 			Dictionary<MapList, List<(int, int)>> excludedCoordinates = new Dictionary<MapList, List<(int, int)>> {
 				{ MapList.LevelAliveForest, new List<(int, int)> { (0x34, 0x10), (0x34, 0x0E) } },
@@ -105,7 +105,7 @@ namespace FFMQLib
 
 			List<int> hookMaps = new() { (int)MapList.GiantTreeA, (int)MapList.GiantTreeB, (int)MapList.MountGale, (int)MapList.MacShipInterior, (int)MapList.PazuzuTowerA, (int)MapList.PazuzuTowerB, (int)MapList.FocusTowerBase, (int)MapList.DoomCastleIce, (int)MapList.DoomCastleLava };
 
-			if (flags.ShuffleEnemiesPosition == false)
+			if (!enable)
 			{
 				return;
 			}

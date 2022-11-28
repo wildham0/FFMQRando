@@ -23,7 +23,7 @@
 </style>
 
 <div class="center-logo"><img height=100 src="@titleLetters[0]" /><img height=100 src="@titleLetters[1]" /><img height=100 src="@titleLetters[2]" /><img height=100 src="@titleLetters[3]" /><img height=100 src="@titleLetters[4]" /><img height=100 src="@titleLetters[5]" /><img height=100 src="logo/mqlogo_.png" /><img height=100 src="@titleLetters[6]" /><img height=100 src="@titleLetters[7]" /><img height=100 src="@titleLetters[8]" /><img height=100 src="@titleLetters[9]" /><img height=100 src="@titleLetters[10]" /></div>
-<h1 class="text-secondary text-center" style="font-size: 1em">A FFMQ Randomizer<br />@("v" + @FFMQLib.Metadata.VersionNumber + @GetBetaStatus())</h1>
+<h1 class="text-secondary text-center" style="font-size: 1em">A FFMQ Randomizer<br />@("v" + @FFMQLib.Metadata.Version + @GetBetaStatus())</h1>
 
 
 <div id="fileSection"><br /><br /><br /></div>
@@ -152,6 +152,33 @@
         </Tooltip>
     </Switch>
 </Field>
+<Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Sky Coin Modes</FieldLabel>
+    <Tooltip Text="Configure how the Sky Coin is acquired.<br /><br />Standard: The Sky Coin will be found in a chest.<br /><br />Start With: The Sky Coin will be in your inventory at the start of the game.<br /><br />Save the Crystals: The Sky Coin will be acquired once you save all 4 crystals.<br /><br />Shattered: The Sky Coin is split in 40 fragments; you can enter Doom Castle once the required amount is found." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
+    <Select @bind-SelectedValue="@flags.SkyCoinMode">
+        @foreach(var item in Enum.GetValues<FFMQLib.SkyCoinModes>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
+@if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
+{ 
+    <Field>
+    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Sky Coin Fragments Required Quantity</FieldLabel>
+    <Tooltip Text="Set the number of Sky Coin Fragments required to enter Doom Castle.<br /><br />Random select one of the 3 previous options at random." Inline Multiline Placement="TooltipPlacement.Right">
+        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+    </Tooltip>
+    <Select @bind-SelectedValue="@flags.SkyCoinFragmentsQty">
+        @foreach(var item in Enum.GetValues<FFMQLib.SkyCoinFragmentsQty>())
+        {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+        }
+    </Select>
+</Field>
+}
 
 <div><br /></div>
 <h3 id="optionsSection" class="text-secondary">Enemies</h3>
@@ -203,7 +230,7 @@
 <Field>
     <span class="badge bg-secondary" style="width: 3rem;">beta</span>
     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Enemizer Attacks</FieldLabel>
-    <Tooltip Text="Shuffles enemy attacks.<br /><br />Safe: Shuffle but don't add self destruct and Dark King attacks<br /><br />Chaos: Shuffle and include self destruct and Dark King attacks<br /><br />Self-destruct: Every enemy self destructs" Inline Multiline Placement="TooltipPlacement.Right">
+    <Tooltip Text="Shuffles enemy attacks.<br /><br />Standard: No shuffle.<br /><br />Safe Randomization: Randomize every attack but leave out self-destruct and Dark King attacks<br /><br />Chaos Randomization: Randomize and include self destruct and Dark King attacks<br /><br />Self-destruct: Every enemy self destructs<br /><br />Simple Shuffle: Instead of randomizing, shuffle one monsters attacks to another. Dark King is left vanilla." Inline Multiline Placement="TooltipPlacement.Right">
         <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
     </Tooltip>
     <Select @bind-SelectedValue="@flags.EnemizerAttacks">
@@ -228,6 +255,14 @@
             <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
         }
     </Select>
+</Field>
+<Field>
+    <Switch TValue="bool" @bind-Checked="@flags.DoomCastleShortcut">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Doom Castle Shortcut</Text>
+        <Tooltip Text="Create a shortcut granting access from the start to Doom Castle at Focus Tower's entrance.<br/><br/>Also modify the Desert floor so it can be navigated without the Mega Grenades and the Dragon Claw." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
 </Field>
 <Field>
     <Switch TValue="bool" @bind-Checked="@flags.TweakedDungeons">
@@ -289,6 +324,14 @@
     <Switch TValue="bool" @bind-Checked="@preferences.RandomBenjaminPalette">
         <Text TextColor="TextColor.Secondary" class="fw-bold">Randomize Benjamin's Palette</Text>
         <Tooltip Text="Select randomly Benjamin's palette, giving him a brand new look!" Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+        </Tooltip>
+    </Switch>
+</Field>
+<Field>
+    <Switch TValue="bool" @bind-Checked="@preferences.RandomMusic">
+        <Text TextColor="TextColor.Secondary" class="fw-bold">Randomize Music</Text>
+        <Tooltip Text="Shuffle the music tracks." Inline Multiline Placement="TooltipPlacement.Right">
             <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
         </Tooltip>
     </Switch>
@@ -437,7 +480,7 @@
             romMessage = "ROM file generated successfully.";
 
             var fs = newRom.DataStream();
-            var fileName = "FFMQR_" + FFMQLib.Metadata.VersionNumber + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".sfc";
+            var fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".sfc";
 
             using var streamRef = new DotNetStreamReference(stream: fs);
 
@@ -446,7 +489,7 @@
             if (flags.EnableSpoilers)
             {
                 var fsSpoilers = newRom.SpoilerStream();
-                var fileNameSpoilers = "FFMQR_Spoilers_" + FFMQLib.Metadata.VersionNumber + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".txt";
+                var fileNameSpoilers = "FFMQR_Spoilers_" + FFMQLib.Metadata.Version + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".txt";
 
                 using var streamRefSpoilers = new DotNetStreamReference(stream: fsSpoilers);
 
@@ -630,7 +673,7 @@
             }
         }
 
-        if (preferences.RememberRom)
+        if (preferences.RememberRom && preferences.RomPath != "")
         {
             newRom.Load(Convert.FromBase64String(preferences.RomPath));
             romMessage = "Loading...";

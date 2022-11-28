@@ -18,18 +18,18 @@ namespace FFMQLib
 	}
 	public partial class FFMQRom : SnesRom
 	{
-		public void SetDoomCastleMode(Flags flags)
+		public void SetDoomCastleMode(DoomCastleModes doomcastlemode)
 		{
 			int DoomCastleObjectsId = 0x65;
 
-			if (flags.DoomCastleMode == DoomCastleModes.Standard)
+			if (doomcastlemode == DoomCastleModes.Standard)
 			{
 				return;
 			}
 
 			byte mapsritesindex = 0x01;
 
-			if (flags.DoomCastleMode == DoomCastleModes.DarkKingOnly)
+			if (doomcastlemode == DoomCastleModes.DarkKingOnly)
 			{
 				GameMaps[(int)MapList.FocusTower].ModifyMap(0x39, 0x00, new List<List<byte>> {
 					new List<byte> {  0x84, 0x91, 0x91, 0x91, 0x91 },
@@ -79,7 +79,7 @@ namespace FFMQLib
 					MapObjects[DoomCastleObjectsId][i].Layer = 0x02;
 				}
 			}
-			else if(flags.DoomCastleMode == DoomCastleModes.BossRush)
+			else if(doomcastlemode == DoomCastleModes.BossRush)
 			{
 				GameMaps[(int)MapList.FocusTower].ModifyMap(0x39, 0x00, new List<List<byte>> {
 					new List<byte> {  0x84, 0x91, 0x91, 0x91, 0x91 },
@@ -189,7 +189,7 @@ namespace FFMQLib
 						"00"
 					}));
 
-				// Change script to mae sure the right boss tiles are removed when defeated
+				// Change script to make sure the right boss tiles are removed when defeated
 				PutInBank(0x12, 0xC000, Blob.FromHex("2a01214046414642464346ffff00"));
 				PutInBank(0x12, 0xC010, Blob.FromHex("2a01214446454646464746ffff00"));
 				PutInBank(0x12, 0xC020, Blob.FromHex("2a0121484649464A464B46ffff00"));
@@ -197,7 +197,7 @@ namespace FFMQLib
 
 				// Modify the boss explosion animation to add a check for the boss rush room, and select the correction position accordingly
 				PutInBank(0x01, 0xCFB2, Blob.FromHex("22009511eaeaeaeaeaea"));
-				PutInBank(0x11, 0x9500, Blob.FromHex("c916f00cc92af008c940f004c965f0016BADE819AABD8B1A4A4A0A0AAAA9006B"));
+				PutInBank(0x11, 0x9500, Blob.FromHex("c916f00cc92af008c940f004c965f0016BAeE819eaBD8B1A4A4A0A0AAAA9006B"));
 
 				// Move boxes
 				MapObjects[DoomCastleObjectsId].Add(new MapObject(MapObjects[0x67][0x0A]));
@@ -256,6 +256,55 @@ namespace FFMQLib
 			{
 				MapObjects[0x07][i].Gameflag = 0xFE;
 			}
+		}
+
+		public void DoomCastleShortcut(bool enable)
+		{
+			if (!enable)
+			{
+				return;
+			}
+
+			// Add arrow to doom castle
+			NodeLocations.DoomCastleShortcut();
+
+			// Add bridge
+			GameMaps[(int)MapList.Overworld].ModifyMap(0x1C, 0x24, new List<List<byte>> {
+				new List<byte> {  0x56 },
+				new List<byte> {  0x56 },
+				new List<byte> {  0x56 },
+			});
+
+			// Modify Desert floor to not require megagrenade/dragonclaw
+			GameMaps[(int)MapList.FocusTowerBase].ModifyMap(0x1F, 0x11, new List<List<byte>> {
+				new List<byte> {  0x05, 0x06, 0x7F },
+				new List<byte> {  0x08, 0x0B, 0x2D },
+				new List<byte> {  0x08, 0x42, 0x2D },
+				new List<byte> {  0x08, 0x0C, 0x2D },
+				new List<byte> {  0x08, 0x07, 0x2D },
+			});
+
+			GameMaps[(int)MapList.FocusTowerBase].ModifyMap(0x25, 0x10, new List<List<byte>> {
+				new List<byte> {  0x05, 0x06, 0x7F },
+				new List<byte> {  0x08, 0x07, 0x2D },
+				new List<byte> {  0x08, 0x0B, 0x2D },
+				new List<byte> {  0x08, 0x42, 0x2D },
+				new List<byte> {  0x08, 0x0C, 0x2D },
+				new List<byte> {  0x05, 0x19, 0x2D },
+				new List<byte> {  0x01, 0x01, 0x2D },
+				new List<byte> {  0x03, 0x03, 0x2E },
+			});
+
+			GameMaps[(int)MapList.FocusTowerBase].ModifyMap(0x29, 0x1B, new List<List<byte>> {
+				new List<byte> {  0x0F, 0x0F, 0x0F, 0x0F },
+			});
+
+			GameMaps[(int)MapList.FocusTowerBase].ModifyMap(0x1A, 0x16, new List<List<byte>> {
+				new List<byte> {  0x08, 0x08, 0x08, 0x08 },
+				new List<byte> {  0x0C, 0x09, 0x0A, 0x08 },
+				new List<byte> {  0x07, 0x01, 0x01, 0x13 },
+				new List<byte> {  0x07, 0x03, 0x03, 0x13 },
+			});
 		}
 	}
 }

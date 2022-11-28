@@ -21,13 +21,8 @@ namespace FFMQLib
             owObjects = rom.GetFromBank(OWObjectBank, OWObjectOffset, 5 * OWObjectQty).Chunk(5).Select(x => new OverworldObject(x)).ToList();
         }
 
-        public void UpdateBattlefieldsColor(Flags flags, Battlefields battlefields)
+        public void UpdateBattlefieldsColor(Battlefields battlefields)
         {
-            if (!flags.ShuffleBattlefieldRewards)
-            {
-                return;
-            }
-
             const byte gpColor = 3;
             const byte itemColor = 4;
             const byte xpColor = 6;

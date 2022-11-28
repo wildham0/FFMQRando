@@ -18,6 +18,7 @@ namespace FFMQRWin
     {
         public FFMQRom newRom = new();
         public Flags flags = new();
+        public Preferences preferences = new();
         public string directoryPath = "";
         public Blob seed;
         public Form1()
@@ -115,7 +116,7 @@ namespace FFMQRWin
 
         private void button4_Click(object sender, EventArgs e)
         {
-            newRom.Randomize(seed, flags);
+            newRom.Randomize(seed, flags, preferences);
 
             var outputFile = File.Create(directoryPath + "FFMQR_" + seed.ToHex() + ".sfc");
 
@@ -216,6 +217,12 @@ namespace FFMQRWin
         {
             flags.BattlesQuantity = Enum.Parse<FFMQLib.BattlesQty>(((ComboBox)sender).SelectedItem.ToString());
             textBox3.Text = flags.GenerateFlagString();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            Form2 interpreterForm = new Form2();
+            interpreterForm.ShowDialog();
         }
     }
 }

@@ -37,13 +37,19 @@ Length = 9
 | 6 | Slime |
 | 16 | Land Worm |
 | 32 | Centaur |
+| 64 | Skullrus Rex |
+| 65 | Stone Golem |
 | 75 | Ice Golem |
 | 76 | Twinhead Hydra |
 | 77 | Twinhead Wyvern |
-| 79 | Dark Knight Phase 1 |
-| 80 | Dark Knight Phase 2 |
-| 81 | Dark Knight Phase 3 |
-| 82 | Dark Knight Phase 4 |
+| 78 | Pazuzu |
+| 79 | Zuh |
+| 80 | Dark Knight Phase 1 |
+| 81 | Dark Knight Phase 2 |
+| 82 | Dark Knight Phase 3 |
+
+Phase 4 copies the stats from the previous phase (if you skip a phase, it copies whatever phase you were on)
+Dark Knight phases 2, 3 and 4 do not use the attack ids in the table, but rather use whatever is in 0x1509E with length 0x0C, phase 2 uses first 4 (maybe 6?), phase 3 uses last 6, phase 4 probably copies the previous phase as mentioned above.
 
 #### Enemy Attack Options (bytes 1 through X)
 
