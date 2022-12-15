@@ -98,7 +98,7 @@ namespace FFMQLib
 				{
 					(SkyCoinFragmentsQty.Low16, 16),
 					(SkyCoinFragmentsQty.Mid24, 24),
-					(SkyCoinFragmentsQty.High32, 36),
+					(SkyCoinFragmentsQty.High32, 32),
 					(SkyCoinFragmentsQty.Random, rng.PickFrom(new List<int>() { 16, 24, 32 }))
 				};
 
