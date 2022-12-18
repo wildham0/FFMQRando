@@ -14,23 +14,23 @@ namespace FFMQLib
 {
     public class Flags
     {
-        public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.ThreeQuarter;
+        public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.All;
         public ItemShuffleChests ChestsShuffle { get; set; } = ItemShuffleChests.Prioritize;
         public ItemShuffleBoxes BoxesShuffle { get; set; } = ItemShuffleBoxes.Exclude;
         public bool ShuffleBoxesContent { get; set; } = false;
         public ItemShuffleNPCsBattlefields NpcsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
         public ItemShuffleNPCsBattlefields BattlefieldsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
-        public LogicOptions LogicOptions { get; set; } = LogicOptions.Friendly;
-        public bool ShuffleEnemiesPosition { get; set; } = true;
-        public EnemiesScaling EnemiesScaling { get; set; } = EnemiesScaling.Half;
-        public EnemiesScalingSpread EnemiesScalingSpread { get; set; } = EnemiesScalingSpread.Quarter;
+        public LogicOptions LogicOptions { get; set; } = LogicOptions.Standard;
+        public bool ShuffleEnemiesPosition { get; set; } = false;
+        public EnemiesScaling EnemiesScaling { get; set; } = EnemiesScaling.Normal;
+        public EnemiesScalingSpread EnemiesScalingSpread { get; set; } = EnemiesScalingSpread.None;
         public EnemizerAttacks EnemizerAttacks { get; set; } = EnemizerAttacks.Normal;
-        public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Triple;
-        public BattlesQty BattlesQuantity { get; set; } = BattlesQty.RandomLow;
+        public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
+        public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;
         public bool ShuffleBattlefieldRewards { get; set; } = false;
         public bool RandomStartingWeapon { get; set; } = false;
         public bool ProgressiveGear { get; set; } = false;
-        public bool TweakedDungeons { get; set; } = true;
+        public bool TweakedDungeons { get; set; } = false;
         public DoomCastleModes DoomCastleMode { get; set; } = DoomCastleModes.Standard;
         public bool DoomCastleShortcut { get; set; } = false;
         public SkyCoinModes SkyCoinMode { get; set; } = SkyCoinModes.Standard;
