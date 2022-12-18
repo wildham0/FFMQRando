@@ -26,8 +26,11 @@ namespace FFMQLib
 		Mid24,
 		[Description("High (32)")]
 		High32,
-		[Description("Random")]
-		Random,
+		[Description("Random 16-32")]
+		RandomNarrow,
+		[Description("Random 10-38")]
+		RandomWide,
+
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -99,7 +102,8 @@ namespace FFMQLib
 					(SkyCoinFragmentsQty.Low16, 16),
 					(SkyCoinFragmentsQty.Mid24, 24),
 					(SkyCoinFragmentsQty.High32, 32),
-					(SkyCoinFragmentsQty.Random, rng.PickFrom(new List<int>() { 16, 24, 32 }))
+					(SkyCoinFragmentsQty.RandomNarrow, rng.Between(16,32)),
+					(SkyCoinFragmentsQty.RandomWide, rng.Between(10, 38))
 				};
 
 				int skycointqty = fragmentQtySelector[(int)flags.SkyCoinFragmentsQty].Item2;
