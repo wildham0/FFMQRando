@@ -3,6 +3,7 @@
 @using System.IO;
 @using System;
 @using System.Web
+@using System.Net.Http
 @using System.Text;
 @using FFMQLib;
 @using Microsoft.JSInterop;
@@ -13,6 +14,8 @@
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
 @inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
+@inject HttpClient Http
+
 
 <style>
     body {
@@ -22,355 +25,173 @@
     }
 </style>
 
-<div class="center-logo"><img height=100 src="@titleLetters[0]" /><img height=100 src="@titleLetters[1]" /><img height=100 src="@titleLetters[2]" /><img height=100 src="@titleLetters[3]" /><img height=100 src="@titleLetters[4]" /><img height=100 src="@titleLetters[5]" /><img height=100 src="logo/mqlogo_.png" /><img height=100 src="@titleLetters[6]" /><img height=100 src="@titleLetters[7]" /><img height=100 src="@titleLetters[8]" /><img height=100 src="@titleLetters[9]" /><img height=100 src="@titleLetters[10]" /></div>
+<div class="center-logo"><img height=@titleHeight src="@titleLetters[0]" /><img height=@titleHeight src="@titleLetters[1]" /><img height=@titleHeight src="@titleLetters[2]" /><img height=@titleHeight src="@titleLetters[3]" /><img height=@titleHeight src="@titleLetters[4]" /><img height=@titleHeight src="@titleLetters[5]" /><img height=@titleHeight src="logo/mqlogo_.png" /><img height=@titleHeight src="@titleLetters[6]" /><img height=@titleHeight src="@titleLetters[7]" /><img height=@titleHeight src="@titleLetters[8]" /><img height=@titleHeight src="@titleLetters[9]" /><img height=@titleHeight src="@titleLetters[10]" /></div>
 <h1 class="text-secondary text-center" style="font-size: 1em">A FFMQ Randomizer<br />@("v" + @FFMQLib.Metadata.Version + @GetBetaStatus())</h1>
 
 
-<div id="fileSection"><br /><br /><br /></div>
+<div id="fileSection"><br /><br /></div>
 
-<h2 class="text-secondary">File</h2>
-
-<Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel> 
-    <FileEdit Filter=".sfc" AutoReset="false" Changed="@LoadFiles"></FileEdit>
-    <FieldHelp>@romMessage</FieldHelp>
-</Field>
-<Fields>
-    <Field>
-        <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Seed</FieldLabel> 
-        <TextEdit Placeholder="Seed" Text="@showSeed" FocusOut="@SeedOnLoseFocus" KeyUp="@SeedOnKeyUp" TextChanged="@SeedOnChanged"/>
-        <FieldHelp>@seedMessage</FieldHelp>
-    </Field>
-     <Field>
-        <FieldLabel Visibility="Visibility.Invisible">None</FieldLabel>
-        <Button Color="Color.Primary" Clicked="@RollSeed" class="field-button">Roll Seed</Button>
-    </Field>
-</Fields>
-<Fields>
-    <Field>
-        <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Flag String</FieldLabel> 
-        <TextEdit Placeholder="Flag string" Text="@flagString" FocusOut="@FlagsOnLoseFocus" KeyUp="@FlagsOnKeyUp" TextChanged="@FlagsOnChanged"/>
-        <FieldHelp>@flagsMessage</FieldHelp>
-    </Field>
-</Fields>
-<Field>
-    <Button Color="Color.Primary" Loading="@isGenerating" Clicked="@OnGenerate" Disabled="@isLoadingRom">Generate</Button>
-</Field>
-
-
-<div id="optionsSection"><br /><br /><br /></div>
-<h2 class="text-secondary">Options</h2>
-
-<h3 class="text-secondary">
-    Items Shuffling
-    <Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small style="font-size: 0.600em"/> 
-    </Tooltip>    
-</h3>
-
-<Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Logic</FieldLabel>
-    <Tooltip Text="Placement logic sets the rules that will be applied when placing items.<br /><br />Friendly: Required Items to clear a dungeon will never be placed in that dungeon to avoid the need to revisit it. Also, the Magic Mirror and the Mask will always be available before Ice Pyramid and Volcano, respectively.<br /><br />Standard: Items are randomly placed and logic merely verifies that they're all accessible." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-    </Tooltip>
-    <Select @bind-SelectedValue="@flags.LogicOptions">
-        @foreach(var item in Enum.GetValues<FFMQLib.LogicOptions>())
-        {
-            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
-        }
-    </Select>
-</Field>
-<Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Original Chests</FieldLabel>
-    <Tooltip Text="Original Chests are all the red chests locations in the original game, except the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave, which count as NPCs.<br /><br />If a chest doesn't contain a Quest Item, it will show up as a brown box." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-    </Tooltip>
-    <Select @bind-SelectedValue="@flags.ChestsShuffle">
-        @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffleChests>())
-        {
-            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
-        }
-    </Select>
-</Field>
-<Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">NPCs</FieldLabel>
-    <Tooltip Text="NPCs are all the NPC locations in the original game, as well as the new Reuben item in Mine, the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-    </Tooltip>
-    <Select @bind-SelectedValue="@flags.NpcsShuffle">
-        @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffleNPCsBattlefields>())
-        {
-            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
-        }
-    </Select>
-</Field>
-<Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Battlefields</FieldLabel> 
-    <Tooltip Text="Battlefields are all the battlefields that gave a Quest Item in the original game; if Shuffle Battlefields Rewards is enabled, the locations will change, but the same number of battlefields will offer an item." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-    </Tooltip>
-    <Select @bind-SelectedValue="@flags.BattlefieldsShuffle">
-        @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffleNPCsBattlefields>())
-        {
-            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
-        }
-    </Select>
-</Field>
-<Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Brown Boxes</FieldLabel>
-    <Tooltip Text="Brown Boxes are all the boxes that contained a consumable in the original game.<br /><br />If a brown box is selected to contain a Quest Item, it will show up as a red chest." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-    </Tooltip>
-    <Select @bind-SelectedValue="@flags.BoxesShuffle">
-        @foreach(var item in Enum.GetValues<FFMQLib.ItemShuffleBoxes>())
-        {
-            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
-        }
-    </Select>
-</Field>
-<Field>
-    <Switch TValue="bool" @bind-Checked="@flags.ShuffleBoxesContent">
-        <Text TextColor="TextColor.Secondary" class="fw-bold">Shuffle Brown Boxes' Content</Text>
-        <Tooltip Text="If enabled, the content of brown boxes will be shuffled amongst themselves." Inline Multiline Placement="TooltipPlacement.Right">
-            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-        </Tooltip>
-    </Switch>
-</Field>
-<Field>
-    <Switch TValue="bool" @bind-Checked="@flags.RandomStartingWeapon">
-        <Text TextColor="TextColor.Secondary" class="fw-bold">Random Starting Weapon</Text>
-        <Tooltip Text="Replace the usual starting weapon with the Steel Sword, the Axe, the Cat Claw or the Bomb." Inline Multiline Placement="TooltipPlacement.Right">
-            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-        </Tooltip>
-    </Switch>
-</Field>
-<Field>
-    <Switch TValue="bool" @bind-Checked="@flags.ProgressiveGear">
-        <Text TextColor="TextColor.Secondary" class="fw-bold">Progressive Gear</Text>
-        <Tooltip Text="Pieces of gear are always acquired from weakest to strongest in a set.<br/><br/>Eg. you'll always received the Steel Sword first, then the Knight Sword and finally Excalibur, irrespective of the order the chests are opened." Inline Multiline Placement="TooltipPlacement.Right">
-            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-        </Tooltip>
-    </Switch>
-</Field>
-<Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Sky Coin Modes</FieldLabel>
-    <Tooltip Text="Configure how the Sky Coin is acquired.<br /><br />Standard: The Sky Coin will be found in a chest.<br /><br />Start With: The Sky Coin will be in your inventory at the start of the game.<br /><br />Save the Crystals: The Sky Coin will be acquired once you save all 4 crystals.<br /><br />Shattered: The Sky Coin is split in 40 fragments; you can enter Doom Castle once the required amount is found." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-    </Tooltip>
-    <Select @bind-SelectedValue="@flags.SkyCoinMode">
-        @foreach(var item in Enum.GetValues<FFMQLib.SkyCoinModes>())
-        {
-            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
-        }
-    </Select>
-</Field>
-@if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
-{ 
-    <Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Sky Coin Fragments Required Quantity</FieldLabel>
-    <Tooltip Text="Set the number of Sky Coin Fragments required to enter Doom Castle.<br /><br />Random select one of the 3 previous options at random." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-    </Tooltip>
-    <Select @bind-SelectedValue="@flags.SkyCoinFragmentsQty">
-        @foreach(var item in Enum.GetValues<FFMQLib.SkyCoinFragmentsQty>())
-        {
-            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
-        }
-    </Select>
-</Field>
-}
+<PresetsSection Name="Presets" SetPresetAction="@OnPresetAction" SetExportFile="@OnExportYaml"/>
 
 <div><br /></div>
-<h3 id="optionsSection" class="text-secondary">Enemies</h3>
 
-<Field>
-    <Switch TValue="bool" @bind-Checked="@flags.ShuffleEnemiesPosition">
-        <Text TextColor="TextColor.Secondary" class="fw-bold">Shuffle Enemies' Positions</Text>
-        <Tooltip Text="Instead of their original position in a given map, enemies are randomly placed." Inline Multiline Placement="TooltipPlacement.Right">
-            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-        </Tooltip>
-    </Switch>
-</Field>
-<Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Enemies Density</FieldLabel>
-    <Tooltip Text="Set how many enemies are on each maps." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-    </Tooltip>
-    <Select @bind-SelectedValue="@flags.EnemiesDensity">
-        @foreach(var item in Enum.GetValues<FFMQLib.EnemiesDensity>())
+<Container class="sectionBox">
+    <div class="box-title text-secondary">
+        Generation       
+    </div> 
+
+    <Container Class="flagBox">
+        <Container Class="flagColumn">
+        @if(!romLoaded)
         {
-            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+            <Field class="romFlag">
+                <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel> 
+                <FileEdit Filter=".sfc" AutoReset="false" Changed="@LoadFiles"></FileEdit>
+                <FieldHelp>@romMessage</FieldHelp>
+            </Field>
         }
-    </Select>
-</Field>
-<Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Enemies' Stats Scaling</FieldLabel> 
-    <Tooltip Text="Adjust enemies stats by the selected percentage." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-    </Tooltip>
-    <Select @bind-SelectedValue="@flags.EnemiesScaling">
-        @foreach(var item in Enum.GetValues<FFMQLib.EnemiesScaling>())
+        else
         {
-            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+            <Field class="romFlag">
+                <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel> 
+                <Button Color="Color.Primary" Loading="@isGenerating" Clicked="@OnGenerate" Disabled="@isLoadingRom" class="romBtn">Generate</Button>
+                <FieldHelp>@romMessage</FieldHelp>
+            </Field>
         }
-    </Select>
-</Field>
-<Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Scaling Spread</FieldLabel>
-    <Tooltip Text="Add random variation to stats scaling of enemies.<br/><br/>The percentages are additive: eg. scaling of 100% with a spread of 25% means the stats scaling will vary between 75% and 125%." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-    </Tooltip>
-    <Select @bind-SelectedValue="@flags.EnemiesScalingSpread">
-        @foreach(var item in Enum.GetValues<FFMQLib.EnemiesScalingSpread>())
+
+            <Fields class="dropFlag">
+                <Field>
+                    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Seed</FieldLabel> 
+                    <TextEdit Placeholder="Seed" Text="@showSeed" FocusOut="@SeedOnLoseFocus" KeyUp="@SeedOnKeyUp" TextChanged="@SeedOnChanged"/>
+                    <FieldHelp>@seedMessage</FieldHelp>
+                </Field>
+                <Field>
+                    <FieldLabel Visibility="Visibility.Invisible">None</FieldLabel>
+                    <Button Color="Color.Primary" Clicked="@RollSeed" class="field-button romBtn">Roll Seed</Button>
+                </Field>
+            </Fields>
+        </Container>
+        <Container Class="flagColumn">
+            <Fields class="dropFlag">
+                <Field>
+                    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Flag String</FieldLabel> 
+                    <TextEdit Placeholder="Flag string" Text="@flagString" FocusOut="@FlagsOnLoseFocus" KeyUp="@FlagsOnKeyUp" TextChanged="@FlagsOnChanged"/>
+                    <FieldHelp>@flagsMessage</FieldHelp>
+                </Field>
+            </Fields>
+
+        @if(romLoaded)
         {
-            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+            <a href="" @onclick="@UnloadRom" @onclick:preventDefault>Use a different ROM file</a>
         }
-    </Select>
-</Field>
-<Field>
-    <span class="badge bg-secondary" style="width: 3rem;">beta</span>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Enemizer Attacks</FieldLabel>
-    <Tooltip Text="Shuffles enemy attacks.<br /><br />Standard: No shuffle.<br /><br />Safe Randomization: Randomize every attack but leave out self-destruct and Dark King attacks<br /><br />Chaos Randomization: Randomize and include self destruct and Dark King attacks<br /><br />Self-destruct: Every enemy self destructs<br /><br />Simple Shuffle: Instead of randomizing, shuffle one monsters attacks to another. Dark King is left vanilla." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-    </Tooltip>
-    <Select @bind-SelectedValue="@flags.EnemizerAttacks">
-        @foreach(var item in Enum.GetValues<FFMQLib.EnemizerAttacks>())
-        {
-            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
-        }
-    </Select>
-</Field>
+        </Container>
+    </Container>
+</Container>
+
+
+<div id="optionsSection"><br /></div>
+<h2 class="text-secondary">Customization</h2>
+<div><br /></div>
+
+<Container class="sectionBox">
+    <div class="box-title text-secondary">
+        Items
+        <Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations." Inline Multiline Placement="TooltipPlacement.Right">
+            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small style="font-size: 0.600em"/> 
+        </Tooltip>       
+    </div> 
+
+    <Container Class="flagBox">
+        <Container Class="flagColumn">
+            <EnumFlag UsePreset=usePreset Name="Logic" @bind-Value="flags.LogicOptions" Tooltip="Placement logic sets the rules that will be applied when placing items.<br /><br />Friendly: Required Items to clear a dungeon will never be placed in that dungeon to avoid the need to revisit it. Also, the Magic Mirror and the Mask will always be available before Ice Pyramid and Volcano, respectively.<br /><br />Standard: Items are randomly placed and logic merely verifies that they're all accessible." />
+            <EnumFlag UsePreset=usePreset Name="Original Chests" @bind-Value="flags.ChestsShuffle" Tooltip="Original Chests are all the red chests locations in the original game, except the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave, which count as NPCs.<br /><br />If a chest doesn't contain a Quest Item, it will show up as a brown box." />
+            <EnumFlag UsePreset=usePreset Name="NPCs" @bind-Value="flags.NpcsShuffle" Tooltip="NPCs are all the NPC locations in the original game, as well as the new Reuben item in Mine, the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave." />
+            <EnumFlag UsePreset=usePreset Name="Battlefields" @bind-Value="flags.BattlefieldsShuffle" Tooltip="Battlefields are all the battlefields that gave a Quest Item in the original game; if Shuffle Battlefields Rewards is enabled, the locations will change, but the same number of battlefields will offer an item." />
+            <EnumFlag UsePreset=usePreset Name="Brown Boxes" @bind-Value="flags.BoxesShuffle" Tooltip="Brown Boxes are all the boxes that contained a consumable in the original game.<br /><br />If a brown box is selected to contain a Quest Item, it will show up as a red chest." />
+        </Container>
+        <Container Class="flagColumn">
+            <EnumFlag UsePreset=usePreset Name="Sky Coin Mode" @bind-Value="flags.SkyCoinMode" Tooltip="Configure how the Sky Coin is acquired.<br /><br />Standard: The Sky Coin will be found in a chest.<br /><br />Start With: The Sky Coin will be in your inventory at the start of the game.<br /><br />Save the Crystals: The Sky Coin will be acquired once you save all 4 crystals.<br /><br />Shattered: The Sky Coin is split in 40 fragments; you can enter Doom Castle once the required amount is found." />
+            @if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
+            { 
+                <EnumFlag UsePreset=usePreset Name="Sky Fragments Quantity" @bind-Value="flags.SkyCoinFragmentsQty" Tooltip="Set the number of Sky Coin Fragments required to enter Doom Castle.<br /><br />Random select one of the 3 previous options at random." />
+            }
+            <BoolFlag UsePreset=usePreset Name="Shuffle Brown Boxes' Content" @bind-Value="flags.ShuffleBoxesContent" Tooltip="If enabled, the content of brown boxes will be shuffled amongst themselves." />
+            <BoolFlag UsePreset=usePreset Name="Random Starting Weapon" @bind-Value="flags.RandomStartingWeapon" Tooltip="Replace the usual starting weapon with the Steel Sword, the Axe, the Cat Claw or the Bomb." />
+            <BoolFlag UsePreset=usePreset Name="Progressive Gear" @bind-Value="flags.ProgressiveGear" Tooltip="Pieces of gear are always acquired from weakest to strongest in a set.<br/><br/>Eg. you'll always received the Steel Sword first, then the Knight Sword and finally Excalibur, irrespective of the order the chests are opened." />
+        </Container>
+    </Container>
+</Container>
 
 <div><br /></div>
-<h3 id="optionsSection" class="text-secondary">Maps</h3>
 
-<Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Doom Castle</FieldLabel>
-    <Tooltip Text="Change how you reach the Dark King.<br/><br/>Standard: You need to defeat all four bosses and their floors to reach the Dark King.<br/><br/>Boss Rush: Only the bosses are blocking your way in the corridor to the Dark King's room.<br/><br/>Dark King Only: The way to the Dark King is free of any obstacle." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-    </Tooltip>
-    <Select @bind-SelectedValue="@flags.DoomCastleMode">
-        @foreach(var item in Enum.GetValues<FFMQLib.DoomCastleModes>())
-        {
-            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
-        }
-    </Select>
-</Field>
-<Field>
-    <Switch TValue="bool" @bind-Checked="@flags.DoomCastleShortcut">
-        <Text TextColor="TextColor.Secondary" class="fw-bold">Doom Castle Shortcut</Text>
-        <Tooltip Text="Create a shortcut granting access from the start to Doom Castle at Focus Tower's entrance.<br/><br/>Also modify the Desert floor so it can be navigated without the Mega Grenades and the Dragon Claw." Inline Multiline Placement="TooltipPlacement.Right">
-            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-        </Tooltip>
-    </Switch>
-</Field>
-<Field>
-    <Switch TValue="bool" @bind-Checked="@flags.TweakedDungeons">
-        <Text TextColor="TextColor.Secondary" class="fw-bold">Tweak Frustrating Dungeons</Text>
-        <Tooltip Text="Make some small changes to a few of the most annoying dungeons.<br/><br/>Ice Pyramid: Add 3 shortcuts on the 1st floor.<br/><br/>Giant Tree: Add shortcuts on the 1st and 4th floors and curtail mushrooms population.<br/><br/>Pazuzu's Tower: Staircases are devoid of enemies (regardless of Enemies Density settings)." Inline Multiline Placement="TooltipPlacement.Right">
-            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-        </Tooltip>
-    </Switch>
-</Field>
+<Container class="sectionBox">
+    <div class="box-title text-secondary">Enemies</div> 
+
+    <Container Class="flagBox">
+        <Container Class="flagColumn">
+            <EnumFlag UsePreset=usePreset Name="Enemies Density" @bind-Value="flags.EnemiesDensity" Tooltip="Set how many enemies are on each maps." />
+            <EnumFlag UsePreset=usePreset Name="Enemies' Stats Scaling" @bind-Value="flags.EnemiesScaling" Tooltip="Adjust enemies stats by the selected percentage." />
+            <EnumFlag UsePreset=usePreset Name="Scaling Spread" @bind-Value="flags.EnemiesScalingSpread" Tooltip="Add random variation to stats scaling of enemies.<br/><br/>The percentages are additive: eg. scaling of 100% with a spread of 25% means the stats scaling will vary between 75% and 125%." />
+            <EnumFlag UsePreset=usePreset Name="Enemizer Attacks" @bind-Value="flags.EnemizerAttacks" Tooltip="Shuffles enemy attacks.<br /><br />Standard: No shuffle.<br /><br />Safe Randomization: Randomize every attack but leave out self-destruct and Dark King attacks<br /><br />Chaos Randomization: Randomize and include self destruct and Dark King attacks<br /><br />Self-destruct: Every enemy self destructs<br /><br />Simple Shuffle: Instead of randomizing, shuffle one monsters attacks to another. Dark King is left vanilla." />
+        </Container>
+        <Container Class="flagColumn">
+            <BoolFlag UsePreset=usePreset Name="Shuffle Enemies' Positions" @bind-Value="flags.ShuffleEnemiesPosition" Tooltip="Instead of their original position in a given map, enemies are randomly placed." />
+        </Container>
+    </Container>
+</Container>
 
 <div><br /></div>
-<h3 id="optionsSection" class="text-secondary">Misc</h3>
 
-<Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Leveling Curve</FieldLabel>
-    <Tooltip Text="Adjust the quantity of XP needed to gain levels.<br/><br/>A curve of 2x means that leveling will be twice faster." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-    </Tooltip>
-    <Select @bind-SelectedValue="@flags.LevelingCurve">
-        @foreach(var item in Enum.GetValues<FFMQLib.LevelingCurve>())
-        {
-            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
-        }
-    </Select>
-</Field>
-<Field>
-    <Switch TValue="bool" @bind-Checked="@flags.ShuffleBattlefieldRewards">
-        <Text TextColor="TextColor.Secondary" class="fw-bold">Shuffle Battlefields Rewards</Text>
-        <Tooltip Text="Shuffle the type of reward (Item, XP, GP) given by battlefields and color code them by reward type.<br/><br/>Blue: Give an item.<br/><br/>Grey: Give XP.<br/><br/>Green: Give GP." Inline Multiline Placement="TooltipPlacement.Right">
-            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-        </Tooltip>
-    </Switch>
-</Field>
-<Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Battlefields Battles Quantity</FieldLabel> 
-    <Tooltip Text="Adjust the number of battles that need to be fought to get a battlefield's reward." Inline Multiline Placement="TooltipPlacement.Right">
-        <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-    </Tooltip>
-    <Select @bind-SelectedValue="@flags.BattlesQuantity">
-        @foreach(var item in Enum.GetValues<FFMQLib.BattlesQty>())
-        {
-            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
-        }
-    </Select>
-</Field>
-<Field>
-    <Switch TValue="bool" @bind-Checked="@flags.EnableSpoilers">
-        <Text TextColor="TextColor.Secondary" class="fw-bold">Generate Spoilers File</Text>
-        <Tooltip Text="Generate a .txt file with each Key Item's locations." Inline Multiline Placement="TooltipPlacement.Right">
-            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-        </Tooltip>
-    </Switch>
-</Field>
+<Container class="sectionBox">
+    <div class="box-title text-secondary">Maps</div> 
+
+    <Container Class="flagBox">
+        <Container Class="flagColumn">
+            <EnumFlag UsePreset=usePreset Name="Doom Castle" @bind-Value="flags.DoomCastleMode" Tooltip="Change how you reach the Dark King.<br/><br/>Standard: You need to defeat all four bosses and their floors to reach the Dark King.<br/><br/>Boss Rush: Only the bosses are blocking your way in the corridor to the Dark King's room.<br/><br/>Dark King Only: The way to the Dark King is free of any obstacle." />
+        </Container>
+        <Container Class="flagColumn">
+            <BoolFlag UsePreset=usePreset Name="Doom Castle Shortcut" @bind-Value="flags.DoomCastleShortcut" Tooltip="Create a shortcut granting access from the start to Doom Castle at Focus Tower's entrance.<br/><br/>Also modify the Desert floor so it can be navigated without the Mega Grenades and the Dragon Claw." />
+            <BoolFlag UsePreset=usePreset Name="Tweak Frustrating Dungeons" @bind-Value="flags.TweakedDungeons" Tooltip="Make some small changes to a few of the most annoying dungeons.<br/><br/>Ice Pyramid: Add 3 shortcuts on the 1st floor.<br/><br/>Giant Tree: Add shortcuts on the 1st and 4th floors and curtail mushrooms population.<br/><br/>Pazuzu's Tower: Staircases are devoid of enemies (regardless of Enemies Density settings)." />
+        </Container>
+    </Container>
+</Container>
 
 <div><br /></div>
-<h3 id="sillySection" class="text-secondary">Preferences</h3>
-<div class="text-secondary">Preferences and customizations doesn't affect the randomization and can be enabled/disabled without any impact on gameplay.</div>
-<Field>
-    <Switch TValue="bool" @bind-Checked="@preferences.RandomBenjaminPalette">
-        <Text TextColor="TextColor.Secondary" class="fw-bold">Randomize Benjamin's Palette</Text>
-        <Tooltip Text="Select randomly Benjamin's palette, giving him a brand new look!" Inline Multiline Placement="TooltipPlacement.Right">
-            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-        </Tooltip>
-    </Switch>
-</Field>
-<Field>
-    <Switch TValue="bool" @bind-Checked="@preferences.RandomMusic">
-        <Text TextColor="TextColor.Secondary" class="fw-bold">Randomize Music</Text>
-        <Tooltip Text="Shuffle the music tracks." Inline Multiline Placement="TooltipPlacement.Right">
-            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-        </Tooltip>
-    </Switch>
-</Field>
-<Field>
-    <Switch TValue="bool" @bind-Checked="@preferences.RememberRom">
-        <Text TextColor="TextColor.Secondary" class="fw-bold">Remember ROM</Text>
-        <Tooltip Text="Automatically load the selected ROM file when loading the randomizer." Inline Multiline Placement="TooltipPlacement.Right">
-            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-        </Tooltip>
-    </Switch>
-</Field>
-<Field>
-    <Button Color="Color.Primary" Clicked="@SavePreferences">Save Preferences</Button>
-</Field>
 
-<div id="presetSection"><br /><br /><br /></div>
+<Container class="sectionBox">
+    <div class="box-title text-secondary">Other</div> 
 
-<h2 class="text-secondary">Yaml Preset</h2>
+    <Container Class="flagBox">
+        <Container Class="flagColumn">
+            <EnumFlag UsePreset=usePreset Name="Leveling Curve" @bind-Value="flags.LevelingCurve" Tooltip="Adjust the quantity of XP needed to gain levels.<br/><br/>A curve of 2x means that leveling will be twice faster." />
+            <BoolFlag UsePreset=usePreset Name="Generate Spoilers File" @bind-Value="flags.EnableSpoilers" Tooltip="Generate a .txt file with each Key Item's locations." />
+        </Container>
+        <Container Class="flagColumn">
+            <BoolFlag UsePreset=usePreset Name="Shuffle Battlefields Rewards" @bind-Value="flags.ShuffleBattlefieldRewards" Tooltip="Shuffle the type of reward (Item, XP, GP) given by battlefields and color code them by reward type.<br/><br/>Blue: Give an item.<br/><br/>Grey: Give XP.<br/><br/>Green: Give GP." />
+            <EnumFlag UsePreset=usePreset Name="Battlefields Battles Quantity" @bind-Value="flags.BattlesQuantity" Tooltip="Adjust the number of battles that need to be fought to get a battlefield's reward." />
+        </Container>
+    </Container>
+</Container>
 
-<Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">
-        Load Yaml Preset
-        <Tooltip Text="Load the flags selection from a Yaml configuration file.<br/><br/>With a text editor, each options can be manually weighted. If a Yaml file is loaded, each time a seed is rolled, the flags will be configured randomly using the weighted values. Exporting to file reset the weighting." Inline Multiline Placement="TooltipPlacement.Right">
-            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-        </Tooltip>     
-    </FieldLabel> 
-    <FileEdit Filter=".yaml" AutoReset="false" Changed="@LoadYaml"></FileEdit>
-    <FieldHelp>@yamlMessage</FieldHelp>
-</Field>
-<Field>
-    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Yaml Name</FieldLabel> 
-    <TextEdit @bind-Text="@yamlName"></TextEdit>
-</Field>
-<Field>
-    <Button Color="Color.Primary" Clicked="@OnExportYaml">Export Yaml Preset</Button>
-</Field>
+<div><br /></div>
 
-<div id="infoSection"><br /><br /><br /></div>
+<Container class="sectionBox">
+    <div class="box-title text-secondary">Preferences</div> 
+    <div class="text-secondary">Preferences doesn't affect the randomization and can be enabled/disabled without any impact on gameplay.</div>
+    <Container Class="flagBox">
+        <Container Class="flagColumn">
+            <BoolFlag UsePreset=false Name="Randomize Benjamin's Palette" @bind-Value="preferences.RandomBenjaminPalette" Tooltip="Randomly select Benjamin's palette, giving him a brand new look!" />
+            <BoolFlag UsePreset=false Name="Randomize Music" @bind-Value="preferences.RandomMusic" Tooltip="Shuffle the music tracks." />
+            <Field class="text-secondary dropFlag romBtn">
+                <Button Color="Color.Primary" Clicked="@SavePreferences">Save Preferences</Button>
+            </Field>
+        </Container>
+        <Container Class="flagColumn">
+        </Container>
+    </Container>
+</Container>
+
+<div id="infoSection"><br /></div>
 
 <Information />
 
@@ -386,6 +207,9 @@
     private long maxFileSize = 0x80200;
     private bool isLoadingRom = false;
     private bool isGenerating = false;
+    private bool romLoaded = false;
+    private bool usePreset = false;
+    private int titleHeight = 80;
 
     private Blob seed = new byte[4];
     private string showSeed;
@@ -522,7 +346,9 @@
             {
                 romMessage = "ROM file loaded succesfully.";
                 isLoadingRom = false;
+                romLoaded = true;
                 newRom.BackupOriginalData();
+                SavePreferences();
             }
         }
         catch (Exception ex)
@@ -531,17 +357,23 @@
         }
     }
 
-    private async Task LoadYaml(FileChangedEventArgs e)
+    private void UnloadRom()
+    {
+        romLoaded = false;
+        preferences.RomPath = "";
+        romMessage = "";
+        newRom = new();
+        SavePreferences();
+    }
+
+    private async Task LoadYamlFromUpload(FileChangedEventArgs e)
     {
         try
         {
             using (StreamReader streamReader = new StreamReader(e.Files.First().OpenReadStream(maxFileSize), Encoding.UTF8))
             {
-                yamlPreset = await streamReader.ReadToEndAsync();
+                await LoadYamlFromStreamReader(streamReader);
             }
-
-            yamlName = flags.ReadYaml(yamlPreset, seed);
-            yamlMessage = "Yaml preset file loaded succesfully.";
         }
         catch (Exception ex)
         {
@@ -550,15 +382,68 @@
         }
     }
 
-    private async Task OnExportYaml()
+    private async Task LoadYamlFromFile(string presetname)
     {
-        var yamlStream = flags.YamlStream(yamlName);
-        var filenameYaml = yamlName + ".yaml";
+        try
+        {
+            var stream = await Http.GetStreamAsync("presets/" + presetname + ".yaml");
+
+            using (StreamReader streamReader = new StreamReader(stream, Encoding.UTF8))
+            {
+                await LoadYamlFromStreamReader(streamReader);
+            }
+        }
+        catch (Exception ex)
+        {
+            yamlMessage = ex.Message;
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private async Task LoadYamlFromStreamReader(StreamReader streamReader)
+    {
+        try
+        {
+            using (streamReader)
+            {
+                yamlPreset = await streamReader.ReadToEndAsync();
+            }
+
+            yamlName = flags.ReadYaml(yamlPreset, seed);
+            flagsMessage = "Preset loaded succesfully.";
+        }
+        catch (Exception ex)
+        {
+            yamlMessage = ex.Message;
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private async void OnExportYaml(string yamlname)
+    {
+        var yamlStream = flags.YamlStream(yamlname);
+        var filenameYaml = yamlname + ".yaml";
         using var streamRefSpoilers = new DotNetStreamReference(stream: yamlStream);
         {
             await JS.InvokeVoidAsync("downloadFileFromStream", filenameYaml, streamRefSpoilers);
         }
     }
+
+    private async void OnPresetAction((StreamReader name, bool usepreset, bool loadfromfile) action)
+    {
+        if (!action.usepreset && !action.loadfromfile)
+        {
+            usePreset = false;
+            StateHasChanged();
+        }
+        else 
+        {
+            await LoadYamlFromStreamReader(action.name);
+            usePreset = action.usepreset;
+            StateHasChanged();
+        }
+    }
+
 
     private void RollSeed()
     {
@@ -608,7 +493,7 @@
         }
     }
 
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
         var uri = new Uri(NavigationManager.Uri);
 
@@ -631,7 +516,9 @@
         }
         else
         {
-            flagsMessage = "Using default flags.";
+            await LoadYamlFromFile("sgl2022");
+            StateHasChanged();
+            flagsMessage = "Using default flags (SGL2022).";
         }
 
         LoadPreferences();
@@ -686,13 +573,16 @@
                 {
                     romMessage = "Invalid ROM file.";
                     isLoadingRom = false;
+                    romLoaded = false;
                     return;
                 }
                 else
                 {
                     romMessage = "ROM file loaded from memory succesfully.";
                     isLoadingRom = false;
+                    romLoaded = true;
                     newRom.BackupOriginalData();
+                    StateHasChanged();
                 }
             }
             catch (Exception ex)

@@ -1,0 +1,51 @@
+﻿@using FFMQLib;
+@typeparam TItem
+
+    @if (!UsePreset)
+    {
+        <Field class="text-secondary dropFlag">
+            <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">@Name</FieldLabel>
+                <Tooltip Text=@Tooltip Inline Multiline Placement="TooltipPlacement.Right">
+                    <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+                </Tooltip>
+        <Select @bind-SelectedValue="@Value" onchange="@OnChange">
+            @foreach (Enum item in Enum.GetValues(typeof(TItem)))
+            {
+            <SelectItem Value="@item">@(item.GetDescription())</SelectItem>
+            }
+        </Select>
+        </Field>
+    }
+    else
+    {
+            <div class="fw-bold boolFlagFixed extra-padding">@Name: <div class="fw-normal d-inline">@(((Enum)Enum.Parse(typeof(TItem), Value.ToString())).GetDescription())</div>
+            <Tooltip Text=@Tooltip Inline Multiline Placement="TooltipPlacement.Right">
+                <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+            </Tooltip>
+            </div>
+    }
+
+
+@code
+{
+    [Parameter]
+    public string Name { get; set; }
+
+    [Parameter]
+    public string Tooltip { get; set; }
+
+    [Parameter]
+    public TItem Value { get; set; }
+
+    [Parameter]
+    public bool UsePreset { get; set; }
+
+    [Parameter]
+    public EventCallback<TItem> ValueChanged { get; set; }
+
+    void OnChange(ChangeEventArgs e)
+	{
+		Value = (TItem)Enum.Parse(typeof(TItem), e.Value.ToString());
+		ValueChanged.InvokeAsync(Value);
+	}
+}
