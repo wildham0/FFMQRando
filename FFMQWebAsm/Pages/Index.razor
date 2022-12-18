@@ -526,7 +526,7 @@
 
     public void SavePreferences()
     {
-        if (!newRom.IsEmpty() && preferences.RememberRom)
+        if (!newRom.IsEmpty())
         {
             newRom.RestoreOriginalData();
             preferences.RomPath = Convert.ToBase64String(newRom.DataReadOnly);
@@ -560,7 +560,7 @@
             }
         }
 
-        if (preferences.RememberRom && preferences.RomPath != "")
+        if (preferences.RomPath != "")
         {
             newRom.Load(Convert.FromBase64String(preferences.RomPath));
             romMessage = "Loading...";
