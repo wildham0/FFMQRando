@@ -181,10 +181,21 @@ namespace FFMQLib
 			NonSpoilerDemoplay();
 			CompanionRoutines();
 
+
+			LocationStructure tempLocat = new(this);
+			//spoilersText = tempLocat.GenerateYaml();
+			tempLocat.ReadRooms();
+			tempLocat.EntranceHack(this);
+			tempLocat.Write(this);
+
+			Teleporters temptele = new(this);
+			temptele.ExtraTeleporters();
+			temptele.Write(this);
+
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
 			GameMaps.LessObnoxiousMaps(flags.TweakedDungeons, MapObjects, rng);
-
+			
 			// Enemies
 			MapObjects.SetEnemiesDensity(flags.EnemiesDensity, rng);
 			MapObjects.ShuffleEnemiesPosition(flags.ShuffleEnemiesPosition, GameMaps, rng);
@@ -238,8 +249,9 @@ namespace FFMQLib
 			MapSpriteSets.Write(this);
 			titleScreen.Write(this, Metadata.Version, seed, flags);
 
+
 			// Spoilers
-			spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
+			//spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
 			spoilers = flags.EnableSpoilers;
 			
 			// Remove header if any

@@ -1,0 +1,678 @@
+rooms:
+- name: void
+  area_id: 0
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 1
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 2
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 3
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 4
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 5
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 6
+  treasures: []
+  entrances: []
+- name: Doom Castle - Sand Floor
+  area_id: 7
+  treasures: []
+  entrances:
+  - name: To Sky Door - Sand Floor
+    id: 0
+    x: 24
+    y: 19
+    teleport_id: 0
+    teleport_type: 0
+    access: []
+  - name: Main Entrance - Sand Floor
+    id: 2
+    x: 19
+    y: 43
+    teleport_id: 1
+    teleport_type: 6
+    access: []
+- name: Doom Castle - Aero Room
+  area_id: 7
+  treasures: []
+  entrances:
+  - name: Aero Room Entrance
+    id: 1
+    x: 27
+    y: 39
+    teleport_id: 1
+    teleport_type: 0
+    access: []
+- name: Focus Tower B1 - Main Loop
+  area_id: 8  
+  treasures: []
+  entrances:
+  - name: South Entrance
+    id: 0
+    x: 43
+    y: 60
+    teleport_id: 2
+    teleport_type: 6
+    access: []
+  - name: To Focus Tower 1F - Main Hall
+    id: 1
+    x: 37
+    y: 41
+    teleport_id: 4
+    teleport_type: 0
+    access: []
+- name: Focus Tower B1 - Aero Corridor
+  area_id: 8  
+  treasures: []
+  entrances:    
+  - name: To Focus Tower 1F - Sun Coin Room
+    id: 2
+    x: 59
+    y: 35
+    teleport_id: 5
+    teleport_type: 0
+    access: []
+  - name: To Sand Floor - Aero Chest
+    id: 5
+    x: 57
+    y: 59
+    teleport_id: 8
+    teleport_type: 0
+    access: []    
+- name: Focus Tower B1 - Inner Loop
+  area_id: 8  
+  treasures: []
+  entrances:        
+  - name: To Focus Tower 1F - Sky Door
+    id: 3
+    x: 51
+    y: 49
+    teleport_id: 6
+    teleport_type: 0
+    access: []
+  - name: To Doom Castle Sand Floor
+    id: 4
+    x: 51
+    y: 45
+    teleport_id: 7
+    teleport_type: 0
+    access: []
+- name: Focus Tower 1F
+  area_id: 9
+  treasures: []
+  entrances:
+  - name: Focus Tower West Entrance
+    id: 0
+    x: 25
+    y: 29
+    teleport_id: 3
+    teleport_type: 6
+    access: []
+  - name: To Focus Tower 2F - From SandCoin
+    id: 1
+    x: 16
+    y: 4
+    teleport_id: 10
+    teleport_type: 0
+    access: []
+  - name: To Focus Tower B1 - Main Hall
+    id: 2
+    x: 4
+    y: 23
+    teleport_id: 11
+    teleport_type: 0
+    access: []
+  - name: To Focus Tower B1 - To Aero Chest
+    id: 3
+    x: 26
+    y: 17
+    teleport_id: 12
+    teleport_type: 0
+    access: []
+  - name: Sky Door
+    id: 4
+    x: 16
+    y: 24
+    teleport_id: 13
+    teleport_type: 0
+    access: []
+  - name: To Focus Tower 2F - From RiverCoin
+    id: 5
+    x: 16
+    y: 10
+    teleport_id: 14
+    teleport_type: 0
+    access: []
+  - name: To Focus Tower B1 - From Sky Door
+    id: 6
+    x: 16
+    y: 29
+    teleport_id: 15
+    teleport_type: 0
+    access: []
+- name: Focus Tower 2F - Sand Coin Passage
+  area_id: 10
+  treasures: []
+  entrances:
+  - name: North Entrance
+    id: 0
+    x: 49
+    y: 30
+    teleport_id: 4
+    teleport_type: 6
+    access: []
+  - name: To Focus Tower 1F - To SandCoin
+    id: 1
+    x: 47
+    y: 33
+    teleport_id: 17
+    teleport_type: 0
+    access: []
+- name: Focus Tower 2F - River Coin Passage
+  area_id: 10
+  treasures: []
+  entrances:    
+  - name: To Focus Tower 1F - To RiverCoin
+    id: 2
+    x: 47
+    y: 41
+    teleport_id: 18
+    teleport_type: 0
+    access: []
+  - name: To Focus Tower 3F - Lower Floor
+    id: 4
+    x: 38
+    y: 40
+    teleport_id: 20
+    teleport_type: 0
+    access: []   
+- name: Focus Tower 2F - Venus Chest Room
+  area_id: 10
+  treasures: []
+  entrances:      
+  - name: To Focus Tower 3F - Upper Floor
+    id: 3
+    x: 56
+    y: 40
+    teleport_id: 19
+    teleport_type: 0
+    access: []
+  - name: Pillar Script
+    id: 5
+    x: 48
+    y: 53
+    teleport_id: 13
+    teleport_type: 8
+    access: []
+- name: Focus Tower 3F - Lower Floor
+  area_id: 11
+  treasures: []
+  entrances:
+  - name: To Fireburg Entrance
+    id: 1
+    x: 11
+    y: 39
+    teleport_id: 6
+    teleport_type: 6
+    access: []
+  - name: To Focus Tower 2F - Jump on Pillar
+    id: 3
+    x: 6
+    y: 47
+    teleport_id: 24
+    teleport_type: 0
+    access: []
+- name: Focus Tower 3F - Upper Floor
+  area_id: 11
+  treasures: []
+  entrances:
+  - name: To Aquaria Entrance
+    id: 0
+    x: 21
+    y: 38
+    teleport_id: 5
+    teleport_type: 6
+    access: []
+  - name: To Focus Tower 2F - Venus Chest Room
+    id: 2
+    x: 24
+    y: 47
+    teleport_id: 23
+    teleport_type: 0
+    access: []
+- name: Hill of Destiny
+  area_id: 12
+  treasures: []
+  entrances: []
+- name: Level Forest (Dupe)
+  area_id: 13
+  treasures: []
+  entrances: []
+- name: Level Forest
+  area_id: 14
+  treasures: []
+  entrances:
+  - name: Boulder Script
+    id: 0
+    x: 52
+    y: 15
+    teleport_id: 0
+    teleport_type: 8
+    access: []
+  - name: Rotten Tree Script
+    id: 1
+    x: 47
+    y: 6
+    teleport_id: 2
+    teleport_type: 8
+    access: []
+  - name: Exit Level Forest 1
+    id: 2
+    x: 46
+    y: 25
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 2
+    id: 3
+    x: 46
+    y: 26
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 3
+    id: 4
+    x: 47
+    y: 25
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 4
+    id: 5
+    x: 47
+    y: 26
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 5
+    id: 6
+    x: 60
+    y: 14
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 6
+    id: 7
+    x: 61
+    y: 14
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 7
+    id: 8
+    x: 46
+    y: 4
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 8
+    id: 9
+    x: 46
+    y: 3
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 9
+    id: 10
+    x: 47
+    y: 4
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest A
+    id: 11
+    x: 47
+    y: 3
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+- name: Foresta
+  area_id: 15
+  treasures: []
+  entrances:
+  - name: Exit Foresta 1
+    id: 0
+    x: 10
+    y: 25
+    teleport_id: 31
+    teleport_type: 0
+    access: []
+  - name: Exit Foresta 2
+    id: 1
+    x: 10
+    y: 26
+    teleport_id: 31
+    teleport_type: 0
+    access: []
+  - name: Exit Foresta 3
+    id: 2
+    x: 11
+    y: 25
+    teleport_id: 31
+    teleport_type: 0
+    access: []
+  - name: Exit Foresta 4
+    id: 3
+    x: 11
+    y: 26
+    teleport_id: 31
+    teleport_type: 0
+    access: []
+  - name: Old Man House - Front Door
+    id: 4
+    x: 25
+    y: 17
+    teleport_id: 32
+    teleport_type: 4
+    access: []
+  - name: Old Man House - Back Door
+    id: 5
+    x: 25
+    y: 14
+    teleport_id: 33
+    teleport_type: 0
+    access: []
+  - name: Kaeli's House
+    id: 6
+    x: 7
+    y: 21
+    teleport_id: 0
+    teleport_type: 5
+    access: []
+  - name: Rest House
+    id: 7
+    x: 23
+    y: 23
+    teleport_id: 1
+    teleport_type: 5
+    access: []
+- name: Kaeli's House
+  area_id: 16
+  treasures: []
+  entrances:
+  - name: Kaeli's House Entrance
+    id: 7
+    x: 11
+    y: 20
+    teleport_id: 255
+    teleport_type: 3
+    access: []  
+- name: Foresta Houses - Old Man's House
+  area_id: 17
+  treasures: []
+  entrances:
+  - name: Old Man Front Exit
+    id: 0
+    x: 35
+    y: 44
+    teleport_id: 34
+    teleport_type: 0
+    access: []
+  - name: Old Man Back Exit
+    id: 1
+    x: 35
+    y: 27
+    teleport_id: 35
+    teleport_type: 0
+    access: []
+- name: Foresta Houses - Rest House
+  area_id: 17
+  treasures: []
+  entrances:    
+  - name: Bed Script
+    id: 2
+    x: 30
+    y: 6
+    teleport_id: 1
+    teleport_type: 8
+    access: []
+  - name: Rest House Exit
+    id: 6
+    x: 35
+    y: 20
+    teleport_id: 255
+    teleport_type: 3
+    access: []      
+- name: Foresta Houses - Libra House
+  area_id: 17
+  treasures: []
+  entrances:    
+  - name: Libra House Script
+    id: 3
+    x: 8
+    y: 49
+    teleport_id: 67
+    teleport_type: 8
+    access: []
+- name: Foresta Houses - Gemini House
+  area_id: 17
+  treasures: []
+  entrances:    
+  - name: Gemini House Script
+    id: 4
+    x: 26
+    y: 55
+    teleport_id: 68
+    teleport_type: 8
+    access: []
+- name: Foresta Houses - Mobius House
+  area_id: 17
+  treasures: []
+  entrances:    
+  - name: Mobius House Script
+    id: 5
+    x: 14
+    y: 33
+    teleport_id: 69
+    teleport_type: 8
+    access: []
+- name: Sand Temple
+  area_id: 18
+  treasures: []
+  entrances:
+  - name: Sand Temple Entrance
+    id: 0
+    x: 56
+    y: 27
+    teleport_id: 36
+    teleport_type: 0
+    access: []
+- name: Bone Dungeon 1F
+  area_id: 19
+  treasures: []
+  entrances:
+  - name: Bone Dungeon Entrance
+    id: 0
+    x: 13
+    y: 60
+    teleport_id: 37
+    teleport_type: 0
+    access: []
+  - name: To Bone Dungeon B1 
+    id: 1
+    x: 13
+    y: 39
+    teleport_id: 2
+    teleport_type: 2
+    access: []
+- name: Bone Dungeon B1 - Waterway
+  area_id: 20
+  treasures: []
+  entrances:
+  - name: Exit Waterway
+    id: 0
+    x: 27
+    y: 39
+    teleport_id: 3
+    teleport_type: 2
+    access: []
+  - name: Tristam's Script
+    id: 2
+    x: 27
+    y: 45
+    teleport_id: 3
+    teleport_type: 8
+    access: []
+  - name: To Bone Dungeon 1F
+    id: 3
+    x: 54
+    y: 61
+    teleport_id: 255
+    teleport_type: 3
+    access: []    
+- name: Bone Dungeon B1 - Checker Room
+  area_id: 20
+  treasures: []
+  entrances:    
+  - name: Exit Checker Room
+    id: 1
+    x: 23
+    y: 40
+    teleport_id: 4
+    teleport_type: 2
+    access: []
+  - name: To Waterway
+    id: 4
+    x: 39
+    y: 49
+    teleport_id: 255
+    teleport_type: 3
+    access: []
+- name: Bone Dungeon B1 - Hidden Room
+  area_id: 20
+  treasures: []
+  entrances:    
+  - name: To B2 - Exploding Skull Room
+    id: 4
+    x: 5
+    y: 33
+    teleport_id: 255
+    teleport_type: 3
+    access: []    
+- name: Bonne Dungeon B2 - Exploding Skull Room
+  area_id: 21
+  treasures: []
+  entrances:
+  - name: To Hidden Passage
+    id: 0
+    x: 19
+    y: 13
+    teleport_id: 5
+    teleport_type: 2
+    access: []
+  - name: To Two Skulls Room
+    id: 1
+    x: 29
+    y: 15
+    teleport_id: 6
+    teleport_type: 2
+    access: []
+  - name: To Checker Room
+    id: 8
+    x: 8
+    y: 25
+    teleport_id: 255
+    teleport_type: 3
+    access: []
+- name: Bonne Dungeon B2 - Box Room
+  area_id: 21
+  treasures: []
+  entrances:
+  - name: To B2 - Two Skulls Room
+    id: 5
+    x: 59
+    y: 12
+    teleport_id: 255
+    teleport_type: 3
+    access: []
+- name: Bonne Dungeon B2 - Quake Room
+  area_id: 21
+  treasures: []
+  entrances:
+  - name: To B2 - Two Skulls Room
+    id: 6
+    x: 59
+    y: 28
+    teleport_id: 255
+    teleport_type: 3
+    access: []    
+- name: Bonne Dungeon B2 - Two Skulls Room
+  area_id: 21
+  treasures: []
+  entrances:    
+  - name: To Box Room
+    id: 2
+    x: 53
+    y: 7
+    teleport_id: 7
+    teleport_type: 2
+    access: []
+  - name: To Quake Room
+    id: 3
+    x: 41
+    y: 3
+    teleport_id: 8
+    teleport_type: 2
+    access: []
+  - name: To Boss Room
+    id: 4
+    x: 47
+    y: 57
+    teleport_id: 9
+    teleport_type: 2
+    access: []
+  - name: To B2 - Exploding Skull Room
+    id: 7
+    x: 54
+    y: 23
+    teleport_id: 255
+    teleport_type: 3
+    access: []
+- name: Bone Dungeon B2 - Boss Room
+  area_id: 22
+  treasures: []
+  entrances:
+  - name: Flamerus Rex Script
+    id: 0
+    x: 29
+    y: 19
+    teleport_id: 4
+    teleport_type: 8
+    access: []
+  - name: Tristam Leave Script
+    id: 1
+    x: 29
+    y: 23
+    teleport_id: 75
+    teleport_type: 8
+    access: []
+  - name: To B2 - Two Skulls Room
+    id: 2
+    x: 30
+    y: 27
+    teleport_id: 255
+    teleport_type: 3
+    access: []

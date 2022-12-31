@@ -1,0 +1,3475 @@
+rooms:
+- name: void
+  area_id: 0
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 1
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 2
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 3
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 4
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 5
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 6
+  treasures: []
+  entrances: []
+- name: Doom Castle - Sand Floor
+  area_id: 7
+  treasures: []
+  entrances:
+  - name: To Sky Door - Sand Floor
+    id: 0
+    x: 24
+    y: 19
+    teleport_id: 0
+    teleport_type: 0
+    access: []
+  - name: Main Entrance - Sand Floor
+    id: 2
+    x: 19
+    y: 43
+    teleport_id: 1
+    teleport_type: 6
+    access: []
+- name: Doom Castle - Aero Room
+  area_id: 7
+  treasures: []
+  entrances:
+  - name: Aero Room Entrance
+    id: 1
+    x: 27
+    y: 39
+    teleport_id: 1
+    teleport_type: 0
+    access: []
+- name: Focus Tower B1 - Main Loop
+  area_id: 8  
+  treasures: []
+  entrances:
+  - name: South Entrance
+    id: 0
+    x: 43
+    y: 60
+    teleport_id: 2
+    teleport_type: 6
+    access: []
+  - name: To Focus Tower 1F - Main Hall
+    id: 1
+    x: 37
+    y: 41
+    teleport_id: 4
+    teleport_type: 0
+    access: []
+- name: Focus Tower B1 - Aero Corridor
+  area_id: 8  
+  treasures: []
+  entrances:    
+  - name: To Focus Tower 1F - Sun Coin Room
+    id: 2
+    x: 59
+    y: 35
+    teleport_id: 5
+    teleport_type: 0
+    access: []
+  - name: To Sand Floor - Aero Chest
+    id: 5
+    x: 57
+    y: 59
+    teleport_id: 8
+    teleport_type: 0
+    access: []    
+- name: Focus Tower B1 - Inner Loop
+  area_id: 8  
+  treasures: []
+  entrances:        
+  - name: To Focus Tower 1F - Sky Door
+    id: 3
+    x: 51
+    y: 49
+    teleport_id: 6
+    teleport_type: 0
+    access: []
+  - name: To Doom Castle Sand Floor
+    id: 4
+    x: 51
+    y: 45
+    teleport_id: 7
+    teleport_type: 0
+    access: []
+- name: Focus Tower 1F
+  area_id: 9
+  treasures: []
+  entrances:
+  - name: Focus Tower West Entrance
+    id: 0
+    x: 25
+    y: 29
+    teleport_id: 3
+    teleport_type: 6
+    access: []
+  - name: To Focus Tower 2F - From SandCoin
+    id: 1
+    x: 16
+    y: 4
+    teleport_id: 10
+    teleport_type: 0
+    access: []
+  - name: To Focus Tower B1 - Main Hall
+    id: 2
+    x: 4
+    y: 23
+    teleport_id: 11
+    teleport_type: 0
+    access: []
+  - name: To Focus Tower B1 - To Aero Chest
+    id: 3
+    x: 26
+    y: 17
+    teleport_id: 12
+    teleport_type: 0
+    access: []
+  - name: Sky Door
+    id: 4
+    x: 16
+    y: 24
+    teleport_id: 13
+    teleport_type: 0
+    access: []
+  - name: To Focus Tower 2F - From RiverCoin
+    id: 5
+    x: 16
+    y: 10
+    teleport_id: 14
+    teleport_type: 0
+    access: []
+  - name: To Focus Tower B1 - From Sky Door
+    id: 6
+    x: 16
+    y: 29
+    teleport_id: 15
+    teleport_type: 0
+    access: []
+- name: Focus Tower 2F - Sand Coin Passage
+  area_id: 10
+  treasures: []
+  entrances:
+  - name: North Entrance
+    id: 0
+    x: 49
+    y: 30
+    teleport_id: 4
+    teleport_type: 6
+    access: []
+  - name: To Focus Tower 1F - To SandCoin
+    id: 1
+    x: 47
+    y: 33
+    teleport_id: 17
+    teleport_type: 0
+    access: []
+- name: Focus Tower 2F - River Coin Passage
+  area_id: 10
+  treasures: []
+  entrances:    
+  - name: To Focus Tower 1F - To RiverCoin
+    id: 2
+    x: 47
+    y: 41
+    teleport_id: 18
+    teleport_type: 0
+    access: []
+  - name: To Focus Tower 3F - Lower Floor
+    id: 4
+    x: 38
+    y: 40
+    teleport_id: 20
+    teleport_type: 0
+    access: []   
+- name: Focus Tower 2F - Venus Chest Room
+  area_id: 10
+  treasures: []
+  entrances:      
+  - name: To Focus Tower 3F - Upper Floor
+    id: 3
+    x: 56
+    y: 40
+    teleport_id: 19
+    teleport_type: 0
+    access: []
+  - name: Pillar Script
+    id: 5
+    x: 48
+    y: 53
+    teleport_id: 13
+    teleport_type: 8
+    access: []
+- name: Focus Tower 3F - Lower Floor
+  area_id: 11
+  treasures: []
+  entrances:
+  - name: To Fireburg Entrance
+    id: 1
+    x: 11
+    y: 39
+    teleport_id: 6
+    teleport_type: 6
+    access: []
+  - name: To Focus Tower 2F - Jump on Pillar
+    id: 3
+    x: 6
+    y: 47
+    teleport_id: 24
+    teleport_type: 0
+    access: []
+- name: Focus Tower 3F - Upper Floor
+  area_id: 11
+  treasures: []
+  entrances:
+  - name: To Aquaria Entrance
+    id: 0
+    x: 21
+    y: 38
+    teleport_id: 5
+    teleport_type: 6
+    access: []
+  - name: To Focus Tower 2F - Venus Chest Room
+    id: 2
+    x: 24
+    y: 47
+    teleport_id: 23
+    teleport_type: 0
+    access: []
+- name: Hill of Destiny
+  area_id: 12
+  treasures: []
+  entrances: []
+- name: Level Forest (Dupe)
+  area_id: 13
+  treasures: []
+  entrances: []
+- name: Level Forest
+  area_id: 14
+  treasures: []
+  entrances:
+  - name: Boulder Script
+    id: 0
+    x: 52
+    y: 15
+    teleport_id: 0
+    teleport_type: 8
+    access: []
+  - name: Rotten Tree Script
+    id: 1
+    x: 47
+    y: 6
+    teleport_id: 2
+    teleport_type: 8
+    access: []
+  - name: Exit Level Forest 1
+    id: 2
+    x: 46
+    y: 25
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 2
+    id: 3
+    x: 46
+    y: 26
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 3
+    id: 4
+    x: 47
+    y: 25
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 4
+    id: 5
+    x: 47
+    y: 26
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 5
+    id: 6
+    x: 60
+    y: 14
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 6
+    id: 7
+    x: 61
+    y: 14
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 7
+    id: 8
+    x: 46
+    y: 4
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 8
+    id: 9
+    x: 46
+    y: 3
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest 9
+    id: 10
+    x: 47
+    y: 4
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: Exit Level Forest A
+    id: 11
+    x: 47
+    y: 3
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+- name: Foresta
+  area_id: 15
+  treasures: []
+  entrances:
+  - name: Exit Foresta 1
+    id: 0
+    x: 10
+    y: 25
+    teleport_id: 31
+    teleport_type: 0
+    access: []
+  - name: Exit Foresta 2
+    id: 1
+    x: 10
+    y: 26
+    teleport_id: 31
+    teleport_type: 0
+    access: []
+  - name: Exit Foresta 3
+    id: 2
+    x: 11
+    y: 25
+    teleport_id: 31
+    teleport_type: 0
+    access: []
+  - name: Exit Foresta 4
+    id: 3
+    x: 11
+    y: 26
+    teleport_id: 31
+    teleport_type: 0
+    access: []
+  - name: Old Man House - Front Door
+    id: 4
+    x: 25
+    y: 17
+    teleport_id: 32
+    teleport_type: 4
+    access: []
+  - name: Old Man House - Back Door
+    id: 5
+    x: 25
+    y: 14
+    teleport_id: 33
+    teleport_type: 0
+    access: []
+  - name: Kaeli's House
+    id: 6
+    x: 7
+    y: 21
+    teleport_id: 0
+    teleport_type: 5
+    access: []
+  - name: Rest House
+    id: 7
+    x: 23
+    y: 23
+    teleport_id: 1
+    teleport_type: 5
+    access: []
+- name: Kaeli's House
+  area_id: 16
+  treasures: []
+  entrances:
+  - name: Kaeli's House Entrance
+    id: 7
+    x: 11
+    y: 20
+    teleport_id: 37
+    teleport_type: 3
+    access: []  
+- name: Foresta Houses - Old Man's House
+  area_id: 17
+  treasures: []
+  entrances:
+  - name: Old Man Front Exit
+    id: 0
+    x: 35
+    y: 44
+    teleport_id: 34
+    teleport_type: 0
+    access: []
+  - name: Old Man Back Exit
+    id: 1
+    x: 35
+    y: 27
+    teleport_id: 35
+    teleport_type: 0
+    access: []
+- name: Foresta Houses - Rest House
+  area_id: 17
+  treasures: []
+  entrances:    
+  - name: Bed Script
+    id: 2
+    x: 30
+    y: 6
+    teleport_id: 1
+    teleport_type: 8
+    access: []
+  - name: Rest House Exit
+    id: 6
+    x: 35
+    y: 20
+    teleport_id: 38
+    teleport_type: 3
+    access: []      
+- name: Foresta Houses - Libra House
+  area_id: 17
+  treasures: []
+  entrances:    
+  - name: Libra House Script
+    id: 3
+    x: 8
+    y: 49
+    teleport_id: 67
+    teleport_type: 8
+    access: []
+- name: Foresta Houses - Gemini House
+  area_id: 17
+  treasures: []
+  entrances:    
+  - name: Gemini House Script
+    id: 4
+    x: 26
+    y: 55
+    teleport_id: 68
+    teleport_type: 8
+    access: []
+- name: Foresta Houses - Mobius House
+  area_id: 17
+  treasures: []
+  entrances:    
+  - name: Mobius House Script
+    id: 5
+    x: 14
+    y: 33
+    teleport_id: 69
+    teleport_type: 8
+    access: []
+- name: Sand Temple
+  area_id: 18
+  treasures: []
+  entrances:
+  - name: Sand Temple Entrance
+    id: 0
+    x: 56
+    y: 27
+    teleport_id: 36
+    teleport_type: 0
+    access: []
+- name: Bone Dungeon 1F
+  area_id: 19
+  treasures: []
+  entrances:
+  - name: Bone Dungeon Entrance
+    id: 0
+    x: 13
+    y: 60
+    teleport_id: 37
+    teleport_type: 0
+    access: []
+  - name: To Bone Dungeon B1 
+    id: 1
+    x: 13
+    y: 39
+    teleport_id: 2
+    teleport_type: 2
+    access: []
+- name: Bone Dungeon B1 - Waterway
+  area_id: 20
+  treasures: []
+  entrances:
+  - name: Exit Waterway
+    id: 0
+    x: 27
+    y: 39
+    teleport_id: 3
+    teleport_type: 2
+    access: []
+  - name: Tristam's Script
+    id: 2
+    x: 27
+    y: 45
+    teleport_id: 3
+    teleport_type: 8
+    access: []
+  - name: To Bone Dungeon 1F
+    id: 3
+    x: 54
+    y: 61
+    teleport_id: 39
+    teleport_type: 3
+    access: []    
+- name: Bone Dungeon B1 - Checker Room
+  area_id: 20
+  treasures: []
+  entrances:    
+  - name: Exit Checker Room
+    id: 1
+    x: 23
+    y: 40
+    teleport_id: 4
+    teleport_type: 2
+    access: []
+  - name: To Waterway
+    id: 4
+    x: 39
+    y: 49
+    teleport_id: 40
+    teleport_type: 3
+    access: []
+- name: Bone Dungeon B1 - Hidden Room
+  area_id: 20
+  treasures: []
+  entrances:    
+  - name: To B2 - Exploding Skull Room
+    id: 4
+    x: 5
+    y: 33
+    teleport_id: 42
+    teleport_type: 3
+    access: []    
+- name: Bonne Dungeon B2 - Exploding Skull Room
+  area_id: 21
+  treasures: []
+  entrances:
+  - name: To Hidden Passage
+    id: 0
+    x: 19
+    y: 13
+    teleport_id: 5
+    teleport_type: 2
+    access: []
+  - name: To Two Skulls Room
+    id: 1
+    x: 29
+    y: 15
+    teleport_id: 6
+    teleport_type: 2
+    access: []
+  - name: To Checker Room
+    id: 8
+    x: 8
+    y: 25
+    teleport_id: 41
+    teleport_type: 3
+    access: []
+- name: Bonne Dungeon B2 - Box Room
+  area_id: 21
+  treasures: []
+  entrances:
+  - name: To B2 - Two Skulls Room
+    id: 5
+    x: 59
+    y: 12
+    teleport_id: 44
+    teleport_type: 3
+    access: []
+- name: Bonne Dungeon B2 - Quake Room
+  area_id: 21
+  treasures: []
+  entrances:
+  - name: To B2 - Two Skulls Room
+    id: 6
+    x: 59
+    y: 28
+    teleport_id: 45
+    teleport_type: 3
+    access: []    
+- name: Bonne Dungeon B2 - Two Skulls Room
+  area_id: 21
+  treasures: []
+  entrances:    
+  - name: To Box Room
+    id: 2
+    x: 53
+    y: 7
+    teleport_id: 7
+    teleport_type: 2
+    access: []
+  - name: To Quake Room
+    id: 3
+    x: 41
+    y: 3
+    teleport_id: 8
+    teleport_type: 2
+    access: []
+  - name: To Boss Room
+    id: 4
+    x: 47
+    y: 57
+    teleport_id: 9
+    teleport_type: 2
+    access: []
+  - name: To B2 - Exploding Skull Room
+    id: 7
+    x: 54
+    y: 23
+    teleport_id: 43
+    teleport_type: 3
+    access: []
+- name: Bone Dungeon B2 - Boss Room
+  area_id: 22
+  treasures: []
+  entrances:
+  - name: Flamerus Rex Script
+    id: 0
+    x: 29
+    y: 19
+    teleport_id: 4
+    teleport_type: 8
+    access: []
+  - name: Tristam Leave Script
+    id: 1
+    x: 29
+    y: 23
+    teleport_id: 75
+    teleport_type: 8
+    access: []
+  - name: To B2 - Two Skulls Room
+    id: 2
+    x: 30
+    y: 27
+    teleport_id: 46
+    teleport_type: 3
+    access: []
+- name: void
+  area_id: 23
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 10
+    y: 15
+    teleport_id: 13
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 9
+    y: 8
+    teleport_id: 59
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 24
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 25
+    y: 25
+    teleport_id: 8
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 25
+    y: 26
+    teleport_id: 8
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 26
+    y: 25
+    teleport_id: 8
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 26
+    y: 26
+    teleport_id: 8
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 8
+    y: 19
+    teleport_id: 5
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 8
+    y: 5
+    teleport_id: 44
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 6
+    x: 26
+    y: 17
+    teleport_id: 11
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 25
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 57
+    y: 25
+    teleport_id: 8
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 57
+    y: 26
+    teleport_id: 8
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 58
+    y: 25
+    teleport_id: 8
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 58
+    y: 26
+    teleport_id: 8
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 40
+    y: 19
+    teleport_id: 10
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 40
+    y: 16
+    teleport_id: 42
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 6
+    x: 41
+    y: 18
+    teleport_id: 43
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 7
+    x: 40
+    y: 5
+    teleport_id: 44
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 8
+    x: 58
+    y: 17
+    teleport_id: 11
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 26
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 27
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 7
+    y: 10
+    teleport_id: 40
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 2
+    y: 40
+    teleport_id: 72
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 1
+    y: 4
+    teleport_id: 47
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 4
+    y: 39
+    teleport_id: 48
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 28
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 50
+    y: 58
+    teleport_id: 49
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 40
+    y: 25
+    teleport_id: 14
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 10
+    y: 43
+    teleport_id: 15
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 44
+    y: 37
+    teleport_id: 6
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 29
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 58
+    y: 5
+    teleport_id: 50
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 30
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 31
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 4
+    y: 29
+    teleport_id: 51
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 32
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 9
+    y: 60
+    teleport_id: 14
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 3
+    y: 55
+    teleport_id: 60
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 9
+    y: 44
+    teleport_id: 78
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 33
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 17
+    y: 5
+    teleport_id: 42
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 15
+    y: 26
+    teleport_id: 53
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 17
+    y: 6
+    teleport_id: 9
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 34
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 43
+    y: 6
+    teleport_id: 55
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 35
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 18
+    y: 36
+    teleport_id: 56
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 19
+    y: 36
+    teleport_id: 56
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 3
+    y: 27
+    teleport_id: 57
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 11
+    y: 15
+    teleport_id: 58
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 25
+    y: 16
+    teleport_id: 59
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 31
+    y: 1
+    teleport_id: 60
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 6
+    x: 34
+    y: 9
+    teleport_id: 61
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 7
+    x: 21
+    y: 32
+    teleport_id: 77
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 36
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 4
+    y: 26
+    teleport_id: 62
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 9
+    y: 10
+    teleport_id: 63
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 22
+    y: 14
+    teleport_id: 64
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 26
+    y: 4
+    teleport_id: 65
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 32
+    y: 8
+    teleport_id: 66
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 22
+    y: 17
+    teleport_id: 67
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 6
+    x: 12
+    y: 7
+    teleport_id: 68
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 37
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 24
+    y: 54
+    teleport_id: 69
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 16
+    y: 45
+    teleport_id: 70
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 19
+    y: 43
+    teleport_id: 71
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 38
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 52
+    y: 5
+    teleport_id: 72
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 62
+    y: 19
+    teleport_id: 73
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 39
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 54
+    y: 63
+    teleport_id: 74
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 39
+    y: 43
+    teleport_id: 75
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 39
+    y: 60
+    teleport_id: 76
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 40
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 44
+    y: 43
+    teleport_id: 77
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 41
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 4
+    y: 59
+    teleport_id: 78
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 4
+    y: 45
+    teleport_id: 79
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 42
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 44
+    y: 43
+    teleport_id: 80
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 53
+    y: 32
+    teleport_id: 10
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 43
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 48
+    y: 57
+    teleport_id: 81
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 40
+    y: 5
+    teleport_id: 82
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 40
+    y: 6
+    teleport_id: 82
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 41
+    y: 5
+    teleport_id: 82
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 41
+    y: 6
+    teleport_id: 82
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 46
+    y: 8
+    teleport_id: 83
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 6
+    x: 47
+    y: 8
+    teleport_id: 83
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 44
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 15
+    y: 57
+    teleport_id: 7
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 14
+    y: 39
+    teleport_id: 85
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 45
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 40
+    y: 29
+    teleport_id: 7
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 28
+    y: 21
+    teleport_id: 33
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 46
+    y: 4
+    teleport_id: 34
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 21
+    y: 9
+    teleport_id: 35
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 29
+    y: 28
+    teleport_id: 36
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 46
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 8
+    y: 31
+    teleport_id: 15
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 9
+    y: 24
+    teleport_id: 62
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 47
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 4
+    y: 13
+    teleport_id: 9
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 5
+    y: 13
+    teleport_id: 9
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 28
+    y: 15
+    teleport_id: 9
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 27
+    y: 15
+    teleport_id: 9
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 10
+    y: 24
+    teleport_id: 91
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 14
+    y: 6
+    teleport_id: 16
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 6
+    x: 20
+    y: 8
+    teleport_id: 17
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 7
+    x: 12
+    y: 18
+    teleport_id: 11
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 48
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 49
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 55
+    y: 60
+    teleport_id: 9
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 57
+    y: 52
+    teleport_id: 93
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 39
+    y: 26
+    teleport_id: 94
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 7
+    y: 10
+    teleport_id: 39
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 1
+    y: 4
+    teleport_id: 96
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 4
+    y: 39
+    teleport_id: 97
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 6
+    x: 39
+    y: 23
+    teleport_id: 54
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 7
+    x: 2
+    y: 40
+    teleport_id: 45
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 8
+    x: 4
+    y: 50
+    teleport_id: 213
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 9
+    x: 45
+    y: 59
+    teleport_id: 214
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 50
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 5
+    y: 28
+    teleport_id: 98
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 58
+    y: 29
+    teleport_id: 99
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 8
+    y: 7
+    teleport_id: 20
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 26
+    y: 15
+    teleport_id: 21
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 21
+    y: 35
+    teleport_id: 22
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 58
+    y: 31
+    teleport_id: 74
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 51
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 52
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 9
+    y: 5
+    teleport_id: 100
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 15
+    y: 7
+    teleport_id: 12
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 53
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 58
+    y: 43
+    teleport_id: 16
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 56
+    y: 38
+    teleport_id: 63
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 54
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 23
+    y: 25
+    teleport_id: 103
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 23
+    y: 26
+    teleport_id: 103
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 24
+    y: 25
+    teleport_id: 103
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 24
+    y: 26
+    teleport_id: 103
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 20
+    y: 5
+    teleport_id: 31
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 32
+    y: 5
+    teleport_id: 30
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 55
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 44
+    y: 8
+    teleport_id: 103
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 52
+    y: 24
+    teleport_id: 26
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 40
+    y: 24
+    teleport_id: 26
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 56
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 40
+    y: 31
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 52
+    y: 29
+    teleport_id: 26
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 16
+    y: 24
+    teleport_id: 29
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 8
+    y: 22
+    teleport_id: 28
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 36
+    y: 42
+    teleport_id: 27
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 48
+    y: 42
+    teleport_id: 27
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 57
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 32
+    y: 5
+    teleport_id: 104
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 33
+    y: 5
+    teleport_id: 104
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 14
+    y: 5
+    teleport_id: 105
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 40
+    y: 17
+    teleport_id: 106
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 32
+    y: 11
+    teleport_id: 107
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 8
+    y: 11
+    teleport_id: 108
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 6
+    x: 12
+    y: 23
+    teleport_id: 109
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 7
+    x: 0
+    y: 9
+    teleport_id: 110
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 8
+    x: 11
+    y: 19
+    teleport_id: 111
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 9
+    x: 0
+    y: 15
+    teleport_id: 112
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 10
+    x: 54
+    y: 5
+    teleport_id: 113
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 11
+    x: 54
+    y: 21
+    teleport_id: 114
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 12
+    x: 50
+    y: 25
+    teleport_id: 115
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 13
+    x: 62
+    y: 20
+    teleport_id: 29
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 14
+    x: 63
+    y: 20
+    teleport_id: 29
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 15
+    x: 62
+    y: 21
+    teleport_id: 29
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 16
+    x: 63
+    y: 21
+    teleport_id: 29
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 17
+    x: 5
+    y: 23
+    teleport_id: 47
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 58
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 55
+    y: 28
+    teleport_id: 116
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 29
+    y: 8
+    teleport_id: 117
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 28
+    y: 25
+    teleport_id: 118
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 35
+    y: 3
+    teleport_id: 119
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 34
+    y: 27
+    teleport_id: 120
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 59
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 20
+    y: 27
+    teleport_id: 121
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 7
+    y: 3
+    teleport_id: 122
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 60
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 2
+    y: 7
+    teleport_id: 123
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 2
+    y: 19
+    teleport_id: 124
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 11
+    y: 21
+    teleport_id: 125
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 15
+    y: 23
+    teleport_id: 126
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 61
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 58
+    y: 15
+    teleport_id: 127
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 38
+    y: 27
+    teleport_id: 128
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 28
+    y: 23
+    teleport_id: 129
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 62
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 30
+    y: 43
+    teleport_id: 130
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 30
+    y: 29
+    teleport_id: 131
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 61
+    y: 59
+    teleport_id: 132
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 42
+    y: 51
+    teleport_id: 133
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 36
+    y: 61
+    teleport_id: 134
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 63
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 19
+    y: 29
+    teleport_id: 135
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 22
+    y: 3
+    teleport_id: 136
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 60
+    y: 21
+    teleport_id: 137
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 22
+    y: 17
+    teleport_id: 16
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 64
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 25
+    y: 31
+    teleport_id: 138
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 14
+    y: 36
+    teleport_id: 14
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 65
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 22
+    y: 17
+    teleport_id: 139
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 22
+    y: 3
+    teleport_id: 9
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 66
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 3
+    y: 10
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 3
+    y: 11
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 3
+    y: 12
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 3
+    y: 13
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 4
+    y: 10
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 4
+    y: 11
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 6
+    x: 4
+    y: 12
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 7
+    x: 4
+    y: 13
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 8
+    x: 59
+    y: 10
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 9
+    x: 59
+    y: 11
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 10
+    x: 59
+    y: 12
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 11
+    x: 59
+    y: 13
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 12
+    x: 60
+    y: 10
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 13
+    x: 60
+    y: 11
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 14
+    x: 60
+    y: 12
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 15
+    x: 60
+    y: 13
+    teleport_id: 140
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 16
+    x: 13
+    y: 12
+    teleport_id: 15
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 67
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 8
+    y: 13
+    teleport_id: 142
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 9
+    y: 13
+    teleport_id: 142
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 42
+    y: 42
+    teleport_id: 143
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 8
+    y: 52
+    teleport_id: 64
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 57
+    y: 49
+    teleport_id: 65
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 24
+    y: 10
+    teleport_id: 66
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 68
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 18
+    y: 31
+    teleport_id: 49
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 19
+    y: 31
+    teleport_id: 49
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 16
+    y: 1
+    teleport_id: 144
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 69
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 44
+    y: 33
+    teleport_id: 145
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 42
+    y: 47
+    teleport_id: 146
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 34
+    y: 37
+    teleport_id: 147
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 58
+    y: 44
+    teleport_id: 148
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 58
+    y: 49
+    teleport_id: 149
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 70
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 55
+    y: 18
+    teleport_id: 150
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 56
+    y: 7
+    teleport_id: 151
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 71
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 46
+    y: 53
+    teleport_id: 152
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 58
+    y: 39
+    teleport_id: 153
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 45
+    y: 39
+    teleport_id: 154
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 33
+    y: 43
+    teleport_id: 155
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 52
+    y: 25
+    teleport_id: 156
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 72
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 20
+    y: 58
+    teleport_id: 157
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 6
+    y: 56
+    teleport_id: 158
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 73
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 20
+    y: 7
+    teleport_id: 159
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 8
+    y: 23
+    teleport_id: 160
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 14
+    y: 25
+    teleport_id: 161
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 20
+    y: 25
+    teleport_id: 162
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 8
+    y: 19
+    teleport_id: 163
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 12
+    y: 17
+    teleport_id: 164
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 74
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 47
+    y: 10
+    teleport_id: 165
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 45
+    y: 24
+    teleport_id: 166
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 50
+    y: 24
+    teleport_id: 167
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 57
+    y: 28
+    teleport_id: 168
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 75
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 14
+    y: 51
+    teleport_id: 169
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 14
+    y: 37
+    teleport_id: 170
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 76
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 77
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 44
+    y: 63
+    teleport_id: 18
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 35
+    y: 57
+    teleport_id: 71
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 78
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 10
+    y: 29
+    teleport_id: 173
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 79
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 1
+    y: 45
+    teleport_id: 174
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 2
+    y: 45
+    teleport_id: 174
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 80
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 12
+    y: 40
+    teleport_id: 10
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 13
+    y: 40
+    teleport_id: 10
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 14
+    y: 40
+    teleport_id: 10
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 15
+    y: 40
+    teleport_id: 10
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 12
+    y: 41
+    teleport_id: 10
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 13
+    y: 41
+    teleport_id: 10
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 6
+    x: 14
+    y: 41
+    teleport_id: 10
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 7
+    x: 15
+    y: 41
+    teleport_id: 10
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 8
+    x: 21
+    y: 39
+    teleport_id: 30
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 9
+    x: 18
+    y: 34
+    teleport_id: 79
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 10
+    x: 8
+    y: 36
+    teleport_id: 32
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 11
+    x: 7
+    y: 23
+    teleport_id: 176
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 12
+    x: 19
+    y: 21
+    teleport_id: 177
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 13
+    x: 21
+    y: 9
+    teleport_id: 41
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 81
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 2
+    y: 19
+    teleport_id: 33
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 82
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 7
+    y: 10
+    teleport_id: 38
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 55
+    y: 12
+    teleport_id: 179
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 1
+    y: 4
+    teleport_id: 180
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 60
+    y: 5
+    teleport_id: 181
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 43
+    y: 8
+    teleport_id: 182
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 39
+    y: 26
+    teleport_id: 183
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 6
+    x: 45
+    y: 24
+    teleport_id: 215
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 7
+    x: 33
+    y: 59
+    teleport_id: 216
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 8
+    x: 39
+    y: 23
+    teleport_id: 43
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 9
+    x: 41
+    y: 9
+    teleport_id: 44
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 83
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 47
+    y: 29
+    teleport_id: 184
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 47
+    y: 30
+    teleport_id: 184
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 48
+    y: 29
+    teleport_id: 184
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 48
+    y: 30
+    teleport_id: 184
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 55
+    y: 12
+    teleport_id: 185
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 51
+    y: 25
+    teleport_id: 186
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 6
+    x: 38
+    y: 17
+    teleport_id: 187
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 7
+    x: 47
+    y: 8
+    teleport_id: 16
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 8
+    x: 48
+    y: 8
+    teleport_id: 16
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 84
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 7
+    y: 11
+    teleport_id: 188
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 20
+    y: 24
+    teleport_id: 189
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 6
+    y: 17
+    teleport_id: 190
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 15
+    y: 15
+    teleport_id: 191
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 15
+    y: 8
+    teleport_id: 17
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 16
+    y: 8
+    teleport_id: 17
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 85
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 23
+    y: 11
+    teleport_id: 192
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 7
+    y: 15
+    teleport_id: 193
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 15
+    y: 14
+    teleport_id: 194
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 17
+    y: 25
+    teleport_id: 195
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 15
+    y: 8
+    teleport_id: 18
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 16
+    y: 8
+    teleport_id: 18
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 86
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 39
+    y: 12
+    teleport_id: 196
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 39
+    y: 19
+    teleport_id: 197
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 47
+    y: 24
+    teleport_id: 198
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 54
+    y: 9
+    teleport_id: 199
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 47
+    y: 8
+    teleport_id: 19
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 48
+    y: 8
+    teleport_id: 19
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 87
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 9
+    y: 49
+    teleport_id: 200
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 16
+    y: 55
+    teleport_id: 201
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 22
+    y: 40
+    teleport_id: 202
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 9
+    y: 40
+    teleport_id: 203
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 15
+    y: 40
+    teleport_id: 20
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 16
+    y: 40
+    teleport_id: 20
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 88
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 41
+    y: 47
+    teleport_id: 204
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 41
+    y: 40
+    teleport_id: 205
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 54
+    y: 40
+    teleport_id: 206
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 52
+    y: 56
+    teleport_id: 207
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 47
+    y: 40
+    teleport_id: 21
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 48
+    y: 40
+    teleport_id: 21
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 89
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 15
+    y: 54
+    teleport_id: 26
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 21
+    y: 40
+    teleport_id: 27
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 21
+    y: 56
+    teleport_id: 28
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 15
+    y: 44
+    teleport_id: 22
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 16
+    y: 44
+    teleport_id: 22
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 90
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 43
+    y: 60
+    teleport_id: 29
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 43
+    y: 36
+    teleport_id: 30
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 91
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 43
+    y: 60
+    teleport_id: 40
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 43
+    y: 36
+    teleport_id: 41
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 92
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 43
+    y: 60
+    teleport_id: 38
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 43
+    y: 36
+    teleport_id: 39
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 93
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 43
+    y: 60
+    teleport_id: 21
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 43
+    y: 36
+    teleport_id: 22
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 94
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 43
+    y: 60
+    teleport_id: 2
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 43
+    y: 36
+    teleport_id: 3
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 95
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 28
+    y: 57
+    teleport_id: 19
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 29
+    y: 37
+    teleport_id: 70
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 96
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 15
+    y: 18
+    teleport_id: 61
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 15
+    y: 11
+    teleport_id: 73
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 15
+    y: 23
+    teleport_id: 17
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 97
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 26
+    y: 40
+    teleport_id: 37
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 16
+    y: 47
+    teleport_id: 50
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 8
+    y: 34
+    teleport_id: 51
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 24
+    y: 36
+    teleport_id: 52
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 12
+    y: 9
+    teleport_id: 53
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 98
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 16
+    y: 45
+    teleport_id: 208
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 8
+    y: 35
+    teleport_id: 175
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 25
+    y: 37
+    teleport_id: 172
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 14
+    y: 9
+    teleport_id: 141
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 16
+    y: 51
+    teleport_id: 101
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 16
+    y: 38
+    teleport_id: 102
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 6
+    x: 16
+    y: 26
+    teleport_id: 86
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 7
+    x: 16
+    y: 12
+    teleport_id: 87
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 8
+    x: 10
+    y: 23
+    teleport_id: 88
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 99
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 48
+    y: 51
+    teleport_id: 57
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 48
+    y: 38
+    teleport_id: 55
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 48
+    y: 27
+    teleport_id: 56
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 48
+    y: 12
+    teleport_id: 57
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 55
+    y: 11
+    teleport_id: 58
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 100
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 16
+    y: 45
+    teleport_id: 208
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 8
+    y: 35
+    teleport_id: 175
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 25
+    y: 37
+    teleport_id: 172
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 14
+    y: 9
+    teleport_id: 141
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 16
+    y: 51
+    teleport_id: 101
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 5
+    x: 16
+    y: 38
+    teleport_id: 102
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 6
+    x: 16
+    y: 26
+    teleport_id: 86
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 7
+    x: 16
+    y: 12
+    teleport_id: 87
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 8
+    x: 23
+    y: 10
+    teleport_id: 88
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 101
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 59
+    y: 29
+    teleport_id: 84
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 59
+    y: 21
+    teleport_id: 35
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 59
+    y: 13
+    teleport_id: 209
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 59
+    y: 5
+    teleport_id: 211
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 59
+    y: 61
+    teleport_id: 13
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 102
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 103
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 23
+    y: 40
+    teleport_id: 210
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 104
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 24
+    y: 41
+    teleport_id: 212
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 105
+  treasures: []
+  entrances: []
+- name: void
+  area_id: 106
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 15
+    y: 5
+    teleport_id: 54
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 16
+    y: 5
+    teleport_id: 54
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 15
+    y: 4
+    teleport_id: 54
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 3
+    x: 16
+    y: 4
+    teleport_id: 54
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 4
+    x: 15
+    y: 17
+    teleport_id: 24
+    teleport_type: 0
+    access: []
+- name: void
+  area_id: 107
+  treasures: []
+  entrances:
+  - name: void
+    id: 0
+    x: 14
+    y: 26
+    teleport_id: 52
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 1
+    x: 14
+    y: 15
+    teleport_id: 25
+    teleport_type: 0
+    access: []
+  - name: void
+    id: 2
+    x: 47
+    y: 54
+    teleport_id: 77
+    teleport_type: 0
+    access: []
