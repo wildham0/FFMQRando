@@ -193,6 +193,8 @@ namespace FFMQLib
 			TeleportersWarp.Add(new Teleporter(44, 0x35, 0x07, FacingOrientation.Down, 0x15, 0x19)); // Bone Dungeon B2 - From Box Room
 			TeleportersWarp.Add(new Teleporter(45, 0x29, 0x03, FacingOrientation.Down, 0x15, 0x19)); // Bone Dungeon B2 - From Quake Room
 			TeleportersWarp.Add(new Teleporter(46, 0x2F, 0x39, FacingOrientation.Down, 0x15, 0x19)); // Bone Dungeon B2 - From Flamerex Room
+			TeleportersWarp.Add(new Teleporter(47, 0x28, 0x19, FacingOrientation.Down, 0x1C, 0x1E)); // Wintry Cave - From 3F
+			TeleportersWarp.Add(new Teleporter(48, 0x0A, 0x2B, FacingOrientation.Down, 0x1C, 0x1E)); // Wintry Cave - From 2F
 		}
 		public void Write(FFMQRom rom)
 		{
