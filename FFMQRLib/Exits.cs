@@ -195,6 +195,23 @@ namespace FFMQLib
 			TeleportersWarp.Add(new Teleporter(46, 0x2F, 0x39, FacingOrientation.Down, 0x15, 0x19)); // Bone Dungeon B2 - From Flamerex Room
 			TeleportersWarp.Add(new Teleporter(47, 0x28, 0x19, FacingOrientation.Down, 0x1C, 0x1E)); // Wintry Cave - From 3F
 			TeleportersWarp.Add(new Teleporter(48, 0x0A, 0x2B, FacingOrientation.Down, 0x1C, 0x1E)); // Wintry Cave - From 2F
+			TeleportersWarp.Add(new Teleporter(49, 0x0E, 0x06, FacingOrientation.Down, 0x2F, 0x26)); // Fireburg - From Reuben's House
+			TeleportersWarp.Add(new Teleporter(50, 0x08, 0x14, FacingOrientation.Down, 0x2F, 0x26)); // Fireburg - From Hotel
+			TeleportersWarp.Add(new Teleporter(51, 0x08, 0x07, FacingOrientation.Down, 0x32, 0x27)); // Mine - From Parallel Room
+			TeleportersWarp.Add(new Teleporter(52, 0x1A, 0x0F, FacingOrientation.Down, 0x32, 0x27)); // Mine - From Crescent Room
+			TeleportersWarp.Add(new Teleporter(53, 0x15, 0x23, FacingOrientation.Down, 0x32, 0x27)); // Mine - From Climbing Room
+			TeleportersWarp.Add(new Teleporter(54, 0x28, 0x1F, FacingOrientation.Down, 0x38, 0x29)); // Volcano - From Cross Left-Right
+			TeleportersWarp.Add(new Teleporter(55, 0x34, 0x1D, FacingOrientation.Down, 0x38, 0x29)); // Volcano - From Cross Right-Left
+			TeleportersWarp.Add(new Teleporter(56, 0x3F, 0x15, FacingOrientation.Down, 0x39, 0x2A)); // Lava Dome - From Hydra Room
+			TeleportersWarp.Add(new Teleporter(57, 0x15, 0x28, FacingOrientation.Down, 0x50, 0x30)); // Windia - Otto's House
+			TeleportersWarp.Add(new Teleporter(58, 0x02, 0x13, FacingOrientation.Down, 0x51, 0x30)); // Windia - Otto's Attic
+			TeleportersWarp.Add(new Teleporter(59, 0x08, 0x25, FacingOrientation.Down, 0x52, 0x30)); // Windia - Vendor House
+			TeleportersWarp.Add(new Teleporter(60, 0x3B, 0x15, FacingOrientation.Down, 0x65, 0x35)); // Doom Castle - Ice Floor
+			TeleportersWarp.Add(new Teleporter(61, 0x3B, 0x3D, FacingOrientation.Down, 0x65, 0x35)); // Doom Castle - Hero Room
+			TeleportersWarp.Add(new Teleporter(62, 0x08, 0x13, FacingOrientation.Down, 0x18, 0x1D)); // Aquaria Winter - From Phoebe's House
+			TeleportersWarp.Add(new Teleporter(63, 0x28, 0x14, FacingOrientation.Down, 0x19, 0x1D)); // Aquaria Summer - From Phoebe's House
+			TeleportersWarp.Add(new Teleporter(64, 0x1A, 0x12, FacingOrientation.Down, 0x18, 0x1D)); // Aquaria Winter - From Phoebe's House
+			TeleportersWarp.Add(new Teleporter(65, 0x3A, 0x12, FacingOrientation.Down, 0x19, 0x1D)); // Aquaria Summer - From Phoebe's House
 		}
 		public void Write(FFMQRom rom)
 		{
@@ -365,7 +382,17 @@ namespace FFMQLib
 			var input = new StringReader(yamlfile);
 
 			var yaml = new YamlStream();
-			yaml.Load(input);
+
+
+			try
+			{
+				yaml.Load(input);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.ToString());
+			}
+
 			LocationStructure result = new();
 
 			try

@@ -196,8 +196,11 @@ namespace FFMQLib
 				}));
 
 			// Tristam Quit Party Tile
+			/*
 			TileScripts.AddScript((int)TileScriptsList.TristamQuitPartyBoneDungeon,
 				new ScriptBuilder(new List<string> { "00" }));
+			*/
+			GameMaps[(int)MapList.BoneDungeon].ModifyMap(0x1D, 0x17, 0x84);
 
 			/*** Focus Tower ***/
 			GameFlags[(int)GameFlagsList.ShowColumnMoved] = true;
@@ -252,9 +255,30 @@ namespace FFMQLib
 					"2C0801",
 					"00",
 				}));
-
+			/*
 			TileScripts.AddScript((int)TileScriptsList.EnterPhoebesHouse,
 				new ScriptBuilder(new List<string> { "2C0A0200" }));
+			*/
+
+			// Change Phoebe's script for the house exit to account for aquaria winter/summer 
+			TileScripts.AddScript((int)TileScriptsList.EnterPhoebesHouse,
+				new ScriptBuilder(new List<string> {
+					"2E02" + "[03]",
+					"2C3E02",
+					"00",
+					"2C3F02",
+					"00"
+				}));
+
+			// Take Tristam's script for the INN exit to account for aquaria winter/summer 
+			TileScripts.AddScript((int)TileScriptsList.TristamQuitPartyBoneDungeon,
+				new ScriptBuilder(new List<string> {
+					"2E02" + "[03]",
+					"2C4002",
+					"00",
+					"2C4102",
+					"00"
+				}));
 
 			// Move girl that blocks Aquaria Seller's House
 			MapObjects[0x18][0x02].X = 0x06;
