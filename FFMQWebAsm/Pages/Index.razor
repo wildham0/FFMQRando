@@ -585,11 +585,28 @@
         {
             if(pref.PropertyType == typeof(bool))
             {
-                pref.SetValue(preferences, localStorage.GetItem<bool>(pref.Name));
+                try
+                {
+                    pref.SetValue(preferences, localStorage.GetItem<bool>(pref.Name));
+                }
+                catch(Exception ex)
+                {
+                    pref.SetValue(preferences, false);
+                    Console.WriteLine(ex);
+                }
+
             }
             else if(pref.PropertyType == typeof(string))
             { 
-                pref.SetValue(preferences, localStorage.GetItem<string>(pref.Name));
+                try
+                {
+                    pref.SetValue(preferences, localStorage.GetItem<string>(pref.Name));
+                }
+                catch(Exception ex)
+                {
+                    pref.SetValue(preferences, "");
+                    Console.WriteLine(ex);
+                }
             }
         }
 
