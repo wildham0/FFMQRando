@@ -3823,3 +3823,9 @@ rooms:
     teleport_id: 77
     teleport_type: 0
     access: []
+entrances_links: [] # we don't define this one for ease of reading
+entrances_links_list:
+- entrance_a: [0, 0]
+  entrance_b: [7, 0]
+- entrance_a: [2, 8]
+  entrance_b: [5, 2]

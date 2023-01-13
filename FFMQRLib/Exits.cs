@@ -152,6 +152,54 @@ namespace FFMQLib
 		}
 
 	}
+	
+	public class EntrancesLinkList
+	{ 
+		public List<int> EntranceA { get; set; }
+		public List<int> EntranceB { get; set; }
+
+		public EntrancesLinkList()
+		{
+			EntranceA = new() { 0, 0 };
+			EntranceB = new() { 0, 0 };
+		}
+
+		public EntrancesLinkList(List<int> entrancea, List<int> entranceb)
+		{
+			EntranceA = entrancea.GetRange(0,2);
+			EntranceB = entranceb.GetRange(0,2);
+		}
+	}
+	
+	public class EntrancesLink
+	{
+		public (int id, int type) EntranceA { get; set; }
+		public (int id, int type) EntranceB { get; set; }
+
+		public EntrancesLink()
+		{
+			EntranceA = (0,0);
+			EntranceB = (0,0);
+		}
+
+		public EntrancesLink((int, int) entrancea, (int, int) entranceb)
+		{
+			EntranceA = entrancea;
+			EntranceB = entranceb;
+		}
+
+		public EntrancesLink(List<int> entrancea, List<int> entranceb)
+		{
+			EntranceA = (entrancea[0], entrancea[1]);
+			EntranceB = (entranceb[0], entranceb[1]);
+		}
+
+		public EntrancesLink(EntrancesLinkList entrancelist)
+		{
+			EntranceA = (entrancelist.EntranceA[0], entrancelist.EntranceA[1]);
+			EntranceB = (entrancelist.EntranceB[0], entrancelist.EntranceB[1]);
+		}
+	}
 
 	public class Teleporters
 	{ 
@@ -242,6 +290,8 @@ namespace FFMQLib
 	public class LocationStructure
 	{
 		public List<Room> Rooms {get; set;}
+		public List<EntrancesLink> EntrancesLinks { get; set; }
+		public List<EntrancesLinkList> EntrancesLinksList { get; set; }
 		public const int EntrancesBank = 0x05;
 		public const int EntrancesPointers = 0xF920;
 		public const int EntrancesPointersQty = 108;
@@ -254,6 +304,8 @@ namespace FFMQLib
 		public LocationStructure()
 		{
 			Rooms = new();
+			EntrancesLinks = new();
+			EntrancesLinksList = new();
 		}
 		public LocationStructure(FFMQRom rom)
 		{
@@ -294,6 +346,16 @@ namespace FFMQLib
 
 				Rooms.Add(new Room("void", i, i, new List<TreasureObject>(), tempEntrances));
 			}
+
+			EntrancesLinks = new();
+			EntrancesLinksList = new();
+			/*
+			EntrancesLinksList.Add(new EntrancesLinkList(new List<int> { 1, 8 }, new List<int> { 1, 2 }));
+			EntrancesLinksList.Add(new EntrancesLinkList(new List<int> { 2, 8 }, new List<int> { 5, 2 }));*/
+			//EntrancesLinks.Add(new EntrancesLink((1, 8), (1, 2)));
+			//EntrancesLinks.Add(new EntrancesLink((2, 8), (5, 2)));
+
+
 		}
 
 		public void Write(FFMQRom rom)
@@ -349,8 +411,6 @@ namespace FFMQLib
 			rom.PutInBank(0x01, 0xF38A, Blob.FromHex("12")); // New Bank
 			rom.PutInBank(0x01, 0xF398, Blob.FromHex("00A012")); // New Pointers address
 			
-			//rom.PutInBank(0x01, 0xF398, Blob.FromHex("00A012")); // New Pointers address
-
 			// Hijack instruction
 			rom.PutInBank(0x01, 0xF39E, Blob.FromHex("22809F12ABeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaea"));
 			rom.PutInBank(0x12, 0x9F80, Blob.FromHex("BCD8A0CC2B19D00EBDDBA08DEF19BDDAA08DEE198007E8E8E8E89810E36B"));
@@ -378,12 +438,12 @@ namespace FFMQLib
 			var deserializer = new DeserializerBuilder()
 				.WithNamingConvention(UnderscoredNamingConvention.Instance)  // see height_in_inches in sample yml 
 				.Build();
-			
+
 			var input = new StringReader(yamlfile);
 
 			var yaml = new YamlStream();
 
-
+			/*
 			try
 			{
 				yaml.Load(input);
@@ -391,8 +451,7 @@ namespace FFMQLib
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
-			}
-
+			}*/
 			LocationStructure result = new();
 
 			try
@@ -405,7 +464,7 @@ namespace FFMQLib
 			}
 			
 			Rooms = result.Rooms;
-
+			EntrancesLinks = result.EntrancesLinksList.Select(x => new EntrancesLink(x)).ToList();
 			yamlfile = "";
 
 

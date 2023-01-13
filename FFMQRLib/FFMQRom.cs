@@ -183,10 +183,10 @@ namespace FFMQLib
 
 
 			LocationStructure tempLocat = new(this);
-			//spoilersText = tempLocat.GenerateYaml();
 			tempLocat.ReadRooms();
 			tempLocat.EntranceHack(this);
 			tempLocat.Write(this);
+			spoilersText = tempLocat.GenerateYaml();
 
 			Teleporters temptele = new(this);
 			temptele.ExtraTeleporters();
@@ -229,6 +229,8 @@ namespace FFMQLib
 			// Preferences
 			Msu1SupportRandom(preferences.RandomMusic, sillyrng);
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
+
+			//Overworld.AlignObjects();
 
 			// Write everything back			
 			itemsPlacement.WriteChests(this);
