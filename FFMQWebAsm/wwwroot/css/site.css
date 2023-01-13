@@ -5,6 +5,13 @@
     justify-content: center;
 }
 
+.center-logo-sandbox {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .btn.field-button {
     display: block;
 }
