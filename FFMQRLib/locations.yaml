@@ -417,7 +417,7 @@ rooms:
     id: 7
     x: 11
     y: 20
-    teleport_id: 37
+    teleport_id: 86
     teleport_type: 3
     access: []  
 - name: Foresta Houses - Old Man's House
@@ -453,7 +453,7 @@ rooms:
     id: 6
     x: 35
     y: 20
-    teleport_id: 38
+    teleport_id: 87
     teleport_type: 3
     access: []      
 - name: Foresta Houses - Libra House
@@ -540,7 +540,7 @@ rooms:
     id: 3
     x: 54
     y: 61
-    teleport_id: 39
+    teleport_id: 88
     teleport_type: 3
     access: []    
 - name: Bone Dungeon B1 - Checker Room
@@ -558,7 +558,7 @@ rooms:
     id: 4
     x: 39
     y: 49
-    teleport_id: 40
+    teleport_id: 89
     teleport_type: 3
     access: []
 - name: Bone Dungeon B1 - Hidden Room
@@ -569,7 +569,7 @@ rooms:
     id: 4
     x: 5
     y: 33
-    teleport_id: 42
+    teleport_id: 91
     teleport_type: 3
     access: []    
 - name: Bonne Dungeon B2 - Exploding Skull Room
@@ -594,7 +594,7 @@ rooms:
     id: 8
     x: 8
     y: 25
-    teleport_id: 41
+    teleport_id: 90
     teleport_type: 3
     access: []
 - name: Bonne Dungeon B2 - Box Room
@@ -605,7 +605,7 @@ rooms:
     id: 5
     x: 59
     y: 12
-    teleport_id: 44
+    teleport_id: 93
     teleport_type: 3
     access: []
 - name: Bonne Dungeon B2 - Quake Room
@@ -616,7 +616,7 @@ rooms:
     id: 6
     x: 59
     y: 28
-    teleport_id: 45
+    teleport_id: 94
     teleport_type: 3
     access: []    
 - name: Bonne Dungeon B2 - Two Skulls Room
@@ -648,7 +648,7 @@ rooms:
     id: 7
     x: 54
     y: 23
-    teleport_id: 43
+    teleport_id: 92
     teleport_type: 3
     access: []
 - name: Bone Dungeon B2 - Boss Room
@@ -673,7 +673,7 @@ rooms:
     id: 2
     x: 30
     y: 27
-    teleport_id: 46
+    teleport_id: 95
     teleport_type: 3
     access: []
 - name: Libra Temple
@@ -919,7 +919,7 @@ rooms:
     id: 0
     x: 38
     y: 18
-    teleport_id: 50
+    teleport_id: 97
     teleport_type: 3
     access: []
 - name: Wintry Cave 3F Top
@@ -930,7 +930,7 @@ rooms:
     id: 0
     x: 24
     y: 6
-    teleport_id: 47
+    teleport_id: 96
     teleport_type: 3
     access: []
 - name: Wintry Cave 3F Bottom
@@ -1468,7 +1468,7 @@ rooms:
     id: 7
     x: 33
     y: 46
-    teleport_id: 11
+    teleport_id: 98
     teleport_type: 3
     access: []
 - name: GrenadeMan House
@@ -1558,7 +1558,7 @@ rooms:
     id: 8
     x: 17
     y: 56
-    teleport_id: 50
+    teleport_id: 99
     teleport_type: 3
     access: []
 - name: Fireburg Hotel Beds
@@ -1626,7 +1626,7 @@ rooms:
     id: 2
     x: 7
     y: 60
-    teleport_id: 51
+    teleport_id: 100
     teleport_type: 3
     access: []
 - name: Mine Crescent Room
@@ -1637,7 +1637,7 @@ rooms:
     id: 2
     x: 22
     y: 61
-    teleport_id: 52
+    teleport_id: 101
     teleport_type: 3
     access: []
 - name: Mine Climbing Room
@@ -1648,7 +1648,7 @@ rooms:
     id: 2
     x: 56
     y: 21
-    teleport_id: 53
+    teleport_id: 102
     teleport_type: 3
     access: []
 - name: Mine Cliff
@@ -1806,7 +1806,7 @@ rooms:
     id: 2
     x: 10
     y: 42
-    teleport_id: 54
+    teleport_id: 103
     teleport_type: 3
     access: []
   - name: To Volcano Top Right Script
@@ -1831,7 +1831,7 @@ rooms:
     id: 3
     x: 16
     y: 42
-    teleport_id: 28
+    teleport_id: 104
     teleport_type: 3
     access: []
 - name: Lava Dome Inner Ring Main Loop
@@ -2201,7 +2201,7 @@ rooms:
     id: 1
     x: 14
     y: 59
-    teleport_id: 56
+    teleport_id: 105
     teleport_type: 3
     access: []
   - name: North Exit
@@ -2828,7 +2828,7 @@ rooms:
     id: 0
     x: 9
     y: 30
-    teleport_id: 57
+    teleport_id: 106
     teleport_type: 3
     access: []
 - name: Otto's Attic
@@ -2839,7 +2839,7 @@ rooms:
     id: 0
     x: 26
     y: 23
-    teleport_id: 33
+    teleport_id: 107
     teleport_type: 3
     access: []
 - name: Windia Kid House
@@ -2944,7 +2944,7 @@ rooms:
     id: 7
     x: 29
     y: 14
-    teleport_id: 59
+    teleport_id: 108
     teleport_type: 3
     access: []
 - name: Pazuzu Tower 1F Main Lobby
@@ -3418,7 +3418,7 @@ rooms:
     teleport_id: 61
     teleport_type: 8
     access: []
-  - name: Unknown #smack in the middle to ship, not sure
+  - name: From Overworld #looks like overworld entry puts you right by the dock
     id: 1
     x: 15
     y: 11
@@ -3723,7 +3723,7 @@ rooms:
     id: 4
     x: 23
     y: 42
-    teleport_id: 60
+    teleport_id: 109
     teleport_type: 3
     access: []
 - name: Doom Castle Lava Floor
@@ -3795,7 +3795,7 @@ rooms:
     id: 4
     x: 15
     y: 24
-    teleport_id: 61
+    teleport_id: 110
     teleport_type: 3
     access: []
 - name: Doom Castle Dark King Room

@@ -8,13 +8,14 @@ namespace FFMQLib
 {
 	public partial class FFMQRom : SnesRom
 	{
-		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, MT19337 rng)
+		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, Locations startinglocation, MT19337 rng)
 		{
 			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
 
 			/*** Overworld ***/
 			// GameStart - Skip Mountain collapse
-			Put(RomOffsets.GameStartScript, Blob.FromHex("23222b7a2a0b2700200470002ab05320501629ffff00"));
+			Put(RomOffsets.GameStartScript, Blob.FromHex($"23222b7a2a0b2700200470002ab0532050{((byte)startinglocation):X2}29ffff00"));
+			//Put(RomOffsets.GameStartScript, Blob.FromHex("23222b7a2a0b2700200470002ab05320501629ffff00"));
 
 			GameFlags[(int)GameFlagsList.ShowPazuzuBridge] = true;
 
@@ -264,9 +265,9 @@ namespace FFMQLib
 			TileScripts.AddScript((int)TileScriptsList.EnterPhoebesHouse,
 				new ScriptBuilder(new List<string> {
 					"2E02" + "[03]",
-					"2C3E02",
+					"2C6F01",
 					"00",
-					"2C3F02",
+					"2C7001",
 					"00"
 				}));
 
@@ -274,9 +275,9 @@ namespace FFMQLib
 			TileScripts.AddScript((int)TileScriptsList.TristamQuitPartyBoneDungeon,
 				new ScriptBuilder(new List<string> {
 					"2E02" + "[03]",
-					"2C4002",
+					"2C7101",
 					"00",
-					"2C4102",
+					"2C7201",
 					"00"
 				}));
 

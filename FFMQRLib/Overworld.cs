@@ -10,15 +10,13 @@ namespace FFMQLib
     public class OverworldObject
     {
 
-        public int X;
-        public int Y;
+        public (int x, int y) Position { get; set; }
         public List<List<int>> SpriteLayout;
         public (int x, int y) AnchorPosition;
         public OverworldObject((int x, int y) position, List<List<int>> layout, (int x, int y) anchor)
         {
             SpriteLayout = layout.ToList();
-            X = position.x;
-            Y = position.y;
+            Position = position;
             AnchorPosition = anchor;
         }
 
@@ -34,8 +32,8 @@ namespace FFMQLib
                     int currentsprite = SpriteLayout[y][x];
                     if (currentsprite > -1)
                     {
-                        owSprites[currentsprite].X = (byte)(X + x - AnchorPosition.x);
-                        owSprites[currentsprite].Y = (byte)(Y + y - AnchorPosition.y);
+                        owSprites[currentsprite].X = (byte)(Position.x + x - AnchorPosition.x);
+                        owSprites[currentsprite].Y = (byte)(Position.y + y - AnchorPosition.y);
                     }
                 }
             }
@@ -66,7 +64,7 @@ namespace FFMQLib
         private const int OWLocationQty = 0x38;
 
         private List<OverworldSprite> owSprites;
-        private List<OverworldObject> owObjects;
+        public List<OverworldObject> owObjects { get; set; }
         private List<NodeObject> nodesObjects;
 
 
@@ -76,12 +74,10 @@ namespace FFMQLib
             owObjects = new();
 
             ConstructOwObjects();
-            
-            (int x, int y) temposition = (owObjects[76].X, owObjects[76].Y);
-            owObjects[76].X = owObjects[75].X;
-            owObjects[76].Y = owObjects[75].Y;
-            owObjects[75].X = temposition.x;
-            owObjects[75].Y = temposition.y;
+            /*
+            (int x, int y) temposition = owObjects[76].Position;
+            owObjects[76].Position = owObjects[75].Position;
+            owObjects[75].Position = temposition;*/
 
         }
 

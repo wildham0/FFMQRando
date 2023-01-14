@@ -255,10 +255,13 @@ namespace FFMQLib
 	}
 	public class NodeLocations
 	{
+		
 		private List<Blob> _movementArrows = new();
 		private List<Node> Nodes = new();
 		private List<byte> ShipWestSteps = new();
 		private List<byte> ShipEastSteps = new();
+		private List<Room> Rooms;
+	
 		private const int OWMovementBank = 0x07;
 		private const int OWMovementArrows = 0xEE84;
 		private const int OWWalkStepsPointers = 0xF011;
@@ -266,11 +269,21 @@ namespace FFMQLib
 		private const int NewOWWalkStepsBank = 0x12;
 		private const int NewOWWalkStepsPointers = 0x9000;
 
-		public NodeLocations(FFMQRom rom)
+		private const int OWLocationActionsOffset = 0xEFA1;
+		private const int OWLocationQty = 0x38;
+
+		private const int OWExitCoordBank = 0x07;
+		private const int OWExitCoordOffset = 0xF7C3;
+		
+
+		public NodeLocations(FFMQRom rom, List<Room> rooms)
 		{
+			Rooms = rooms;
+
 			_movementArrows = rom.GetFromBank(OWMovementBank, OWMovementArrows, (OwNodesQty + 1) * 0x05).Chunk(5);
 			ShipWestSteps = rom.GetFromBank(OWMovementBank, 0xF234, 6).ToBytes().ToList();
 			ShipEastSteps = rom.GetFromBank(OWMovementBank, 0xF23A, 6).ToBytes().ToList();
+			var exitCoords = rom.GetFromBank(OWExitCoordBank, OWExitCoordOffset, (OwNodesQty + 1) * 2).Chunk(2);
 
 			Nodes = new();
 			foreach (var arrow in _movementArrows)
@@ -309,6 +322,185 @@ namespace FFMQLib
 					}
 				}
 			}
+
+			var locationactions = rom.GetFromBank(OWMovementBank, OWLocationActionsOffset, OWLocationQty * 2).Chunk(2);
+
+			for (int i = 0; i < Nodes.Count; i++)
+			{
+				Nodes[i].Position = (exitCoords[i][0], exitCoords[i][1]);
+			}
+
+			AssignOwObjects();
+		}
+		private void AssignOwObjects()
+		{
+			Nodes[(int)Locations.ForestaSouthBattlefield].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.ForestaSouthBattlefield, OverworldMapObjects.ForestaSouthBattlefieldCleared };
+			//Nodes[(int)Locations.ForestaSouthBattlefield].Position = (0x0E, 0x23);
+			//Nodes[(int)Locations.ForestaSouthBattlefield].TargetTeleporter = (115, 1);
+			Nodes[(int)Locations.ForestaWestBattlefield].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.ForestaWestBattlefield, OverworldMapObjects.ForestaWestBattlefieldCleared };
+			Nodes[(int)Locations.ForestaWestBattlefield].Position = (0x08, 0x1F);
+			Nodes[(int)Locations.ForestaWestBattlefield].TargetTeleporter = (116, 1);
+			Nodes[(int)Locations.ForestaEastBattlefield].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.ForestaEastBattlefield, OverworldMapObjects.ForestaEastBattlefieldCleared };
+			Nodes[(int)Locations.ForestaEastBattlefield].Position = (0x16, 0x1F);
+			Nodes[(int)Locations.ForestaEastBattlefield].TargetTeleporter = (117, 1);
+			Nodes[(int)Locations.AquariaBattlefield01].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.AquariaBattlefield01, OverworldMapObjects.AquariaBattlefield01Cleared };
+			Nodes[(int)Locations.AquariaBattlefield01].Position = (0x22, 0x19);
+			Nodes[(int)Locations.AquariaBattlefield01].TargetTeleporter = (118, 1);
+			Nodes[(int)Locations.AquariaBattlefield02].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.AquariaBattlefield02, OverworldMapObjects.AquariaBattlefield02Cleared };
+			Nodes[(int)Locations.AquariaBattlefield02].Position = (0x29, 0x13);
+			Nodes[(int)Locations.AquariaBattlefield02].TargetTeleporter = (119, 1);
+			Nodes[(int)Locations.AquariaBattlefield03].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.AquariaBattlefield03, OverworldMapObjects.AquariaBattlefield03Cleared };
+			Nodes[(int)Locations.AquariaBattlefield03].Position = (0x2E, 0x15);
+			Nodes[(int)Locations.AquariaBattlefield03].TargetTeleporter = (120, 1);
+			Nodes[(int)Locations.WintryBattlefield01].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.WintryBattlefield01, OverworldMapObjects.WintryBattlefield01Cleared };
+			Nodes[(int)Locations.WintryBattlefield01].Position = (0x37, 0x0F);
+			Nodes[(int)Locations.AquariaBattlefield03].TargetTeleporter = (121, 1);
+			Nodes[(int)Locations.WintryBattlefield02].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.WintryBattlefield02, OverworldMapObjects.WintryBattlefield02Cleared };
+			Nodes[(int)Locations.WintryBattlefield02].Position = (0x33, 0x0D);
+			Nodes[(int)Locations.AquariaBattlefield03].TargetTeleporter = (122, 1);
+			Nodes[(int)Locations.PyramidBattlefield01].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.PyramidBattlefield01, OverworldMapObjects.PyramidBattlefield01Cleared };
+			Nodes[(int)Locations.PyramidBattlefield01].Position = (0x2D, 0x09);
+			Nodes[(int)Locations.AquariaBattlefield03].TargetTeleporter = (123, 1);
+			Nodes[(int)Locations.LibraBattlefield01].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.LibraBattlefield01, OverworldMapObjects.LibraBattlefield01Cleared };
+			Nodes[(int)Locations.LibraBattlefield01].Position = (0x24, 0x10);
+			Nodes[(int)Locations.LibraBattlefield01].TargetTeleporter = (124, 1);
+			Nodes[(int)Locations.LibraBattlefield02].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.LibraBattlefield02, OverworldMapObjects.LibraBattlefield02Cleared };
+			Nodes[(int)Locations.LibraBattlefield02].Position = (0x1F, 0x10);
+			Nodes[(int)Locations.LibraBattlefield01].TargetTeleporter = (125, 1);
+			Nodes[(int)Locations.FireburgBattlefield01].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.FireburgBattlefield01, OverworldMapObjects.FireburgBattlefield01Cleared };
+			Nodes[(int)Locations.FireburgBattlefield01].Position = (0x1A, 0x17);
+			Nodes[(int)Locations.FireburgBattlefield01].TargetTeleporter = (126, 1);
+			Nodes[(int)Locations.FireburgBattlefield02].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.FireburgBattlefield02, OverworldMapObjects.FireburgBattlefield02Cleared };
+			Nodes[(int)Locations.FireburgBattlefield02].Position = (0x1A, 0x13);
+			Nodes[(int)Locations.FireburgBattlefield02].TargetTeleporter = (127, 1);
+			Nodes[(int)Locations.FireburgBattlefield03].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.FireburgBattlefield03, OverworldMapObjects.FireburgBattlefield03Cleared };
+			Nodes[(int)Locations.FireburgBattlefield03].Position = (0x1A, 0x0E);
+			Nodes[(int)Locations.FireburgBattlefield03].TargetTeleporter = (128, 1);
+			Nodes[(int)Locations.MineBattlefield01].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.MineBattlefield01, OverworldMapObjects.MineBattlefield01Cleared };
+			Nodes[(int)Locations.MineBattlefield01].Position = (0x0F, 0x0C);
+			Nodes[(int)Locations.MineBattlefield01].TargetTeleporter = (129, 1);
+			Nodes[(int)Locations.MineBattlefield02].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.MineBattlefield02, OverworldMapObjects.MineBattlefield02Cleared };
+			Nodes[(int)Locations.MineBattlefield02].Position = (0x09, 0x0C);
+			Nodes[(int)Locations.MineBattlefield02].TargetTeleporter = (130, 1);
+			Nodes[(int)Locations.MineBattlefield03].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.MineBattlefield03, OverworldMapObjects.MineBattlefield03Cleared };
+			Nodes[(int)Locations.MineBattlefield03].Position = (0x10, 0x08);
+			Nodes[(int)Locations.MineBattlefield03].TargetTeleporter = (131, 1);
+			Nodes[(int)Locations.VolcanoBattlefield01].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.VolcanoBattlefield01, OverworldMapObjects.VolcanoBattlefield01Cleared };
+			Nodes[(int)Locations.VolcanoBattlefield01].Position = (0x1F, 0x0A);
+			Nodes[(int)Locations.VolcanoBattlefield01].TargetTeleporter = (132, 1);
+			Nodes[(int)Locations.WindiaBattlefield01].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.WindiaBattlefield01, OverworldMapObjects.WindiaBattlefield01Cleared };
+			Nodes[(int)Locations.WindiaBattlefield01].Position = (0x2E, 0x29);
+			Nodes[(int)Locations.WindiaBattlefield01].TargetTeleporter = (133, 1);
+			Nodes[(int)Locations.WindiaBattlefield02].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.WindiaBattlefield02, OverworldMapObjects.WindiaBattlefield02Cleared };
+			Nodes[(int)Locations.WindiaBattlefield02].Position = (0x33, 0x28);
+			Nodes[(int)Locations.WindiaBattlefield02].TargetTeleporter = (134, 1);
+			Nodes[(int)Locations.HillOfDestiny].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.HillOfDestiny };
+			Nodes[(int)Locations.HillOfDestiny].Position = (0x19, 0x2A);
+			Nodes[(int)Locations.LevelForest].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.LevelForestMarker };
+			Nodes[(int)Locations.LevelForest].Position = (0x0E, 0x28);
+			Nodes[(int)Locations.LevelForest].TargetTeleporter = (25, 0);
+			Nodes[(int)Locations.Foresta].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.ForestaVillage };
+			//Nodes[(int)Locations.Foresta].Position = (0x12, 0x26);
+			//Nodes[(int)Locations.Foresta].TargetTeleporter = (31, 0);
+			Nodes[(int)Locations.SandTemple].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.SandTempleCave };
+			Nodes[(int)Locations.SandTemple].Position = (0x0E, 0x1E);
+			Nodes[(int)Locations.SandTemple].TargetTeleporter = (36, 0);
+			Nodes[(int)Locations.BoneDungeon].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.BoneDungeon };
+			Nodes[(int)Locations.BoneDungeon].Position = (0x0E, 0x1A);
+			Nodes[(int)Locations.BoneDungeon].TargetTeleporter = (37, 0);
+			Nodes[(int)Locations.FocusTowerSouth].OwMapObjects = new List<OverworldMapObjects> { };
+			Nodes[(int)Locations.FocusTowerSouth].Position = (0x1C, 0x21);
+			Nodes[(int)Locations.FocusTowerSouth].TargetTeleporter = (2, 6);
+			Nodes[(int)Locations.FocusTowerWest].OwMapObjects = new List<OverworldMapObjects> { };
+			Nodes[(int)Locations.FocusTowerWest].Position = (0x1F, 0x1D);
+			Nodes[(int)Locations.FocusTowerWest].TargetTeleporter = (4, 6);
+			Nodes[(int)Locations.LibraTemple].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.LibraTempleCave };
+			Nodes[(int)Locations.LibraTemple].Position = (0x24, 0x13);
+			Nodes[(int)Locations.LibraTemple].TargetTeleporter = (13, 6);
+			Nodes[(int)Locations.Aquaria].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.AquariaVillage };
+			Nodes[(int)Locations.Aquaria].Position = (0x30, 0x11);
+			Nodes[(int)Locations.Aquaria].TargetTeleporter = (8, 6);
+			Nodes[(int)Locations.WintryCave].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.WintryCave };
+			Nodes[(int)Locations.WintryCave].Position = (0x37, 0x0B);
+			Nodes[(int)Locations.WintryCave].TargetTeleporter = (49, 0);
+			Nodes[(int)Locations.LifeTemple].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.LifeTempleCave };
+			Nodes[(int)Locations.LifeTemple].Position = (0x28, 0x18);
+			Nodes[(int)Locations.LifeTemple].TargetTeleporter = (14, 6);
+			Nodes[(int)Locations.FallsBasin].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.FallBasinMarker };
+			Nodes[(int)Locations.FallsBasin].Position = (0x2D, 0x0E);
+			Nodes[(int)Locations.FallsBasin].TargetTeleporter = (53, 0);
+			Nodes[(int)Locations.IcePyramid].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.IcePyramid };
+			Nodes[(int)Locations.IcePyramid].Position = (0x2D, 0x06);
+			Nodes[(int)Locations.IcePyramid].TargetTeleporter = (56, 0);
+			Nodes[(int)Locations.SpencersPlace].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.SpencerCave };
+			Nodes[(int)Locations.SpencersPlace].Position = (0x34, 0x18);
+			Nodes[(int)Locations.SpencersPlace].TargetTeleporter = (7, 6);
+			Nodes[(int)Locations.WintryTemple].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.WintryTempleCave };
+			Nodes[(int)Locations.WintryTemple].Position = (0x1F, 0x15);
+			Nodes[(int)Locations.WintryTemple].TargetTeleporter = (15, 6);
+			Nodes[(int)Locations.FocusTowerNorth].OwMapObjects = new List<OverworldMapObjects> { };
+			Nodes[(int)Locations.FocusTowerNorth].Position = (0x1F, 0x1B);
+			Nodes[(int)Locations.FocusTowerNorth].TargetTeleporter = (5, 6);
+			Nodes[(int)Locations.FocusTowerEast].OwMapObjects = new List<OverworldMapObjects> { };
+			Nodes[(int)Locations.FocusTowerEast].Position = (0x1C, 0x1B);
+			Nodes[(int)Locations.FocusTowerEast].TargetTeleporter = (6, 6);
+			Nodes[(int)Locations.Fireburg].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.FireburgVillage };
+			Nodes[(int)Locations.Fireburg].Position = (0x15, 0x0C);
+			Nodes[(int)Locations.Fireburg].TargetTeleporter = (9, 6);
+			Nodes[(int)Locations.Mine].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.Mine };
+			Nodes[(int)Locations.Mine].Position = (0x09, 0x08);
+			Nodes[(int)Locations.Mine].TargetTeleporter = (98, 0);
+			Nodes[(int)Locations.SealedTemple].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.SealedTempleCave };
+			Nodes[(int)Locations.SealedTemple].Position = (0x0F, 0x10);
+			Nodes[(int)Locations.SealedTemple].TargetTeleporter = (16, 6);
+			Nodes[(int)Locations.Volcano].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.VolcanoMarker };
+			Nodes[(int)Locations.Volcano].Position = (0x18, 0x08);
+			Nodes[(int)Locations.Volcano].TargetTeleporter = (103, 0);
+			Nodes[(int)Locations.LavaDome].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.LavaDome };
+			Nodes[(int)Locations.LavaDome].Position = (0x19, 0x05);
+			Nodes[(int)Locations.LavaDome].TargetTeleporter = (104, 0);
+			Nodes[(int)Locations.FocusTowerSouth2].OwMapObjects = new List<OverworldMapObjects> { };
+			Nodes[(int)Locations.FocusTowerSouth2].Position = (0x1D, 0x1E);
+			Nodes[(int)Locations.FocusTowerSouth2].TargetTeleporter = (3, 6);
+			Nodes[(int)Locations.RopeBridge].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.RopeBridgeMarker };
+			Nodes[(int)Locations.RopeBridge].Position = (0x1F, 0x1F);
+			Nodes[(int)Locations.RopeBridge].TargetTeleporter = (140, 0);
+			Nodes[(int)Locations.AliveForest].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.AliveForestMarker };
+			Nodes[(int)Locations.AliveForest].Position = (0x26, 0x1F);
+			Nodes[(int)Locations.AliveForest].TargetTeleporter = (142, 0);
+			Nodes[(int)Locations.GiantTree].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.MovedGiantTree };
+			Nodes[(int)Locations.GiantTree].Position = (0x28, 0x27);
+			Nodes[(int)Locations.GiantTree].TargetTeleporter = (49, 8);
+			Nodes[(int)Locations.KaidgeTemple].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.KaidgeTempleCave };
+			Nodes[(int)Locations.KaidgeTemple].Position = (0x28, 0x29);
+			Nodes[(int)Locations.KaidgeTemple].TargetTeleporter = (18, 6);
+			Nodes[(int)Locations.Windia].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.WindiaVillage };
+			Nodes[(int)Locations.Windia].Position = (0x35, 0x23);
+			Nodes[(int)Locations.Windia].TargetTeleporter = (10, 6);
+			Nodes[(int)Locations.WindholeTemple].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.WindholeTempleCave };
+			Nodes[(int)Locations.WindholeTemple].Position = (0x3B, 0x28);
+			Nodes[(int)Locations.WindholeTemple].TargetTeleporter = (173, 0);
+			Nodes[(int)Locations.MountGale].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.MountGale, OverworldMapObjects.MountGaleMarker };
+			Nodes[(int)Locations.MountGale].Position = (0x3C, 0x24);
+			Nodes[(int)Locations.MountGale].TargetTeleporter = (174, 0);
+			Nodes[(int)Locations.PazuzusTower].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.PazuzuTower };
+			Nodes[(int)Locations.PazuzusTower].Position = (0x35, 0x1E);
+			Nodes[(int)Locations.PazuzusTower].TargetTeleporter = (184, 0);
+			Nodes[(int)Locations.ShipDock].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.ShipDockCave };
+			Nodes[(int)Locations.ShipDock].Position = (0x31, 0x1E);
+			Nodes[(int)Locations.ShipDock].TargetTeleporter = (17, 6);
+			Nodes[(int)Locations.DoomCastle].OwMapObjects = new List<OverworldMapObjects> { };
+			Nodes[(int)Locations.DoomCastle].Position = (0x1C, 0x27);
+			Nodes[(int)Locations.DoomCastle].TargetTeleporter = (1, 6);
+			Nodes[(int)Locations.LightTemple].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.LightTempleCave };
+			Nodes[(int)Locations.LightTemple].Position = (0x21, 0x2A);
+			Nodes[(int)Locations.LightTemple].TargetTeleporter = (19, 6);
+			Nodes[(int)Locations.MacsShip].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.ShipAtDock };
+			Nodes[(int)Locations.MacsShip].Position = (0x31, 0x1C);
+			Nodes[(int)Locations.MacsShip].TargetTeleporter = (37, 8);
+			Nodes[(int)Locations.MacsShipDoom].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.ShipAtDoom };
+			Nodes[(int)Locations.MacsShipDoom].Position = (0x1C, 0x28);
+			Nodes[(int)Locations.MacsShipDoom].TargetTeleporter = (37, 8);
 		}
 		public void OpenNodes()
 		{
@@ -341,6 +533,75 @@ namespace FFMQLib
 			Nodes[(int)Locations.DoomCastle].DirectionFlags[(int)NodeDirections.North] = (int)GameFlagsList.HillCollapsed;
 			Nodes[(int)Locations.DoomCastle].Destinations[(int)NodeDirections.North] = Locations.FocusTowerSouth;
 			Nodes[(int)Locations.DoomCastle].Steps[(int)NodeDirections.North] = new List<byte> { 0x86 };
+		}
+		public Locations ShuffleEntrances(MT19337 rng)
+		{ 
+			List<Locations> validLocations = Enum.GetValues<Locations>().ToList();
+			List<Locations> invalidLocations = new() { Locations.DoomCastle, Locations.FocusTowerEast, Locations.FocusTowerNorth, Locations.FocusTowerSouth, Locations.FocusTowerSouth2, Locations.FocusTowerWest, Locations.GiantTree, Locations.HillOfDestiny, Locations.LifeTemple, Locations.LightTemple, Locations.MacsShip, Locations.MacsShipDoom, Locations.None, Locations.ShipDock, Locations.SpencersPlace };
+			validLocations.RemoveAll(x => invalidLocations.Contains(x));
+
+			Locations startingLocation = Locations.LevelForest;
+
+			while (validLocations.Count > 1)
+			{
+				var loc1 = rng.TakeFrom(validLocations);
+				var loc2 = rng.TakeFrom(validLocations);
+
+				if (loc1 == Locations.LevelForest)
+				{
+					startingLocation = loc2;
+				}
+				else if(loc2 == Locations.LevelForest)
+				{
+					startingLocation = loc1;
+				}
+
+				SwapNodes(loc1, loc2);
+			}
+
+			return startingLocation;
+		}
+		public void SwapNodes(Locations locA, Locations locB)
+		{
+			var tempDestinations = Nodes[(int)locA].Destinations.ToList();
+			var tempSteps = Nodes[(int)locA].Steps.ToList();
+			var tempFlags = Nodes[(int)locA].DirectionFlags.ToList();
+			var tempPosition = Nodes[(int)locA].Position;
+
+			Nodes[(int)locA].Destinations = Nodes[(int)locB].Destinations.ToList();
+			Nodes[(int)locA].Steps = Nodes[(int)locB].Steps.ToList();
+			Nodes[(int)locA].DirectionFlags = Nodes[(int)locB].DirectionFlags.ToList();
+			Nodes[(int)locA].Position = Nodes[(int)locB].Position;
+
+			Nodes[(int)locB].Destinations = tempDestinations;
+			Nodes[(int)locB].Steps = tempSteps;
+			Nodes[(int)locB].DirectionFlags = tempFlags;
+			Nodes[(int)locB].Position = tempPosition;
+
+			foreach (var node in Nodes)
+			{
+				for(int i = 0; i < node.Destinations.Count; i++)
+				{
+					if (node.Destinations[i] == locA)
+					{
+						node.Destinations[i] = locB;
+					}
+					else if (node.Destinations[i] == locB)
+					{
+						node.Destinations[i] = locA;
+					}
+				}
+			}
+		}
+		public void UpdateSprites(List<OverworldObject> owObjects)
+		{
+			foreach (var node in Nodes)
+			{
+				foreach (var owobject in node.OwMapObjects)
+				{
+					owObjects[(int)owobject].Position = node.Position;
+				}
+			}
 		}
 		public void Write(FFMQRom rom)
 		{
@@ -375,15 +636,28 @@ namespace FFMQLib
 			// new pointers for ship
 			rom.PutInBank(0x01, 0xF5B4, shipwestpointer.ToArray());
 			rom.PutInBank(0x01, 0xF5F4, shipeastpointer.ToArray());
+
+			rom.PutInBank(OWExitCoordBank, OWExitCoordOffset, Nodes.SelectMany(x => new List<byte> { (byte)x.Position.x, (byte)x.Position.y }).ToArray());
 		}
+	}
+
+	public enum NodeType
+	{ 
+		Battlefield = 0,
+		Place 
 	}
 
 	public class Node
 	{
 		public List<byte> DirectionFlags { get; set; }
 		public byte NodeName { get; set; }
-		public List<List<byte>> Steps {get; set;}
+		public List<List<byte>> Steps { get; set; }
 		public List<Locations> Destinations { get; set; }
+		public List<OverworldMapObjects> OwMapObjects { get; set; }
+		public (int x, int y) Position { get; set; }
+		public byte[] Action { get; set; }
+		public NodeType Type { get; set; }
+		public (int id, int type) TargetTeleporter { get; set; }
 
 		public Node(byte[] arrowvalues)
 		{
@@ -391,6 +665,9 @@ namespace FFMQLib
 			DirectionFlags = arrowvalues.ToList().GetRange(1, 4);
 			Steps = new();
 			Destinations = new();
+			OwMapObjects = new();
+			Action = new byte[] { 0x00, 0x00 };
+			TargetTeleporter = (0, 0);
 		}
 		public void AddDestination(Locations destination, List<byte> steps)
 		{
