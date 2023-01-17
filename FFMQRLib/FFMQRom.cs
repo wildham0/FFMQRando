@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.3.01";
+		public static string Version = "1.3.10";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -184,7 +184,7 @@ namespace FFMQLib
 			LocationStructure tempLocat = new(this);
 			tempLocat.ReadRooms();
 			tempLocat.EntranceHack(this);
-			spoilersText = tempLocat.GenerateYaml();
+			// spoilersText = tempLocat.GenerateYaml();
 
 			Teleporters temptele = new(this);
 			temptele.ExtraTeleporters();
@@ -208,7 +208,7 @@ namespace FFMQLib
 			Battlefields.SetBattlesQty(flags.BattlesQuantity, rng);
 			Battlefields.ShuffleBattelfieldRewards(flags.ShuffleBattlefieldRewards, Overworld, rng);
 
-			var startingLocation = NodeLocations.ShuffleEntrances(rng);
+			var startingLocation = NodeLocations.ShuffleEntrances(flags.ShuffleEntrances, rng);
 			// Items
 			ItemsPlacement itemsPlacement = new(flags, Battlefields, NodeLocations, this, rng);
 
@@ -257,7 +257,7 @@ namespace FFMQLib
 
 
 			// Spoilers
-			//spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
+			spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
 			spoilers = flags.EnableSpoilers;
 			
 			// Remove header if any

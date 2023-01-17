@@ -718,13 +718,18 @@ namespace FFMQLib
 			Nodes[(int)Locations.DoomCastle].Destinations[(int)NodeDirections.North] = Locations.FocusTowerSouth;
 			Nodes[(int)Locations.DoomCastle].Steps[(int)NodeDirections.North] = new List<byte> { 0x86 };
 		}
-		public Locations ShuffleEntrances(MT19337 rng)
-		{ 
+		public Locations ShuffleEntrances(bool enabled, MT19337 rng)
+		{
+			Locations startingLocation = Locations.LevelForest;
+
+			if (!enabled)
+			{
+				return startingLocation;
+			}
+
 			List<Locations> validLocations = Enum.GetValues<Locations>().ToList();
 			List<Locations> invalidLocations = new() { Locations.DoomCastle, Locations.FocusTowerEast, Locations.FocusTowerNorth, Locations.FocusTowerSouth, Locations.FocusTowerSouth2, Locations.FocusTowerWest, Locations.GiantTree, Locations.HillOfDestiny, Locations.LifeTemple, Locations.LightTemple, Locations.MacsShip, Locations.MacsShipDoom, Locations.None, Locations.ShipDock, Locations.SpencersPlace };
 			validLocations.RemoveAll(x => invalidLocations.Contains(x));
-
-			Locations startingLocation = Locations.LevelForest;
 
 			while (validLocations.Count > 1)
 			{

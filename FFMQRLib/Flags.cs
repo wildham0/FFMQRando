@@ -36,6 +36,7 @@ namespace FFMQLib
         public SkyCoinModes SkyCoinMode { get; set; } = SkyCoinModes.Standard;
         public SkyCoinFragmentsQty SkyCoinFragmentsQty { get; set; } = SkyCoinFragmentsQty.Mid24;
         public bool EnableSpoilers { get; set; } = false;
+        public bool ShuffleEntrances { get; set; } = false;
 
         public string GenerateFlagString()
         {
