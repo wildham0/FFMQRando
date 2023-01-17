@@ -210,7 +210,7 @@ namespace FFMQLib
 
 			var startingLocation = NodeLocations.ShuffleEntrances(rng);
 			// Items
-			ItemsPlacement itemsPlacement = new(flags, Battlefields, this, rng);
+			ItemsPlacement itemsPlacement = new(flags, Battlefields, NodeLocations, this, rng);
 
 			SetStartingWeapons(itemsPlacement);
 			MapObjects.UpdateChests(itemsPlacement);

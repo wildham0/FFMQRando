@@ -37,6 +37,8 @@ namespace FFMQLib
 		Friendly = 0,
 		[Description("Standard")]
 		Standard,
+		[Description("Expert")]
+		Expert,
 	}
 	public class ItemsPlacement
 	{
@@ -44,6 +46,9 @@ namespace FFMQLib
 		public List<TreasureObject> ItemsLocations { get; }
 		
 		private const int TreasuresOffset = 0x8000;
+		private List<(AccessReqs, List<AccessReqs>)> Events;
+		private List<(Locations, List<AccessReqs>)> LocationTriggers;
+
 		private class RegionWeight
 		{ 
 			public MapRegions Region { get; set; }
@@ -55,7 +60,7 @@ namespace FFMQLib
 				Weight = _weight;
 			}
 		}
-		public ItemsPlacement(Flags flags, Battlefields battlefields, FFMQRom rom, MT19337 rng)
+		public ItemsPlacement(Flags flags, Battlefields battlefields, NodeLocations nodelocations, FFMQRom rom, MT19337 rng)
 		{
 			bool badPlacement = true;
 			int counter = 0;
@@ -85,7 +90,7 @@ namespace FFMQLib
 
 				List<Items> itemsList = RandomizeItemsOrder(flags, rng);
 
-				ItemsLocations = new(ItemLocations.Generate(flags, battlefields).ToList());
+				ItemsLocations = new(ItemLocations.Generate(flags, battlefields, nodelocations).ToList());
 				
 				prioritizedLocationsCount = ItemsLocations.Where(x => x.Prioritize == true).Count();
 
@@ -96,25 +101,29 @@ namespace FFMQLib
 
 				List<Items> nonRequiredItems = flags.SkyCoinMode == SkyCoinModes.Standard ? StartingItems : StartingItems.Append(Items.SkyCoin).ToList();
 
+				Events = ItemLocations.AccessEvents.Select(x => (x.Key, x.Value)).ToList();
+				LocationTriggers = ItemLocations.LocationTriggers.ToList();
+
+
+				List<AccessReqs> accessReqsToProcess = new();
 				// Apply starting items access
 				foreach (var item in nonRequiredItems)
 				{
 					List<AccessReqs> result;
-					if (ItemLocations.ItemAccessReq.TryGetValue(item, out result))
+					if(ItemLocations.ItemAccessReq.TryGetValue(item, out result))
 					{
-						for (int i = 0; i < ItemsLocations.Count; i++)
-						{
-							ItemsLocations[i].AccessRequirements = ItemsLocations[i].AccessRequirements.Where(x => !result.Contains(x)).ToList();
-						}
+						accessReqsToProcess.AddRange(result);
 					}
 				}
+
+				ProcessRequirements(accessReqsToProcess);
 
 				while (itemsList.Any())
 				{
 					List<TreasureObject> validLocations = new();
 
-					List<TreasureObject> validLocationsPriorized = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && x.Prioritize == true).ToList();
-					List<TreasureObject> validLocationsLoose = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false).ToList();
+					List<TreasureObject> validLocationsPriorized = ItemsLocations.Where(x => x.Accessible && x.IsPlaced == false && x.Prioritize == true).ToList();
+					List<TreasureObject> validLocationsLoose = ItemsLocations.Where(x => x.Accessible && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false).ToList();
 
 					int diceRoll = rng.Between(1, itemsList.Count);
 
@@ -135,14 +144,14 @@ namespace FFMQLib
 					}
 
 					List<MapRegions> weightedRegionList = new();
-					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Foresta, 8 / regionsWeight.Find(x => x.Region == MapRegions.Foresta).Weight ));
+					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Foresta, 8 / regionsWeight.Find(x => x.Region == MapRegions.Foresta).Weight));
 					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Aquaria, 16 / regionsWeight.Find(x => x.Region == MapRegions.Aquaria).Weight));
 					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Fireburg, 16 / regionsWeight.Find(x => x.Region == MapRegions.Fireburg).Weight));
 					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Windia, 16 / regionsWeight.Find(x => x.Region == MapRegions.Windia).Weight));
 
 					MapRegions favoredRegion = rng.PickFrom(weightedRegionList);
 
-					List<TreasureObject> validLocationsFavored = validLocations.Where(x => ItemLocations.ReturnRegion(x.Location) == favoredRegion).ToList();
+					List<TreasureObject> validLocationsFavored = validLocations.Where(x => x.Region == favoredRegion).ToList();
 
 					if (validLocationsFavored.Any())
 					{
@@ -201,7 +210,7 @@ namespace FFMQLib
 					TreasureObject targetLocation = rng.PickFrom(validLocations);
 					targetLocation.Content = itemToPlace;
 					targetLocation.IsPlaced = true;
-					regionsWeight.Find(x => x.Region == ItemLocations.ReturnRegion(targetLocation.Location)).Weight++;
+					regionsWeight.Find(x => x.Region == targetLocation.Region).Weight++;
 
 					if (targetLocation.Type == TreasureType.Chest || targetLocation.Type == TreasureType.Box)
 					{ 
@@ -212,16 +221,14 @@ namespace FFMQLib
 					//Console.WriteLine(Enum.GetName(targetLocation.Location) + "_" + targetLocation.ObjectId + " - " + Enum.GetName(itemToPlace));
 
 					List<AccessReqs> result;
+
 					if (ItemLocations.ItemAccessReq.TryGetValue(itemToPlace, out result))
 					{
-						for (int i = 0; i < ItemsLocations.Count; i++)
-						{
-							ItemsLocations[i].AccessRequirements = ItemsLocations[i].AccessRequirements.Where(x => !result.Contains(x)).ToList();
-						}
+						ProcessRequirements(result);
 					}
 				}
 
-				var unfiledValidLocations = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.Content == Items.None).ToList();
+				var unfiledValidLocations = ItemsLocations.Where(x => x.Accessible && x.Content == Items.None).ToList();
 				//Console.WriteLine("**** Unfiled Locations ****");
 				foreach (var loc in unfiledValidLocations)
 				{
@@ -300,6 +307,57 @@ namespace FFMQLib
 			}
 
 			ItemsLocations.AddRange(finalChests);
+		}
+
+		private void ProcessRequirements(List<AccessReqs> accessReqToProcess)
+		{
+			while (accessReqToProcess.Any())
+			{
+				var currentReq = accessReqToProcess.First();
+				List<Locations> newLocations = new();
+
+				// Update Locations
+				List<TreasureObject> unaccessibleLocations = ItemsLocations.Where(x => x.Accessible == false).ToList();
+				for (int i = 0; i < unaccessibleLocations.Count; i++)
+				{
+					for (int j = 0; j < unaccessibleLocations[i].AccessRequirements.Count; j++)
+					{
+						unaccessibleLocations[i].AccessRequirements[j] = unaccessibleLocations[i].AccessRequirements[j].Where(x => x != currentReq).ToList();
+						if (!unaccessibleLocations[i].AccessRequirements[j].Any())
+						{
+							unaccessibleLocations[i].Accessible = true;
+							newLocations.Add(unaccessibleLocations[i].Location);
+						}
+					}
+				}
+
+				// Update Events
+				List<int> eventToRemove = new();
+				for (int i = 0; i < Events.Count; i++)
+				{
+					Events[i] = (Events[i].Item1, Events[i].Item2.Where(x => x != currentReq).ToList());
+					if (!Events[i].Item2.Any())
+					{
+						accessReqToProcess.Add(Events[i].Item1);
+						eventToRemove.Add(i);
+					}
+				}
+				Events = Events.Where((x, i) => !eventToRemove.Contains(i)).ToList();
+
+				// Update LocationsTriggers
+				List<int> triggerToRemove = new();
+				for (int i = 0; i < LocationTriggers.Count; i++)
+				{
+					if(newLocations.Contains(LocationTriggers[i].Item1))
+                    {
+						accessReqToProcess.AddRange(LocationTriggers[i].Item2);
+						triggerToRemove.Add(i);
+					}
+				}
+				LocationTriggers = LocationTriggers.Where((x, i) => !triggerToRemove.Contains(i)).ToList();
+
+				accessReqToProcess.Remove(currentReq);
+			}
 		}
 		public void WriteChests(FFMQRom rom)
 		{

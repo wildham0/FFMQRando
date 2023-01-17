@@ -6,12 +6,10 @@
 
   <ItemGroup>
     <None Remove="locations.yaml" />
-    <None Remove="logics.yaml" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="locations.yaml" />
-    <EmbeddedResource Include="logics.yaml" />
   </ItemGroup>
 
   <ItemGroup>

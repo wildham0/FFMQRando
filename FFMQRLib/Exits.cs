@@ -244,7 +244,7 @@ namespace FFMQLib
 			TeleportersB.Add(new Teleporter(96, 0x28, 0x19, FacingOrientation.Down, 0x1C, 0x1E)); // Wintry Cave - From 3F
 			TeleportersB.Add(new Teleporter(97, 0x0A, 0x2B, FacingOrientation.Down, 0x1C, 0x1E)); // Wintry Cave - From 2F
 			TeleportersB.Add(new Teleporter(98, 0x0E, 0x06, FacingOrientation.Down, 0x2F, 0x26)); // Fireburg - From Reuben's House
-			TeleportersB.Add(new Teleporter(99, 0x08, 0x14, FacingOrientation.Down, 0x2F, 0x26)); // Fireburg - From Hotel
+			TeleportersB.Add(new Teleporter(99, 0x14, 0x08, FacingOrientation.Down, 0x2F, 0x26)); // Fireburg - From Hotel
 			TeleportersB.Add(new Teleporter(100, 0x08, 0x07, FacingOrientation.Down, 0x32, 0x27)); // Mine - From Parallel Room
 			TeleportersB.Add(new Teleporter(101, 0x1A, 0x0F, FacingOrientation.Down, 0x32, 0x27)); // Mine - From Crescent Room
 			TeleportersB.Add(new Teleporter(102, 0x15, 0x23, FacingOrientation.Down, 0x32, 0x27)); // Mine - From Climbing Room
@@ -253,13 +253,19 @@ namespace FFMQLib
 			TeleportersB.Add(new Teleporter(105, 0x3F, 0x15, FacingOrientation.Down, 0x39, 0x2A)); // Lava Dome - From Hydra Room
 			TeleportersB.Add(new Teleporter(106, 0x15, 0x28, FacingOrientation.Down, 0x50, 0x30)); // Windia - Otto's House
 			TeleportersB.Add(new Teleporter(107, 0x02, 0x13, FacingOrientation.Down, 0x51, 0x30)); // Windia - Otto's Attic
-			TeleportersB.Add(new Teleporter(108, 0x08, 0x25, FacingOrientation.Down, 0x52, 0x30)); // Windia - Vendor House
+			TeleportersB.Add(new Teleporter(108, 0x08, 0x25, FacingOrientation.Down, 0x50, 0x30)); // Windia - Vendor House
+			TeleportersB.Add(new Teleporter(135, 0x2E, 0x18, FacingOrientation.Down, 0x50, 0x30)); // Windia - INN
 			TeleportersB.Add(new Teleporter(109, 0x3B, 0x15, FacingOrientation.Down, 0x65, 0x35)); // Doom Castle - Ice Floor
 			TeleportersB.Add(new Teleporter(110, 0x3B, 0x3D, FacingOrientation.Down, 0x65, 0x35)); // Doom Castle - Hero Room
 			TeleportersB.Add(new Teleporter(111, 0x08, 0x13, FacingOrientation.Down, 0x18, 0x1D)); // Aquaria Winter - From Phoebe's House
 			TeleportersB.Add(new Teleporter(112, 0x28, 0x14, FacingOrientation.Down, 0x19, 0x1D)); // Aquaria Summer - From Phoebe's House
 			TeleportersB.Add(new Teleporter(113, 0x1A, 0x12, FacingOrientation.Down, 0x18, 0x1D)); // Aquaria Winter - From INN
 			TeleportersB.Add(new Teleporter(114, 0x3A, 0x12, FacingOrientation.Down, 0x19, 0x1D)); // Aquaria Summer - From INN
+			
+			TeleportersB.Add(new Teleporter(136, 0x20, 0x06, FacingOrientation.Down, 0x36, 0x29)); // Volcano - From Right Path
+			TeleportersB.Add(new Teleporter(137, 0x14, 0x06, FacingOrientation.Down, 0x36, 0x29)); // Volcano - From Left Path
+			TeleportersB.Add(new Teleporter(138, 0x10, 0x19, FacingOrientation.Down, 0x38, 0x29)); // Volcano - From Top Right
+			TeleportersB.Add(new Teleporter(139, 0x08, 0x17, FacingOrientation.Down, 0x38, 0x29)); // Volcano - From Top Left
 
 			// Battlefields teleporters
 			TeleportersB.Add(new Teleporter(115, 0x0E, 0x23, FacingOrientation.Down, 0x00, 0x01)); // Foresta South
@@ -282,6 +288,8 @@ namespace FFMQLib
 			TeleportersB.Add(new Teleporter(132, 0x1F, 0x0A, FacingOrientation.Down, 0x00, 0x12)); // Volcano
 			TeleportersB.Add(new Teleporter(133, 0x2E, 0x29, FacingOrientation.Down, 0x00, 0x13)); // Windia 01
 			TeleportersB.Add(new Teleporter(134, 0x33, 0x28, FacingOrientation.Down, 0x00, 0x14)); // Windia 02
+
+			
 		}
 		public void Write(FFMQRom rom)
 		{
@@ -289,6 +297,8 @@ namespace FFMQLib
 			ushort teleportersOffsetB = (ushort)(teleportersOffsetA + (TeleportersA.Count * 3));
 			ushort teleportersOffsetWarp = (ushort)(teleportersOffsetB + (TeleportersB.Count * 3));
 			ushort teleportersOffsetLong = (ushort)(teleportersOffsetWarp + (TeleportersWarp.Count * 3));
+
+			TeleportersB = TeleportersB.OrderBy(x => x.Id).ToList();
 
 			rom.PutInBank(NewTeleportersBank, teleportersOffsetA, TeleportersA.SelectMany(x => x.ToBytesShort()).ToArray());
 			rom.PutInBank(NewTeleportersBank, teleportersOffsetB, TeleportersB.SelectMany(x => x.ToBytesShort()).ToArray());

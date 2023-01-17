@@ -12,6 +12,19 @@ namespace FFMQLib
 		South = 2,
 		West = 3,
 	}
+	public enum SubRegions
+	{ 
+		Foresta,
+		Aquaria,
+		LifeTemple,
+		AquariaFrozenField,
+		Fireburg,
+		VolcanoBattlefield,
+		Windia,
+		ShipDock,
+		LightTemple,
+		DoomCastle
+	}
 	public enum AccessBits : int
 	{
 		Elixir = 0b0000_0000_0000_0000_0000_0001,
@@ -171,10 +184,47 @@ namespace FFMQLib
 		SmallBomb,
 		JumboBomb,
 		MegaGrenade,
-		Kaeli,
-		Tristam,
-		Phoebe,
-		Reuben
+		Kaeli1,
+		Tristam2,
+		Phoebe1,
+		Reuben1,
+		Otto,
+		CaptainMac,
+		ShipSteeringWheel,
+		Minotaur,
+		DualheadHydra,
+		Gidrah,
+		ExitBook,
+		AquariaPlaza,
+		SummerAquaria,
+		MineCliff,
+		RainbowBridge,
+		SpencerCaveTrigger,
+		ShipLiberated,
+		ShipLoaned,
+		SealedTemple,
+		LibraTemple,
+		KaidgeTemple,
+		LibraTempleLibraTeleporter,
+		LifeTempleLibraTeleporter,
+		AquariaGeminiTeleporter,
+		FireburgGeminiTeleporter,
+		FireburgMobiusTeleporter,
+		SealedTempleGeminiTeleporter,
+		WintryTempleGeminiTeleporter,
+		WindiaMobiusTeleporter,
+		WindiaDockTeleporter,
+		ShipDockTeleporter,
+		Barred,
+		/*
+		WindiaMobiusToShip,
+		ShipLoaned,
+		SpencerCaveBombTrigger,
+		ShipLiberated,
+		SummerAquaria,
+		RainbowBridgeCreated,
+		*/
+
 	}
 	public enum TreasureType : int
 	{
@@ -394,12 +444,12 @@ namespace FFMQLib
 		Unknown17, // Not beast one!
 		HeroStatue,
 		FightDarkKing,
-		Unknown1a, // Teleport out of dungeon?
-		Unknown1b, // Teleport out of dungeon?
-		Unknown1c, // Teleport to Volcano > Mask location
-		Unknown1d, // Teleport to Volcano > Medusa location
-		Unknown1e, // Teleport to Volcano 2nd level
-		Unknown1f, // Teleport to Volcano 2nd level
+		VolcanoTeleportFromTop, // Teleport out of dungeon?
+		VolcanoTeleportToBase, // Teleport out of dungeon?
+		VolcanoTeleportToMask, // Teleport to Volcano > Mask location
+		VolcanoTeleportToMedusa, // Teleport to Volcano > Medusa location
+		VolcanoTeleportTo2FLeft, // Teleport to Volcano 2nd level
+		VolcanoTeleportTo2FRight, // Teleport to Volcano 2nd level
 		Unknown20, // Teleport to Ice Pyramid Entrance
 		Unknown21, // Nothing
 		Unknown22, // Nothing
@@ -889,12 +939,12 @@ namespace FFMQLib
 		WindiaBattlefield02Cleared,
 		LevelForestMarker,
 		FallBasinMarker,
-		VolcanoMarker,
+		UnknownMarker1,
 		RopeBridgeMarker,
 		AliveForestMarker,
-		MountGaleMarker,
-		UnknownMarker1,
 		UnknownMarker2,
+		VolcanoMarker,
+		MountGaleMarker,
 		SandTempleCave,
 		LibraTempleCave,
 		LifeTempleCave,

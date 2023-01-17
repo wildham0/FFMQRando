@@ -453,7 +453,7 @@
         titleLetters.Shuffle(rng2);
         showSeed = seed.ToHex();
 
-        if (yamlPreset != "")
+        if (usePreset)
         {
             flags.ReadYaml(yamlPreset, seed);
         }

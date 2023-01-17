@@ -174,7 +174,7 @@ namespace FFMQLib
                     new List<int> {  98,  99, 100 },
                     new List<int> { 101, 102, 103 },
                 },
-                (1, 0)));
+                (1, 2)));
             owObjects.Add(new OverworldObject((0x0E, 0x1A), // Bone Dungeon
                 new List<List<int>>
                 {

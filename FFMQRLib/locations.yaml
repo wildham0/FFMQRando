@@ -1748,7 +1748,7 @@ rooms:
     id: 1
     x: 52
     y: 24
-    teleport_id: 26
+    teleport_id: 79 # 26
     teleport_type: 8
     access: []
 - name: Volcano Top Right
@@ -1770,7 +1770,7 @@ rooms:
     id: 5
     x: 48
     y: 42
-    teleport_id: 27
+    teleport_id: 15 # 27
     teleport_type: 8
     access: []
 - name: Volcano Left Path
@@ -2778,12 +2778,12 @@ rooms:
     teleport_id: 30
     teleport_type: 5
     access: []
-  - name: INN's Script
+  - name: INN's Script #change to actual teleporter
     id: 9
     x: 18
     y: 34
-    teleport_id: 79
-    teleport_type: 8
+    teleport_id: 31 # 79 
+    teleport_type: 2 # 8
     access: []
   - name: Vendor House
     id: 10
@@ -2924,6 +2924,13 @@ rooms:
     y: 24
     teleport_id: 215
     teleport_type: 0
+    access: []
+  - name: Exit
+    id: 6
+    x: 53
+    y: 30
+    teleport_id: 135
+    teleport_type: 3
     access: []
 - name: Windia Inn Beds
   area_id: 82

@@ -786,6 +786,35 @@ namespace FFMQLib
 					"00"
 				}));
 
+			TileScripts.AddScript((int)TileScriptsList.RopeBridgeFight,
+				new ScriptBuilder(new List<string> {
+					"2BF2",
+					"2C8801",
+					"00"
+				}));
+			TileScripts.AddScript((int)TileScriptsList.VolcanoTeleportToBase,
+				new ScriptBuilder(new List<string> {
+					"2BF2",
+					"2C8901",
+					"00"
+				}));
+			TileScripts.AddScript((int)TileScriptsList.VolcanoTeleportFromTop,
+				new ScriptBuilder(new List<string> {
+					"2F",
+					"050C05[03]",
+					"23F2",
+					"2C8B01",
+					"00"
+				}));
+			TileScripts.AddScript((int)TileScriptsList.EnterWindiaInn,
+				new ScriptBuilder(new List<string> {
+					"2F",
+					"050C05[03]",
+					"23F2",
+					"2C8A01",
+					"00"
+				}));
+
 			/*** Lava Dome ***/
 			// Fight Hydra
 			TileScripts.AddScript((int)TileScriptsList.FightDualheadHydra,
@@ -804,8 +833,10 @@ namespace FFMQLib
 				}));
 
 			/*** Rope Bridge ***/
+			GameMaps[(int)MapList.RopeBridge].ModifyMap(0xD, 0x0C, 0x38);
+			/*
 			TileScripts.AddScript((int)TileScriptsList.RopeBridgeFight,
-				new ScriptBuilder(new List<string> { "00" }));
+				new ScriptBuilder(new List<string> { "00" }));*/
 
 			/*** Living Forest ***/
 			GameFlags[(int)GameFlagsList.GiantTreeSet] = true;
@@ -924,11 +955,6 @@ namespace FFMQLib
 					$"05E6{(int)Companion.PhoebePromo:X2}085B85",
 					$"2B{(int)NewGameFlagsList.ShowWindiaPhoebe:X2}",
 					"00"
-				}));
-
-			TileScripts.AddScript((int)TileScriptsList.EnterWindiaInn,
-				new ScriptBuilder(new List<string> {
-					"2C1F0200",
 				}));
 
 			// Otto
