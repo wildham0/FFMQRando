@@ -10,7 +10,7 @@
         <Container Class="flagColumn">
             <Field Class="dropFlag">
                 <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Preset Selection</FieldLabel> 
-                <Select TValue="string" @bind-SelectedValue="@presetSelection" onchange="@OnChange">
+                <Select TValue="string" @bind-SelectedValue="@presetSelection" @onchange="@OnChange">
                     <SelectGroup Label="Config">
                         <SelectItem Value="@("custom")">Custom</SelectItem>
                         <SelectItem Value="@("import")">Import from File</SelectItem>
@@ -73,7 +73,7 @@
     public bool UsePreset { get; set; }
 
     private string presetSelection = "custom";
-    private string yamlPreset = "";
+    //private string yamlPreset = "";
     private string yamlMessage = "";
     private string yamlName = "default";
 
@@ -100,12 +100,12 @@
         //ValueChanged.InvokeAsync(Value);
     }
 
-    async void ExportFile()
+    void ExportFile()
     {
         SetExportFile.Invoke(yamlName);
     }
 
-    async void LoadYamlFromUpload(FileChangedEventArgs e)
+    void LoadYamlFromUpload(FileChangedEventArgs e)
     {
         try
         {

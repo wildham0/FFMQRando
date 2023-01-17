@@ -4,7 +4,7 @@
     @if (!UsePreset)
     {
     <Field class="text-secondary switchFlag">
-        <Switch TValue="bool" @bind-Checked="@Value" onchange="@OnChange">
+        <Switch TValue="bool" @bind-Checked="@Value" @onchange="@OnChange">
             <Text TextColor="TextColor.Secondary" class="fw-bold">@Name</Text>
             <Tooltip Text=@Tooltip Inline Multiline Placement="TooltipPlacement.Right">
                 <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 

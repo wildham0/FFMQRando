@@ -8,7 +8,7 @@
                 <Tooltip Text=@Tooltip Inline Multiline Placement="TooltipPlacement.Right">
                     <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
                 </Tooltip>
-        <Select @bind-SelectedValue="@Value" onchange="@OnChange">
+        <Select @bind-SelectedValue="@Value" @onchange="@OnChange">
             @foreach (Enum item in Enum.GetValues(typeof(TItem)))
             {
             <SelectItem Value="@item">@(item.GetDescription())</SelectItem>

@@ -65,7 +65,7 @@ namespace FFMQLib
 
         private List<OverworldSprite> owSprites;
         public List<OverworldObject> owObjects { get; set; }
-        private List<NodeObject> nodesObjects;
+        //private List<NodeObject> nodesObjects;
 
 
         public Overworld(FFMQRom rom)
