@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.3.01";
+		public static string Version = "1.3.10";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -154,7 +154,6 @@ namespace FFMQLib
 				sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
 
-			NodeLocations = new(this);
 			EnemyAttackLinks = new(this);
 			Attacks = new(this);
 			enemiesStats = new(this);
@@ -181,10 +180,23 @@ namespace FFMQLib
 			NonSpoilerDemoplay();
 			CompanionRoutines();
 
+
+			LocationStructure tempLocat = new(this);
+			tempLocat.ReadRooms();
+			tempLocat.EntranceHack(this);
+			// spoilersText = tempLocat.GenerateYaml();
+
+			Teleporters temptele = new(this);
+			temptele.ExtraTeleporters();
+			temptele.Write(this);
+
+			NodeLocations = new(this, tempLocat.Rooms);
+
+
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
 			GameMaps.LessObnoxiousMaps(flags.TweakedDungeons, MapObjects, rng);
-
+			
 			// Enemies
 			MapObjects.SetEnemiesDensity(flags.EnemiesDensity, rng);
 			MapObjects.ShuffleEnemiesPosition(flags.ShuffleEnemiesPosition, GameMaps, rng);
@@ -196,12 +208,13 @@ namespace FFMQLib
 			Battlefields.SetBattlesQty(flags.BattlesQuantity, rng);
 			Battlefields.ShuffleBattelfieldRewards(flags.ShuffleBattlefieldRewards, Overworld, rng);
 
+			var startingLocation = NodeLocations.ShuffleEntrances(flags.ShuffleEntrances, rng);
 			// Items
-			ItemsPlacement itemsPlacement = new(flags, Battlefields, this, rng);
+			ItemsPlacement itemsPlacement = new(flags, Battlefields, NodeLocations, this, rng);
 
 			SetStartingWeapons(itemsPlacement);
 			MapObjects.UpdateChests(itemsPlacement);
-			UpdateScripts(flags, itemsPlacement, rng);
+			UpdateScripts(flags, itemsPlacement, startingLocation, rng);
 			ChestsHacks(flags, itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
 
@@ -218,6 +231,10 @@ namespace FFMQLib
 			// Preferences
 			Msu1SupportRandom(preferences.RandomMusic, sillyrng);
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
+
+			NodeLocations.UpdateSprites(Overworld.owObjects);
+
+			tempLocat.Write(this);
 
 			// Write everything back			
 			itemsPlacement.WriteChests(this);
@@ -237,6 +254,7 @@ namespace FFMQLib
 			MapObjects.WriteAll(this);
 			MapSpriteSets.Write(this);
 			titleScreen.Write(this, Metadata.Version, seed, flags);
+
 
 			// Spoilers
 			spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());

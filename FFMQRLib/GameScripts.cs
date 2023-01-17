@@ -8,13 +8,14 @@ namespace FFMQLib
 {
 	public partial class FFMQRom : SnesRom
 	{
-		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, MT19337 rng)
+		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, Locations startinglocation, MT19337 rng)
 		{
 			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
 
 			/*** Overworld ***/
 			// GameStart - Skip Mountain collapse
-			Put(RomOffsets.GameStartScript, Blob.FromHex("23222b7a2a0b2700200470002ab05320501629ffff00"));
+			Put(RomOffsets.GameStartScript, Blob.FromHex($"23222b7a2a0b2700200470002ab0532050{((byte)startinglocation):X2}29ffff00"));
+			//Put(RomOffsets.GameStartScript, Blob.FromHex("23222b7a2a0b2700200470002ab05320501629ffff00"));
 
 			GameFlags[(int)GameFlagsList.ShowPazuzuBridge] = true;
 
@@ -196,8 +197,11 @@ namespace FFMQLib
 				}));
 
 			// Tristam Quit Party Tile
+			/*
 			TileScripts.AddScript((int)TileScriptsList.TristamQuitPartyBoneDungeon,
 				new ScriptBuilder(new List<string> { "00" }));
+			*/
+			GameMaps[(int)MapList.BoneDungeon].ModifyMap(0x1D, 0x17, 0x84);
 
 			/*** Focus Tower ***/
 			GameFlags[(int)GameFlagsList.ShowColumnMoved] = true;
@@ -252,9 +256,30 @@ namespace FFMQLib
 					"2C0801",
 					"00",
 				}));
-
+			/*
 			TileScripts.AddScript((int)TileScriptsList.EnterPhoebesHouse,
 				new ScriptBuilder(new List<string> { "2C0A0200" }));
+			*/
+
+			// Change Phoebe's script for the house exit to account for aquaria winter/summer 
+			TileScripts.AddScript((int)TileScriptsList.EnterPhoebesHouse,
+				new ScriptBuilder(new List<string> {
+					"2E02" + "[03]",
+					"2C6F01",
+					"00",
+					"2C7001",
+					"00"
+				}));
+
+			// Take Tristam's script for the INN exit to account for aquaria winter/summer 
+			TileScripts.AddScript((int)TileScriptsList.TristamQuitPartyBoneDungeon,
+				new ScriptBuilder(new List<string> {
+					"2E02" + "[03]",
+					"2C7101",
+					"00",
+					"2C7201",
+					"00"
+				}));
 
 			// Move girl that blocks Aquaria Seller's House
 			MapObjects[0x18][0x02].X = 0x06;
@@ -761,6 +786,35 @@ namespace FFMQLib
 					"00"
 				}));
 
+			TileScripts.AddScript((int)TileScriptsList.RopeBridgeFight,
+				new ScriptBuilder(new List<string> {
+					"2BF2",
+					"2C8801",
+					"00"
+				}));
+			TileScripts.AddScript((int)TileScriptsList.VolcanoTeleportToBase,
+				new ScriptBuilder(new List<string> {
+					"2BF2",
+					"2C8901",
+					"00"
+				}));
+			TileScripts.AddScript((int)TileScriptsList.VolcanoTeleportFromTop,
+				new ScriptBuilder(new List<string> {
+					"2F",
+					"050C05[03]",
+					"23F2",
+					"2C8B01",
+					"00"
+				}));
+			TileScripts.AddScript((int)TileScriptsList.EnterWindiaInn,
+				new ScriptBuilder(new List<string> {
+					"2F",
+					"050C05[03]",
+					"23F2",
+					"2C8A01",
+					"00"
+				}));
+
 			/*** Lava Dome ***/
 			// Fight Hydra
 			TileScripts.AddScript((int)TileScriptsList.FightDualheadHydra,
@@ -779,8 +833,10 @@ namespace FFMQLib
 				}));
 
 			/*** Rope Bridge ***/
+			GameMaps[(int)MapList.RopeBridge].ModifyMap(0xD, 0x0C, 0x38);
+			/*
 			TileScripts.AddScript((int)TileScriptsList.RopeBridgeFight,
-				new ScriptBuilder(new List<string> { "00" }));
+				new ScriptBuilder(new List<string> { "00" }));*/
 
 			/*** Living Forest ***/
 			GameFlags[(int)GameFlagsList.GiantTreeSet] = true;
@@ -899,11 +955,6 @@ namespace FFMQLib
 					$"05E6{(int)Companion.PhoebePromo:X2}085B85",
 					$"2B{(int)NewGameFlagsList.ShowWindiaPhoebe:X2}",
 					"00"
-				}));
-
-			TileScripts.AddScript((int)TileScriptsList.EnterWindiaInn,
-				new ScriptBuilder(new List<string> {
-					"2C1F0200",
 				}));
 
 			// Otto
