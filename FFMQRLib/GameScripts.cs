@@ -416,7 +416,7 @@ namespace FFMQLib
 			GameMaps[(int)MapList.IcePyramidA].ModifyMap(0x15, 0x20, 0x05);
 
 			// Add teleport coordinates
-			PutInBank(0x05, 0xFED5, Blob.FromHex("2F364D"));
+			//PutInBank(0x05, 0xFED5, Blob.FromHex("2F364D"));
 
 			// Change tile properties from falling tile to script tile
 			GameMaps.TilesProperties[0x06][0x1E].Byte2 = 0x88;

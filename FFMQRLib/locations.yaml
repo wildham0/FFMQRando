@@ -1196,7 +1196,7 @@ rooms:
     id: 0
     x: 47
     y: 54
-    teleport_id: 74
+    teleport_id: 77
     teleport_type: 8
     access: []    
 - name: Ice Pyramid 5F Stairs to Ice Golem
