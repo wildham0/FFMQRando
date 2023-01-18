@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="locations.yaml" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Locations.yaml" />
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <EmbeddedResource Include="locations.yaml" />
   </ItemGroup>
 
   <ItemGroup>
