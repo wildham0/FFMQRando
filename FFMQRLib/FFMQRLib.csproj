@@ -8,9 +8,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Locations.yaml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Locations.yaml" />
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
   </ItemGroup>
 
   <ItemGroup>
