@@ -4,12 +4,12 @@
   command = "dotnet build FFMQWebAsm --configuration Release && dotnet publish FFMQWebAsm -c Release --no-build -o publishoutput"
 
 [[redirects]]
-  from = "https://0-3-21.ffmqrando.net/"
-  to = "https://6258c5c42cf12348f5e184ca--gallant-brown-05664f.netlify.app/"
+  from = "https://dev.ffmqrando.net/"
+  to = "https://scintillating-tiramisu-75521b.netlify.app/"
   status = 200
   force = true
 [[redirects]]
-  from = "https://0-3-21.ffmqrando.net/*"
-  to = "https://6258c5c42cf12348f5e184ca--gallant-brown-05664f.netlify.app/:splat"
+  from = "https://dev.ffmqrando.net/*"
+  to = "https://scintillating-tiramisu-75521b.netlify.app/:splat"
   status = 200
   force = true
