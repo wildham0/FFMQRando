@@ -392,7 +392,7 @@ namespace FFMQLib
 
 		public void Write(FFMQRom rom)
 		{
-
+			/*
 			var resthouseentrance = Rooms.Find(x => x.Name == "Foresta").Entrances.Find(x => x.Id == 7);
 			var resthouseexit = Rooms.Find(x => x.Name == "Foresta Houses - Rest House").Entrances.Find(x => x.Id == 6);
 
@@ -412,7 +412,7 @@ namespace FFMQLib
 			resthouseexit.TeleportType = oldmanhouseexit.TeleportType;
 			oldmanhouseexit.TeleportId = temptpid;
 			oldmanhouseexit.TeleportType = temptype;
-
+			*/
 
 			var idrooms = Rooms.Select(r => (r.AreaId, r.Entrances)).ToList();
 			List<List<Entrance>> orderedentrances = new();
