@@ -624,7 +624,7 @@ namespace FFMQLib
 		WindiaBattlefield01 = 0x23,
 		WindiaBattlefield02 = 0x24,
 	}
-	public enum Locations : byte
+	public enum LocationIds : byte
 	{
 		None = 0x00,
 		ForestaSouthBattlefield = 0x01,

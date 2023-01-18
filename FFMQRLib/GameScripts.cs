@@ -8,7 +8,7 @@ namespace FFMQLib
 {
 	public partial class FFMQRom : SnesRom
 	{
-		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, Locations startinglocation, MT19337 rng)
+		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, LocationIds startinglocation, MT19337 rng)
 		{
 			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
 

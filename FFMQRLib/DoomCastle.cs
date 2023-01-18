@@ -266,7 +266,7 @@ namespace FFMQLib
 			}
 
 			// Add arrow to doom castle
-			NodeLocations.DoomCastleShortcut();
+			Overworld.DoomCastleShortcut();
 
 			// Add bridge
 			GameMaps[(int)MapList.Overworld].ModifyMap(0x1C, 0x24, new List<List<byte>> {

@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="locations.yaml" />
+    <None Remove="Locations.yaml" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="locations.yaml" />
+    <EmbeddedResource Include="Locations.yaml" />
   </ItemGroup>
 
   <ItemGroup>

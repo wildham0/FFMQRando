@@ -1070,4 +1070,25 @@ namespace FFMQLib
 			rom.PutInBank(0x01, 0xC5EB, Blob.FromHex("008112")); // Change Entry base
 		}
 	}
+
+	public class MapUtilities
+	{
+		private List<Blob> _areaattributes = new();
+
+		public MapUtilities(FFMQRom rom)
+		{
+			var attributepointers = rom.Get(RomOffsets.AreaAttributesPointers, RomOffsets.AreaAttributesPointersQty * 2).Chunk(2);
+
+			foreach (var pointer in attributepointers)
+			{
+				var address = RomOffsets.AreaAttributesPointersBase + pointer[1] * 0x100 + pointer[0];
+				_areaattributes.Add(rom.Get(address, 8));
+			}
+		}
+
+		public byte AreaIdToMapId(byte areaid)
+		{
+			return _areaattributes[(int)areaid][1];
+		}
+	}
 }

@@ -101,13 +101,13 @@ namespace FFMQLib
 
         public void FlagSanityCheck()
         {
-            // Throw an error if the settings don't offer enough locations.
+            // Throw an error if the settings don't offer enough LocationIds.
             if ((NpcsShuffle == ItemShuffleNPCsBattlefields.Exclude || BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Exclude) && BoxesShuffle == ItemShuffleBoxes.Exclude)
             {
-                throw new Exception("Selected flags don't allow enough locations to place all Quest Items. Change flags to include more locations.");
+                throw new Exception("Selected flags don't allow enough locations to place all Quest Items. Change flags to include more LocationIds.");
             }
             
-            // Throw an error if the settings don't offer enough locations.
+            // Throw an error if the settings don't offer enough LocationIds.
             if (SkyCoinMode == SkyCoinModes.ShatteredSkyCoin && BoxesShuffle == ItemShuffleBoxes.Exclude)
             {
                 throw new Exception("Selected flags don't allow enough locations to place all Sky Coin Fragments. Set Brown Boxes to Include.");

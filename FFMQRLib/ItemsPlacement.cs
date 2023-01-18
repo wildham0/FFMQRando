@@ -47,7 +47,7 @@ namespace FFMQLib
 		
 		private const int TreasuresOffset = 0x8000;
 		private List<(AccessReqs, List<AccessReqs>)> Events;
-		private List<(Locations, List<AccessReqs>)> LocationTriggers;
+		private List<(LocationIds, List<AccessReqs>)> LocationTriggers;
 
 		private class RegionWeight
 		{ 
@@ -60,7 +60,7 @@ namespace FFMQLib
 				Weight = _weight;
 			}
 		}
-		public ItemsPlacement(Flags flags, Battlefields battlefields, NodeLocations nodelocations, FFMQRom rom, MT19337 rng)
+		public ItemsPlacement(Flags flags, Battlefields battlefields, Overworld overworld, FFMQRom rom, MT19337 rng)
 		{
 			bool badPlacement = true;
 			int counter = 0;
@@ -90,7 +90,7 @@ namespace FFMQLib
 
 				List<Items> itemsList = RandomizeItemsOrder(flags, rng);
 
-				ItemsLocations = new(ItemLocations.Generate(flags, battlefields, nodelocations).ToList());
+				ItemsLocations = new(ItemLocations.Generate(flags, battlefields, overworld).ToList());
 				
 				prioritizedLocationsCount = ItemsLocations.Where(x => x.Prioritize == true).Count();
 
@@ -171,9 +171,9 @@ namespace FFMQLib
 
 					if (flags.LogicOptions == LogicOptions.Friendly)
 					{
-						if ((!placedMirror && validLocations.Where(x => x.Location == Locations.IcePyramid).Any()) || (itemToPlace == Items.MagicMirror))
+						if ((!placedMirror && validLocations.Where(x => x.Location == LocationIds.IcePyramid).Any()) || (itemToPlace == Items.MagicMirror))
 						{
-							validLocations = validLocations.Where(x => x.Location != Locations.IcePyramid).ToList();
+							validLocations = validLocations.Where(x => x.Location != LocationIds.IcePyramid).ToList();
 
 							if (!validLocations.Any())
 							{
@@ -187,9 +187,9 @@ namespace FFMQLib
 							itemToPlace = Items.MagicMirror;
 							placedMirror = true;
 						}
-						else if ((!placedMask && validLocations.Where(x => x.Location == Locations.Volcano).Any()) || (itemToPlace == Items.Mask))
+						else if ((!placedMask && validLocations.Where(x => x.Location == LocationIds.Volcano).Any()) || (itemToPlace == Items.Mask))
 						{
-							validLocations = validLocations.Where(x => x.Location != Locations.Volcano).ToList();
+							validLocations = validLocations.Where(x => x.Location != LocationIds.Volcano).ToList();
 
 							if (!validLocations.Any())
 							{
@@ -239,7 +239,7 @@ namespace FFMQLib
 			// Sky Coins
 			if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
 			{
-				var validSkyCoinLocations = ItemsLocations.Where(x => x.IsPlaced == false && x.Prioritize == false && x.Exclude == false && x.Location != Locations.DoomCastle).ToList();
+				var validSkyCoinLocations = ItemsLocations.Where(x => x.IsPlaced == false && x.Prioritize == false && x.Exclude == false && x.Location != LocationIds.DoomCastle).ToList();
 
 				if(validSkyCoinLocations.Count < 40)
                 {
@@ -314,7 +314,7 @@ namespace FFMQLib
 			while (accessReqToProcess.Any())
 			{
 				var currentReq = accessReqToProcess.First();
-				List<Locations> newLocations = new();
+				List<LocationIds> newLocations = new();
 
 				// Update Locations
 				List<TreasureObject> unaccessibleLocations = ItemsLocations.Where(x => x.Accessible == false).ToList();

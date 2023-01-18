@@ -349,7 +349,7 @@ namespace FFMQLib
 				int currentEntrance = 0;
 				List<Entrance> tempEntrances = new();
 
-				//Locations.Add(new Location("void", i, new List<TreasureObject>(), new List<Entrance>()));
+				//LocationIds.Add(new Location("void", i, new List<TreasureObject>(), new List<Entrance>()));
 
 				int currentAddress = (EntrancesOffset + rom.GetFromBank(EntrancesBank, EntrancesPointers + (i * 2), 2).ToUShorts()[0]);
 				int maxAddress = (EntrancesOffset + rom.GetFromBank(EntrancesBank, EntrancesPointers + ((i + 1) * 2), 2).ToUShorts()[0]);
@@ -369,7 +369,7 @@ namespace FFMQLib
 						break;
 					}
 
-					//Locations.Last().Entrances.Add(new Entrance("void", currentEntrance, entrance));
+					//LocationIds.Last().Entrances.Add(new Entrance("void", currentEntrance, entrance));
 					tempEntrances.Add(new Entrance("void", currentEntrance, entrance));
 
 					currentAddress += 3;
@@ -457,7 +457,7 @@ namespace FFMQLib
 			string yamlfile = "";
 			var assembly = Assembly.GetExecutingAssembly();
 			//string filepath = "logic.yaml";
-			string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("locations.yaml"));
+			string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("Locations.yaml"));
 			using (Stream logicfile = assembly.GetManifestResourceStream(filepath))
 			{
 				using (StreamReader reader = new StreamReader(logicfile))

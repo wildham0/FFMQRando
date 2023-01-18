@@ -7,39 +7,6 @@ using RomUtilities;
 namespace FFMQLib
 {
 
-    public class OverworldObject
-    {
-
-        public (int x, int y) Position { get; set; }
-        public List<List<int>> SpriteLayout;
-        public (int x, int y) AnchorPosition;
-        public OverworldObject((int x, int y) position, List<List<int>> layout, (int x, int y) anchor)
-        {
-            SpriteLayout = layout.ToList();
-            Position = position;
-            AnchorPosition = anchor;
-        }
-
-        public void UpdateCoordinates(List<OverworldSprite> owSprites)
-        {
-            //owSprites[anchorSprite].X = (byte)x;
-            //owSprites[anchorSprite].Y = (byte)y;
-
-            for (int y = 0; y < SpriteLayout.Count; y++)
-            {
-                for (int x = 0; x < SpriteLayout[y].Count; x++)
-                {
-                    int currentsprite = SpriteLayout[y][x];
-                    if (currentsprite > -1)
-                    {
-                        owSprites[currentsprite].X = (byte)(Position.x + x - AnchorPosition.x);
-                        owSprites[currentsprite].Y = (byte)(Position.y + y - AnchorPosition.y);
-                    }
-                }
-            }
-        }
-    }
-
     public class NodeObject
     { 
         public ushort LocationAction { get; set; }
@@ -54,34 +21,30 @@ namespace FFMQLib
         }
     }
 
-    public class Overworld
+    public partial class Overworld
     {
         private const int OWObjectBank = 0x07;
         private const int OWObjectOffset = 0xEB44;
         private const int OWObjectQty = 0x8F;
 
-        private const int OWLocationActionsOffset = 0xEFA1;
-        private const int OWLocationQty = 0x38;
+        //private const int OWLocationActionsOffset = 0xEFA1;
+        //private const int OWLocationQty = 0x38;
 
         private List<OverworldSprite> owSprites;
         public List<OverworldObject> owObjects { get; set; }
         //private List<NodeObject> nodesObjects;
 
 
-        public Overworld(FFMQRom rom)
+        public Overworld(FFMQRom rom, List<Room> rooms)
         {
+            Rooms = rooms;
+            
             owSprites = rom.GetFromBank(OWObjectBank, OWObjectOffset, 5 * OWObjectQty).Chunk(5).Select(x => new OverworldSprite(x)).ToList();
             owObjects = new();
 
             ConstructOwObjects();
-            /*
-            (int x, int y) temposition = owObjects[76].Position;
-            owObjects[76].Position = owObjects[75].Position;
-            owObjects[75].Position = temposition;*/
-
+            CreateLocations(rom);
         }
-
-
         public void ConstructOwObjects()
         {
             owObjects.Add(new OverworldObject((0, 0),
@@ -302,11 +265,41 @@ namespace FFMQLib
         }
         public void Write(FFMQRom rom)
         {
+            UpdateOwObjects();
             UpdateSprites();
-            
+            WriteLocations(rom);
+
             rom.PutInBank(OWObjectBank, OWObjectOffset, owSprites.SelectMany(x => x.Data).ToArray());
         }
     }
+    public partial class OverworldObject
+    {
+        public (int x, int y) Position { get; set; }
+        public List<List<int>> SpriteLayout;
+        public (int x, int y) AnchorPosition;
+        public OverworldObject((int x, int y) position, List<List<int>> layout, (int x, int y) anchor)
+        {
+            SpriteLayout = layout.ToList();
+            Position = position;
+            AnchorPosition = anchor;
+        }
+        public void UpdateCoordinates(List<OverworldSprite> owSprites)
+        {
+            for (int y = 0; y < SpriteLayout.Count; y++)
+            {
+                for (int x = 0; x < SpriteLayout[y].Count; x++)
+                {
+                    int currentsprite = SpriteLayout[y][x];
+                    if (currentsprite > -1)
+                    {
+                        owSprites[currentsprite].X = (byte)(Position.x + x - AnchorPosition.x);
+                        owSprites[currentsprite].Y = (byte)(Position.y + y - AnchorPosition.y);
+                    }
+                }
+            }
+        }
+    }
+
     public class OverworldSprite
     {
         private byte[] _data = new byte[5];
@@ -319,7 +312,6 @@ namespace FFMQLib
             _data[3] = data[3]; // Sprite
             _data[4] = data[4]; // palette & flip  
         }
-
         public byte Palette {
 
             get => (byte)((_data[4] & 0b0000_1110) / 2);
@@ -327,19 +319,16 @@ namespace FFMQLib
         }
         public byte Sprite
         {
-
             get => _data[3];
             set => _data[3] = value;
         }
         public byte X
         {
-
             get => _data[1];
             set => _data[1] = value;
         }
         public byte Y
         {
-
             get => _data[0];
             set => _data[0] = value;
         }
