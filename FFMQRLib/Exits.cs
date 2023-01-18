@@ -254,7 +254,7 @@ namespace FFMQLib
 			TeleportersB.Add(new Teleporter(106, 0x15, 0x28, FacingOrientation.Down, 0x50, 0x30)); // Windia - Otto's House
 			TeleportersB.Add(new Teleporter(107, 0x02, 0x13, FacingOrientation.Down, 0x51, 0x30)); // Windia - Otto's Attic
 			TeleportersB.Add(new Teleporter(108, 0x08, 0x25, FacingOrientation.Down, 0x50, 0x30)); // Windia - Vendor House
-			TeleportersB.Add(new Teleporter(135, 0x2E, 0x18, FacingOrientation.Down, 0x50, 0x30)); // Windia - INN
+			TeleportersB.Add(new Teleporter(135, 0x12, 0x23, FacingOrientation.Down, 0x50, 0x30)); // Windia - INN
 			TeleportersB.Add(new Teleporter(109, 0x3B, 0x15, FacingOrientation.Down, 0x65, 0x35)); // Doom Castle - Ice Floor
 			TeleportersB.Add(new Teleporter(110, 0x3B, 0x3D, FacingOrientation.Down, 0x65, 0x35)); // Doom Castle - Hero Room
 			TeleportersB.Add(new Teleporter(111, 0x08, 0x13, FacingOrientation.Down, 0x18, 0x1D)); // Aquaria Winter - From Phoebe's House
