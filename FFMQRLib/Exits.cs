@@ -457,7 +457,7 @@ namespace FFMQLib
 			string yamlfile = "";
 			var assembly = Assembly.GetExecutingAssembly();
 			//string filepath = "logic.yaml";
-			string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("Locations.yaml"));
+			string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("locations.yaml"));
 			using (Stream logicfile = assembly.GetManifestResourceStream(filepath))
 			{
 				using (StreamReader reader = new StreamReader(logicfile))
