@@ -586,28 +586,13 @@
         {
             if(pref.PropertyType == typeof(bool))
             {
-                try
-                {
-                    pref.SetValue(preferences, localStorage.GetItem<bool>(pref.Name));
-                }
-                catch(Exception ex)
-                {
-                    pref.SetValue(preferences, false);
-                    Console.WriteLine(ex);
-                }
-
+                pref.SetValue(preferences, localStorage.GetItem<bool>(pref.Name));
             }
             else if(pref.PropertyType == typeof(string))
             { 
-                try
-                {
-                    pref.SetValue(preferences, localStorage.GetItem<string>(pref.Name));
-                }
-                catch(Exception ex)
-                {
-                    pref.SetValue(preferences, "");
-                    Console.WriteLine(ex);
-                }
+                string pathvalue = localStorage.GetItem<string>(pref.Name);
+
+                pref.SetValue(preferences, pathvalue ?? "");
             }
         }
 
