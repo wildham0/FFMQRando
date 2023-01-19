@@ -13,6 +13,7 @@ namespace FFMQLib
 		public int MapId { get; set; }
 		public LocationIds Location { get; set; }
 		public MapRegions Region { get; set; }
+		public SubRegions SubRegion { get; set; }
 		public Items Content { get; set; }
 		public TreasureType Type { get; set; }
 		public bool IsPlaced { get; set; }
@@ -35,6 +36,7 @@ namespace FFMQLib
 			AccessRequirements = access;
 			Accessible = false;
 			Name = "";
+			SubRegion = ItemLocations.MapSubRegions.Find(x => x.Item2 == location).Item1;
 			Region = ItemLocations.ReturnRegion(location);
 		}
 
@@ -51,6 +53,7 @@ namespace FFMQLib
 			AccessRequirements = access;
 			Accessible = false;
 			Name = name;
+			SubRegion = ItemLocations.MapSubRegions.Find(x => x.Item2 == location).Item1;
 			Region = ItemLocations.ReturnRegion(location);
 		}
 
@@ -68,6 +71,7 @@ namespace FFMQLib
 			Accessible = treasure.Accessible;
 			Name = treasure.Name;
 			Region = treasure.Region;
+			SubRegion = treasure.SubRegion;
 		}
 
 		public TreasureObject(TreasureObject treasure, string name)
@@ -83,6 +87,7 @@ namespace FFMQLib
 			AccessRequirements = treasure.AccessRequirements.ToList();
 			Accessible= treasure.Accessible;
 			Region = treasure.Region;
+			SubRegion = treasure.SubRegion;
 			Name = treasure.Name == "" ? name : treasure.Name;
 		}
 	}
@@ -225,56 +230,56 @@ namespace FFMQLib
 			Locations[(int)LocationIds.AquariaBattlefield01].TargetTeleporter = (118, 1);
 			Locations[(int)LocationIds.AquariaBattlefield01].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.AquariaBattlefield02].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.AquariaBattlefield02, OverworldMapObjects.AquariaBattlefield02Cleared };
 			Locations[(int)LocationIds.AquariaBattlefield02].TargetTeleporter = (119, 1);
 			Locations[(int)LocationIds.AquariaBattlefield02].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.AquariaBattlefield03].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.AquariaBattlefield03, OverworldMapObjects.AquariaBattlefield03Cleared };
 			Locations[(int)LocationIds.AquariaBattlefield03].TargetTeleporter = (120, 1);
 			Locations[(int)LocationIds.AquariaBattlefield03].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.WintryBattlefield01].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.WintryBattlefield01, OverworldMapObjects.WintryBattlefield01Cleared };
 			Locations[(int)LocationIds.WintryBattlefield01].TargetTeleporter = (121, 1);
 			Locations[(int)LocationIds.WintryBattlefield01].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.WintryBattlefield02].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.WintryBattlefield02, OverworldMapObjects.WintryBattlefield02Cleared };
 			Locations[(int)LocationIds.WintryBattlefield02].TargetTeleporter = (122, 1);
 			Locations[(int)LocationIds.WintryBattlefield02].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.PyramidBattlefield01].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.PyramidBattlefield01, OverworldMapObjects.PyramidBattlefield01Cleared };
 			Locations[(int)LocationIds.PyramidBattlefield01].TargetTeleporter = (123, 1);
 			Locations[(int)LocationIds.PyramidBattlefield01].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.LibraBattlefield01].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.LibraBattlefield01, OverworldMapObjects.LibraBattlefield01Cleared };
 			Locations[(int)LocationIds.LibraBattlefield01].TargetTeleporter = (124, 1);
 			Locations[(int)LocationIds.LibraBattlefield01].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.LibraBattlefield02].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.LibraBattlefield02, OverworldMapObjects.LibraBattlefield02Cleared };
 			Locations[(int)LocationIds.LibraBattlefield02].TargetTeleporter = (125, 1);
 			Locations[(int)LocationIds.LibraBattlefield02].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.FireburgBattlefield01].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.FireburgBattlefield01, OverworldMapObjects.FireburgBattlefield01Cleared };
@@ -359,84 +364,83 @@ namespace FFMQLib
 			Locations[(int)LocationIds.FocusTowerWest].TargetTeleporter = (4, 6);
 			Locations[(int)LocationIds.FocusTowerWest].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.LibraTemple].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.LibraTempleCave };
 			Locations[(int)LocationIds.LibraTemple].TargetTeleporter = (13, 6);
 			Locations[(int)LocationIds.LibraTemple].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.Aquaria].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.AquariaVillage };
 			Locations[(int)LocationIds.Aquaria].TargetTeleporter = (8, 6);
 			Locations[(int)LocationIds.Aquaria].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.WintryCave].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.WintryCave };
 			Locations[(int)LocationIds.WintryCave].TargetTeleporter = (49, 0);
 			Locations[(int)LocationIds.WintryCave].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.LifeTemple].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.LifeTempleCave };
 			Locations[(int)LocationIds.LifeTemple].TargetTeleporter = (14, 6);
 			Locations[(int)LocationIds.LifeTemple].AccessRequirements = new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.LibraCrest, AccessReqs.LibraTemple },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple, AccessReqs.LibraCrest, AccessReqs.LibraTemple }
+				//new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.LibraCrest, AccessReqs.LibraTemple },
+				//new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple, AccessReqs.LibraCrest, AccessReqs.LibraTemple }
 			};
 
 			Locations[(int)LocationIds.FallsBasin].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.FallBasinMarker };
 			Locations[(int)LocationIds.FallsBasin].TargetTeleporter = (53, 0);
 			Locations[(int)LocationIds.FallsBasin].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.IcePyramid].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.IcePyramid };
 			Locations[(int)LocationIds.IcePyramid].TargetTeleporter = (56, 0);
 			Locations[(int)LocationIds.IcePyramid].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.SpencersPlace].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.SpencerCave };
 			Locations[(int)LocationIds.SpencersPlace].TargetTeleporter = (7, 6);
 			Locations[(int)LocationIds.SpencersPlace].AccessRequirements = new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.ThunderRock, AccessReqs.Otto },
+				new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.RainbowBridge },
 			};
 
 			Locations[(int)LocationIds.WintryTemple].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.WintryTempleCave };
 			Locations[(int)LocationIds.WintryTemple].TargetTeleporter = (15, 6);
 			Locations[(int)LocationIds.WintryTemple].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.FocusTowerNorth].OwMapObjects = new List<OverworldMapObjects> { };
 			Locations[(int)LocationIds.FocusTowerNorth].TargetTeleporter = (5, 6);
 			Locations[(int)LocationIds.FocusTowerNorth].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple }
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.FocusTowerEast].OwMapObjects = new List<OverworldMapObjects> { };
 			Locations[(int)LocationIds.FocusTowerEast].TargetTeleporter = (6, 6);
 			Locations[(int)LocationIds.FocusTowerEast].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.RiverCoin },
-				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.AquariaPlaza, AccessReqs.WakeWater, AccessReqs.DualheadHydra },
+				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.Fireburg].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.FireburgVillage };
 			Locations[(int)LocationIds.Fireburg].TargetTeleporter = (9, 6);
 			Locations[(int)LocationIds.Fireburg].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.RiverCoin },
-				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.AquariaPlaza, AccessReqs.WakeWater, AccessReqs.DualheadHydra },
+				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
 			Locations[(int)LocationIds.Mine].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.Mine };
@@ -524,7 +528,7 @@ namespace FFMQLib
 			Locations[(int)LocationIds.ShipDock].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.ShipDockCave };
 			Locations[(int)LocationIds.ShipDock].TargetTeleporter = (17, 6);
 			Locations[(int)LocationIds.ShipDock].AccessRequirements = new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.MobiusCrest },
+				//new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.MobiusCrest, AccessReqs.Mob },
 			};
 
 			Locations[(int)LocationIds.DoomCastle].OwMapObjects = new List<OverworldMapObjects> { };
@@ -536,18 +540,18 @@ namespace FFMQLib
 			Locations[(int)LocationIds.LightTemple].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.LightTempleCave };
 			Locations[(int)LocationIds.LightTemple].TargetTeleporter = (19, 6);
 			Locations[(int)LocationIds.LightTemple].AccessRequirements = new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.MobiusCrest, AccessReqs.KaidgeTemple },
+				//new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.MobiusCrest, AccessReqs.KaidgeTemple },
 			};
 
 			Locations[(int)LocationIds.MacsShip].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.ShipAtDock };
 			Locations[(int)LocationIds.MacsShip].TargetTeleporter = (37, 8);
 			Locations[(int)LocationIds.MacsShip].AccessRequirements = new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.MobiusCrest, AccessReqs.ShipLiberated },
+				new List<AccessReqs> { AccessReqs.MobiusCrest, AccessReqs.WindiaMobiusTeleporter, AccessReqs.ShipLiberated },
 			};
 			Locations[(int)LocationIds.MacsShipDoom].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.ShipAtDoom };
 			Locations[(int)LocationIds.MacsShipDoom].TargetTeleporter = (37, 8);
 			Locations[(int)LocationIds.MacsShipDoom].AccessRequirements = new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.ShipLoaned, AccessReqs.ShipSteeringWheel },
+				new List<AccessReqs> { AccessReqs.ShipLoaned, AccessReqs.ShipSteeringWheel },
 			};
 
 			Locations.ForEach(n => n.Region = ItemLocations.Regions.Find(r => r.Item2 == n.LocationId).Item1);

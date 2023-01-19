@@ -75,6 +75,8 @@ namespace FFMQLib
 
 			List<RegionWeight> regionsWeight = new() { new RegionWeight(MapRegions.Foresta, 1), new RegionWeight(MapRegions.Aquaria, 1), new RegionWeight(MapRegions.Fireburg, 1), new RegionWeight(MapRegions.Windia, 1) };
 
+			List<TreasureObject> initialItemlocations = new(ItemLocations.Generate(flags, battlefields, overworld).ToList());
+
 			while (badPlacement)
 			{
 				badPlacement = false;
@@ -90,7 +92,7 @@ namespace FFMQLib
 
 				List<Items> itemsList = RandomizeItemsOrder(flags, rng);
 
-				ItemsLocations = new(ItemLocations.Generate(flags, battlefields, overworld).ToList());
+				ItemsLocations = new(initialItemlocations.Select(x => new TreasureObject(x)));
 				
 				prioritizedLocationsCount = ItemsLocations.Where(x => x.Prioritize == true).Count();
 
@@ -228,12 +230,14 @@ namespace FFMQLib
 					}
 				}
 
+				/*
 				var unfiledValidLocations = ItemsLocations.Where(x => x.Accessible && x.Content == Items.None).ToList();
-				//Console.WriteLine("**** Unfiled Locations ****");
+				var unfiledValidLocations = ItemsLocations.Where(x => x.Prioritize == true && x.Content == Items.None).ToList();
+				Console.WriteLine("**** Unfiled Locations ****");
 				foreach (var loc in unfiledValidLocations)
 				{
-					//Console.WriteLine(Enum.GetName(loc.Location) + " - " + loc.ObjectId);
-				}
+					Console.WriteLine(Enum.GetName(loc.Location) + " - " + loc.ObjectId);
+				}*/
 			}
 
 			// Sky Coins
