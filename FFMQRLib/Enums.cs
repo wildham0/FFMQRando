@@ -203,9 +203,7 @@ namespace FFMQLib
 		SpencerCaveTrigger,
 		ShipLiberated,
 		ShipLoaned,
-		SealedTemple,
-		LibraTemple,
-		KaidgeTemple,
+		ShipDockAccess,
 		LibraTempleLibraTeleporter,
 		LifeTempleLibraTeleporter,
 		AquariaGeminiTeleporter,
@@ -234,7 +232,9 @@ namespace FFMQLib
 		Chest = 1,
 		Box,
 		NPC,
-		Battlefield
+		Battlefield,
+		Dummy
+			
 	}
 	public enum Companion : int
 	{

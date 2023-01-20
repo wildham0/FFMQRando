@@ -93,7 +93,7 @@ namespace FFMQLib
 				List<Items> itemsList = RandomizeItemsOrder(flags, rng);
 
 				ItemsLocations = new(initialItemlocations.Select(x => new TreasureObject(x)));
-				
+
 				prioritizedLocationsCount = ItemsLocations.Where(x => x.Prioritize == true).Count();
 
 				looseItemsCount = Max(0, itemsList.Count() - prioritizedLocationsCount);
@@ -165,6 +165,10 @@ namespace FFMQLib
 						Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
 						counter++;
 						badPlacement = true;
+						if (counter >= 100)
+						{
+							throw new TimeoutException("Logic failure; try another seed.");
+						}
 						break;
 					}
 					
@@ -230,8 +234,9 @@ namespace FFMQLib
 					}
 				}
 
+				
+				//var unfiledValidLocations = ItemsLocations.Where(x => x.Accessible && x.Content == Items.None).ToList();
 				/*
-				var unfiledValidLocations = ItemsLocations.Where(x => x.Accessible && x.Content == Items.None).ToList();
 				var unfiledValidLocations = ItemsLocations.Where(x => x.Prioritize == true && x.Content == Items.None).ToList();
 				Console.WriteLine("**** Unfiled Locations ****");
 				foreach (var loc in unfiledValidLocations)
@@ -266,7 +271,7 @@ namespace FFMQLib
 			// Fill excluded and unfilled locations
 			List<Items> consumables = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed };
 			
-			var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == TreasureType.NPC || x.Type == TreasureType.Battlefield || (x.Type == TreasureType.Chest && x.ObjectId < 0x20))).ToList();
+			var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == TreasureType.NPC || x.Type == TreasureType.Battlefield || (x.Type == TreasureType.Chest && x.ObjectId < 0x20) || x.Type == TreasureType.Dummy)).ToList();
 
 			foreach (var location in unfilledLocations)
 			{

@@ -1189,7 +1189,7 @@ rooms:
     id: 0
     x: 54
     y: 63
-    teleport_id: 88 #is this right?
+    teleport_id: 74 #is this right? // fixed
     teleport_type: 0
     access: []
   - name: Bombed Ice Plate

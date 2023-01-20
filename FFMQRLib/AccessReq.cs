@@ -282,6 +282,11 @@ namespace FFMQLib
 		public static TreasureObject SellerWindia = new TreasureObject((int)ItemGivingNPCs.GirlWindia, (int)MapList.Windia, LocationIds.Windia, TreasureType.NPC, "Windia Vendor Girl", new List<List<AccessReqs>> { new List<AccessReqs> { } });
 		//public static TreasureObject Kaeli02 = new TreasureObject(0x04, (int)MapList.Windia, LocationIds.Windia, TreasureType.NPC, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.ThunderRock, AccessReqs.MegaGrenade } });
 
+
+		public static TreasureObject DummySandTemple = new TreasureObject(0x00, (int)MapList.Caves, LocationIds.SandTemple, TreasureType.Dummy, new List<List<AccessReqs>> { new List<AccessReqs> { } });
+		public static TreasureObject DummyShipDock = new TreasureObject(0x00, (int)MapList.Caves, LocationIds.ShipDock, TreasureType.Dummy, new List<List<AccessReqs>> { new List<AccessReqs> { } });
+		public static TreasureObject DummyFocusTowerSouth2 = new TreasureObject(0x00, (int)MapList.Caves, LocationIds.FocusTowerSouth2, TreasureType.Dummy, new List<List<AccessReqs>> { new List<AccessReqs> { } });
+
 		public static List<TreasureObject> AllChests()
 		{
 			List<TreasureObject> properties = new();
@@ -317,43 +322,14 @@ namespace FFMQLib
 					battlefieldsLocation[i].Location = battlefields.BattlefieldsWithItem[i];
 				}
 			}
-
-			List<(LocationIds location, List<List<AccessReqs>> accessReqs)> globalAccessReqs = overworld.Locations.Select(x => (x.LocationId, x.AccessRequirements)).ToList();
-			//List<(Locations, List<List<AccessReqs>>)> friendlyAccessReqs = new();
-
+			
+			// Add Friendly logic extra requirements
 			if (flags.LogicOptions == LogicOptions.Friendly)
 			{
-
-				for(int i = 0; i < overworld.Locations.Count; i++)
+				foreach (var location in FriendAccessReqs)
 				{
-					for (int j = 0; j < overworld.Locations[i].AccessRequirements.Count; j++)
-					{
-						overworld.Locations[i].AccessRequirements[j].AddRange(properties.Where(x => x.Location == overworld.Locations[i].LocationId).SelectMany(x => x.AccessRequirements[0]).Distinct().ToList());
-					}
+					overworld.Locations.Find(x => x.LocationId == location.Key).AccessRequirements.ForEach(x => x.AddRange(location.Value));
 				}
-
-
-				/*
-				foreach (var location in nodesLocationIds.Nodes.Select(x => x.Key).ToList())
-				{
-					List<List<AccessReqs>> globalAccessReqs = properties.Where(x => x.Location == location).SelectMany(x => x.AccessRequirements).Distinct().ToList();
-					friendlyAccessReqs.Add((location, globalAccessReqs));
-				}*/
-
-				overworld.Locations.Find(x => x.LocationId == LocationIds.LevelForest).AccessRequirements.ForEach(x => x.Remove(AccessReqs.Axe));
-				overworld.Locations.Find(x => x.LocationId == LocationIds.LevelForest).AccessRequirements.ForEach(x => x.Remove(AccessReqs.TreeWither));
-
-				overworld.Locations.Find(x => x.LocationId == LocationIds.Foresta).AccessRequirements.ForEach(x => x.Remove(AccessReqs.Axe));
-				overworld.Locations.Find(x => x.LocationId == LocationIds.Windia).AccessRequirements.ForEach(x => x.Remove(AccessReqs.Elixir));
-
-				overworld.Locations.Find(x => x.LocationId == LocationIds.FocusTowerNorth).AccessRequirements.Clear();
-				overworld.Locations.Find(x => x.LocationId == LocationIds.FocusTowerEast).AccessRequirements.Clear();
-				overworld.Locations.Find(x => x.LocationId == LocationIds.FocusTowerWest).AccessRequirements.Clear();
-				overworld.Locations.Find(x => x.LocationId == LocationIds.FocusTowerSouth).AccessRequirements.Clear();
-				overworld.Locations.Find(x => x.LocationId == LocationIds.FocusTowerSouth2).AccessRequirements.Clear();
-
-				overworld.Locations.Find(x => x.LocationId == LocationIds.Mine).AccessRequirements.ForEach(x => x.Add(AccessReqs.MegaGrenade));
-				overworld.Locations.Find(x => x.LocationId == LocationIds.MacsShip).AccessRequirements.ForEach(x => x.Add(AccessReqs.CaptainCap));
 			}
 
 			// Update teleporters logic
@@ -449,6 +425,10 @@ namespace FFMQLib
 				properties.Where(x => x.Type == TreasureType.Box).ToList().ForEach(x => x.Exclude = true);
 			}
 
+			// Exclude dummy locations
+			properties.Where(x => x.Type == TreasureType.Dummy).ToList().ForEach(x => x.Exclude = true);
+
+			// Exclude Hero Statue room's chests
 			properties.Where(x => x.Type == TreasureType.Chest && x.ObjectId >= 0xF2 && x.ObjectId <= 0xF5).ToList().ForEach(x => x.Exclude = true);
 
 			return properties.ToList();
@@ -566,6 +546,18 @@ namespace FFMQLib
 			{ LocationIds.LightTemple, new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.Claw, AccessReqs.MobiusCrest } },
 			{ LocationIds.MacsShip, new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.MobiusCrest, AccessReqs.ThunderRock, AccessReqs.MegaGrenade } },
 		};
+		public static Dictionary<LocationIds, List<AccessReqs>> FriendAccessReqs => new Dictionary<LocationIds, List<AccessReqs>>
+		{
+			{ LocationIds.BoneDungeon, new List<AccessReqs> { AccessReqs.Bomb} },
+			{ LocationIds.WintryCave, new List<AccessReqs> { AccessReqs.Bomb, AccessReqs.Claw  } },
+			{ LocationIds.IcePyramid, new List<AccessReqs> { AccessReqs.Bomb, AccessReqs.Claw } },
+			{ LocationIds.Mine, new List<AccessReqs> { AccessReqs.MegaGrenade, AccessReqs.Claw, AccessReqs.Reuben1 } },
+			{ LocationIds.LavaDome, new List<AccessReqs> { AccessReqs.MegaGrenade } },
+			{ LocationIds.GiantTree, new List<AccessReqs> { AccessReqs.Axe, AccessReqs.DragonClaw } },
+			{ LocationIds.MountGale, new List<AccessReqs> { AccessReqs.DragonClaw } },
+			{ LocationIds.PazuzusTower, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Bomb } },
+			{ LocationIds.MacsShip, new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.CaptainCap } },
+		};
 		public static List<(LocationIds, List<AccessReqs>)> LocationTriggers => new List<(LocationIds, List<AccessReqs>)>
 		{
 			( LocationIds.LevelForest, new List<AccessReqs> { AccessReqs.Minotaur } ),
@@ -582,7 +574,7 @@ namespace FFMQLib
 			( LocationIds.LightTemple, new List<AccessReqs> { AccessReqs.LightTempleMobiusTeleporter } ),
 			( LocationIds.Windia, new List<AccessReqs> { AccessReqs.Otto, AccessReqs.WindiaDockTeleporter, AccessReqs.WindiaMobiusTeleporter } ),
 			( LocationIds.SpencersPlace, new List<AccessReqs> { AccessReqs.SpencerCaveTrigger } ),
-			( LocationIds.ShipDock, new List<AccessReqs> { AccessReqs.ShipDockTeleporter } ),
+			( LocationIds.ShipDock, new List<AccessReqs> { AccessReqs.ShipDockTeleporter, AccessReqs.ShipDockAccess } ),
 			( LocationIds.MacsShip, new List<AccessReqs> { AccessReqs.ShipSteeringWheel, AccessReqs.CaptainMac } ),
 		};
 		public static Dictionary<AccessReqs, List<AccessReqs>> AccessEvents => new Dictionary<AccessReqs, List<AccessReqs>>

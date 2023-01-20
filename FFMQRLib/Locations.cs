@@ -390,10 +390,7 @@ namespace FFMQLib
 
 			Locations[(int)LocationIds.LifeTemple].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.LifeTempleCave };
 			Locations[(int)LocationIds.LifeTemple].TargetTeleporter = (14, 6);
-			Locations[(int)LocationIds.LifeTemple].AccessRequirements = new List<List<AccessReqs>> {
-				//new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.LibraCrest, AccessReqs.LibraTemple },
-				//new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.GeminiCrest, AccessReqs.ExitBook, AccessReqs.SealedTemple, AccessReqs.LibraCrest, AccessReqs.LibraTemple }
-			};
+			Locations[(int)LocationIds.LifeTemple].AccessRequirements = new List<List<AccessReqs>> { };
 
 			Locations[(int)LocationIds.FallsBasin].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.FallBasinMarker };
 			Locations[(int)LocationIds.FallsBasin].TargetTeleporter = (53, 0);
@@ -527,26 +524,22 @@ namespace FFMQLib
 
 			Locations[(int)LocationIds.ShipDock].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.ShipDockCave };
 			Locations[(int)LocationIds.ShipDock].TargetTeleporter = (17, 6);
-			Locations[(int)LocationIds.ShipDock].AccessRequirements = new List<List<AccessReqs>> {
-				//new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.MobiusCrest, AccessReqs.Mob },
-			};
+			Locations[(int)LocationIds.ShipDock].AccessRequirements = new List<List<AccessReqs>> { };
 
 			Locations[(int)LocationIds.DoomCastle].OwMapObjects = new List<OverworldMapObjects> { };
 			Locations[(int)LocationIds.DoomCastle].TargetTeleporter = (1, 6);
 			Locations[(int)LocationIds.DoomCastle].AccessRequirements = new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.ShipLoaned, AccessReqs.ShipSteeringWheel },
+				new List<AccessReqs> { AccessReqs.SkyCoin, AccessReqs.ShipLoaned, AccessReqs.ShipSteeringWheel },
 			};
 
 			Locations[(int)LocationIds.LightTemple].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.LightTempleCave };
 			Locations[(int)LocationIds.LightTemple].TargetTeleporter = (19, 6);
-			Locations[(int)LocationIds.LightTemple].AccessRequirements = new List<List<AccessReqs>> {
-				//new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.MobiusCrest, AccessReqs.KaidgeTemple },
-			};
+			Locations[(int)LocationIds.LightTemple].AccessRequirements = new List<List<AccessReqs>> {	};
 
 			Locations[(int)LocationIds.MacsShip].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.ShipAtDock };
 			Locations[(int)LocationIds.MacsShip].TargetTeleporter = (37, 8);
 			Locations[(int)LocationIds.MacsShip].AccessRequirements = new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.MobiusCrest, AccessReqs.WindiaMobiusTeleporter, AccessReqs.ShipLiberated },
+				new List<AccessReqs> { AccessReqs.ShipDockAccess, AccessReqs.ShipLiberated },
 			};
 			Locations[(int)LocationIds.MacsShipDoom].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.ShipAtDoom };
 			Locations[(int)LocationIds.MacsShipDoom].TargetTeleporter = (37, 8);
@@ -589,11 +582,11 @@ namespace FFMQLib
 			Locations[(int)LocationIds.DoomCastle].Destinations[(int)NodeDirections.North] = LocationIds.FocusTowerSouth;
 			Locations[(int)LocationIds.DoomCastle].Steps[(int)NodeDirections.North] = new List<byte> { 0x86 };
 		}
-		public LocationIds ShuffleEntrances(bool enabled, Battlefields battlefields, MT19337 rng)
+		public LocationIds ShuffleEntrances(Flags flags, Battlefields battlefields, MT19337 rng)
 		{
 			LocationIds startingLocation = LocationIds.LevelForest;
 
-			if (!enabled)
+			if (!flags.ShuffleEntrances)
 			{
 				return startingLocation;
 			}
@@ -655,6 +648,18 @@ namespace FFMQLib
 
 				forestaLocations = forestaLocations.Where(x => !placedLocations.Contains(x)).ToList();
 				validStartingLocations = validStartingLocations.Where(x => !placedLocations.Contains(x)).ToList();
+			}
+
+			// Place Aquaria outside the frozen strip
+			if (flags.LogicOptions != LogicOptions.Expert && !placedLocations.Contains(LocationIds.Aquaria))
+			{ 
+				var aquariaSafeLocactions = validLocations.Where(x => !placedLocations.Contains(x) && ItemLocations.MapSubRegions.Find(r => r.Item2 == x).Item1 != SubRegions.AquariaFrozenField).ToList();
+
+				loc2 = rng.PickFrom(aquariaSafeLocactions);
+				
+				SwapLocations(LocationIds.Aquaria, loc2);
+				placedLocations.Add(LocationIds.Aquaria);
+				placedLocations.Add(loc2);
 			}
 
 			validLocations = validLocations.Where(x => !placedLocations.Contains(x)).ToList();

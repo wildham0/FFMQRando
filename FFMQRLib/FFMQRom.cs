@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.3.16";
+		public static string Version = "1.3.17";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -205,7 +205,7 @@ namespace FFMQLib
 			Battlefields.SetBattlesQty(flags.BattlesQuantity, rng);
 			Battlefields.ShuffleBattelfieldRewards(flags.ShuffleBattlefieldRewards, Overworld, rng);
 
-			var startingLocation = Overworld.ShuffleEntrances(flags.ShuffleEntrances, Battlefields, rng);
+			var startingLocation = Overworld.ShuffleEntrances(flags, Battlefields, rng);
 			// Items
 			ItemsPlacement itemsPlacement = new(flags, Battlefields, Overworld, this, rng);
 
