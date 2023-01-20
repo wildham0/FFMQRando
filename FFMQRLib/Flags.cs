@@ -34,9 +34,13 @@ namespace FFMQLib
         public DoomCastleModes DoomCastleMode { get; set; } = DoomCastleModes.Standard;
         public bool DoomCastleShortcut { get; set; } = false;
         public SkyCoinModes SkyCoinMode { get; set; } = SkyCoinModes.Standard;
-        public SkyCoinFragmentsQty SkyCoinFragmentsQty { get; set; } = SkyCoinFragmentsQty.Mid24;
+        public SkyCoinFragmentsQty SkyCoinFragmentsQty {
+            get => SkyCoinMode == SkyCoinModes.ShatteredSkyCoin ? internalSkyCoinFragmentsQty : SkyCoinFragmentsQty.Mid24;
+            set => internalSkyCoinFragmentsQty = value; }
         public bool EnableSpoilers { get; set; } = false;
         public bool ShuffleEntrances { get; set; } = false;
+
+        private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;
 
         public string GenerateFlagString()
         {
@@ -58,6 +62,7 @@ namespace FFMQLib
                 }
             }
 
+            var actualbytes = BitConverter.GetBytes(flagstrinvalue);
             string flagstring = Convert.ToBase64String(BitConverter.GetBytes(flagstrinvalue));
             return flagstring.Replace('+', '-').Replace('/', '_').Replace('=', '~');
         }
