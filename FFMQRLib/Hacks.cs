@@ -132,6 +132,30 @@ namespace FFMQLib
 
 			// Reorder end of battle sequence to check player first
 			PutInBank(0x02, 0x8107, Blob.FromHex("a594d04ca595d030"));
+
+			// Fix vendor text to sell books & seals
+			var fullbookscript = new ScriptBuilder(new List<string>{
+					"054D0C",			// Get item names
+					"054320C10C",
+					"05EA0C",
+					"0F0015",			// Load item ID
+					"05061F[10]",
+					"050414[10]",
+					"05041B[09]",
+					TextToHex(" Book"),
+					"00",
+					TextToHex(" Seal"),
+					"00"
+				});
+
+			var jumpScript = new ScriptBuilder(new List<string>{
+					"07609411",
+					"00"
+				});
+
+			fullbookscript.WriteAt(0x11, 0x9460, this);
+			jumpScript.WriteAt(0x03, 0xFFD0, this);
+			PutInBank(0x03, 0xFE80, Blob.FromHex("08D0FF"));
 		}
 		public void ChestsHacks(Flags flags, ItemsPlacement itemsPlacement)
 		{
