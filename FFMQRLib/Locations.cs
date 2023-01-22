@@ -489,7 +489,7 @@ namespace FFMQLib
 			Locations[(int)LocationIds.GiantTree].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.MovedGiantTree };
 			Locations[(int)LocationIds.GiantTree].TargetTeleporter = (49, 8);
 			Locations[(int)LocationIds.GiantTree].AccessRequirements = new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.Axe },
+				new List<AccessReqs> { AccessReqs.Axe, AccessReqs.AliveForest },
 			};
 
 			Locations[(int)LocationIds.KaidgeTemple].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.KaidgeTempleCave };
@@ -591,6 +591,8 @@ namespace FFMQLib
 				return startingLocation;
 			}
 
+			var safeGoldBattlefield = (LocationIds)(battlefields.GetAllRewardType().Select((x, i) => (i, x)).ToList().Find(x => x.x == BattlefieldRewardType.Gold).i + 1);
+
 			List<LocationIds> validLocations = Enum.GetValues<LocationIds>().ToList();
 			List<LocationIds> invalidLocations = new() { LocationIds.DoomCastle, LocationIds.FocusTowerEast, LocationIds.FocusTowerNorth, LocationIds.FocusTowerSouth, LocationIds.FocusTowerSouth2, LocationIds.FocusTowerWest, LocationIds.GiantTree, LocationIds.HillOfDestiny, LocationIds.LifeTemple, LocationIds.LightTemple, LocationIds.MacsShip, LocationIds.MacsShipDoom, LocationIds.None, LocationIds.ShipDock, LocationIds.SpencersPlace };
 			validLocations.RemoveAll(x => invalidLocations.Contains(x));
@@ -606,24 +608,23 @@ namespace FFMQLib
 
 			List<LocationIds> placedLocations = new();
 
-			// Place companion location
-			var loc1 = rng.PickFrom(forestaLocations);
-			var loc2 = rng.PickFrom(companionLocation);
+			var loc1 = LocationIds.None;
+			var loc2 = LocationIds.None;
 
-			if (loc1 == LocationIds.LevelForest)
+			// Place guaranteed locations
+			List<LocationIds> earlyLocations = new() { rng.PickFrom(companionLocation), safeGoldBattlefield };
+
+			while (earlyLocations.Any())
 			{
-				startingLocation = loc2;
+				loc1 = rng.TakeFrom(forestaLocations);
+				loc2 = earlyLocations.First();
+
+				SwapLocations(loc1, loc2);
+				placedLocations.Add(loc1);
+				placedLocations.Add(loc2);
+				earlyLocations.RemoveAt(0);
 			}
-			else if (loc2 == LocationIds.LevelForest)
-			{
-				startingLocation = loc1;
-			}
-
-			SwapLocations(loc1, loc2);
-
-			placedLocations.Add(loc1);
-			placedLocations.Add(loc2);
-
+			
 			forestaLocations = forestaLocations.Where(x => !placedLocations.Contains(x)).ToList();
 			var validStartingLocations = validLocations.Where(x => !excludeFromStart.Contains(x) && !placedLocations.Contains(x)).ToList();
 
@@ -632,15 +633,6 @@ namespace FFMQLib
 			{
 				loc1 = rng.PickFrom(forestaLocations);
 				loc2 = rng.PickFrom(validStartingLocations);
-
-				if (loc1 == LocationIds.LevelForest)
-				{
-					startingLocation = loc2;
-				}
-				else if (loc2 == LocationIds.LevelForest)
-				{
-					startingLocation = loc1;
-				}
 
 				SwapLocations(loc1, loc2);
 				placedLocations.Add(loc1);
@@ -674,7 +666,9 @@ namespace FFMQLib
 			}
 
 			UpdateBattlefieldsColor(battlefields);
-
+			
+			startingLocation = Locations.Find(x => x.Position == (0x0E, 0x28)).LocationId;
+			
 			return startingLocation;
 		}
 		public void SwapLocations(LocationIds locA, LocationIds locB)

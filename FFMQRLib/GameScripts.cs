@@ -870,6 +870,40 @@ namespace FFMQLib
 					"00"
 				}));
 
+			// Walking Script
+			TalkScripts.AddScript(0x50, new ScriptBuilder(new List<string>
+				{
+					"2E28[10]",
+					"66B4C0FFBAC5B4C7B8B9C8494655B95CFFB55EC7483FC2C6407C4BC6CE309ABFBF58FFC04046B6B4C5C559446F",
+					"36",
+					"2A142A10505EFFAA00072B10511B25FFFF",
+					"23FE",
+					"2A1C2510531053062BAB0061FF" + (flags.ShuffleEntrances ? "2D" : "2E") + "29" + "FFFF",
+					"2BFE",
+					"233C",
+					"236A",
+					"00",
+					"A2B9FF55B64FFFB55E4220484D417C4B45CABC4AB7BCC6B4C3C35EC5CE",
+					"00"
+				}));
+
+
+			// Remove Kaeli
+			MapObjects[0x4C].RemoveAt(0);
+
+			// Change entrance to not teleport to giant tree ow location
+			if (flags.ShuffleEntrances)
+			{
+				TileScripts.AddScript(0x31, new ScriptBuilder(new List<string>
+				{
+					"2E3C[03]",
+					"2C3801",
+					"00",
+					"2C0900",
+					"00"
+				}));
+			}
+
 			/*** Windia ***/
 			TalkScripts.AddMobileScript(0x5D);
 			TalkScripts.AddMobileScript(0x5E);

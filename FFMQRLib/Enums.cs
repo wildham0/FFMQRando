@@ -199,6 +199,7 @@ namespace FFMQLib
 		AquariaPlaza,
 		SummerAquaria,
 		MineCliff,
+		AliveForest,
 		RainbowBridge,
 		SpencerCaveTrigger,
 		ShipLiberated,

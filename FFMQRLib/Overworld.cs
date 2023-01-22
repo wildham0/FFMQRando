@@ -73,7 +73,7 @@ namespace FFMQLib
                     new List<int> { 10, 12 },
                     new List<int> { 11, 13 },
                 },
-                (0, 0)));
+                (0, 1)));
             owObjects.Add(new OverworldObject((0x2E, 0x1A), // Ships
                 new List<List<int>>
                 {

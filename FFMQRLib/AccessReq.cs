@@ -569,6 +569,7 @@ namespace FFMQLib
 			( LocationIds.Fireburg, new List<AccessReqs> { AccessReqs.Tristam, AccessReqs.Reuben1, AccessReqs.ReubenDad, AccessReqs.FireburgGeminiTeleporter, AccessReqs.FireburgMobiusTeleporter } ),
 			( LocationIds.Mine, new List<AccessReqs> { AccessReqs.MineCliff } ),
 			( LocationIds.LavaDome, new List<AccessReqs> { AccessReqs.DualheadHydra } ),
+			( LocationIds.AliveForest, new List<AccessReqs> { AccessReqs.AliveForest } ),
 			( LocationIds.GiantTree, new List<AccessReqs> { AccessReqs.Gidrah } ),
 			( LocationIds.KaidgeTemple, new List<AccessReqs> { AccessReqs.KaidgeTempleMobiusTeleporter } ),
 			( LocationIds.LightTemple, new List<AccessReqs> { AccessReqs.LightTempleMobiusTeleporter } ),
