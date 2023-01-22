@@ -34,17 +34,6 @@ namespace FFMQLib
 	}
 	public partial class FFMQRom : SnesRom
 	{
-		public void BadShipHack(bool shortcutenabled)
-		{
-			// Hack DK script to fix ship if shorcut is used
-			// get rid of it by actually fixing Dark King's script
-			if (shortcutenabled)
-			{
-				PutInBank(0x03, 0xC66F, Blob.FromHex("0700C312"));
-				PutInBank(0x12, 0xC300, Blob.FromHex("235923572B7F2B802B582B5423550C01060300"));
-			}
-		}
-		
 		public void SkyCoinMode(Flags flags, MT19337 rng)
 		{
 			if (flags.SkyCoinMode == SkyCoinModes.Standard)

@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.3.20";
+		public static string Version = "1.3.21";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -241,7 +241,6 @@ namespace FFMQLib
 			MapChanges.Write(this);
 			TileScripts.Write(this);
 			TalkScripts.Write(this);
-			BadShipHack(flags.DoomCastleShortcut);
 			GameFlags.Write(this);
 			//NodeLocations.Write(this);
 			Battlefields.Write(this);

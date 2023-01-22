@@ -133,6 +133,9 @@ namespace FFMQLib
 			// Reorder end of battle sequence to check player first
 			PutInBank(0x02, 0x8107, Blob.FromHex("a594d04ca595d030"));
 
+			// Add Wait 1 second routine
+			PutInBank(0x11, 0x94A0, Blob.FromHex("da08a20000e220c210a93c4822a09600683ad0f728fa6b"));
+
 			// Fix vendor text to sell books & seals
 			var fullbookscript = new ScriptBuilder(new List<string>{
 					"054D0C",			// Get item names
