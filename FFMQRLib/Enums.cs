@@ -25,31 +25,6 @@ namespace FFMQLib
 		LightTemple,
 		DoomCastle
 	}
-	public enum AccessBits : int
-	{
-		Elixir = 0b0000_0000_0000_0000_0000_0001,
-		TreeWither = 0b0000_0000_0000_0000_0000_0010,
-		WakeWater = 0b0000_0000_0000_0000_0000_0100,
-		VenusKey = 0b0000_0000_0000_0000_0000_1000,
-		MultiKey = 0b0000_0000_0000_0000_0001_0000,
-		Mask = 0b0000_0000_0000_0000_0010_0000,
-		MagicMirror = 0b0000_0000_0000_0000_0100_0000,
-		ThunderRock = 0b0000_0000_0000_0000_1000_0000,
-		CaptainCap = 0b0000_0000_0000_0001_0000_0000,
-		LibraCrest = 0b0000_0000_0000_0010_0000_0000,
-		GeminiCrest = 0b0000_0000_0000_0100_0000_0000,
-		MobiusCrest = 0b0000_0000_0000_1000_0000_0000,
-		SandCoin = 0b0000_0001_0001_0000_0000_0000,
-		RiverCoin = 0b0000_0000_0010_0000_0000_0000,
-		SunCoin = 0b0000_0000_0100_0000_0000_0000,
-		SkyCoin = 0b0000_0000_1000_0000_0000_0000,
-		Sword = 0b0000_0001_0000_0000_0000_0000,
-		Axe = 0b0000_0010_0000_0000_0000_0000,
-		Claw = 0b0000_0100_0000_0000_0000_0000,
-		DragonClaw = 0b0000_1000_0000_0000_0000_0000,
-		Bomb = 0b0001_0000_0000_0000_0000_0000,
-		MegaGrenade = 0b0010_0000_0000_0000_0000_0000,
-	}
 	public enum GameFlagsList : int
 	{
 		FlamerusRexDefeated = 0x01,
@@ -137,27 +112,6 @@ namespace FFMQLib
 	}
 	public enum AccessReqs : int
 	{
-		DefeatIceGoelm = 0x12,
-		SaveOldMan = 0x14,
-		DefeatMinotaur = 0x1E,
-		CureKaeli = 0x1F,
-		ColumnMoved = 0x20,
-		ColumnRemoved = 0x21,
-		HillCollapsed = 0x22,
-		UseSandCoin = 0x23,
-		VisitPhoebeHouse = 0x4D,
-		UseWakeWater = 0x4F,
-		UseRiverCoin = 0x5B,
-		BoulderRolled = 0x5C,
-		DefeatMedusa = 0x5D,
-		TalkToTristam = 0x6E,
-		TalkToPhoebe = 0x70,
-		ExitFallBasin = 0x73,
-		TalkToGrenadeGuy = 0x74,
-		RainbowRoad = 0xCF,
-		DefeatSquid = 0xE0,
-		TalkToGiantTree,
-		DefeatPazuzu,
 		Elixir,
 		TreeWither,
 		WakeWater,
@@ -218,15 +172,6 @@ namespace FFMQLib
 		WindiaDockTeleporter,
 		ShipDockTeleporter,
 		Barred,
-		/*
-		WindiaMobiusToShip,
-		ShipLoaned,
-		SpencerCaveBombTrigger,
-		ShipLiberated,
-		SummerAquaria,
-		RainbowBridgeCreated,
-		*/
-
 	}
 	public enum TreasureType : int
 	{
@@ -586,18 +531,6 @@ namespace FFMQLib
 		WindiaSellerGirl = 0x67,
 		CaptainMacOnShip = 0x75,
 		VenusChest = 0x7B,
-
-
-
-
-
-
-
-
-
-
-
-
 	}
 	public enum BattlefieldRewardType : byte
 	{
@@ -720,7 +653,7 @@ namespace FFMQLib
 		PazuzuTowerA = 0x19,
 		PazuzuTowerB = 0x1A,
 		SpencerCave = 0x1B,
-		Unknown2 = 0x1C,
+		ShipDock = 0x1C,
 		FallBasin = 0x1D,
 		HouseInterior = 0x1E,
 		Caves = 0x1F,

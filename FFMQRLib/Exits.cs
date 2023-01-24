@@ -200,7 +200,6 @@ namespace FFMQLib
 			EntranceB = (entrancelist.EntranceB[0], entrancelist.EntranceB[1]);
 		}
 	}
-
 	public class Teleporters
 	{ 
 		public List<Teleporter> TeleportersA { get; set; }
@@ -390,6 +389,86 @@ namespace FFMQLib
 
 		}
 
+		public void ShuffleCrestTiles(GameScriptManager tileScripts, MT19337 rng)
+		{ 
+			List<((int id, int type), (int id, int type))> crestTileTeleporterList = new()
+			{
+				((0x27, 1), (67, 8)),
+				((0x28, 1), (68, 8)),
+				((0x29, 1), (69, 8)),
+				((0x1D, 6), (72, 8)),
+				((0x15, 6), (59, 8)),
+				((0x16, 6), (60, 8)),
+				((0x2D, 1), (33, 8)),
+				((0x2E, 1), (34, 8)),
+				((0x2F, 1), (35, 8)),
+				((0x30, 1), (36, 8)),
+				((0x35, 1), (64, 8)),
+				((0x36, 1), (65, 8)),
+				((0x37, 1), (66, 8)),
+				((0x19, 6), (62, 8)),
+				((0x1A, 6), (63, 8)),
+				((0x1F, 6), (45, 8)),
+				((0x1E, 6), (54, 8)),
+				((0x1C, 6), (71, 8)),
+				((0x1B, 6), (70, 8)),
+				((0x18, 6), (44, 8)),
+				((0x17, 6), (43, 8)),
+				((0x20, 6), (61, 8)),
+			};
+
+			List<Items> crestTiles = new()
+			{
+				Items.LibraCrest,
+				Items.LibraCrest,
+				Items.LibraCrest,
+				Items.GeminiCrest,
+				Items.GeminiCrest,
+				Items.GeminiCrest,
+				Items.MobiusCrest,
+				Items.MobiusCrest,
+				Items.MobiusCrest,
+				Items.MobiusCrest,
+				Items.MobiusCrest,
+			};
+
+			List<(int id, int type)> crestTileList = crestTileTeleporterList.Select(x => x.Item2).ToList();
+
+
+			var crestEntrances = EntrancesLinks.Where(x => crestTileList.Contains(x.EntranceA) || crestTileList.Contains(x.EntranceB)).ToList();
+
+			var crestEntrancesB = crestEntrances.Select(x => x.EntranceB).ToList();
+			var crestEntrancesA = crestEntrances.Select(x => x.EntranceA).ToList();
+			crestEntrancesB.Shuffle(rng);
+			crestTiles.Shuffle(rng);
+
+			crestEntrances = crestEntrancesA.Select((x, i) => new EntrancesLink(x, (crestEntrancesB[i].id, crestEntrancesB[i].type))).ToList();
+
+
+			while (crestTileList.Any())
+			{
+				var crestLink1 = rng.TakeFrom(crestEntrances);
+				var crestLink2 = rng.TakeFrom(crestEntrances);
+
+
+
+
+
+
+			}
+
+		}
+		public void SwapEntrances((int id, int type) entranceA, (int id, int type) entranceB)
+		{ 
+			var entrancesListA = Rooms.SelectMany(x => x.Entrances).Where(x => x.TeleportId == entranceA.id && x.TeleportType == entranceA.type).ToList();
+			var entrancesListB = Rooms.SelectMany(x => x.Entrances).Where(x => x.TeleportId == entranceB.id && x.TeleportType == entranceB.type).ToList();
+
+			entrancesListA.ForEach(x => x.TeleportId = entranceB.id);
+			entrancesListA.ForEach(x => x.TeleportType = entranceB.type);
+
+			entrancesListB.ForEach(x => x.TeleportId = entranceA.id);
+			entrancesListB.ForEach(x => x.TeleportType = entranceA.type);
+		}
 		public void Write(FFMQRom rom)
 		{
 			/*
