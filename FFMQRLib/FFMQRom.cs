@@ -186,6 +186,7 @@ namespace FFMQLib
 
 			// spoilersText = tempLocat.GenerateYaml();
 			tempLocat.EntranceHack(this);
+			tempLocat.ShuffleCrestTiles(TileScripts, GameMaps, rng);
 			Teleporters temptele = new(this);
 			temptele.ExtraTeleporters();
 			temptele.Write(this);

@@ -389,32 +389,32 @@ namespace FFMQLib
 
 		}
 
-		public void ShuffleCrestTiles(GameScriptManager tileScripts, MT19337 rng)
+		public void ShuffleCrestTiles(GameScriptManager tileScripts, GameMaps gameMaps, MT19337 rng)
 		{ 
-			List<((int id, int type), (int id, int type))> crestTileTeleporterList = new()
+			List<((int id, int type), (int id, int type), bool deadend)> crestTileTeleporterList = new()
 			{
-				((0x27, 1), (67, 8)),
-				((0x28, 1), (68, 8)),
-				((0x29, 1), (69, 8)),
-				((0x1D, 6), (72, 8)),
-				((0x15, 6), (59, 8)),
-				((0x16, 6), (60, 8)),
-				((0x2D, 1), (33, 8)),
-				((0x2E, 1), (34, 8)),
-				((0x2F, 1), (35, 8)),
-				((0x30, 1), (36, 8)),
-				((0x35, 1), (64, 8)),
-				((0x36, 1), (65, 8)),
-				((0x37, 1), (66, 8)),
-				((0x19, 6), (62, 8)),
-				((0x1A, 6), (63, 8)),
-				((0x1F, 6), (45, 8)),
-				((0x1E, 6), (54, 8)),
-				((0x1C, 6), (71, 8)),
-				((0x1B, 6), (70, 8)),
-				((0x18, 6), (44, 8)),
-				((0x17, 6), (43, 8)),
-				((0x20, 6), (61, 8)),
+				((0x27, 1), (67, 8), true),
+				((0x28, 1), (68, 8), true),
+				((0x29, 1), (69, 8), true),
+				((0x1D, 6), (72, 8), false),
+				((0x15, 6), (59, 8), false),
+				((0x16, 6), (60, 8), true),
+				//((0x2D, 1), (33, 8)), Exclude spencer's cave teleporter
+				//((0x2E, 1), (34, 8)),
+				//((0x2F, 1), (35, 8)),
+				//((0x30, 1), (36, 8)),
+				((0x35, 1), (64, 8), false),
+				((0x36, 1), (65, 8), false),
+				((0x37, 1), (66, 8), false),
+				((0x19, 6), (62, 8), true),
+				((0x1A, 6), (63, 8), false),
+				((0x1F, 6), (45, 8), false),
+				((0x1E, 6), (54, 8), false),
+				((0x1C, 6), (71, 8), false),
+				((0x1B, 6), (70, 8), true),
+				((0x18, 6), (44, 8), false),
+				((0x17, 6), (43, 8), false),
+				((0x20, 6), (61, 8), false),
 			};
 
 			List<Items> crestTiles = new()
@@ -424,39 +424,135 @@ namespace FFMQLib
 				Items.LibraCrest,
 				Items.GeminiCrest,
 				Items.GeminiCrest,
-				Items.GeminiCrest,
-				Items.MobiusCrest,
+				//Items.GeminiCrest, Spener's cave crests
+				//Items.MobiusCrest,
 				Items.MobiusCrest,
 				Items.MobiusCrest,
 				Items.MobiusCrest,
 				Items.MobiusCrest,
 			};
 
-			List<(int id, int type)> crestTileList = crestTileTeleporterList.Select(x => x.Item2).ToList();
+			List<(MapList map, Items crest, byte tile)> crestMapTiles = new()
+			{
+				(MapList.LevelAliveForest, Items.LibraCrest, 0x52), // +1 for actual tile
+				(MapList.LevelAliveForest, Items.GeminiCrest, 0x19),
+				(MapList.LevelAliveForest, Items.MobiusCrest, 0x3D),
+				(MapList.ShipDock, Items.LibraCrest, 0x53),
+				(MapList.ShipDock, Items.GeminiCrest, 0x1A),
+				(MapList.ShipDock, Items.MobiusCrest, 0x3E),
+				(MapList.HouseInterior, Items.LibraCrest, 0x92),
+				(MapList.HouseInterior, Items.GeminiCrest, 0x93),
+				(MapList.HouseInterior, Items.MobiusCrest, 0x94),
+				(MapList.Caves, Items.LibraCrest, 0x10),
+				(MapList.Caves, Items.GeminiCrest, 0x11),
+				(MapList.Caves, Items.MobiusCrest, 0x12),
+				(MapList.ForestaInterior, Items.LibraCrest, 0x12),
+				(MapList.ForestaInterior, Items.GeminiCrest, 0x13),
+				(MapList.ForestaInterior, Items.MobiusCrest, 0x14),
+			};
 
+
+			List<(int area, MapList map)> areaToMap = new()
+			{
+				(17, MapList.ForestaInterior),
+				(23, MapList.Caves),
+				(27, MapList.HouseInterior),
+				(32, MapList.Caves),
+				(45, MapList.Caves),
+				(46, MapList.Caves),
+				(49, MapList.HouseInterior),
+				(53, MapList.Caves),
+				(67, MapList.LevelAliveForest),
+				(77, MapList.Caves),
+				(82, MapList.HouseInterior),
+				(96, MapList.ShipDock),
+				(17, MapList.ForestaInterior),
+			};
+
+			List<(int id, int type)> crestTileList = crestTileTeleporterList.Select(x => x.Item2).ToList();
+			//List<(int id, int type)> crestTileListNormal = crestTileTeleporterList.Where(x => x.deadend == false).Select(x => x.Item2).ToList();
 
 			var crestEntrances = EntrancesLinks.Where(x => crestTileList.Contains(x.EntranceA) || crestTileList.Contains(x.EntranceB)).ToList();
+			//var crestEntrancesNormal = EntrancesLinks.Where(x => crestTileListNormal.Contains(x.EntranceA) || crestTileListNormal.Contains(x.EntranceB)).ToList();
 
-			var crestEntrancesB = crestEntrances.Select(x => x.EntranceB).ToList();
-			var crestEntrancesA = crestEntrances.Select(x => x.EntranceA).ToList();
-			crestEntrancesB.Shuffle(rng);
-			crestTiles.Shuffle(rng);
+			//crestEntrancesNormal = crestEntrancesNormal.Where(x => !crestEntrancesDeadend.Contains(x)).ToList();
 
-			crestEntrances = crestEntrancesA.Select((x, i) => new EntrancesLink(x, (crestEntrancesB[i].id, crestEntrancesB[i].type))).ToList();
+			//var crestEntrancesB = crestEntrances.Select(x => x.EntranceB).ToList();
+			//var crestEntrancesA = crestEntrances.Select(x => x.EntranceA).ToList();
+			//crestEntrancesB.Shuffle(rng);
+			//crestTiles.Shuffle(rng);
+
+			//crestEntrances = crestEntrancesA.Select((x, i) => new EntrancesLink(x, (crestEntrancesB[i].id, crestEntrancesB[i].type))).ToList();
+
+			/*
+			var crestEntrancesDeadend = crestEntrances.Where(x => crestTileTeleporterList.Find(c => (c.Item2 == x.EntranceA) || (c.Item2 == x.EntranceB)).deadend == true).ToList();
+			var crestEntrancesNormal = crestEntrances.Where(x => crestTileTeleporterList.Find(c => (c.Item2 == x.EntranceA) || (c.Item2 == x.EntranceB)).deadend == true).ToList();
 
 
-			while (crestTileList.Any())
+			crestEntrances.Shuffle(rng);
+			*/
+
+			while (crestEntrances.Any())
 			{
+				bool shuffle3 = (crestEntrances.Count % 2) > 0;
+				
 				var crestLink1 = rng.TakeFrom(crestEntrances);
 				var crestLink2 = rng.TakeFrom(crestEntrances);
+				EntrancesLink crestLink3 = new();
+
+				if (shuffle3)
+				{
+					crestLink3 = rng.TakeFrom(crestEntrances);
+				}
+
+				List<((int id, int type), Items crest, (int id, int type))> scriptToUpdate = new();
+
+				var crest1 = rng.TakeFrom(crestTiles);
+				var crest2 = rng.TakeFrom(crestTiles);
+				if (!shuffle3)
+				{
+					scriptToUpdate.Add((crestLink1.EntranceA, crest1, crestTileTeleporterList.Find(x => x.Item2 == crestLink2.EntranceA).Item1));
+					scriptToUpdate.Add((crestLink1.EntranceB, crest1, crestTileTeleporterList.Find(x => x.Item2 == crestLink2.EntranceB).Item1));
+					scriptToUpdate.Add((crestLink2.EntranceA, crest2, crestTileTeleporterList.Find(x => x.Item2 == crestLink1.EntranceA).Item1));
+					scriptToUpdate.Add((crestLink2.EntranceB, crest2, crestTileTeleporterList.Find(x => x.Item2 == crestLink1.EntranceB).Item1));
+				}
+				else
+				{
+					var crest3 = rng.TakeFrom(crestTiles);
+					scriptToUpdate.Add((crestLink1.EntranceA, crest1, crestTileTeleporterList.Find(x => x.Item2 == crestLink2.EntranceA).Item1));
+					scriptToUpdate.Add((crestLink1.EntranceB, crest3, crestTileTeleporterList.Find(x => x.Item2 == crestLink3.EntranceB).Item1));
+					scriptToUpdate.Add((crestLink2.EntranceA, crest2, crestTileTeleporterList.Find(x => x.Item2 == crestLink3.EntranceA).Item1));
+					scriptToUpdate.Add((crestLink2.EntranceB, crest1, crestTileTeleporterList.Find(x => x.Item2 == crestLink1.EntranceB).Item1));
+					scriptToUpdate.Add((crestLink3.EntranceA, crest3, crestTileTeleporterList.Find(x => x.Item2 == crestLink1.EntranceA).Item1));
+					scriptToUpdate.Add((crestLink3.EntranceB, crest2, crestTileTeleporterList.Find(x => x.Item2 == crestLink2.EntranceB).Item1));
+				}
+
+				foreach (var script in scriptToUpdate)
+				{
+					var entranceToUpdate = Rooms.SelectMany(x => x.Entrances).Where(x => x.TeleportId == script.Item1.id && x.TeleportType == script.Item1.type).ToList();
+
+					var area = Rooms.Find(x => x.Entrances.Contains(entranceToUpdate.First())).AreaId;
 
 
+					foreach (var entrance in entranceToUpdate)
+					{
+						foreach (var req in entrance.Access)
+						{
+							req.AddRange(ItemLocations.ItemAccessReq[script.crest]);
+						}
+						var targetMap = areaToMap.Find(x => x.area == area).map;
 
+						gameMaps[(int)targetMap].ModifyMap(entrance.X, entrance.Y, crestMapTiles.Find(x => (x.crest == script.crest) && (x.map == targetMap)).tile);
+					}
 
-
-
+					tileScripts.AddScript(script.Item1.id, new ScriptBuilder(new List<string> {
+						"2F",
+						$"050D{(int)script.crest:X2}[03]",
+						$"2A1227{script.Item3.id:X2}{script.Item3.type:X2}FFFF",
+						"00",
+						}));
+				}
 			}
-
 		}
 		public void SwapEntrances((int id, int type) entranceA, (int id, int type) entranceB)
 		{ 
