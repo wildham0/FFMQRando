@@ -415,9 +415,6 @@ namespace FFMQLib
 			// Change entrance tile to disable script
 			GameMaps[(int)MapList.IcePyramidA].ModifyMap(0x15, 0x20, 0x05);
 
-			// Add teleport coordinates
-			//PutInBank(0x05, 0xFED5, Blob.FromHex("2F364D"));
-
 			// Change tile properties from falling tile to script tile
 			GameMaps.TilesProperties[0x06][0x1E].Byte2 = 0x88;
 
@@ -856,9 +853,7 @@ namespace FFMQLib
 			var treeDoorChangeId = MapChanges.Add(Blob.FromHex("3806122F3F"));
 			MapObjects[0x46][0x04].RawOverwrite(Blob.FromHex("0002073816002C")); // Put new map object to talk to
 			GameMaps[(int)MapList.GiantTreeB].ModifyMap(0x38, 0x07, 0x3E); // Change map to block exit
-			Data[0x02F65D] = 0x08; // Change exit coordinate
-
-
+			Teleporters.TeleportersA[0x94].TargetY = 0x08;  // Change exit coordinate
 
 			TalkScripts.AddScript(0x02, new ScriptBuilder(new List<string>
 				{

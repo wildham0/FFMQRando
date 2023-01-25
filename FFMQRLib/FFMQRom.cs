@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.3.21";
+		public static string Version = "1.3.22";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -22,6 +22,7 @@ namespace FFMQLib
 		public Battlefields Battlefields;
 		public Overworld Overworld;
 		public GameMaps GameMaps;
+		public Teleporters Teleporters;
 		public MapSprites MapSpriteSets;
 		public EnemyAttackLinks EnemyAttackLinks;
 		public Attacks Attacks;
@@ -169,6 +170,7 @@ namespace FFMQLib
 			Battlefields = new(this);
 			MapChanges = new(this);
 			Overworld = new(this, tempLocat.Rooms);
+			Teleporters = new(this);
 			MapSpriteSets = new(this);
 			TitleScreen titleScreen = new(this);
 
@@ -194,7 +196,7 @@ namespace FFMQLib
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
 			GameMaps.LessObnoxiousMaps(flags.TweakedDungeons, MapObjects, rng);
-			
+
 			// Enemies
 			MapObjects.SetEnemiesDensity(flags.EnemiesDensity, rng);
 			MapObjects.ShuffleEnemiesPosition(flags.ShuffleEnemiesPosition, GameMaps, rng);
@@ -240,6 +242,7 @@ namespace FFMQLib
 			enemiesStats.Write(this);
 			GameMaps.Write(this);
 			MapChanges.Write(this);
+			Teleporters.Write(this);
 			TileScripts.Write(this);
 			TalkScripts.Write(this);
 			GameFlags.Write(this);
