@@ -62,8 +62,8 @@ namespace FFMQLib
 			{
 				TargetX = data[3];
 				TargetY = data[2];
-				TargetArea = data[0];
-				TargetLocation = data[1];
+				TargetArea = data[1];
+				TargetLocation = data[0];
 				Orientation = (FacingOrientation)((data[3] / 64) & 0x03);
 			}
 		}
@@ -74,7 +74,7 @@ namespace FFMQLib
 		}
 		public byte[] ToBytesLong()
 		{
-			return new byte[] { (byte)TargetArea, (byte)TargetLocation, (byte)TargetY, (byte)(TargetX | ((int)Orientation * 64)) };
+			return new byte[] { (byte)TargetLocation, (byte)TargetArea, (byte)TargetY, (byte)(TargetX | ((int)Orientation * 64)) };
 		}
 	}
 
@@ -167,7 +167,12 @@ namespace FFMQLib
 			TeleportersB.Add(new Teleporter(133, 0x2E, 0x29, FacingOrientation.Down, 0x00, 0x13)); // Windia 01
 			TeleportersB.Add(new Teleporter(134, 0x33, 0x28, FacingOrientation.Down, 0x00, 0x14)); // Windia 02
 
-			
+			// Extra Crest tile Teleports
+			TeleportersLong.Add(new Teleporter(33, 0x08, 0x34, FacingOrientation.Down, 0x43, 0x2D)); // Alive Forest - West teleporter
+			TeleportersLong.Add(new Teleporter(34, 0x39, 0x31, FacingOrientation.Down, 0x43, 0x2D)); // Alive Forest - East teleporter
+			TeleportersLong.Add(new Teleporter(35, 0x18, 0x0A, FacingOrientation.Down, 0x43, 0x2D)); // Alive Forest - North teleporter
+			TeleportersB.Add(new Teleporter(140, 0x09, 0x18, FacingOrientation.Down, 0x2E, 0x23)); // Wintry Temple
+
 		}
 		public void Write(FFMQRom rom)
 		{

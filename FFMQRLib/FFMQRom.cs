@@ -188,10 +188,10 @@ namespace FFMQLib
 
 			// spoilersText = tempLocat.GenerateYaml();
 			tempLocat.EntranceHack(this);
-			tempLocat.ShuffleCrestTiles(TileScripts, GameMaps, rng);
-			Teleporters temptele = new(this);
-			temptele.ExtraTeleporters();
-			temptele.Write(this);
+			tempLocat.UpdateCrests(flags, TileScripts, GameMaps, rng);
+			//Teleporters temptele = new(this);
+			//temptele.ExtraTeleporters();
+			//temptele.Write(this);
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
@@ -210,7 +210,7 @@ namespace FFMQLib
 
 			var startingLocation = Overworld.ShuffleEntrances(flags, Battlefields, rng);
 			// Items
-			ItemsPlacement itemsPlacement = new(flags, Battlefields, Overworld, this, rng);
+			ItemsPlacement itemsPlacement = new(flags, Battlefields, Overworld, tempLocat, this, rng);
 
 			SetStartingWeapons(itemsPlacement);
 			MapObjects.UpdateChests(itemsPlacement);

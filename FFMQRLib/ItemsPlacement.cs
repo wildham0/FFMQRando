@@ -60,7 +60,7 @@ namespace FFMQLib
 				Weight = _weight;
 			}
 		}
-		public ItemsPlacement(Flags flags, Battlefields battlefields, Overworld overworld, FFMQRom rom, MT19337 rng)
+		public ItemsPlacement(Flags flags, Battlefields battlefields, Overworld overworld, LocationStructure locations, FFMQRom rom, MT19337 rng)
 		{
 			bool badPlacement = true;
 			int counter = 0;
@@ -75,7 +75,7 @@ namespace FFMQLib
 
 			List<RegionWeight> regionsWeight = new() { new RegionWeight(MapRegions.Foresta, 1), new RegionWeight(MapRegions.Aquaria, 1), new RegionWeight(MapRegions.Fireburg, 1), new RegionWeight(MapRegions.Windia, 1) };
 
-			List<TreasureObject> initialItemlocations = new(ItemLocations.Generate(flags, battlefields, overworld).ToList());
+			List<TreasureObject> initialItemlocations = new(ItemLocations.Generate(flags, battlefields, locations, overworld).ToList());
 
 			while (badPlacement)
 			{
