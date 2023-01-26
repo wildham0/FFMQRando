@@ -205,25 +205,25 @@ namespace FFMQLib
 		public static TreasureObject Houses06 = new TreasureObject(0xC7, (int)MapList.HouseInterior, LocationIds.Windia, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } }); // Windia Inn
 		public static TreasureObject Houses07 = new TreasureObject(0xC8, (int)MapList.HouseInterior, LocationIds.Windia, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } }); // Windia 
 		public static TreasureObject Houses08 = new TreasureObject(0xC9, (int)MapList.HouseInterior, LocationIds.Windia, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } }); // Windia
-		public static TreasureObject Caves01 = new TreasureObject(0x0F, (int)MapList.Caves, LocationIds.SpencersPlace, TreasureType.Chest, "Mobius Chest", new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Claw, AccessReqs.MegaGrenade, AccessReqs.ThunderRock, AccessReqs.SunCoin, AccessReqs.LibraCrest } });
+		public static TreasureObject Caves01 = new TreasureObject(0x0F, (int)MapList.Caves, LocationIds.SpencersPlace, TreasureType.Chest, "Mobius Chest", new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Claw, AccessReqs.MegaGrenade, AccessReqs.GeminiCrest, AccessReqs.RainbowBridge } });
 		//public static TreasureObject Caves02 = new TreasureObject(0x34, (int)MapList.Caves, LocationIds.Windia, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } }); // Unaccessible?
 		public static TreasureObject Caves03 = new TreasureObject(0x40, (int)MapList.Caves, LocationIds.LibraTemple, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } });
 		public static TreasureObject Caves04 = new TreasureObject(0x4E, (int)MapList.Caves, LocationIds.LifeTemple, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } }); // Libra Crest
-		public static TreasureObject Caves05 = new TreasureObject(0x70, (int)MapList.Caves, LocationIds.SealedTemple, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.GeminiCrest } }); // Wintry Temple Entrance
-		public static TreasureObject Caves06 = new TreasureObject(0x71, (int)MapList.Caves, LocationIds.SealedTemple, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.GeminiCrest } }); // Wintry Temple Entrance
+		public static TreasureObject Caves05 = new TreasureObject(0x70, (int)MapList.Caves, LocationIds.None, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.WintryTempleCrestTile } }); // Wintry Temple Entrance
+		public static TreasureObject Caves06 = new TreasureObject(0x71, (int)MapList.Caves, LocationIds.None, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.WintryTempleCrestTile } }); // Wintry Temple Entrance
 		//public static TreasureObject Caves07 = new TreasureObject(0x72, (int)MapList.Caves, LocationIds.Windia, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } }); // in Wintry Temple, but not there
 		//public static TreasureObject Caves08 = new TreasureObject(0x73, (int)MapList.Caves, LocationIds.Windia, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } });
 		public static TreasureObject Caves09 = new TreasureObject(0x7E, (int)MapList.Caves, LocationIds.SealedTemple, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } });
 		public static TreasureObject Caves10 = new TreasureObject(0x7D, (int)MapList.Caves, LocationIds.SealedTemple, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } });
 		public static TreasureObject Caves11 = new TreasureObject(0xC1, (int)MapList.Caves, LocationIds.KaidgeTemple, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Claw } });
-		public static TreasureObject Caves12 = new TreasureObject(0xD8, (int)MapList.Caves, LocationIds.LightTemple, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Claw, AccessReqs.MobiusCrest } }); // Light Temple single chest
+		public static TreasureObject Caves12 = new TreasureObject(0xD8, (int)MapList.Caves, LocationIds.LightTemple, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Claw } }); // Light Temple single chest
 		public static TreasureObject ForestaHouse01 = new TreasureObject(0x05, (int)MapList.ForestaInterior, LocationIds.Foresta, TreasureType.Chest, "House Chest", new List<List<AccessReqs>> { new List<AccessReqs> { } });
 		public static TreasureObject ForestaHouse02 = new TreasureObject(0x2E, (int)MapList.ForestaInterior, LocationIds.Foresta, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } });
 		public static TreasureObject ForestaHouse03 = new TreasureObject(0x2F, (int)MapList.ForestaInterior, LocationIds.Foresta, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } });
-		public static TreasureObject Tree01 = new TreasureObject(0x30, (int)MapList.ForestaInterior, LocationIds.AliveForest, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Axe, AccessReqs.MobiusCrest } });
-		public static TreasureObject Tree02 = new TreasureObject(0x31, (int)MapList.ForestaInterior, LocationIds.AliveForest, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Axe, AccessReqs.MobiusCrest } });
-		public static TreasureObject Tree03 = new TreasureObject(0x32, (int)MapList.ForestaInterior, LocationIds.AliveForest, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Axe, AccessReqs.LibraCrest } });
-		public static TreasureObject Tree04 = new TreasureObject(0x33, (int)MapList.ForestaInterior, LocationIds.AliveForest, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Axe, AccessReqs.GeminiCrest } });
+		public static TreasureObject Tree01 = new TreasureObject(0x30, (int)MapList.ForestaInterior, LocationIds.None, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.WoodHouseMobiusCrestTile } });
+		public static TreasureObject Tree02 = new TreasureObject(0x31, (int)MapList.ForestaInterior, LocationIds.None, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.WoodHouseMobiusCrestTile } });
+		public static TreasureObject Tree03 = new TreasureObject(0x32, (int)MapList.ForestaInterior, LocationIds.None, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.WoodHouseLibraCrestTile } });
+		public static TreasureObject Tree04 = new TreasureObject(0x33, (int)MapList.ForestaInterior, LocationIds.None, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.WoodHouseGeminiCrestTile } });
 		public static TreasureObject MineInterior01 = new TreasureObject(0x10, (int)MapList.FocusTowerBase, LocationIds.Mine, TreasureType.Chest, "Mine Chest", new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb } });
 		public static TreasureObject MineInterior02 = new TreasureObject(0x76, (int)MapList.FocusTowerBase, LocationIds.Mine, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb } });
 		public static TreasureObject MineInterior03 = new TreasureObject(0x77, (int)MapList.FocusTowerBase, LocationIds.Mine, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Claw, AccessReqs.Bomb } });
@@ -265,7 +265,7 @@ namespace FFMQLib
 		//public static TreasureObject TristamBoneDungeonExlixir = new TreasureObject((int)ItemGivingNPCs.TristamBoneDungeonElixir, (int)MapList.BoneDungeon, LocationIds.BoneDungeon, TreasureType.NPC, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Bomb } });
 		public static TreasureObject SellerAquaria = new TreasureObject((int)ItemGivingNPCs.WomanAquaria, (int)MapList.Aquaria, LocationIds.Aquaria, TreasureType.NPC, "Aquaria Vendor Girl", new List<List<AccessReqs>> { new List<AccessReqs> { } });
 		public static TreasureObject PhoebeWintryCave = new TreasureObject((int)ItemGivingNPCs.PhoebeWintryCave, (int)MapList.WintryCave, LocationIds.WintryCave, TreasureType.NPC, "Phoebe", new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Phoebe1 } });
-		public static TreasureObject MysteriousManLifeTemple = new TreasureObject((int)ItemGivingNPCs.MysteriousManLifeTemple, (int)MapList.Caves, LocationIds.LibraTemple, TreasureType.NPC, "Mysterious Man", new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.LibraCrest } });
+		public static TreasureObject MysteriousManLifeTemple = new TreasureObject((int)ItemGivingNPCs.MysteriousManLifeTemple, (int)MapList.Caves, LocationIds.LifeTemple, TreasureType.NPC, "Mysterious Man", new List<List<AccessReqs>> { new List<AccessReqs> { } });
 		//public static TreasureObject PhoebeFallBasin = new TreasureObject((int)ItemGivingNPCs.PhoebeFallBasin, (int)MapList.FallBasin, LocationIds.FallsBasin, TreasureType.NPC, new List<List<AccessReqs>> { new List<AccessReqs> { } });
 		//public static TreasureObject IceGolem = new TreasureObject(0x07, (int)MapList.IcePyramidA, LocationIds.IcePyramid, TreasureType.NPC, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Sword, AccessReqs.Bomb, AccessReqs.Claw } });
 		public static TreasureObject Spencer = new TreasureObject((int)ItemGivingNPCs.Spencer, (int)MapList.SpencerCave, LocationIds.Aquaria, TreasureType.NPC, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.WakeWater, AccessReqs.AquariaPlaza } });
@@ -299,7 +299,7 @@ namespace FFMQLib
 
 			return properties.Where(x => x.Type == TreasureType.Chest || x.Type == TreasureType.Box).ToList();
 		}
-		public static List<TreasureObject> Generate(Flags flags, Battlefields battlefields, Overworld overworld)
+		public static List<TreasureObject> Generate(Flags flags, Battlefields battlefields, LocationStructure locations, Overworld overworld)
 		{
 			List<TreasureObject> properties = new();
 			ItemLocations instance = new();
@@ -333,28 +333,45 @@ namespace FFMQLib
 			}
 
 			// Update teleporters logic
-			foreach (var teleporterlink in LinkedTeleporters)
+			foreach (var teleporterlink in locations.CrestPairs)
 			{
-				var teleporter1subregion = overworld.Locations.Find(x => x.LocationId == TeleporterLocations.Find(t => t.Item1 == teleporterlink.Item1).Item2).SubRegion;
-				var teleporter2subregion = overworld.Locations.Find(x => x.LocationId == TeleporterLocations.Find(t => t.Item1 == teleporterlink.Item2).Item2).SubRegion;
+				var teleporter1subregion = overworld.Locations.Find(x => x.LocationId == TeleporterLocations.Find(t => t.Item1 == teleporterlink.Item2).Item2).SubRegion;
+				var teleporter2subregion = overworld.Locations.Find(x => x.LocationId == TeleporterLocations.Find(t => t.Item1 == teleporterlink.Item3).Item2).SubRegion;
 
 				if (teleporter1subregion != teleporter2subregion)
 				{
 					var teleporter1access = SubRegionsAccess.Find(x => x.Item1 == teleporter1subregion).Item2;
 					var teleporter2access = SubRegionsAccess.Find(x => x.Item1 == teleporter2subregion).Item2;
 
-					teleporter1access.ForEach(x => x.AddRange(TeleporterAccess.Find(t => t.Item1 == teleporterlink.Item1).Item2.Concat(new List<AccessReqs> { teleporterlink.Item1 })));
-					teleporter2access.ForEach(x => x.AddRange(TeleporterAccess.Find(t => t.Item1 == teleporterlink.Item2).Item2.Concat(new List<AccessReqs> { teleporterlink.Item2 })));
+					var commonReqs = TeleporterAccess.Where(t => (t.Item1 == teleporterlink.Item2) || (t.Item1 == teleporterlink.Item3)).SelectMany(x => x.Item2).ToList();
+
+					teleporter1access.ForEach(x => x.AddRange(commonReqs.Concat(new List<AccessReqs> { teleporterlink.Item1, teleporterlink.Item2 })));
+					teleporter2access.ForEach(x => x.AddRange(commonReqs.Concat(new List<AccessReqs> { teleporterlink.Item1, teleporterlink.Item3 })));
 
 					overworld.Locations.Where(x => x.SubRegion == teleporter1subregion).ToList().ForEach(x => x.AccessRequirements.AddRange(teleporter2access));
 					overworld.Locations.Where(x => x.SubRegion == teleporter2subregion).ToList().ForEach(x => x.AccessRequirements.AddRange(teleporter1access));
 				}
 			}
 
-			// Add Sealed Temple/Exit book trick
-			if (flags.LogicOptions == LogicOptions.Expert && !flags.ShuffleEntrances)
+			var voidLocations = properties.Where(x => x.Location == LocationIds.None).ToList();
+
+			foreach (var loc in voidLocations)
 			{
-				List<AccessReqs> sealedTempleExit = new() { AccessReqs.RiverCoin, AccessReqs.SealedTempleGeminiTeleporter, AccessReqs.ExitBook, AccessReqs.GeminiCrest };
+				var access = loc.AccessRequirements[0][0];
+
+				var actualLocation = locations.CrestPairs.Find(x => x.loc1 == access);
+				var actualAccess = (actualLocation.crest, actualLocation.loc1 == access ? actualLocation.loc2 : actualLocation.loc1);
+				var extraReq = TeleporterAccess.Where(x => x.Item1 == actualAccess.Item2).SelectMany(x => x.Item2).ToList();
+
+				loc.Location = TeleporterLocations.Find(x => x.Item1 == actualAccess.Item2).Item2;
+				loc.AccessRequirements.ForEach(x => x.Remove(access));
+				loc.AccessRequirements.ForEach(x => x.AddRange(extraReq.Concat(new List<AccessReqs> { actualAccess.crest })));
+			}
+
+			// Add Sealed Temple/Exit book trick
+			if (flags.LogicOptions == LogicOptions.Expert && !(flags.OverworldShuffle || flags.CrestShuffle))
+			{
+				List<AccessReqs> sealedTempleExit = new() { AccessReqs.RiverCoin, AccessReqs.SealedTempleCrestTile, AccessReqs.ExitBook, AccessReqs.GeminiCrest };
 
 				overworld.Locations.Where(x => x.SubRegion == SubRegions.Aquaria || x.SubRegion == SubRegions.AquariaFrozenField).ToList().ForEach(x => x.AccessRequirements.Add(sealedTempleExit));
 			}
@@ -563,19 +580,20 @@ namespace FFMQLib
 			( LocationIds.LevelForest, new List<AccessReqs> { AccessReqs.Minotaur } ),
 			( LocationIds.Foresta, new List<AccessReqs> { AccessReqs.Kaeli1 } ),
 			( LocationIds.SandTemple, new List<AccessReqs> { AccessReqs.Tristam } ),
-			( LocationIds.LibraTemple, new List<AccessReqs> { AccessReqs.Phoebe1, AccessReqs.LibraTempleLibraTeleporter } ),
-			( LocationIds.LifeTemple, new List<AccessReqs> { AccessReqs.LifeTempleLibraTeleporter } ),
-			( LocationIds.Aquaria, new List<AccessReqs> { AccessReqs.AquariaPlaza, AccessReqs.AquariaGeminiTeleporter } ),
-			( LocationIds.Fireburg, new List<AccessReqs> { AccessReqs.Tristam, AccessReqs.Reuben1, AccessReqs.ReubenDad, AccessReqs.FireburgGeminiTeleporter, AccessReqs.FireburgMobiusTeleporter } ),
+			( LocationIds.LibraTemple, new List<AccessReqs> { AccessReqs.Phoebe1, AccessReqs.LibraTempleCrestTile } ),
+			( LocationIds.LifeTemple, new List<AccessReqs> { AccessReqs.LifeTempleCrestTile } ),
+			( LocationIds.Aquaria, new List<AccessReqs> { AccessReqs.AquariaPlaza, AccessReqs.AquariaVendorCrestTile } ),
+			( LocationIds.Fireburg, new List<AccessReqs> { AccessReqs.Tristam, AccessReqs.Reuben1, AccessReqs.ReubenDad, AccessReqs.FireburgVendorCrestTile, AccessReqs.FireburgGrenademanCrestTile } ),
+			( LocationIds.SealedTemple, new List<AccessReqs> { AccessReqs.SealedTempleCrestTile } ),
 			( LocationIds.Mine, new List<AccessReqs> { AccessReqs.MineCliff } ),
 			( LocationIds.LavaDome, new List<AccessReqs> { AccessReqs.DualheadHydra } ),
-			( LocationIds.AliveForest, new List<AccessReqs> { AccessReqs.AliveForest } ),
+			( LocationIds.AliveForest, new List<AccessReqs> { AccessReqs.AliveForest, AccessReqs.AliveForestGeminiCrestTile, AccessReqs.AliveForestLibraCrestTile, AccessReqs.AliveForestMobiusCrestTile } ),
 			( LocationIds.GiantTree, new List<AccessReqs> { AccessReqs.Gidrah } ),
-			( LocationIds.KaidgeTemple, new List<AccessReqs> { AccessReqs.KaidgeTempleMobiusTeleporter } ),
-			( LocationIds.LightTemple, new List<AccessReqs> { AccessReqs.LightTempleMobiusTeleporter } ),
-			( LocationIds.Windia, new List<AccessReqs> { AccessReqs.Otto, AccessReqs.WindiaDockTeleporter, AccessReqs.WindiaMobiusTeleporter } ),
+			( LocationIds.KaidgeTemple, new List<AccessReqs> { AccessReqs.KaidgeTempleCrestTile } ),
+			( LocationIds.LightTemple, new List<AccessReqs> { AccessReqs.LightTempleCrestTile } ),
+			( LocationIds.Windia, new List<AccessReqs> { AccessReqs.Otto, AccessReqs.WindiaDockCrestTile, AccessReqs.WindiaKidsCrestTile } ),
 			( LocationIds.SpencersPlace, new List<AccessReqs> { AccessReqs.SpencerCaveTrigger } ),
-			( LocationIds.ShipDock, new List<AccessReqs> { AccessReqs.ShipDockTeleporter, AccessReqs.ShipDockAccess } ),
+			( LocationIds.ShipDock, new List<AccessReqs> { AccessReqs.ShipDockCrestTile, AccessReqs.ShipDockAccess } ),
 			( LocationIds.MacsShip, new List<AccessReqs> { AccessReqs.ShipSteeringWheel, AccessReqs.CaptainMac } ),
 		};
 		public static Dictionary<AccessReqs, List<AccessReqs>> AccessEvents => new Dictionary<AccessReqs, List<AccessReqs>>
@@ -703,46 +721,52 @@ namespace FFMQLib
 			(SubRegions.ShipDock, LocationIds.ShipDock),
 			(SubRegions.DoomCastle, LocationIds.DoomCastle),
 			(SubRegions.LightTemple, LocationIds.LightTemple),
-			(SubRegions.ShipDock, LocationIds.MacsShip)
+			(SubRegions.MacShip, LocationIds.MacsShip)
 		};
 		public static List<(AccessReqs, LocationIds)> TeleporterLocations => new()
 		{
-			(AccessReqs.LibraTempleLibraTeleporter, LocationIds.LibraTemple),
-			(AccessReqs.LifeTempleLibraTeleporter, LocationIds.LifeTemple),
-			(AccessReqs.AquariaGeminiTeleporter, LocationIds.Aquaria),
-			(AccessReqs.FireburgGeminiTeleporter, LocationIds.Fireburg),
-			(AccessReqs.FireburgMobiusTeleporter, LocationIds.Fireburg),
-			(AccessReqs.SealedTempleGeminiTeleporter, LocationIds.SealedTemple),
-			(AccessReqs.WintryTempleGeminiTeleporter, LocationIds.WintryTemple),
-			(AccessReqs.KaidgeTempleMobiusTeleporter, LocationIds.KaidgeTemple),
-			(AccessReqs.LightTempleMobiusTeleporter, LocationIds.LightTemple),
-			(AccessReqs.WindiaMobiusTeleporter, LocationIds.Windia),
-			(AccessReqs.WindiaDockTeleporter, LocationIds.Windia),
-			(AccessReqs.ShipDockTeleporter, LocationIds.ShipDock),
+			(AccessReqs.LibraTempleCrestTile, LocationIds.LibraTemple),
+			(AccessReqs.LifeTempleCrestTile, LocationIds.LifeTemple),
+			(AccessReqs.AquariaVendorCrestTile, LocationIds.Aquaria),
+			(AccessReqs.FireburgVendorCrestTile, LocationIds.Fireburg),
+			(AccessReqs.FireburgGrenademanCrestTile, LocationIds.Fireburg),
+			(AccessReqs.SealedTempleCrestTile, LocationIds.SealedTemple),
+			(AccessReqs.WintryTempleCrestTile, LocationIds.WintryTemple),
+			(AccessReqs.KaidgeTempleCrestTile, LocationIds.KaidgeTemple),
+			(AccessReqs.LightTempleCrestTile, LocationIds.LightTemple),
+			(AccessReqs.WindiaKidsCrestTile, LocationIds.Windia),
+			(AccessReqs.WindiaDockCrestTile, LocationIds.Windia),
+			(AccessReqs.ShipDockCrestTile, LocationIds.ShipDock),
+			(AccessReqs.AliveForestLibraCrestTile, LocationIds.AliveForest),
+			(AccessReqs.AliveForestGeminiCrestTile, LocationIds.AliveForest),
+			(AccessReqs.AliveForestMobiusCrestTile, LocationIds.AliveForest),
+			(AccessReqs.WoodHouseLibraCrestTile, LocationIds.AliveForest),
+			(AccessReqs.WoodHouseGeminiCrestTile, LocationIds.AliveForest),
+			(AccessReqs.WoodHouseMobiusCrestTile, LocationIds.AliveForest),
 		};
 		public static List<(AccessReqs, List<AccessReqs>)> TeleporterAccess => new()
 		{
-			(AccessReqs.LibraTempleLibraTeleporter, new List<AccessReqs> { AccessReqs.LibraCrest }),
-			(AccessReqs.LifeTempleLibraTeleporter, new List<AccessReqs> { AccessReqs.LibraCrest }),
-			(AccessReqs.AquariaGeminiTeleporter, new List<AccessReqs> { AccessReqs.GeminiCrest  }),
-			(AccessReqs.FireburgGeminiTeleporter, new List<AccessReqs> { AccessReqs.GeminiCrest }),
-			(AccessReqs.FireburgMobiusTeleporter, new List<AccessReqs> { AccessReqs.MobiusCrest, AccessReqs.Claw, AccessReqs.MultiKey }),
-			(AccessReqs.SealedTempleGeminiTeleporter, new List<AccessReqs> { AccessReqs.GeminiCrest }),
-			(AccessReqs.WintryTempleGeminiTeleporter, new List<AccessReqs> { AccessReqs.GeminiCrest, AccessReqs.Barred }),
-			(AccessReqs.KaidgeTempleMobiusTeleporter, new List<AccessReqs> { AccessReqs.MobiusCrest, AccessReqs.Claw }),
-			(AccessReqs.LightTempleMobiusTeleporter, new List<AccessReqs> { AccessReqs.MobiusCrest }),
-			(AccessReqs.WindiaMobiusTeleporter, new List<AccessReqs> { AccessReqs.MobiusCrest, AccessReqs.Claw, AccessReqs.MultiKey }),
-			(AccessReqs.WindiaDockTeleporter, new List<AccessReqs> { AccessReqs.MobiusCrest }),
-			(AccessReqs.ShipDockTeleporter, new List<AccessReqs> { AccessReqs.MobiusCrest }),
+			(AccessReqs.FireburgGrenademanCrestTile, new List<AccessReqs> { AccessReqs.Claw, AccessReqs.MultiKey }),
+			(AccessReqs.WintryTempleCrestTile, new List<AccessReqs> { AccessReqs.Barred }),
+			(AccessReqs.KaidgeTempleCrestTile, new List<AccessReqs> { AccessReqs.Claw }),
+			(AccessReqs.AliveForestLibraCrestTile, new List<AccessReqs> { AccessReqs.Axe }),
+			(AccessReqs.AliveForestGeminiCrestTile, new List<AccessReqs> { AccessReqs.Axe }),
+			(AccessReqs.AliveForestMobiusCrestTile, new List<AccessReqs> { AccessReqs.Axe }),
+			(AccessReqs.WoodHouseLibraCrestTile, new List<AccessReqs> { AccessReqs.Barred }),
+			(AccessReqs.WoodHouseGeminiCrestTile, new List<AccessReqs> { AccessReqs.Barred }),
+			(AccessReqs.WoodHouseMobiusCrestTile, new List<AccessReqs> { AccessReqs.Barred }),
 		};
-		public static List<(AccessReqs, AccessReqs)> LinkedTeleporters => new()
+		public static List<(AccessReqs, AccessReqs, AccessReqs)> LinkedTeleporters => new()
 		{
-			(AccessReqs.LibraTempleLibraTeleporter, AccessReqs.LifeTempleLibraTeleporter),
-			(AccessReqs.AquariaGeminiTeleporter, AccessReqs.FireburgGeminiTeleporter),
-			(AccessReqs.FireburgMobiusTeleporter, AccessReqs.WindiaMobiusTeleporter),
-			(AccessReqs.SealedTempleGeminiTeleporter, AccessReqs.WintryTempleGeminiTeleporter),
-			(AccessReqs.KaidgeTempleMobiusTeleporter, AccessReqs.LightTempleMobiusTeleporter),
-			(AccessReqs.WindiaDockTeleporter, AccessReqs.ShipDockTeleporter),
+			(AccessReqs.LibraCrest, AccessReqs.LibraTempleCrestTile, AccessReqs.LifeTempleCrestTile),
+			(AccessReqs.GeminiCrest, AccessReqs.AquariaVendorCrestTile, AccessReqs.FireburgVendorCrestTile),
+			(AccessReqs.MobiusCrest, AccessReqs.FireburgGrenademanCrestTile, AccessReqs.WindiaKidsCrestTile),
+			(AccessReqs.GeminiCrest, AccessReqs.SealedTempleCrestTile, AccessReqs.WintryTempleCrestTile),
+			(AccessReqs.MobiusCrest, AccessReqs.KaidgeTempleCrestTile, AccessReqs.LightTempleCrestTile),
+			(AccessReqs.MobiusCrest, AccessReqs.WindiaDockCrestTile, AccessReqs.ShipDockCrestTile),
+			(AccessReqs.LibraCrest, AccessReqs.AliveForestLibraCrestTile, AccessReqs.WoodHouseLibraCrestTile),
+			(AccessReqs.GeminiCrest, AccessReqs.AliveForestGeminiCrestTile, AccessReqs.WoodHouseGeminiCrestTile),
+			(AccessReqs.MobiusCrest, AccessReqs.AliveForestMobiusCrestTile, AccessReqs.WoodHouseMobiusCrestTile),
 		};
 		public static List<(SubRegions, List<List<AccessReqs>>)> SubRegionsAccess => new()
 		{
@@ -775,6 +799,9 @@ namespace FFMQLib
 				new List<AccessReqs> { AccessReqs.Barred },
 			}),
 			(SubRegions.ShipDock, new List<List<AccessReqs>> {
+				new List<AccessReqs> { AccessReqs.Barred },
+			}),
+			(SubRegions.MacShip, new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.Barred },
 			}),
 			(SubRegions.DoomCastle, new List<List<AccessReqs>> {

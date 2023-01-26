@@ -776,9 +776,18 @@ namespace FFMQLib
 
 			ModifiedMap = true;
 		}
-		public void ModifyMap(int destx, int desty, byte modifications)
+		public void ModifyMap(int destx, int desty, byte modifications, bool keepLayerData = false)
 		{
-			_mapUncompressed[destx + (desty * _dimensions.Item1)] = modifications;
+
+			if (!keepLayerData)
+			{
+				_mapUncompressed[destx + (desty * _dimensions.Item1)] = modifications;
+			}
+			else
+			{
+				var layervalue = _mapUncompressed[destx + (desty * _dimensions.Item1)] & 0x80;
+				_mapUncompressed[destx + (desty * _dimensions.Item1)] = (byte)(modifications | layervalue);
+			}
 
 			ModifiedMap = true;
 		}

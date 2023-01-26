@@ -586,7 +586,7 @@ namespace FFMQLib
 		{
 			LocationIds startingLocation = LocationIds.LevelForest;
 
-			if (!flags.ShuffleEntrances)
+			if (!flags.OverworldShuffle)
 			{
 				return startingLocation;
 			}

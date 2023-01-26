@@ -873,7 +873,7 @@ namespace FFMQLib
 					"36",
 					"2A142A10505EFFAA00072B10511B25FFFF",
 					"23FE",
-					"2A1C2510531053062BAB0061FF" + (flags.ShuffleEntrances ? "2D" : "2E") + "29" + "FFFF",
+					"2A1C2510531053062BAB0061FF" + (flags.OverworldShuffle ? "2D" : "2E") + "29" + "FFFF",
 					"2BFE",
 					"233C",
 					"236A",
@@ -887,7 +887,7 @@ namespace FFMQLib
 			MapObjects[0x4C].RemoveAt(0);
 
 			// Change entrance to not teleport to giant tree ow location
-			if (flags.ShuffleEntrances)
+			if (flags.OverworldShuffle)
 			{
 				TileScripts.AddScript(0x31, new ScriptBuilder(new List<string>
 				{
