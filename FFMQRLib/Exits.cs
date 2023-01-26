@@ -340,8 +340,7 @@ namespace FFMQLib
 		}
 		public void UpdateCrests(Flags flags, GameScriptManager tileScripts, GameMaps gameMaps, MT19337 rng)
 		{
-			bool shuffle = true;
-			bool keepWintryTemple = !(flags.ShuffleEntrances || shuffle);
+			bool keepWintryTemple = !(flags.OverworldShuffle || flags.CrestShuffle);
 			
 			List<((int id, int type), (int id, int type), LocationIds location, AccessReqs access, bool deadend, int priority)> crestTileTeleporterList = new()
 			{
@@ -426,7 +425,7 @@ namespace FFMQLib
 				crest.Map = areaToMap.Find(x => x.area == crest.Area).map;
 			}
 
-			if (shuffle)
+			if (flags.CrestShuffle)
 			{
 				CrestShuffle(rng);
 			}

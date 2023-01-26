@@ -236,8 +236,8 @@ namespace FFMQLib
 
 				
 				//var unfiledValidLocations = ItemsLocations.Where(x => x.Accessible && x.Content == Items.None).ToList();
-				/*
-				var unfiledValidLocations = ItemsLocations.Where(x => x.Prioritize == true && x.Content == Items.None).ToList();
+				
+				/*var unfiledValidLocations = ItemsLocations.Where(x => x.Prioritize == true && x.Content == Items.None).ToList();
 				Console.WriteLine("**** Unfiled Locations ****");
 				foreach (var loc in unfiledValidLocations)
 				{

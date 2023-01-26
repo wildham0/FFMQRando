@@ -369,7 +369,7 @@ namespace FFMQLib
 			}
 
 			// Add Sealed Temple/Exit book trick
-			if (flags.LogicOptions == LogicOptions.Expert && !flags.ShuffleEntrances)
+			if (flags.LogicOptions == LogicOptions.Expert && !(flags.OverworldShuffle || flags.CrestShuffle))
 			{
 				List<AccessReqs> sealedTempleExit = new() { AccessReqs.RiverCoin, AccessReqs.SealedTempleCrestTile, AccessReqs.ExitBook, AccessReqs.GeminiCrest };
 
@@ -584,6 +584,7 @@ namespace FFMQLib
 			( LocationIds.LifeTemple, new List<AccessReqs> { AccessReqs.LifeTempleCrestTile } ),
 			( LocationIds.Aquaria, new List<AccessReqs> { AccessReqs.AquariaPlaza, AccessReqs.AquariaVendorCrestTile } ),
 			( LocationIds.Fireburg, new List<AccessReqs> { AccessReqs.Tristam, AccessReqs.Reuben1, AccessReqs.ReubenDad, AccessReqs.FireburgVendorCrestTile, AccessReqs.FireburgGrenademanCrestTile } ),
+			( LocationIds.SealedTemple, new List<AccessReqs> { AccessReqs.SealedTempleCrestTile } ),
 			( LocationIds.Mine, new List<AccessReqs> { AccessReqs.MineCliff } ),
 			( LocationIds.LavaDome, new List<AccessReqs> { AccessReqs.DualheadHydra } ),
 			( LocationIds.AliveForest, new List<AccessReqs> { AccessReqs.AliveForest, AccessReqs.AliveForestGeminiCrestTile, AccessReqs.AliveForestLibraCrestTile, AccessReqs.AliveForestMobiusCrestTile } ),
@@ -720,7 +721,7 @@ namespace FFMQLib
 			(SubRegions.ShipDock, LocationIds.ShipDock),
 			(SubRegions.DoomCastle, LocationIds.DoomCastle),
 			(SubRegions.LightTemple, LocationIds.LightTemple),
-			(SubRegions.ShipDock, LocationIds.MacsShip)
+			(SubRegions.MacShip, LocationIds.MacsShip)
 		};
 		public static List<(AccessReqs, LocationIds)> TeleporterLocations => new()
 		{
@@ -798,6 +799,9 @@ namespace FFMQLib
 				new List<AccessReqs> { AccessReqs.Barred },
 			}),
 			(SubRegions.ShipDock, new List<List<AccessReqs>> {
+				new List<AccessReqs> { AccessReqs.Barred },
+			}),
+			(SubRegions.MacShip, new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.Barred },
 			}),
 			(SubRegions.DoomCastle, new List<List<AccessReqs>> {

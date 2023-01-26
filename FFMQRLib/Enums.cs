@@ -22,6 +22,7 @@ namespace FFMQLib
 		VolcanoBattlefield,
 		Windia,
 		ShipDock,
+		MacShip,
 		LightTemple,
 		DoomCastle
 	}
