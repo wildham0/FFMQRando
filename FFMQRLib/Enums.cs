@@ -21,6 +21,7 @@ namespace FFMQLib
 		Fireburg,
 		VolcanoBattlefield,
 		Windia,
+		SpencerCave,
 		ShipDock,
 		MacShip,
 		LightTemple,

@@ -717,7 +717,7 @@ namespace FFMQLib
 			(SubRegions.Windia, LocationIds.WindholeTemple),
 			(SubRegions.Windia, LocationIds.MountGale),
 			(SubRegions.Windia, LocationIds.PazuzusTower),
-			(SubRegions.Windia, LocationIds.SpencersPlace),
+			(SubRegions.SpencerCave, LocationIds.SpencersPlace),
 			(SubRegions.ShipDock, LocationIds.ShipDock),
 			(SubRegions.DoomCastle, LocationIds.DoomCastle),
 			(SubRegions.LightTemple, LocationIds.LightTemple),
@@ -794,6 +794,9 @@ namespace FFMQLib
 			}),
 			(SubRegions.Windia, new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SunCoin },
+			}),
+			(SubRegions.SpencerCave, new List<List<AccessReqs>> {
+				new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.RainbowBridge },
 			}),
 			(SubRegions.LightTemple, new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.Barred },

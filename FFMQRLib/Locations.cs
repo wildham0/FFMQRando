@@ -550,7 +550,7 @@ namespace FFMQLib
 			Locations.ForEach(n => n.Region = ItemLocations.Regions.Find(r => r.Item2 == n.LocationId).Item1);
 			Locations.ForEach(n => n.SubRegion = ItemLocations.MapSubRegions.Find(r => r.Item2 == n.LocationId).Item1);
 		}
-		public void OpenNodes()
+		public void OpenNodes(Flags flags)
 		{
 			for (int i = 0; i <= (int)LocationIds.PazuzusTower; i++)
 			{
@@ -564,6 +564,10 @@ namespace FFMQLib
 			}
 
 			Locations[(int)LocationIds.LibraBattlefield02].DirectionFlags[(int)NodeDirections.North] = (int)GameFlagsList.WakeWaterUsed;
+			if (flags.OverworldShuffle || flags.CrestShuffle)
+			{
+				Locations[(int)LocationIds.LibraBattlefield01].DirectionFlags[(int)NodeDirections.South] = (int)GameFlagsList.WakeWaterUsed;
+			}
 			Locations[(int)LocationIds.LibraTemple].DirectionFlags[(int)NodeDirections.North] = (int)GameFlagsList.WakeWaterUsed;
 			Locations[(int)LocationIds.VolcanoBattlefield01].DirectionFlags[(int)NodeDirections.South] = (int)GameFlagsList.WakeWaterUsed;
 			Locations[(int)LocationIds.VolcanoBattlefield01].DirectionFlags[(int)NodeDirections.West] = (int)GameFlagsList.VolcanoErupted;

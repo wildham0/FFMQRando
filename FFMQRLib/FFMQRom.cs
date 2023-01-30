@@ -204,7 +204,7 @@ namespace FFMQLib
 			enemiesStats.ScaleEnemies(flags, rng);
 
 			// Overworld
-			Overworld.OpenNodes();
+			Overworld.OpenNodes(flags);
 			Battlefields.SetBattlesQty(flags.BattlesQuantity, rng);
 			Battlefields.ShuffleBattelfieldRewards(flags.ShuffleBattlefieldRewards, Overworld, rng);
 
