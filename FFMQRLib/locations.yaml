@@ -1527,8 +1527,8 @@ rooms:
     id: 3
     x: 7
     y: 10
-    teleport_id: 39
-    teleport_type: 8
+    teleport_id: 95 # 39
+    teleport_type: 0 # 8
     access: []
   - name: Stairs to Gemini Room
     id: 4
@@ -2868,8 +2868,8 @@ rooms:
     id: 0
     x: 7
     y: 10
-    teleport_id: 38
-    teleport_type: 8
+    teleport_id: 178 # 38
+    teleport_type: 0 # 8
     access: []
   - name: Basement Stairs
     id: 2
@@ -3876,3 +3876,213 @@ entrances_links_list:
   entrance_b: [70, 8]
 - entrance_a: [43, 8]
   entrance_b: [61, 8]
+- entrance_a: [00, 0] # Focus Tower
+  entrance_b: [07, 0]
+- entrance_a: [01, 0] 
+  entrance_b: [08, 0]
+- entrance_a: [05, 0] 
+  entrance_b: [12, 0]
+- entrance_a: [04, 0] 
+  entrance_b: [11, 0]
+- entrance_a: [06, 0] 
+  entrance_b: [15, 0]
+- entrance_a: [10, 0] 
+  entrance_b: [17, 0]
+- entrance_a: [13, 0] # > To Doom Castle
+  entrance_b: [84, 0]
+- entrance_a: [14, 0] 
+  entrance_b: [18, 0]
+- entrance_a: [20, 0] 
+  entrance_b: [24, 0]
+- entrance_a: [19, 0] 
+  entrance_b: [23, 0]
+- entrance_a: [32, 4] # Foresta
+  entrance_b: [34, 0]
+- entrance_a: [33, 0] 
+  entrance_b: [35, 0]
+- entrance_a: [00, 5] 
+  entrance_b: [86, 3]
+- entrance_a: [01, 5] 
+  entrance_b: [87, 3]
+- entrance_a: [02, 2] # Bone Dungeon
+  entrance_b: [88, 3]
+- entrance_a: [03, 2] 
+  entrance_b: [89, 3]
+- entrance_a: [04, 2] 
+  entrance_b: [90, 3]
+- entrance_a: [05, 2] 
+  entrance_b: [91, 3]
+- entrance_a: [06, 2] 
+  entrance_b: [92, 3]
+- entrance_a: [07, 2] 
+  entrance_b: [93, 3]
+- entrance_a: [08, 2] 
+  entrance_b: [94, 3]
+- entrance_a: [09, 2]
+  entrance_b: [95, 3]
+- entrance_a: [10, 5] # Aquaria
+  entrance_b: [05, 8]
+- entrance_a: [44, 4] 
+  entrance_b: [40, 8]
+- entrance_a: [11, 5] 
+  entrance_b: [75, 8]
+- entrance_a: [42, 0] # Spencer entrance, how to handle exactly? not shuffle? collapse in one entrance?
+  entrance_b: [82, 0]
+- entrance_a: [43, 0] 
+  entrance_b: [83, 0]
+- entrance_a: [47, 0] 
+  entrance_b: [48, 0]
+- entrance_a: [14, 2] # Wintry Cave
+  entrance_b: [96, 3]
+- entrance_a: [15, 2] 
+  entrance_b: [97, 3]
+- entrance_a: [50, 0] 
+  entrance_b: [51, 0]
+- entrance_a: [57, 0] # Ice Pyramid
+  entrance_b: [62, 0]
+- entrance_a: [67, 0]
+  entrance_b: [69, 0]
+- entrance_a: [58, 0]
+  entrance_b: [63, 0]
+- entrance_a: [59, 0]
+  entrance_b: [64, 0]
+- entrance_a: [60, 0]
+  entrance_b: [65, 0]
+- entrance_a: [61, 0]
+  entrance_b: [66, 0]
+- entrance_a: [68, 0]
+  entrance_b: [69, 0]
+- entrance_a: [71, 0]
+  entrance_b: [72, 0]
+- entrance_a: [73, 0]
+  entrance_b: [74, 0]
+- entrance_a: [75, 0]
+  entrance_b: [80, 0]
+- entrance_a: [76, 0]
+  entrance_b: [79, 0]
+- entrance_a: [78, 0]
+  entrance_b: [55, 0]
+- entrance_a: [81, 0] # Spencer Cave 2
+  entrance_b: [85, 0]
+- entrance_a: [91, 0] # Fireburg
+  entrance_b: [95, 0]
+- entrance_a: [96, 0]
+  entrance_b: [97, 0]
+- entrance_a: [16, 2]
+  entrance_b: [98, 3]
+- entrance_a: [17, 2]
+  entrance_b: [99, 3]
+- entrance_a: [213, 0]
+  entrance_b: [214, 0]
+- entrance_a: [11, 8]
+  entrance_b: [09, 8]
+- entrance_a: [93, 0]
+  entrance_b: [94, 0]
+- entrance_a: [99, 0] # Mine
+  entrance_b: [100, 0]
+- entrance_a: [20, 2]
+  entrance_b: [100, 3]
+- entrance_a: [21, 2]
+  entrance_b: [101, 3]
+- entrance_a: [22, 2]
+  entrance_b: [102, 3]
+- entrance_a: [31, 8] # Volcano
+  entrance_b: [27, 8]
+- entrance_a: [30, 8]
+  entrance_b: [15, 8]
+- entrance_a: [25, 2]
+  entrance_b: [103, 3]
+- entrance_a: [29, 8]
+  entrance_b: [26, 8]
+- entrance_a: [26, 2]
+  entrance_b: [104, 3]
+- entrance_a: [28, 8]
+  entrance_b: [79, 8]
+- entrance_a: [105, 0] # Lava Dome
+  entrance_b: [127, 0]
+- entrance_a: [106, 0]
+  entrance_b: [128, 0]
+- entrance_a: [108, 0]
+  entrance_b: [133, 0]
+- entrance_a: [111, 0]
+  entrance_b: [134, 0]
+- entrance_a: [107, 0]
+  entrance_b: [129, 0]
+- entrance_a: [109, 0]
+  entrance_b: [135, 0]
+- entrance_a: [110, 0]
+  entrance_b: [123, 0]
+- entrance_a: [112, 0]
+  entrance_b: [124, 0]
+- entrance_a: [113, 0]
+  entrance_b: [117, 0]
+- entrance_a: [114, 0]
+  entrance_b: [116, 0]
+- entrance_a: [29, 2]
+  entrance_b: [105, 3]
+- entrance_a: [138, 0]
+  entrance_b: [139, 0]
+- entrance_a: [115, 0]
+  entrance_b: [16, 0]
+- entrance_a: [119, 0]
+  entrance_b: [118, 0]
+- entrance_a: [120, 0]
+  entrance_b: [136, 0]
+- entrance_a: [121, 0]
+  entrance_b: [130, 0]
+- entrance_a: [122, 0]
+  entrance_b: [125, 0]
+- entrance_a: [126, 0]
+  entrance_b: [131, 0]
+- entrance_a: [132, 0]
+  entrance_b: [137, 0]
+- entrance_a: [143, 0] # Alive Forest
+  entrance_b: [49, 8]
+- entrance_a: [144, 0] # Giant Tree
+  entrance_b: [145, 0]
+- entrance_a: [149, 0]
+  entrance_b: [150, 0]
+- entrance_a: [151, 0]
+  entrance_b: [00, 0]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

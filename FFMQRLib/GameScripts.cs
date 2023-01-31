@@ -854,6 +854,8 @@ namespace FFMQLib
 			MapObjects[0x46][0x04].RawOverwrite(Blob.FromHex("0002073816002C")); // Put new map object to talk to
 			GameMaps[(int)MapList.GiantTreeB].ModifyMap(0x38, 0x07, 0x3E); // Change map to block exit
 			Teleporters.TeleportersA[0x94].TargetY = 0x08;  // Change exit coordinate
+			MapChanges
+
 
 			TalkScripts.AddScript(0x02, new ScriptBuilder(new List<string>
 				{
