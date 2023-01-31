@@ -247,7 +247,7 @@ namespace FFMQLib
 			{
 				Items.LibraCrest,
 				Items.LibraCrest,
-				Items.LibraCrest,
+				Items.GeminiCrest,
 				Items.GeminiCrest,
 				Items.GeminiCrest,
 				//Items.GeminiCrest, Spencer's cave crests
@@ -368,6 +368,28 @@ namespace FFMQLib
 				((0x20, 6), (61, 8), LocationIds.ShipDock, AccessReqs.ShipDockCrestTile, true, 0),
 			};
 
+			List<(AccessReqs, Items)> vanillaCrests = new()
+			{
+				(AccessReqs.WoodHouseLibraCrestTile, Items.LibraCrest),
+				(AccessReqs.WoodHouseGeminiCrestTile, Items.GeminiCrest),
+				(AccessReqs.WoodHouseMobiusCrestTile, Items.MobiusCrest),
+				(AccessReqs.AquariaVendorCrestTile, Items.GeminiCrest),
+				(AccessReqs.LibraTempleCrestTile, Items.LibraCrest),
+				(AccessReqs.LifeTempleCrestTile, Items.LibraCrest),
+				(AccessReqs.AliveForestLibraCrestTile, Items.LibraCrest),
+				(AccessReqs.AliveForestGeminiCrestTile, Items.GeminiCrest),
+				(AccessReqs.AliveForestMobiusCrestTile, Items.MobiusCrest),
+				(AccessReqs.WintryTempleCrestTile, Items.GeminiCrest),
+				(AccessReqs.SealedTempleCrestTile, Items.GeminiCrest),
+				(AccessReqs.FireburgVendorCrestTile, Items.GeminiCrest),
+				(AccessReqs.FireburgGrenademanCrestTile, Items.MobiusCrest),
+				(AccessReqs.KaidgeTempleCrestTile, Items.MobiusCrest),
+				(AccessReqs.LightTempleCrestTile, Items.MobiusCrest),
+				(AccessReqs.WindiaKidsCrestTile, Items.MobiusCrest),
+				(AccessReqs.WindiaDockCrestTile, Items.MobiusCrest),
+				(AccessReqs.ShipDockCrestTile, Items.MobiusCrest),
+			};
+
 			List<(MapList map, Items crest, byte tile)> crestMapTiles = new()
 			{
 				(MapList.LevelAliveForest, Items.LibraCrest, 0x52), // +1 for actual tile
@@ -421,6 +443,7 @@ namespace FFMQLib
 				crest.Priority = teleporterValue.priority;
 				crest.Location = teleporterValue.location;
 				crest.LocationRequirement = teleporterValue.access;
+				crest.Crest = vanillaCrests.Find(x => x.Item1 == teleporterValue.access).Item2;
 				crest.Area = Rooms.Find(x => x.Entrances.Where(e => (e.TeleportId == crest.EntranceId.id) && (e.TeleportType == crest.EntranceId.type)).Any()).AreaId;
 				crest.Map = areaToMap.Find(x => x.area == crest.Area).map;
 			}
