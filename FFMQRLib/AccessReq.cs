@@ -233,11 +233,11 @@ namespace FFMQLib
 		public static TreasureObject DoomCastle02 = new TreasureObject(0x1E, (int)MapList.FocusTowerBase, LocationIds.DoomCastle, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.DragonClaw, AccessReqs.Bomb } });
 		public static TreasureObject DoomCastle03 = new TreasureObject(0x1F, (int)MapList.FocusTowerBase, LocationIds.DoomCastle, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.DragonClaw } });
 		// public static TreasureObject FocusTower03 = new TreasureObject(0x1F, (int)MapList.FocusTowerBase, LocationIds.FocusTowerWest, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.DragonClaw } }); Wind Chest??
-		public static TreasureObject FocusTower05 = new TreasureObject(0x00, (int)MapList.FocusTowerBase, LocationIds.FocusTowerSouth, TreasureType.Chest, "SunCoin Chest", new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.SunCoin } });
-		public static TreasureObject FocusTower01 = new TreasureObject(0x21, (int)MapList.FocusTower, LocationIds.FocusTowerSouth, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } });
-		public static TreasureObject FocusTower02 = new TreasureObject(0x22, (int)MapList.FocusTower, LocationIds.FocusTowerEast, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } });
-		public static TreasureObject FocusTower03 = new TreasureObject(0x02, (int)MapList.FocusTower, LocationIds.FocusTowerNorth, TreasureType.Chest, "Backdoor Chest", new List<List<AccessReqs>> { new List<AccessReqs> { } });
-		public static TreasureObject FocusTower04 = new TreasureObject(0x03, (int)MapList.FocusTower, LocationIds.FocusTowerSouth, TreasureType.Chest, "SandCoin Chest", new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.SandCoin } });
+		public static TreasureObject FocusTower05 = new TreasureObject(0x00, (int)MapList.FocusTowerBase, LocationIds.FocusTowerForesta, TreasureType.Chest, "SunCoin Chest", new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.SunCoin } });
+		public static TreasureObject FocusTower01 = new TreasureObject(0x21, (int)MapList.FocusTower, LocationIds.FocusTowerForesta, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } });
+		public static TreasureObject FocusTower02 = new TreasureObject(0x22, (int)MapList.FocusTower, LocationIds.FocusTowerFireburg, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { } });
+		public static TreasureObject FocusTower03 = new TreasureObject(0x02, (int)MapList.FocusTower, LocationIds.FocusTowerFrozen, TreasureType.Chest, "Backdoor Chest", new List<List<AccessReqs>> { new List<AccessReqs> { } });
+		public static TreasureObject FocusTower04 = new TreasureObject(0x03, (int)MapList.FocusTower, LocationIds.FocusTowerForesta, TreasureType.Chest, "SandCoin Chest", new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.SandCoin } });
 		public static TreasureObject DoomCastle04 = new TreasureObject(0xE7, (int)MapList.DoomCastleIce, LocationIds.DoomCastle, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Sword, AccessReqs.DragonClaw } });
 		public static TreasureObject DoomCastle06 = new TreasureObject(0xE8, (int)MapList.DoomCastleIce, LocationIds.DoomCastle, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Sword, AccessReqs.DragonClaw } });
 		public static TreasureObject DoomCastle07 = new TreasureObject(0xE9, (int)MapList.DoomCastleIce, LocationIds.DoomCastle, TreasureType.Box, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Sword, AccessReqs.DragonClaw } });
@@ -269,7 +269,7 @@ namespace FFMQLib
 		//public static TreasureObject PhoebeFallBasin = new TreasureObject((int)ItemGivingNPCs.PhoebeFallBasin, (int)MapList.FallBasin, LocationIds.FallsBasin, TreasureType.NPC, new List<List<AccessReqs>> { new List<AccessReqs> { } });
 		//public static TreasureObject IceGolem = new TreasureObject(0x07, (int)MapList.IcePyramidA, LocationIds.IcePyramid, TreasureType.NPC, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Sword, AccessReqs.Bomb, AccessReqs.Claw } });
 		public static TreasureObject Spencer = new TreasureObject((int)ItemGivingNPCs.Spencer, (int)MapList.SpencerCave, LocationIds.Aquaria, TreasureType.NPC, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.WakeWater, AccessReqs.AquariaPlaza } });
-		public static TreasureObject VenusChest = new TreasureObject((int)ItemGivingNPCs.VenusChest, (int)MapList.FocusTowerBase, LocationIds.FocusTowerNorth, TreasureType.NPC, "Venus Chest", new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.VenusKey, AccessReqs.Bomb } });
+		public static TreasureObject VenusChest = new TreasureObject((int)ItemGivingNPCs.VenusChest, (int)MapList.FocusTowerBase, LocationIds.FocusTowerFrozen, TreasureType.NPC, "Venus Chest", new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.VenusKey, AccessReqs.Bomb } });
 		public static TreasureObject TristamFireburg = new TreasureObject((int)ItemGivingNPCs.TristamFireburg, (int)MapList.Fireburg, LocationIds.Fireburg, TreasureType.NPC, "Tristam", new List<List<AccessReqs>> { new List<AccessReqs> { } });
 		public static TreasureObject SellerFireburg = new TreasureObject((int)ItemGivingNPCs.WomanFireburg, (int)MapList.Fireburg, LocationIds.Fireburg, TreasureType.NPC, "Fireburg Vendor Girl", new List<List<AccessReqs>> { new List<AccessReqs> { } });
 		public static TreasureObject ReubenMine = new TreasureObject((int)ItemGivingNPCs.PhoebeFallBasin, (int)MapList.VolcanoTop, LocationIds.Mine, TreasureType.NPC, "Reuben", new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Claw, AccessReqs.MineCliff, AccessReqs.Reuben1 } });
@@ -277,7 +277,7 @@ namespace FFMQLib
 		//public static TreasureObject GiantTree = new TreasureObject(0x0C, (int)MapList.LevelAliveForest, LocationIds.AliveForest, TreasureType.NPC, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Axe } });
 		public static TreasureObject TristamSpencerPlace = new TreasureObject((int)ItemGivingNPCs.TristamSpencersPlace, (int)MapList.SpencerCave, LocationIds.Aquaria, TreasureType.NPC, "Tristam's Chest", new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.VenusKey, AccessReqs.WakeWater } });
 		//public static TreasureObject Pazuzu = new TreasureObject(0x0E, (int)MapList.PazuzuTowerB, LocationIds.PazuzusTower, TreasureType.NPC, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.DragonClaw } });
-		public static TreasureObject Arion = new TreasureObject((int)ItemGivingNPCs.ArionFireburg, (int)MapList.Fireburg, LocationIds.Fireburg, TreasureType.NPC, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Claw, AccessReqs.MegaGrenade, AccessReqs.MineCliff, AccessReqs.ReubenDad } });
+		public static TreasureObject Arion = new TreasureObject((int)ItemGivingNPCs.ArionFireburg, (int)MapList.Fireburg, LocationIds.Fireburg, TreasureType.NPC, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Claw, AccessReqs.MegaGrenade, AccessReqs.MineCliff, AccessReqs.ReubenDadSaved } });
 		public static TreasureObject KaeliWindia = new TreasureObject((int)ItemGivingNPCs.KaeliWindia, (int)MapList.Windia, LocationIds.Windia, TreasureType.NPC, "Kaeli", new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.Kaeli1, AccessReqs.Elixir, AccessReqs.TreeWither } });
 		public static TreasureObject SellerWindia = new TreasureObject((int)ItemGivingNPCs.GirlWindia, (int)MapList.Windia, LocationIds.Windia, TreasureType.NPC, "Windia Vendor Girl", new List<List<AccessReqs>> { new List<AccessReqs> { } });
 		//public static TreasureObject Kaeli02 = new TreasureObject(0x04, (int)MapList.Windia, LocationIds.Windia, TreasureType.NPC, new List<List<AccessReqs>> { new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.ThunderRock, AccessReqs.MegaGrenade } });
@@ -285,7 +285,7 @@ namespace FFMQLib
 
 		public static TreasureObject DummySandTemple = new TreasureObject(0x00, (int)MapList.Caves, LocationIds.SandTemple, TreasureType.Dummy, new List<List<AccessReqs>> { new List<AccessReqs> { } });
 		public static TreasureObject DummyShipDock = new TreasureObject(0x00, (int)MapList.Caves, LocationIds.ShipDock, TreasureType.Dummy, new List<List<AccessReqs>> { new List<AccessReqs> { } });
-		public static TreasureObject DummyFocusTowerSouth2 = new TreasureObject(0x00, (int)MapList.Caves, LocationIds.FocusTowerSouth2, TreasureType.Dummy, new List<List<AccessReqs>> { new List<AccessReqs> { } });
+		public static TreasureObject DummyFocusTowerSouth2 = new TreasureObject(0x00, (int)MapList.Caves, LocationIds.FocusTowerWindia, TreasureType.Dummy, new List<List<AccessReqs>> { new List<AccessReqs> { } });
 
 		public static List<TreasureObject> AllChests()
 		{
@@ -532,8 +532,8 @@ namespace FFMQLib
 			{ LocationIds.Foresta, new List<AccessReqs> { } },
 			{ LocationIds.SandTemple, new List<AccessReqs> { } },
 			{ LocationIds.BoneDungeon, new List<AccessReqs> { } },
-			{ LocationIds.FocusTowerSouth, new List<AccessReqs> { } },
-			{ LocationIds.FocusTowerWest, new List<AccessReqs> { AccessReqs.SandCoin } },
+			{ LocationIds.FocusTowerForesta, new List<AccessReqs> { } },
+			{ LocationIds.FocusTowerAquaria, new List<AccessReqs> { AccessReqs.SandCoin } },
 			{ LocationIds.LibraTemple, new List<AccessReqs> { AccessReqs.SandCoin  } },
 			{ LocationIds.Aquaria, new List<AccessReqs> { AccessReqs.SandCoin } },
 			{ LocationIds.WintryCave, new List<AccessReqs> { AccessReqs.SandCoin  } },
@@ -542,14 +542,14 @@ namespace FFMQLib
 			{ LocationIds.IcePyramid, new List<AccessReqs> { AccessReqs.SandCoin } },
 			{ LocationIds.SpencersPlace, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater } },
 			{ LocationIds.WintryTemple, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater } },
-			{ LocationIds.FocusTowerNorth, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater } },
-			{ LocationIds.FocusTowerEast, new List<AccessReqs> { AccessReqs.RiverCoin } },
+			{ LocationIds.FocusTowerFrozen, new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater } },
+			{ LocationIds.FocusTowerFireburg, new List<AccessReqs> { AccessReqs.RiverCoin } },
 			{ LocationIds.Fireburg, new List<AccessReqs> { AccessReqs.RiverCoin } },
 			{ LocationIds.Mine, new List<AccessReqs> { AccessReqs.RiverCoin } },
 			{ LocationIds.SealedTemple, new List<AccessReqs> { AccessReqs.RiverCoin } },
 			{ LocationIds.Volcano, new List<AccessReqs> { AccessReqs.RiverCoin } },
 			{ LocationIds.LavaDome, new List<AccessReqs> { AccessReqs.RiverCoin } },
-			{ LocationIds.FocusTowerSouth2, new List<AccessReqs> { AccessReqs.SunCoin } },
+			{ LocationIds.FocusTowerWindia, new List<AccessReqs> { AccessReqs.SunCoin } },
 			{ LocationIds.RopeBridge, new List<AccessReqs> { AccessReqs.SunCoin } },
 			{ LocationIds.AliveForest, new List<AccessReqs> { AccessReqs.SunCoin } },
 			{ LocationIds.GiantTree, new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.Axe } },
@@ -583,7 +583,7 @@ namespace FFMQLib
 			( LocationIds.LibraTemple, new List<AccessReqs> { AccessReqs.Phoebe1, AccessReqs.LibraTempleCrestTile } ),
 			( LocationIds.LifeTemple, new List<AccessReqs> { AccessReqs.LifeTempleCrestTile } ),
 			( LocationIds.Aquaria, new List<AccessReqs> { AccessReqs.AquariaPlaza, AccessReqs.AquariaVendorCrestTile } ),
-			( LocationIds.Fireburg, new List<AccessReqs> { AccessReqs.Tristam, AccessReqs.Reuben1, AccessReqs.ReubenDad, AccessReqs.FireburgVendorCrestTile, AccessReqs.FireburgGrenademanCrestTile } ),
+			( LocationIds.Fireburg, new List<AccessReqs> { AccessReqs.Tristam, AccessReqs.Reuben1, AccessReqs.ReubenDadSaved, AccessReqs.FireburgVendorCrestTile, AccessReqs.FireburgGrenademanCrestTile } ),
 			( LocationIds.SealedTemple, new List<AccessReqs> { AccessReqs.SealedTempleCrestTile } ),
 			( LocationIds.Mine, new List<AccessReqs> { AccessReqs.MineCliff } ),
 			( LocationIds.LavaDome, new List<AccessReqs> { AccessReqs.DualheadHydra } ),
@@ -634,8 +634,8 @@ namespace FFMQLib
 			(MapRegions.Foresta, LocationIds.Foresta),
 			(MapRegions.Foresta, LocationIds.SandTemple),
 			(MapRegions.Foresta, LocationIds.BoneDungeon),
-			(MapRegions.Foresta, LocationIds.FocusTowerSouth),
-			(MapRegions.Aquaria, LocationIds.FocusTowerWest),
+			(MapRegions.Foresta, LocationIds.FocusTowerForesta),
+			(MapRegions.Aquaria, LocationIds.FocusTowerAquaria),
 			(MapRegions.Aquaria, LocationIds.LibraTemple),
 			(MapRegions.Aquaria, LocationIds.Aquaria),
 			(MapRegions.Aquaria, LocationIds.WintryCave),
@@ -643,14 +643,14 @@ namespace FFMQLib
 			(MapRegions.Aquaria, LocationIds.FallsBasin),
 			(MapRegions.Aquaria, LocationIds.IcePyramid),
 			(MapRegions.Aquaria, LocationIds.WintryTemple),
-			(MapRegions.Aquaria, LocationIds.FocusTowerNorth),
-			(MapRegions.Fireburg, LocationIds.FocusTowerEast),
+			(MapRegions.Aquaria, LocationIds.FocusTowerFrozen),
+			(MapRegions.Fireburg, LocationIds.FocusTowerFireburg),
 			(MapRegions.Fireburg, LocationIds.Fireburg),
 			(MapRegions.Fireburg, LocationIds.Mine),
 			(MapRegions.Fireburg, LocationIds.SealedTemple),
 			(MapRegions.Fireburg, LocationIds.Volcano),
 			(MapRegions.Fireburg, LocationIds.LavaDome),
-			(MapRegions.Windia, LocationIds.FocusTowerSouth2),
+			(MapRegions.Windia, LocationIds.FocusTowerWindia),
 			(MapRegions.Windia, LocationIds.RopeBridge),
 			(MapRegions.Windia, LocationIds.AliveForest),
 			(MapRegions.Windia, LocationIds.GiantTree),
@@ -692,8 +692,8 @@ namespace FFMQLib
 			(SubRegions.Foresta, LocationIds.Foresta),
 			(SubRegions.Foresta, LocationIds.SandTemple),
 			(SubRegions.Foresta, LocationIds.BoneDungeon),
-			(SubRegions.Foresta, LocationIds.FocusTowerSouth),
-			(SubRegions.Aquaria, LocationIds.FocusTowerWest),
+			(SubRegions.Foresta, LocationIds.FocusTowerForesta),
+			(SubRegions.Aquaria, LocationIds.FocusTowerAquaria),
 			(SubRegions.Aquaria, LocationIds.LibraTemple),
 			(SubRegions.Aquaria, LocationIds.Aquaria),
 			(SubRegions.Aquaria, LocationIds.WintryCave),
@@ -701,14 +701,14 @@ namespace FFMQLib
 			(SubRegions.Aquaria, LocationIds.FallsBasin),
 			(SubRegions.Aquaria, LocationIds.IcePyramid),
 			(SubRegions.AquariaFrozenField, LocationIds.WintryTemple),
-			(SubRegions.AquariaFrozenField, LocationIds.FocusTowerNorth),
-			(SubRegions.Fireburg, LocationIds.FocusTowerEast),
+			(SubRegions.AquariaFrozenField, LocationIds.FocusTowerFrozen),
+			(SubRegions.Fireburg, LocationIds.FocusTowerFireburg),
 			(SubRegions.Fireburg, LocationIds.Fireburg),
 			(SubRegions.Fireburg, LocationIds.Mine),
 			(SubRegions.Fireburg, LocationIds.SealedTemple),
 			(SubRegions.Fireburg, LocationIds.Volcano),
 			(SubRegions.Fireburg, LocationIds.LavaDome),
-			(SubRegions.Windia, LocationIds.FocusTowerSouth2),
+			(SubRegions.Windia, LocationIds.FocusTowerWindia),
 			(SubRegions.Windia, LocationIds.RopeBridge),
 			(SubRegions.Windia, LocationIds.AliveForest),
 			(SubRegions.Windia, LocationIds.GiantTree),

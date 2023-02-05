@@ -1069,6 +1069,7 @@ namespace FFMQLib
 				_mapchanges.Add(rom.GetFromBank(MapChangesBankOld, MapChangesEntriesOld + pointer.ToUShorts()[0], size + 3));
 			}
 
+			MapChangeActions = new();
 			var actionInitialPointers = rom.GetFromBank(MapChangesBankOld, MapActionsInitialPointers, MapActionsQty);
 
 			for (int i = 0; i < actionInitialPointers.Length; i++)
@@ -1076,7 +1077,7 @@ namespace FFMQLib
 				byte individualPointer = actionInitialPointers[i];
 				if (individualPointer != 0xFF)
 				{
-					var actualPointer = rom.GetFromBank(MapChangesBankOld, MapActionsSecondaryPointers + individualPointer, 2).ToUShorts()[0];
+					var actualPointer = rom.GetFromBank(MapChangesBankOld, MapActionsSecondaryPointers + (individualPointer * 2), 2).ToUShorts()[0];
 
 					var action = rom.GetFromBank(MapChangesBankOld, MapActionsOffset + actualPointer, 3);
 

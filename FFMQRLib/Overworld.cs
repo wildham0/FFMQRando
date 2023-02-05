@@ -35,7 +35,7 @@ namespace FFMQLib
         //private List<NodeObject> nodesObjects;
 
 
-        public Overworld(FFMQRom rom, List<Room> rooms)
+        public Overworld(FFMQRom rom, List<RoomLegacy> rooms)
         {
             Rooms = rooms;
             

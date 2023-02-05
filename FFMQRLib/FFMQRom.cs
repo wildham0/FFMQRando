@@ -157,6 +157,8 @@ namespace FFMQLib
 
 			LocationStructure tempLocat = new(this);
 			tempLocat.ReadRooms();
+			Rooms temprooms = new();
+			temprooms.ReadRooms();
 
 			EnemyAttackLinks = new(this);
 			Attacks = new(this);
@@ -188,7 +190,7 @@ namespace FFMQLib
 
 			// spoilersText = tempLocat.GenerateYaml();
 			tempLocat.EntranceHack(this);
-			tempLocat.UpdateCrests(flags, TileScripts, GameMaps, rng);
+			//tempLocat.UpdateCrests(flags, TileScripts, GameMaps, rng);
 			//Teleporters temptele = new(this);
 			//temptele.ExtraTeleporters();
 			//temptele.Write(this);
@@ -209,6 +211,7 @@ namespace FFMQLib
 			Battlefields.ShuffleBattelfieldRewards(flags.ShuffleBattlefieldRewards, Overworld, rng);
 
 			var startingLocation = Overworld.ShuffleEntrances(flags, Battlefields, rng);
+			temprooms.CrawlRooms(Overworld);
 			// Items
 			ItemsPlacement itemsPlacement = new(flags, Battlefields, Overworld, tempLocat, this, rng);
 

@@ -59,14 +59,14 @@ namespace FFMQLib
 		}
 
 	}
-	public class Room
+	public class RoomLegacy
 	{
 		public string Name { get; set; }
 		public int Id { get; set; }
 		public int AreaId { get; set; }
 		public List<TreasureObject> Treasures { get; set; }
 		public List<Entrance> Entrances { get; set; }
-		public Room(string name, int id, int area, List<TreasureObject> treasures, List<Entrance> entrances)
+		public RoomLegacy(string name, int id, int area, List<TreasureObject> treasures, List<Entrance> entrances)
 		{
 			Name = name;
 			Id = id;
@@ -74,7 +74,7 @@ namespace FFMQLib
 			Treasures = treasures; // shallowcopy?
 			Entrances = entrances;
 		}
-		public Room()
+		public RoomLegacy()
 		{
 			Name = "void";
 			Id = 0;
@@ -166,7 +166,7 @@ namespace FFMQLib
 
 	public class LocationStructure
 	{
-		public List<Room> Rooms {get; set;}
+		public List<RoomLegacy> Rooms {get; set;}
 		public List<EntrancesLink> EntrancesLinks { get; set; }
 		public List<EntrancesLinkList> EntrancesLinksList { get; set; }
 		public List<CrestTile> CrestTiles { get; set; }
@@ -226,7 +226,7 @@ namespace FFMQLib
 					currentEntrance++;
 				}
 
-				Rooms.Add(new Room("void", i, i, new List<TreasureObject>(), tempEntrances));
+				Rooms.Add(new RoomLegacy("void", i, i, new List<TreasureObject>(), tempEntrances));
 			}
 
 			EntrancesLinks = new();

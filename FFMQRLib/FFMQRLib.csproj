@@ -6,9 +6,11 @@
 
   <ItemGroup>
     <None Remove="locations.yaml" />
+    <None Remove="rooms.yaml" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="rooms.yaml" />
     <EmbeddedResource Include="locations.yaml" />
   </ItemGroup>
 

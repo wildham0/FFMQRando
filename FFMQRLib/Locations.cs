@@ -147,7 +147,7 @@ namespace FFMQLib
 
 		private List<byte> ShipWestSteps = new();
 		private List<byte> ShipEastSteps = new();
-		private List<Room> Rooms;
+		private List<RoomLegacy> Rooms;
 	
 		private const int OWMovementBank = 0x07;
 		private const int OWMovementArrows = 0xEE84;
@@ -357,12 +357,12 @@ namespace FFMQLib
 			Locations[(int)LocationIds.BoneDungeon].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.BoneDungeon };
 			Locations[(int)LocationIds.BoneDungeon].TargetTeleporter = (37, 0);
 
-			Locations[(int)LocationIds.FocusTowerSouth].OwMapObjects = new List<OverworldMapObjects> { };
-			Locations[(int)LocationIds.FocusTowerSouth].TargetTeleporter = (2, 6);
+			Locations[(int)LocationIds.FocusTowerForesta].OwMapObjects = new List<OverworldMapObjects> { };
+			Locations[(int)LocationIds.FocusTowerForesta].TargetTeleporter = (2, 6);
 
-			Locations[(int)LocationIds.FocusTowerWest].OwMapObjects = new List<OverworldMapObjects> { };
-			Locations[(int)LocationIds.FocusTowerWest].TargetTeleporter = (4, 6);
-			Locations[(int)LocationIds.FocusTowerWest].AccessRequirements = new List<List<AccessReqs>> {
+			Locations[(int)LocationIds.FocusTowerAquaria].OwMapObjects = new List<OverworldMapObjects> { };
+			Locations[(int)LocationIds.FocusTowerAquaria].TargetTeleporter = (4, 6);
+			Locations[(int)LocationIds.FocusTowerAquaria].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin },
 				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
@@ -419,16 +419,16 @@ namespace FFMQLib
 				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
-			Locations[(int)LocationIds.FocusTowerNorth].OwMapObjects = new List<OverworldMapObjects> { };
-			Locations[(int)LocationIds.FocusTowerNorth].TargetTeleporter = (5, 6);
-			Locations[(int)LocationIds.FocusTowerNorth].AccessRequirements = new List<List<AccessReqs>> {
+			Locations[(int)LocationIds.FocusTowerFrozen].OwMapObjects = new List<OverworldMapObjects> { };
+			Locations[(int)LocationIds.FocusTowerFrozen].TargetTeleporter = (5, 6);
+			Locations[(int)LocationIds.FocusTowerFrozen].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
 
-			Locations[(int)LocationIds.FocusTowerEast].OwMapObjects = new List<OverworldMapObjects> { };
-			Locations[(int)LocationIds.FocusTowerEast].TargetTeleporter = (6, 6);
-			Locations[(int)LocationIds.FocusTowerEast].AccessRequirements = new List<List<AccessReqs>> {
+			Locations[(int)LocationIds.FocusTowerFireburg].OwMapObjects = new List<OverworldMapObjects> { };
+			Locations[(int)LocationIds.FocusTowerFireburg].TargetTeleporter = (6, 6);
+			Locations[(int)LocationIds.FocusTowerFireburg].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.RiverCoin },
 				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
 			};
@@ -468,9 +468,9 @@ namespace FFMQLib
 				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.AquariaPlaza, AccessReqs.WakeWater, AccessReqs.DualheadHydra },
 			};
 
-			Locations[(int)LocationIds.FocusTowerSouth2].OwMapObjects = new List<OverworldMapObjects> { };
-			Locations[(int)LocationIds.FocusTowerSouth2].TargetTeleporter = (3, 6);
-			Locations[(int)LocationIds.FocusTowerSouth2].AccessRequirements = new List<List<AccessReqs>> {
+			Locations[(int)LocationIds.FocusTowerWindia].OwMapObjects = new List<OverworldMapObjects> { };
+			Locations[(int)LocationIds.FocusTowerWindia].TargetTeleporter = (3, 6);
+			Locations[(int)LocationIds.FocusTowerWindia].AccessRequirements = new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SunCoin },
 			};
 
@@ -578,12 +578,12 @@ namespace FFMQLib
 		}
 		public void DoomCastleShortcut()
 		{
-			Locations[(int)LocationIds.FocusTowerSouth].DirectionFlags[(int)NodeDirections.South] = (int)GameFlagsList.HillCollapsed;
-			Locations[(int)LocationIds.FocusTowerSouth].Destinations[(int)NodeDirections.South] = LocationIds.DoomCastle;
-			Locations[(int)LocationIds.FocusTowerSouth].Steps[(int)NodeDirections.South] = new List<byte> { 0xC6 };
+			Locations[(int)LocationIds.FocusTowerForesta].DirectionFlags[(int)NodeDirections.South] = (int)GameFlagsList.HillCollapsed;
+			Locations[(int)LocationIds.FocusTowerForesta].Destinations[(int)NodeDirections.South] = LocationIds.DoomCastle;
+			Locations[(int)LocationIds.FocusTowerForesta].Steps[(int)NodeDirections.South] = new List<byte> { 0xC6 };
 
 			Locations[(int)LocationIds.DoomCastle].DirectionFlags[(int)NodeDirections.North] = (int)GameFlagsList.HillCollapsed;
-			Locations[(int)LocationIds.DoomCastle].Destinations[(int)NodeDirections.North] = LocationIds.FocusTowerSouth;
+			Locations[(int)LocationIds.DoomCastle].Destinations[(int)NodeDirections.North] = LocationIds.FocusTowerForesta;
 			Locations[(int)LocationIds.DoomCastle].Steps[(int)NodeDirections.North] = new List<byte> { 0x86 };
 		}
 		public LocationIds ShuffleEntrances(Flags flags, Battlefields battlefields, MT19337 rng)
@@ -598,7 +598,7 @@ namespace FFMQLib
 			var safeGoldBattlefield = (LocationIds)(battlefields.GetAllRewardType().Select((x, i) => (i, x)).ToList().Find(x => x.x == BattlefieldRewardType.Gold).i + 1);
 
 			List<LocationIds> validLocations = Enum.GetValues<LocationIds>().ToList();
-			List<LocationIds> invalidLocations = new() { LocationIds.DoomCastle, LocationIds.FocusTowerEast, LocationIds.FocusTowerNorth, LocationIds.FocusTowerSouth, LocationIds.FocusTowerSouth2, LocationIds.FocusTowerWest, LocationIds.GiantTree, LocationIds.HillOfDestiny, LocationIds.LifeTemple, LocationIds.LightTemple, LocationIds.MacsShip, LocationIds.MacsShipDoom, LocationIds.None, LocationIds.ShipDock, LocationIds.SpencersPlace };
+			List<LocationIds> invalidLocations = new() { LocationIds.DoomCastle, LocationIds.FocusTowerForesta, LocationIds.FocusTowerAquaria, LocationIds.FocusTowerFrozen, LocationIds.FocusTowerFireburg, LocationIds.FocusTowerWindia, LocationIds.GiantTree, LocationIds.HillOfDestiny, LocationIds.LifeTemple, LocationIds.LightTemple, LocationIds.MacsShip, LocationIds.MacsShipDoom, LocationIds.None, LocationIds.ShipDock, LocationIds.SpencersPlace };
 			validLocations.RemoveAll(x => invalidLocations.Contains(x));
 
 			List<LocationIds> companionLocation = new() { LocationIds.SandTemple, LocationIds.LibraTemple, LocationIds.Fireburg };
