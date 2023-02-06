@@ -171,7 +171,7 @@ namespace FFMQLib
 			TileScripts = new(this, RomOffsets.TileScriptsPointers, RomOffsets.TileScriptPointerQty, RomOffsets.TileScriptOffset, RomOffsets.TileScriptEndOffset);
 			Battlefields = new(this);
 			MapChanges = new(this);
-			Overworld = new(this, tempLocat.Rooms);
+			Overworld = new(this, tempLocat.Entrances);
 			Teleporters = new(this);
 			MapSpriteSets = new(this);
 			TitleScreen titleScreen = new(this);
@@ -190,10 +190,7 @@ namespace FFMQLib
 
 			// spoilersText = tempLocat.GenerateYaml();
 			tempLocat.EntranceHack(this);
-			//tempLocat.UpdateCrests(flags, TileScripts, GameMaps, rng);
-			//Teleporters temptele = new(this);
-			//temptele.ExtraTeleporters();
-			//temptele.Write(this);
+			tempLocat.UpdateCrests(flags, TileScripts, GameMaps, temprooms.List, rng);
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
@@ -211,7 +208,7 @@ namespace FFMQLib
 			Battlefields.ShuffleBattelfieldRewards(flags.ShuffleBattlefieldRewards, Overworld, rng);
 
 			var startingLocation = Overworld.ShuffleEntrances(flags, Battlefields, rng);
-			temprooms.CrawlRooms(Overworld);
+			temprooms.CrawlRooms(Overworld, Battlefields);
 			// Items
 			ItemsPlacement itemsPlacement = new(flags, Battlefields, Overworld, tempLocat, this, rng);
 

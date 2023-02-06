@@ -773,7 +773,7 @@ namespace FFMQLib
 			(SubRegions.Foresta, new List<List<AccessReqs>> { new List<AccessReqs> { } }),
 			(SubRegions.Aquaria, new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.SummerAquaria },
 				//new List<AccessReqs> { AccessReqs.LifeTempleLibraTeleporter, AccessReqs.LibraCrest, AccessReqs.LibraTempleLibraTeleporter }
 			}),
 			(SubRegions.LifeTemple, new List<List<AccessReqs>> {
@@ -782,15 +782,15 @@ namespace FFMQLib
 			}),
 			(SubRegions.AquariaFrozenField, new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
+				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.SummerAquaria },
 			}),
 			(SubRegions.Fireburg, new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.RiverCoin },
-				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
+				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.DualheadHydra, AccessReqs.SummerAquaria },
 			}),
 			(SubRegions.VolcanoBattlefield, new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra },
-				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.DualheadHydra, AccessReqs.WakeWater, AccessReqs.AquariaPlaza },
+				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.DualheadHydra, AccessReqs.SummerAquaria },
 			}),
 			(SubRegions.Windia, new List<List<AccessReqs>> {
 				new List<AccessReqs> { AccessReqs.SunCoin },
@@ -805,10 +805,10 @@ namespace FFMQLib
 				new List<AccessReqs> { AccessReqs.Barred },
 			}),
 			(SubRegions.MacShip, new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.Barred },
+				new List<AccessReqs> { AccessReqs.ShipDockAccess, AccessReqs.ShipLiberated },
 			}),
 			(SubRegions.DoomCastle, new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.Barred },
+				new List<AccessReqs> { AccessReqs.ShipDockAccess, AccessReqs.ShipSteeringWheel, AccessReqs.ShipLoaned },
 			}),
 		};
 		public static Dictionary<Items, List<AccessReqs>> ItemAccessReq => new Dictionary<Items, List<AccessReqs>>
@@ -840,6 +840,44 @@ namespace FFMQLib
 			{ Items.JumboBomb, new List<AccessReqs> { AccessReqs.Bomb, AccessReqs.JumboBomb } },
 			{ Items.MegaGrenade, new List<AccessReqs> { AccessReqs.Bomb, AccessReqs.MegaGrenade } },
 			{ Items.ExitBook, new List<AccessReqs> { AccessReqs.ExitBook } },
+		};
+
+
+		public static List<(LocationIds, (int id, int type))> LocationsByEntrances = new()
+		{
+			(LocationIds.LevelForest, (25, 0)),
+			(LocationIds.Foresta, (31, 0)),
+			(LocationIds.SandTemple, (36, 0)),
+			(LocationIds.BoneDungeon, (37, 0)),
+			(LocationIds.FocusTowerForesta, (2, 6)),
+			(LocationIds.FocusTowerAquaria, (4, 6)),
+			(LocationIds.LibraTemple, (13, 6)),
+			(LocationIds.LifeTemple, (14, 6)),
+			(LocationIds.Aquaria, (8, 6)),
+			(LocationIds.WintryCave, (49, 0)),
+			(LocationIds.FallsBasin, (53, 0)),
+			(LocationIds.IcePyramid, (56, 0)),
+			(LocationIds.SpencersPlace, (7, 6)),
+			(LocationIds.WintryTemple, (15, 6)),
+			(LocationIds.FocusTowerFrozen, (5, 6)),
+			(LocationIds.FocusTowerFireburg, (6, 6)),
+			(LocationIds.Fireburg, (9, 6)),
+			(LocationIds.SealedTemple, (16, 6)),
+			(LocationIds.Mine, (98, 0)),
+			(LocationIds.Volcano, (103, 0)),
+			(LocationIds.LavaDome, (104, 0)),
+			(LocationIds.FocusTowerWindia, (3, 6)),
+			(LocationIds.RopeBridge, (140, 0)),
+			(LocationIds.AliveForest, (142, 0)),
+			(LocationIds.KaidgeTemple, (18, 6)),
+			(LocationIds.WindholeTemple, (173, 0)),
+			(LocationIds.MountGale, (174, 0)),
+			(LocationIds.Windia, (10, 6)),
+			(LocationIds.PazuzusTower, (184, 0)),
+			(LocationIds.LightTemple, (19, 6)),
+			(LocationIds.ShipDock, (17, 6)),
+			(LocationIds.MacsShip, (37, 8)),
+			(LocationIds.DoomCastle, (1, 6)),
 		};
 	}
 

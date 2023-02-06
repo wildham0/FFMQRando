@@ -62,7 +62,7 @@
   - target_room: 0
     entrance_id: [2, 6]
     access: []
-  - target_room: 9
+  - target_room: 6
     entrance_id: [4, 0]
     access: []
 - name: Focus Tower B1 - Aero Corridor
@@ -130,6 +130,7 @@
     entrance_id: [12, 0]
     access: []
   - target_room: 0
+    entrance_id: [3, 6]
     access: []
 - name: Focus Tower 1F SkyCoin Room
   id: 201
@@ -565,7 +566,12 @@
     access: ["LibraCrest"]
 - name: Aquaria
   id: 40
-  game_objects: []
+  game_objects:
+  - name: "Summer Aquaria"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["SummerAquaria"]
+    access: ["WakeWater"]
   links:
   - target_room: 0
     entrance_id: [8, 6]
@@ -581,10 +587,10 @@
     access: []
   - target_room: 71
     entrance_id: [42, 0]
-    access: ["WakeWater"]
+    access: ["SummerAquaria"]
   - target_room: 71
     entrance_id: [43, 0]
-    access: ["WakeWater"]
+    access: ["SummerAquaria"]
 - name: Phoebe's House
   id: 41
   game_objects: []
@@ -2848,7 +2854,12 @@
     access: ["MobiusCrest"]
 - name: Ship Dock
   id: 186
-  game_objects: []
+  game_objects:
+  - name: "Ship Dock Access"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["ShipDockAccess"]
+    access: []
   links:
   - target_room: 0
     entrance_id: [17, 6]
@@ -2859,6 +2870,11 @@
 - name: Mac Ship Deck
   id: 187
   game_objects:
+  - name: "Mac Ship Steering Wheel"
+    object_id: 00
+    type: "Trigger"
+    on_trigger: ["ShipSteeringWheel"]
+    access: []
   - name: "Mac Ship Deck 01"
     object_id: 0xD9
     type: "Box"

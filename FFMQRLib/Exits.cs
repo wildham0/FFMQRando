@@ -166,11 +166,12 @@ namespace FFMQLib
 
 	public class LocationStructure
 	{
-		public List<RoomLegacy> Rooms {get; set;}
+		public List<RoomLegacy> Entrances {get; set;}
 		public List<EntrancesLink> EntrancesLinks { get; set; }
 		public List<EntrancesLinkList> EntrancesLinksList { get; set; }
 		public List<CrestTile> CrestTiles { get; set; }
 		public List<(AccessReqs crest, AccessReqs loc1, AccessReqs loc2)> CrestPairs { get; set; }
+		private List<Room> rooms { get; set; }
 
 		public const int EntrancesBank = 0x05;
 		public const int EntrancesPointers = 0xF920;
@@ -183,15 +184,17 @@ namespace FFMQLib
 
 		public LocationStructure()
 		{
-			Rooms = new();
+			Entrances = new();
+			//Rooms = new();
 			EntrancesLinks = new();
 			EntrancesLinksList = new();
 			CrestTiles = new();
 			CrestPairs = new();
+			rooms = new();
 		}
 		public LocationStructure(FFMQRom rom)
 		{
-			Rooms = new();
+			Entrances = new();
 			
 			for (int i = 0; i < 0x6C; i++)
 			{
@@ -226,7 +229,7 @@ namespace FFMQLib
 					currentEntrance++;
 				}
 
-				Rooms.Add(new RoomLegacy("void", i, i, new List<TreasureObject>(), tempEntrances));
+				Entrances.Add(new RoomLegacy("void", i, i, new List<TreasureObject>(), tempEntrances));
 			}
 
 			EntrancesLinks = new();
@@ -257,6 +260,8 @@ namespace FFMQLib
 				Items.MobiusCrest,
 				Items.MobiusCrest,
 			};
+
+			List<AccessReqs> crestAcess = new() { AccessReqs.LibraCrest, AccessReqs.GeminiCrest, AccessReqs.MobiusCrest };
 
 			var crestList = CrestTiles.ToList();
 			CrestTiles = new();
@@ -333,13 +338,27 @@ namespace FFMQLib
 				crest1.TargetTeleporter = crest2.OriginTeleporter;
 				crest2.TargetTeleporter = crest1.OriginTeleporter;
 
+				var crest1room = rooms.Find(x => x.Links.Where(l => l.Entrance == crest1.EntranceId).Any());
+				var crest1link = crest1room.Links.Find(l => l.Entrance == crest1.EntranceId);
+				
+				var crest2room = rooms.Find(x => x.Links.Where(l => l.Entrance == crest2.EntranceId).Any());
+				var crest2link = crest2room.Links.Find(l => l.Entrance == crest2.EntranceId);
+
+
+				crest1room.Links.Remove(crest1link);
+				crest1room.Links.Add(new RoomLink(crest2room.Id, crest1.EntranceId, crest1link.Access.Except(crestAcess).Concat(ItemLocations.ItemAccessReq[crest1.Crest]).ToList()));
+
+				crest2room.Links.Remove(crest2link);
+				crest2room.Links.Add(new RoomLink(crest1room.Id, crest2.EntranceId, crest2link.Access.Except(crestAcess).Concat(ItemLocations.ItemAccessReq[crest2.Crest]).ToList()));
+
 				CrestTiles.Add(crest1);
 				CrestTiles.Add(crest2);
 				CrestPairs.Add((ItemLocations.ItemAccessReq[crest1.Crest][0], crest1.LocationRequirement, crest2.LocationRequirement));
 			}
 		}
-		public void UpdateCrests(Flags flags, GameScriptManager tileScripts, GameMaps gameMaps, MT19337 rng)
+		public void UpdateCrests(Flags flags, GameScriptManager tileScripts, GameMaps gameMaps, List<Room> _rooms, MT19337 rng)
 		{
+			rooms = _rooms;
 			bool keepWintryTemple = !(flags.OverworldShuffle || flags.CrestShuffle);
 			
 			List<((int id, int type), (int id, int type), LocationIds location, AccessReqs access, bool deadend, int priority)> crestTileTeleporterList = new()
@@ -431,7 +450,7 @@ namespace FFMQLib
 			List<(int id, int type)> crestTileList = crestTileTeleporterList.Select(x => x.Item2).ToList();
 
 
-			CrestTiles = Rooms.SelectMany(x => x.Entrances).Where(x => crestTileList.Contains((x.TeleportId, x.TeleportType))).Distinct().Select(x => new CrestTile(x)).ToList();
+			CrestTiles = Entrances.SelectMany(x => x.Entrances).Where(x => crestTileList.Contains((x.TeleportId, x.TeleportType))).Distinct().Select(x => new CrestTile(x)).ToList();
 
 			foreach (var crest in CrestTiles)
 			{
@@ -444,7 +463,7 @@ namespace FFMQLib
 				crest.Location = teleporterValue.location;
 				crest.LocationRequirement = teleporterValue.access;
 				crest.Crest = vanillaCrests.Find(x => x.Item1 == teleporterValue.access).Item2;
-				crest.Area = Rooms.Find(x => x.Entrances.Where(e => (e.TeleportId == crest.EntranceId.id) && (e.TeleportType == crest.EntranceId.type)).Any()).AreaId;
+				crest.Area = Entrances.Find(x => x.Entrances.Where(e => (e.TeleportId == crest.EntranceId.id) && (e.TeleportType == crest.EntranceId.type)).Any()).AreaId;
 				crest.Map = areaToMap.Find(x => x.area == crest.Area).map;
 			}
 
@@ -453,9 +472,12 @@ namespace FFMQLib
 				CrestShuffle(rng);
 			}
 
+			//List<(int, RoomLink)> linksToProcess = new();
+			//List<AccessReqs> crestAcess = new() { AccessReqs.LibraCrest, AccessReqs.GeminiCrest, AccessReqs.MobiusCrest };
+
 			foreach (var crest in CrestTiles)
 			{
-				var entranceToUpdate = Rooms.SelectMany(x => x.Entrances).Where(x => x.TeleportId == crest.EntranceId.id && x.TeleportType == crest.EntranceId.type).ToList();
+				var entranceToUpdate = Entrances.SelectMany(x => x.Entrances).Where(x => x.TeleportId == crest.EntranceId.id && x.TeleportType == crest.EntranceId.type).ToList();
 
 				foreach (var entrance in entranceToUpdate)
 				{
@@ -478,8 +500,8 @@ namespace FFMQLib
 		}
 		public void SwapEntrances((int id, int type) entranceA, (int id, int type) entranceB)
 		{ 
-			var entrancesListA = Rooms.SelectMany(x => x.Entrances).Where(x => x.TeleportId == entranceA.id && x.TeleportType == entranceA.type).ToList();
-			var entrancesListB = Rooms.SelectMany(x => x.Entrances).Where(x => x.TeleportId == entranceB.id && x.TeleportType == entranceB.type).ToList();
+			var entrancesListA = Entrances.SelectMany(x => x.Entrances).Where(x => x.TeleportId == entranceA.id && x.TeleportType == entranceA.type).ToList();
+			var entrancesListB = Entrances.SelectMany(x => x.Entrances).Where(x => x.TeleportId == entranceB.id && x.TeleportType == entranceB.type).ToList();
 
 			entrancesListA.ForEach(x => x.TeleportId = entranceB.id);
 			entrancesListA.ForEach(x => x.TeleportType = entranceB.type);
@@ -511,12 +533,12 @@ namespace FFMQLib
 			oldmanhouseexit.TeleportType = temptype;
 			*/
 
-			var idrooms = Rooms.Select(r => (r.AreaId, r.Entrances)).ToList();
+			var idrooms = Entrances.Select(r => (r.AreaId, r.Entrances)).ToList();
 			List<List<Entrance>> orderedentrances = new();
 
 			for (int i = 0; i < EntrancesPointersQty; i++)
 			{
-				orderedentrances.Add(Rooms.Where(r => r.AreaId == i).SelectMany(r => r.Entrances).ToList());
+				orderedentrances.Add(Entrances.Where(r => r.AreaId == i).SelectMany(r => r.Entrances).ToList());
 			}
 
 			ushort currentaddress = 0;
@@ -591,8 +613,8 @@ namespace FFMQLib
 			{
 				Console.WriteLine(ex.ToString());
 			}
-			
-			Rooms = result.Rooms;
+
+			Entrances = result.Entrances;
 			EntrancesLinks = result.EntrancesLinksList.Select(x => new EntrancesLink(x)).ToList();
 			yamlfile = "";
 

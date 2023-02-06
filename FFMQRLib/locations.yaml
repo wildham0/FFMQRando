@@ -1,4 +1,4 @@
-rooms:
+entrances:
 - name: void
   area_id: 0
   treasures: []
