@@ -157,7 +157,8 @@ namespace FFMQLib
 
 			LocationStructure tempLocat = new(this);
 			tempLocat.ReadRooms();
-			Rooms temprooms = new();
+			//spoilersText = tempLocat.GenerateYaml();
+			GameLogic temprooms = new();
 			temprooms.ReadRooms();
 
 			EnemyAttackLinks = new(this);
@@ -171,7 +172,7 @@ namespace FFMQLib
 			TileScripts = new(this, RomOffsets.TileScriptsPointers, RomOffsets.TileScriptPointerQty, RomOffsets.TileScriptOffset, RomOffsets.TileScriptEndOffset);
 			Battlefields = new(this);
 			MapChanges = new(this);
-			Overworld = new(this, tempLocat.Entrances);
+			Overworld = new(this);
 			Teleporters = new(this);
 			MapSpriteSets = new(this);
 			TitleScreen titleScreen = new(this);
@@ -190,7 +191,8 @@ namespace FFMQLib
 
 			// spoilersText = tempLocat.GenerateYaml();
 			tempLocat.EntranceHack(this);
-			tempLocat.UpdateCrests(flags, TileScripts, GameMaps, temprooms.List, rng);
+			temprooms.CrestShuffle(flags.CrestShuffle, rng);
+			tempLocat.UpdateCrests(flags, TileScripts, GameMaps, temprooms.Rooms, rng);
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
@@ -208,9 +210,9 @@ namespace FFMQLib
 			Battlefields.ShuffleBattelfieldRewards(flags.ShuffleBattlefieldRewards, Overworld, rng);
 
 			var startingLocation = Overworld.ShuffleEntrances(flags, Battlefields, rng);
-			temprooms.CrawlRooms(Overworld, Battlefields);
+			temprooms.CrawlRooms(flags, Overworld, Battlefields);
 			// Items
-			ItemsPlacement itemsPlacement = new(flags, Battlefields, Overworld, tempLocat, this, rng);
+			ItemsPlacement itemsPlacement = new(flags, Battlefields, Overworld, tempLocat, temprooms.GameObjects, this, rng);
 
 			SetStartingWeapons(itemsPlacement);
 			MapObjects.UpdateChests(itemsPlacement);
@@ -255,7 +257,7 @@ namespace FFMQLib
 
 
 			// Spoilers
-			spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
+			//spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
 			spoilers = flags.EnableSpoilers;
 			
 			// Remove header if any

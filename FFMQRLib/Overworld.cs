@@ -35,9 +35,9 @@ namespace FFMQLib
         //private List<NodeObject> nodesObjects;
 
 
-        public Overworld(FFMQRom rom, List<RoomLegacy> rooms)
+        public Overworld(FFMQRom rom)
         {
-            Rooms = rooms;
+            //Rooms = rooms;
             
             owSprites = rom.GetFromBank(OWObjectBank, OWObjectOffset, 5 * OWObjectQty).Chunk(5).Select(x => new OverworldSprite(x)).ToList();
             owObjects = new();

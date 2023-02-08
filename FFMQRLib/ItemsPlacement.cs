@@ -43,7 +43,7 @@ namespace FFMQLib
 	public class ItemsPlacement
 	{
 		public List<Items> StartingItems { get; set; }
-		public List<TreasureObject> ItemsLocations { get; }
+		public List<GameObject> ItemsLocations { get; }
 		
 		private const int TreasuresOffset = 0x8000;
 		private List<(AccessReqs, List<AccessReqs>)> Events;
@@ -60,7 +60,7 @@ namespace FFMQLib
 				Weight = _weight;
 			}
 		}
-		public ItemsPlacement(Flags flags, Battlefields battlefields, Overworld overworld, LocationStructure locations, FFMQRom rom, MT19337 rng)
+		public ItemsPlacement(Flags flags, Battlefields battlefields, Overworld overworld, LocationStructure locations, List<GameObject> initialGameObjects, FFMQRom rom, MT19337 rng)
 		{
 			bool badPlacement = true;
 			int counter = 0;
@@ -75,7 +75,7 @@ namespace FFMQLib
 
 			List<RegionWeight> regionsWeight = new() { new RegionWeight(MapRegions.Foresta, 1), new RegionWeight(MapRegions.Aquaria, 1), new RegionWeight(MapRegions.Fireburg, 1), new RegionWeight(MapRegions.Windia, 1) };
 
-			List<TreasureObject> initialItemlocations = new(ItemLocations.Generate(flags, battlefields, locations, overworld).ToList());
+			List<GameObject> initialItemlocations = initialGameObjects.ToList();
 
 			while (badPlacement)
 			{
@@ -92,7 +92,7 @@ namespace FFMQLib
 
 				List<Items> itemsList = RandomizeItemsOrder(flags, rng);
 
-				ItemsLocations = new(initialItemlocations.Select(x => new TreasureObject(x)));
+				ItemsLocations = new(initialItemlocations.Select(x => new GameObject(x)));
 
 				prioritizedLocationsCount = ItemsLocations.Where(x => x.Prioritize == true).Count();
 
@@ -122,10 +122,10 @@ namespace FFMQLib
 
 				while (itemsList.Any())
 				{
-					List<TreasureObject> validLocations = new();
+					List<GameObject> validLocations = new();
 
-					List<TreasureObject> validLocationsPriorized = ItemsLocations.Where(x => x.Accessible && x.IsPlaced == false && x.Prioritize == true).ToList();
-					List<TreasureObject> validLocationsLoose = ItemsLocations.Where(x => x.Accessible && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false).ToList();
+					List<GameObject> validLocationsPriorized = ItemsLocations.Where(x => x.Accessible && x.IsPlaced == false && x.Prioritize == true).ToList();
+					List<GameObject> validLocationsLoose = ItemsLocations.Where(x => x.Accessible && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false).ToList();
 
 					int diceRoll = rng.Between(1, itemsList.Count);
 
@@ -153,7 +153,7 @@ namespace FFMQLib
 
 					MapRegions favoredRegion = rng.PickFrom(weightedRegionList);
 
-					List<TreasureObject> validLocationsFavored = validLocations.Where(x => x.Region == favoredRegion).ToList();
+					List<GameObject> validLocationsFavored = validLocations.Where(x => x.Region == favoredRegion).ToList();
 
 					if (validLocationsFavored.Any())
 					{
@@ -163,6 +163,7 @@ namespace FFMQLib
 					if (!validLocations.Any() && itemsList.Any())
 					{
 						Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
+						var unfiledValidLocations = ItemsLocations.Where(x => !x.Accessible && x.Prioritize).ToList();
 						counter++;
 						badPlacement = true;
 						if (counter >= 100)
@@ -213,14 +214,14 @@ namespace FFMQLib
 
 					itemsList.RemoveAt(itemIndex);
 
-					TreasureObject targetLocation = rng.PickFrom(validLocations);
+					GameObject targetLocation = rng.PickFrom(validLocations);
 					targetLocation.Content = itemToPlace;
 					targetLocation.IsPlaced = true;
 					regionsWeight.Find(x => x.Region == targetLocation.Region).Weight++;
 
-					if (targetLocation.Type == TreasureType.Chest || targetLocation.Type == TreasureType.Box)
+					if (targetLocation.Type == GameObjectType.Chest || targetLocation.Type == GameObjectType.Box)
 					{ 
-						targetLocation.Type = TreasureType.Chest;
+						targetLocation.Type = GameObjectType.Chest;
 						placedChests++;
 					}
 					placedItems.Add(itemToPlace);
@@ -257,13 +258,13 @@ namespace FFMQLib
 
 				for (int i = 0; i < 40; i++)
 				{
-					TreasureObject targetLocation = rng.TakeFrom(validSkyCoinLocations);
+					GameObject targetLocation = rng.TakeFrom(validSkyCoinLocations);
 					targetLocation.Content = Items.SkyCoin;
 					targetLocation.IsPlaced = true;
 
-					if (targetLocation.Type == TreasureType.Chest || targetLocation.Type == TreasureType.Box)
+					if (targetLocation.Type == GameObjectType.Chest || targetLocation.Type == GameObjectType.Box)
 					{
-						targetLocation.Type = TreasureType.Chest;
+						targetLocation.Type = GameObjectType.Chest;
 					}
 				}
 			}
@@ -271,43 +272,41 @@ namespace FFMQLib
 			// Fill excluded and unfilled locations
 			List<Items> consumables = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed };
 			
-			var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == TreasureType.NPC || x.Type == TreasureType.Battlefield || (x.Type == TreasureType.Chest && x.ObjectId < 0x20) || x.Type == TreasureType.Dummy)).ToList();
+			var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.Battlefield || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20) || x.Type == GameObjectType.Dummy)).ToList();
 
 			foreach (var location in unfilledLocations)
 			{
 				location.Content = rng.PickFrom(consumables);
 				location.IsPlaced = true;
-				if (location.Type == TreasureType.Chest || location.Type == TreasureType.Box)
+				if (location.Type == GameObjectType.Chest || location.Type == GameObjectType.Box)
 				{
-					location.Type = TreasureType.Box;
+					location.Type = GameObjectType.Box;
 				}
 			}
 
 			// Place consumables
-			for (int i = 0; i < ItemsLocations.Count; i++)
+			var consumableBox = ItemsLocations.Where(x => !x.IsPlaced && (x.Type == GameObjectType.Box || x.Type == GameObjectType.Chest) && (x.ObjectId < 0xF2 || x.ObjectId > 0xF5)).ToList();
+
+			foreach (var box in consumableBox)
 			{
-				if (ItemsLocations[i].IsPlaced == false)
+				if (flags.ShuffleBoxesContent)
 				{
+					box.Content = rng.TakeFrom(consumableList);
+				}
+				else
+				{
+					box.Content = consumableList[box.ObjectId - 0x1E];
+				}
 
-					if (flags.ShuffleBoxesContent)
-					{
-						ItemsLocations[i].Content = rng.TakeFrom(consumableList);
-					}
-					else
-					{
-						ItemsLocations[i].Content = consumableList[ItemsLocations[i].ObjectId - 0x1E];
-					}
-
-					ItemsLocations[i].IsPlaced = true;
-					if (ItemsLocations[i].Type == TreasureType.Chest || ItemsLocations[i].Type == TreasureType.Box)
-					{
-						ItemsLocations[i].Type = TreasureType.Box;
-					}
+				box.IsPlaced = true;
+				if (box.Type == GameObjectType.Chest || box.Type == GameObjectType.Box)
+				{
+					box.Type = GameObjectType.Box;
 				}
 			}
 
 			// Add the final chests so we can update their properties
-			List<TreasureObject> finalChests = new(ItemLocations.FinalChests());
+			List<GameObject> finalChests = ItemsLocations.Where(x => x.Type == GameObjectType.Chest && x.ObjectId >= 0xF2 && x.ObjectId <= 0xF5).ToList();
 
 			for(int i = 0; i < finalChests.Count; i++)
 			{
@@ -315,7 +314,7 @@ namespace FFMQLib
 				finalChests[i].IsPlaced = true;
 			}
 
-			ItemsLocations.AddRange(finalChests);
+			//ItemsLocations.AddRange(finalChests);
 		}
 
 		private void ProcessRequirements(List<AccessReqs> accessReqToProcess)
@@ -323,10 +322,9 @@ namespace FFMQLib
 			while (accessReqToProcess.Any())
 			{
 				var currentReq = accessReqToProcess.First();
-				List<LocationIds> newLocations = new();
 
 				// Update Locations
-				List<TreasureObject> unaccessibleLocations = ItemsLocations.Where(x => x.Accessible == false).ToList();
+				List<GameObject> unaccessibleLocations = ItemsLocations.Where(x => x.Accessible == false).ToList();
 				for (int i = 0; i < unaccessibleLocations.Count; i++)
 				{
 					for (int j = 0; j < unaccessibleLocations[i].AccessRequirements.Count; j++)
@@ -335,35 +333,13 @@ namespace FFMQLib
 						if (!unaccessibleLocations[i].AccessRequirements[j].Any())
 						{
 							unaccessibleLocations[i].Accessible = true;
-							newLocations.Add(unaccessibleLocations[i].Location);
+							if (unaccessibleLocations[i].Type == GameObjectType.Trigger)
+							{
+								accessReqToProcess.AddRange(unaccessibleLocations[i].OnTrigger);
+							}
 						}
 					}
 				}
-
-				// Update Events
-				List<int> eventToRemove = new();
-				for (int i = 0; i < Events.Count; i++)
-				{
-					Events[i] = (Events[i].Item1, Events[i].Item2.Where(x => x != currentReq).ToList());
-					if (!Events[i].Item2.Any())
-					{
-						accessReqToProcess.Add(Events[i].Item1);
-						eventToRemove.Add(i);
-					}
-				}
-				Events = Events.Where((x, i) => !eventToRemove.Contains(i)).ToList();
-
-				// Update LocationsTriggers
-				List<int> triggerToRemove = new();
-				for (int i = 0; i < LocationTriggers.Count; i++)
-				{
-					if(newLocations.Contains(LocationTriggers[i].Item1))
-                    {
-						accessReqToProcess.AddRange(LocationTriggers[i].Item2);
-						triggerToRemove.Add(i);
-					}
-				}
-				LocationTriggers = LocationTriggers.Where((x, i) => !triggerToRemove.Contains(i)).ToList();
 
 				accessReqToProcess.Remove(currentReq);
 			}
@@ -372,7 +348,7 @@ namespace FFMQLib
 		{
 			foreach (var item in ItemsLocations)
 			{
-				if (item.Type == TreasureType.Chest || item.Type == TreasureType.Box)
+				if (item.Type == GameObjectType.Chest || item.Type == GameObjectType.Box)
 				{
 					rom[TreasuresOffset + item.ObjectId] = (byte)item.Content;
 				}

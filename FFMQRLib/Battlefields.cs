@@ -54,7 +54,7 @@ namespace FFMQLib
 		}
 		public void PlaceItems(ItemsPlacement itemsPlacement)
 		{
-			var battlefieldsWithItem = itemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.Battlefield && x.Content != Items.None).ToList();
+			var battlefieldsWithItem = itemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.Battlefield && x.Content != Items.None).ToList();
 
 			foreach (var battlefield in battlefieldsWithItem)
 			{

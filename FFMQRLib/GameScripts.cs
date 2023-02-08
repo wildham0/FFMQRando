@@ -10,7 +10,7 @@ namespace FFMQLib
 	{
 		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, LocationIds startinglocation, MT19337 rng)
 		{
-			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
+			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
 
 			/*** Overworld ***/
 			// GameStart - Skip Mountain collapse

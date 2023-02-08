@@ -23,13 +23,13 @@ namespace FFMQLib
 			
 			List<Items> boxItems = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
 
-			var test = itemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.Chest).ToList();
+			var test = itemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.Chest).ToList();
 
-			foreach (var item in itemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.Chest || x.Type == TreasureType.Box).OrderBy(x => x.ObjectId))
+			foreach (var item in itemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.Chest || x.Type == GameObjectType.Box).OrderBy(x => x.ObjectId))
 			{
 				byte sprite = 0x26;
 					
-				if (item.Type == TreasureType.Chest)
+				if (item.Type == GameObjectType.Chest)
 				{
 					sprite = 0x24;
 				}

@@ -147,7 +147,6 @@ namespace FFMQLib
 
 		private List<byte> ShipWestSteps = new();
 		private List<byte> ShipEastSteps = new();
-		private List<RoomLegacy> Rooms;
 	
 		private const int OWMovementBank = 0x07;
 		private const int OWMovementArrows = 0xEE84;
