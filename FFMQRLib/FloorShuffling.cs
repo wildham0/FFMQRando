@@ -12,7 +12,6 @@ using YamlDotNet.RepresentationModel;
 
 namespace FFMQLib
 {
-
 	public class CrestLink
 	{ 
 		public (int id, int type) Entrance { get; set; }
@@ -29,10 +28,7 @@ namespace FFMQLib
 			Origins = origins;
 			Crest = Items.LibraCrest;
 		}
-
 	}
-
-
     public partial class GameLogic
     {
 		public void CrestShuffle(bool shufflecrests, MT19337 rng)
@@ -89,7 +85,6 @@ namespace FFMQLib
 			crestList = crestList.OrderByDescending(x => x.Priority).ToList();
 
 			List<(int priority, Items crest)> crestPriority = new();
-			List<CrestTile> crestToUpdate = new();
 
 			int deadendCount = 0;
 			int passableCount = 0;
@@ -163,8 +158,8 @@ namespace FFMQLib
 				crest1room.Links.Remove(crest1link);
 				crest2room.Links.Remove(crest2link);
 
-				newLinkToProcess.Add((crest1room.Id, new RoomLink(crest2room.Id, crest1link.Entrance, crest2.Origins, crest1link.Access.Except(crestAcess).Concat(ItemLocations.ItemAccessReq[crest1.Crest]).ToList())));
-				newLinkToProcess.Add((crest2room.Id, new RoomLink(crest1room.Id, crest2link.Entrance, crest1.Origins, crest2link.Access.Except(crestAcess).Concat(ItemLocations.ItemAccessReq[crest2.Crest]).ToList())));
+				newLinkToProcess.Add((crest1room.Id, new RoomLink(crest2room.Id, crest1link.Entrance, crest2.Origins, crest1link.Access.Except(crestAcess).Concat(AccessReferences.ItemAccessReq[crest1.Crest]).ToList())));
+				newLinkToProcess.Add((crest2room.Id, new RoomLink(crest1room.Id, crest2link.Entrance, crest1.Origins, crest2link.Access.Except(crestAcess).Concat(AccessReferences.ItemAccessReq[crest2.Crest]).ToList())));
 			}
 
 			foreach (var newlink in newLinkToProcess)

@@ -27,6 +27,8 @@ namespace FFMQLib
 		public EnemyAttackLinks EnemyAttackLinks;
 		public Attacks Attacks;
 		public EnemiesStats enemiesStats;
+		public GameLogic GameLogic;
+		public EntrancesData EntrancesData;
 		//public Locations NodeLocations;
 		private byte[] originalData;
 		public bool beta = false;
@@ -155,12 +157,6 @@ namespace FFMQLib
 				sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
 
-			LocationStructure tempLocat = new(this);
-			tempLocat.ReadRooms();
-			//spoilersText = tempLocat.GenerateYaml();
-			GameLogic temprooms = new();
-			temprooms.ReadRooms();
-
 			EnemyAttackLinks = new(this);
 			Attacks = new(this);
 			enemiesStats = new(this);
@@ -175,6 +171,8 @@ namespace FFMQLib
 			Overworld = new(this);
 			Teleporters = new(this);
 			MapSpriteSets = new(this);
+			GameLogic = new();
+			EntrancesData = new(this);
 			TitleScreen titleScreen = new(this);
 
 			// General modifications
@@ -188,11 +186,8 @@ namespace FFMQLib
 			NonSpoilerDemoplay();
 			CompanionRoutines();
 
-
 			// spoilersText = tempLocat.GenerateYaml();
-			tempLocat.EntranceHack(this);
-			temprooms.CrestShuffle(flags.CrestShuffle, rng);
-			tempLocat.UpdateCrests(flags, TileScripts, GameMaps, temprooms.Rooms, rng);
+
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
@@ -209,10 +204,14 @@ namespace FFMQLib
 			Battlefields.SetBattlesQty(flags.BattlesQuantity, rng);
 			Battlefields.ShuffleBattelfieldRewards(flags.ShuffleBattlefieldRewards, Overworld, rng);
 
-			var startingLocation = Overworld.ShuffleEntrances(flags, Battlefields, rng);
-			temprooms.CrawlRooms(flags, Overworld, Battlefields);
+			// Locations & Logic
+			GameLogic.CrestShuffle(flags.CrestShuffle, rng);
+			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic.Rooms, rng);
+			var startingLocation = Overworld.ShuffleOverworld(flags, Battlefields, rng);
+			GameLogic.CrawlRooms(flags, Overworld, Battlefields);
+			
 			// Items
-			ItemsPlacement itemsPlacement = new(flags, Battlefields, Overworld, tempLocat, temprooms.GameObjects, this, rng);
+			ItemsPlacement itemsPlacement = new(flags, GameLogic.GameObjects, this, rng);
 
 			SetStartingWeapons(itemsPlacement);
 			MapObjects.UpdateChests(itemsPlacement);
@@ -234,8 +233,6 @@ namespace FFMQLib
 			Msu1SupportRandom(preferences.RandomMusic, sillyrng);
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 
-			tempLocat.Write(this);
-
 			// Write everything back			
 			itemsPlacement.WriteChests(this);
 			credits.Write(this);
@@ -248,7 +245,7 @@ namespace FFMQLib
 			TileScripts.Write(this);
 			TalkScripts.Write(this);
 			GameFlags.Write(this);
-			//NodeLocations.Write(this);
+			EntrancesData.Write(this);
 			Battlefields.Write(this);
 			Overworld.Write(this);
 			MapObjects.WriteAll(this);

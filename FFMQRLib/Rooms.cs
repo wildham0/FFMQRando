@@ -151,7 +151,6 @@ namespace FFMQLib
 			Access = access.ToList();
 		}
 	}
-
 	public class Room
 	{
 		public string Name { get; set; }
@@ -181,12 +180,17 @@ namespace FFMQLib
 		private List<(int, LocationIds, List<AccessReqs>)> accessQueue;
 		private List<(LocationIds, LocationIds, List<AccessReqs>)> bridgeQueue;
 		private List<(int, int, LocationIds)> locationQueue;
+
+		public GameLogic()
+		{
+			ReadRooms();
+		}
+	
 		public void ReadRooms()
 		{
 
 			string yamlfile = "";
 			var assembly = Assembly.GetExecutingAssembly();
-			//string filepath = "logic.yaml";
 			string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("rooms.yaml"));
 			using (Stream logicfile = assembly.GetManifestResourceStream(filepath))
 			{
@@ -196,24 +200,14 @@ namespace FFMQLib
 				}
 			}
 
-
 			var deserializer = new DeserializerBuilder()
-				.WithNamingConvention(UnderscoredNamingConvention.Instance)  // see height_in_inches in sample yml 
+				.WithNamingConvention(UnderscoredNamingConvention.Instance)
 				.Build();
 
 			var input = new StringReader(yamlfile);
 
 			var yaml = new YamlStream();
 
-			/*
-			try
-			{
-				yaml.Load(input);
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine(ex.ToString());
-			}*/
 			List<Room> result = new();
 
 			try
@@ -232,7 +226,7 @@ namespace FFMQLib
 		public void CrawlRooms(Flags flags, Overworld overworld, Battlefields battlefields)
 		{
 
-			var locationsByEntrances = ItemLocations.LocationsByEntrances;
+			var locationsByEntrances = AccessReferences.LocationsByEntrances;
 
 			//gameObjects = _rooms.SelectMany(x => x.GameObjects.Select(o => new GameObject(o)).ToList()).ToList();
 
@@ -256,12 +250,12 @@ namespace FFMQLib
 
 			foreach (var bridge in bridgeQueue)
 			{
-				var subRegionA = ItemLocations.MapSubRegions.Find(x => x.Item2 == bridge.Item1).Item1;
-				var subRegionB = ItemLocations.MapSubRegions.Find(x => x.Item2 == bridge.Item2).Item1;
+				var subRegionA = AccessReferences.MapSubRegions.Find(x => x.Item2 == bridge.Item1).Item1;
+				var subRegionB = AccessReferences.MapSubRegions.Find(x => x.Item2 == bridge.Item2).Item1;
 
 				if (subRegionA != subRegionB)
 				{
-					var originSubRegionAccess = ItemLocations.SubRegionsAccess.Find(x => x.Item1 == subRegionA).Item2;
+					var originSubRegionAccess = AccessReferences.SubRegionsAccess.Find(x => x.Item1 == subRegionA).Item2;
 
 					foreach (var access in originSubRegionAccess)
 					{
@@ -269,7 +263,7 @@ namespace FFMQLib
 					}
 				}
 			}
-			var hardsubaccess = ItemLocations.SubRegionsAccess.SelectMany(x => x.Item2.Select(s => (x.Item1, s))).ToList();
+			var hardsubaccess = AccessReferences.SubRegionsAccess.SelectMany(x => x.Item2.Select(s => (x.Item1, s))).ToList();
 			subRegionsAccess = subRegionsAccess.Concat(hardsubaccess).ToList();
 
 			subRegionsAccess = subRegionsAccess.Where(x => !x.Item2.Contains(AccessReqs.Barred)).ToList();
@@ -391,7 +385,7 @@ namespace FFMQLib
 			// Add Friendly logic extra requirements
 			if (flags.LogicOptions == LogicOptions.Friendly)
 			{
-				foreach (var location in ItemLocations.FriendAccessReqs)
+				foreach (var location in AccessReferences.FriendlyAccessReqs)
 				{
 					GameObjects.Where(x => x.Location == location.Key).ToList().ForEach(x => x.AccessRequirements.ForEach(a => a.AddRange(location.Value)));
 				}
@@ -477,7 +471,7 @@ namespace FFMQLib
 				{
 					if (origins.Count > 0)
 					{
-						bridgeQueue.Add((locPriority.Item1, ItemLocations.LocationsByEntrances.Find(x => x.Item2 == children.Entrance).Item1, access));
+						bridgeQueue.Add((locPriority.Item1, AccessReferences.LocationsByEntrances.Find(x => x.Item2 == children.Entrance).Item1, access));
 					}
 				}
 				else if (!origins.Contains(children.TargetRoom))

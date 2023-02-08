@@ -7,90 +7,7 @@ using System.ComponentModel;
 
 namespace FFMQLib
 {
-	public class TreasureObject
-	{
-		public int ObjectId { get; set; }
-		public int MapId { get; set; }
-		public LocationIds Location { get; set; }
-		public MapRegions Region { get; set; }
-		public SubRegions SubRegion { get; set; }
-		public Items Content { get; set; }
-		public TreasureType Type { get; set; }
-		public bool IsPlaced { get; set; }
-		public bool Prioritize { get; set; }
-		public bool Exclude { get; set; }
-		public List<List<AccessReqs>> AccessRequirements { get; set; }
-		public bool Accessible { get; set; }
-		public string Name { get; set; }
 
-		public TreasureObject(int mapobjid, int mapid, LocationIds location, TreasureType type, List<List<AccessReqs>> access)
-		{
-			ObjectId = mapobjid;
-			Content = (Items)0xFF;
-			Location = location;
-			Type = type;
-			MapId = mapid;
-			IsPlaced = false;
-			Prioritize = false;
-			Exclude = false;
-			AccessRequirements = access;
-			Accessible = false;
-			Name = "";
-			SubRegion = ItemLocations.MapSubRegions.Find(x => x.Item2 == location).Item1;
-			Region = ItemLocations.ReturnRegion(location);
-		}
-
-		public TreasureObject(int mapobjid, int mapid, LocationIds location, TreasureType type, string name, List<List<AccessReqs>> access)
-		{
-			ObjectId = mapobjid;
-			Content = (Items)0xFF;
-			Location = location;
-			Type = type;
-			MapId = mapid;
-			IsPlaced = false;
-			Prioritize = false;
-			Exclude = false;
-			AccessRequirements = access;
-			Accessible = false;
-			Name = name;
-			SubRegion = ItemLocations.MapSubRegions.Find(x => x.Item2 == location).Item1;
-			Region = ItemLocations.ReturnRegion(location);
-		}
-
-		public TreasureObject(TreasureObject treasure)
-		{
-			ObjectId = treasure.ObjectId;
-			Content = treasure.Content;
-			Location = treasure.Location;
-			Type = treasure.Type;
-			MapId = treasure.MapId;
-			IsPlaced = treasure.IsPlaced;
-			Prioritize = treasure.Prioritize;
-			Exclude = treasure.Exclude;
-			AccessRequirements = treasure.AccessRequirements.ToList();
-			Accessible = treasure.Accessible;
-			Name = treasure.Name;
-			Region = treasure.Region;
-			SubRegion = treasure.SubRegion;
-		}
-
-		public TreasureObject(TreasureObject treasure, string name)
-		{
-			ObjectId = treasure.ObjectId;
-			Content = treasure.Content;
-			Location = treasure.Location;
-			Type = treasure.Type;
-			MapId = treasure.MapId;
-			IsPlaced = treasure.IsPlaced;
-			Prioritize = treasure.Prioritize;
-			Exclude = treasure.Exclude;
-			AccessRequirements = treasure.AccessRequirements.ToList();
-			Accessible= treasure.Accessible;
-			Region = treasure.Region;
-			SubRegion = treasure.SubRegion;
-			Name = treasure.Name == "" ? name : treasure.Name;
-		}
-	}
 	public class GameFlags
 	{
 		private const int StartingGameFlags = 0x0653A4;
@@ -546,8 +463,8 @@ namespace FFMQLib
 				new List<AccessReqs> { AccessReqs.ShipLoaned, AccessReqs.ShipSteeringWheel },
 			};
 
-			Locations.ForEach(n => n.Region = ItemLocations.Regions.Find(r => r.Item2 == n.LocationId).Item1);
-			Locations.ForEach(n => n.SubRegion = ItemLocations.MapSubRegions.Find(r => r.Item2 == n.LocationId).Item1);
+			Locations.ForEach(n => n.Region = AccessReferences.Regions.Find(r => r.Item2 == n.LocationId).Item1);
+			Locations.ForEach(n => n.SubRegion = AccessReferences.MapSubRegions.Find(r => r.Item2 == n.LocationId).Item1);
 		}
 		public void OpenNodes(Flags flags)
 		{
@@ -585,7 +502,7 @@ namespace FFMQLib
 			Locations[(int)LocationIds.DoomCastle].Destinations[(int)NodeDirections.North] = LocationIds.FocusTowerForesta;
 			Locations[(int)LocationIds.DoomCastle].Steps[(int)NodeDirections.North] = new List<byte> { 0x86 };
 		}
-		public LocationIds ShuffleEntrances(Flags flags, Battlefields battlefields, MT19337 rng)
+		public LocationIds ShuffleOverworld(Flags flags, Battlefields battlefields, MT19337 rng)
 		{
 			LocationIds startingLocation = LocationIds.LevelForest;
 
@@ -607,7 +524,7 @@ namespace FFMQLib
 
 			excludeFromStart.AddRange(Enum.GetValues<LocationIds>().ToList().GetRange(9, 12));
 
-			var forestaLocations = validLocations.Where(x => ItemLocations.MapSubRegions.Find(r => r.Item2 == x).Item1 == SubRegions.Foresta).ToList();
+			var forestaLocations = validLocations.Where(x => AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 == SubRegions.Foresta).ToList();
 
 			List<LocationIds> placedLocations = new();
 
@@ -648,7 +565,7 @@ namespace FFMQLib
 			// Place Aquaria outside the frozen strip
 			if (flags.LogicOptions != LogicOptions.Expert && !placedLocations.Contains(LocationIds.Aquaria))
 			{ 
-				var aquariaSafeLocactions = validLocations.Where(x => !placedLocations.Contains(x) && ItemLocations.MapSubRegions.Find(r => r.Item2 == x).Item1 != SubRegions.AquariaFrozenField).ToList();
+				var aquariaSafeLocactions = validLocations.Where(x => !placedLocations.Contains(x) && AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 != SubRegions.AquariaFrozenField).ToList();
 
 				loc2 = rng.PickFrom(aquariaSafeLocactions);
 				

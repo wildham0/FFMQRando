@@ -403,11 +403,11 @@
   area: 24
   coordinates: [26, 26]
   teleporter: [8, 6]
-- name: Aquaria Winter - Winter Phoebe's House Entrance Script
+- name: Aquaria Winter - Winter Phoebe's House Entrance Script #Modified to not be a script
   id: 81
   area: 24
-  coordinates: [8, 19]
-  teleporter: [10, 5]
+  coordinates: [8, 19] 
+  teleporter: [10, 5] # original value [5, 8]
 - name: Aquaria Winter - Winter Vendor House Entrance
   id: 82
   area: 24
@@ -463,11 +463,11 @@
   area: 25
   coordinates: [58, 17]
   teleporter: [11, 5]
-- name: Phoebe's House - Entrance
+- name: Phoebe's House - Entrance # Change to a script, same as vendor house
   id: 93
   area: 26
   coordinates: [29, 14]
-  teleporter: [5, 8]
+  teleporter: [5, 8] # Original Value [11,3]
 - name: Aquaria Vendor House - Vendor House Entrance's Script
   id: 94
   area: 27
@@ -488,11 +488,11 @@
   area: 27
   coordinates: [4, 39]
   teleporter: [48, 0]
-- name: Aquaria INN - Aquaria INN entrance
+- name: Aquaria INN - Aquaria INN entrance # Change to a script, same as vendor house
   id: 98
   area: 27
   coordinates: [51, 46]
-  teleporter: [75, 8]
+  teleporter: [75, 8] # Original value [48,3]
 - name: Wintry Cave 1F - Main Entrance
   id: 99
   area: 28
@@ -688,7 +688,7 @@
   area: 39
   coordinates: [39, 60]
   teleporter: [76, 0]
-- name: void - void
+- name: Ice Pyramid - Duplicate Ice Golem Room # not used?
   id: 138
   area: 40
   coordinates: [44, 43]
@@ -858,11 +858,11 @@
   area: 49
   coordinates: [39, 23]
   teleporter: [54, 8]
-- name: Fireburg Vendor House - Entrance Script
+- name: Fireburg Vendor House - Entrance Script # No use to be a script
   id: 172
   area: 49
   coordinates: [7, 10]
-  teleporter: [95, 0]
+  teleporter: [95, 0] # Original value [39, 8]
 - name: Fireburg Vendor House - Stairs to Gemini Room
   id: 173
   area: 49
@@ -997,7 +997,7 @@
   id: 199
   area: 55
   coordinates: [52, 24]
-  teleporter: [79, 8]
+  teleporter: [79, 8] # Original Value [26, 8]
 - name: Volcano Top Right - To Left-Right Path Script
   id: 200
   area: 55
@@ -1007,7 +1007,7 @@
   id: 201
   area: 56
   coordinates: [48, 42]
-  teleporter: [15, 8]
+  teleporter: [15, 8] # Original Value [27, 8]
 - name: Volcano Left Path - To Volcano Cross Left-Right
   id: 202
   area: 56
@@ -1528,7 +1528,7 @@
   area: 75
   coordinates: [14, 51]
   teleporter: [169, 0]
-- name: Giant Tree 5F - Giant Tree Face
+- name: Giant Tree 5F - Giant Tree Face # Unused
   id: 306
   area: 75
   coordinates: [14, 37]
@@ -1603,11 +1603,11 @@
   area: 80
   coordinates: [21, 39]
   teleporter: [30, 5]
-- name: Windia - INN's Script
+- name: Windia - INN's Script # Change to teleporter
   id: 321
   area: 80
   coordinates: [18, 34]
-  teleporter: [31, 2]
+  teleporter: [31, 2] # Original value [79, 8]
 - name: Windia - Vendor House
   id: 322
   area: 80
@@ -1643,11 +1643,11 @@
   area: 81
   coordinates: [26, 23]
   teleporter: [107, 3]
-- name: Windia Kid House - Entrance Script
+- name: Windia Kid House - Entrance Script # Change to teleporter
   id: 329
   area: 82
   coordinates: [7, 10]
-  teleporter: [178, 0]
+  teleporter: [178, 0] # Original value [38, 8]
 - name: Windia Kid House - Basement Stairs
   id: 330
   area: 82
@@ -2053,7 +2053,7 @@
   area: 98
   coordinates: [16, 12]
   teleporter: [87, 0]
-- name: Mac Ship B1 Mac Room - Stairs
+- name: Mac Ship B1 Mac Room - Stairs # Unused?
   id: 411
   area: 98
   coordinates: [16, 51]

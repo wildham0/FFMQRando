@@ -982,6 +982,7 @@ namespace FFMQLib
 		{
 			return _mapUncompressed.Distinct().ToList();
 		}
+		/*
 		public void ExitLocationDump(FFMQRom.ExitList exits, MapUtilities maputilities)
 		{
 			var tempmap = _mapUncompressed.GetRange(0, _dimensions.Item1 * _dimensions.Item2).Select(x => ((_tileData[(x & 0x7F)].Byte1 & 0x07) == 0x07) ? 0xFF : 0x00).ToArray();
@@ -1003,7 +1004,7 @@ namespace FFMQLib
 
 				Console.WriteLine(myStringOutput);
 			}
-		}
+		}*/
 	}
 
 	public class MapChangeAction

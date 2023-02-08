@@ -46,8 +46,6 @@ namespace FFMQLib
 		public List<GameObject> ItemsLocations { get; }
 		
 		private const int TreasuresOffset = 0x8000;
-		private List<(AccessReqs, List<AccessReqs>)> Events;
-		private List<(LocationIds, List<AccessReqs>)> LocationTriggers;
 
 		private class RegionWeight
 		{ 
@@ -60,7 +58,7 @@ namespace FFMQLib
 				Weight = _weight;
 			}
 		}
-		public ItemsPlacement(Flags flags, Battlefields battlefields, Overworld overworld, LocationStructure locations, List<GameObject> initialGameObjects, FFMQRom rom, MT19337 rng)
+		public ItemsPlacement(Flags flags, List<GameObject> initialGameObjects, FFMQRom rom, MT19337 rng)
 		{
 			bool badPlacement = true;
 			int counter = 0;
@@ -103,16 +101,12 @@ namespace FFMQLib
 
 				List<Items> nonRequiredItems = flags.SkyCoinMode == SkyCoinModes.Standard ? StartingItems : StartingItems.Append(Items.SkyCoin).ToList();
 
-				Events = ItemLocations.AccessEvents.Select(x => (x.Key, x.Value)).ToList();
-				LocationTriggers = ItemLocations.LocationTriggers.ToList();
-
-
 				List<AccessReqs> accessReqsToProcess = new();
 				// Apply starting items access
 				foreach (var item in nonRequiredItems)
 				{
 					List<AccessReqs> result;
-					if(ItemLocations.ItemAccessReq.TryGetValue(item, out result))
+					if(AccessReferences.ItemAccessReq.TryGetValue(item, out result))
 					{
 						accessReqsToProcess.AddRange(result);
 					}
@@ -229,7 +223,7 @@ namespace FFMQLib
 
 					List<AccessReqs> result;
 
-					if (ItemLocations.ItemAccessReq.TryGetValue(itemToPlace, out result))
+					if (AccessReferences.ItemAccessReq.TryGetValue(itemToPlace, out result))
 					{
 						ProcessRequirements(result);
 					}
@@ -514,10 +508,10 @@ namespace FFMQLib
 
 			spoilers += "\n--- Placed Items ---\n";
 			var keyItems = ItemsLocations.Where(x => !invalidItems.Contains(x.Content)).ToList();
-			var forestaKi = keyItems.Where(x => ItemLocations.ReturnRegion(x.Location) == MapRegions.Foresta).OrderBy(x => x.Location).ToList();
-			var aquariaKi = keyItems.Where(x => ItemLocations.ReturnRegion(x.Location) == MapRegions.Aquaria).OrderBy(x => x.Location).ToList();
-			var fireburgKi = keyItems.Where(x => ItemLocations.ReturnRegion(x.Location) == MapRegions.Fireburg).OrderBy(x => x.Location).ToList();
-			var windiaKi = keyItems.Where(x => ItemLocations.ReturnRegion(x.Location) == MapRegions.Windia).OrderBy(x => x.Location).ToList();
+			var forestaKi = keyItems.Where(x => AccessReferences.ReturnRegion(x.Location) == MapRegions.Foresta).OrderBy(x => x.Location).ToList();
+			var aquariaKi = keyItems.Where(x => AccessReferences.ReturnRegion(x.Location) == MapRegions.Aquaria).OrderBy(x => x.Location).ToList();
+			var fireburgKi = keyItems.Where(x => AccessReferences.ReturnRegion(x.Location) == MapRegions.Fireburg).OrderBy(x => x.Location).ToList();
+			var windiaKi = keyItems.Where(x => AccessReferences.ReturnRegion(x.Location) == MapRegions.Windia).OrderBy(x => x.Location).ToList();
 
 			spoilers += "Foresta\n";
 			foreach (var item in forestaKi)
