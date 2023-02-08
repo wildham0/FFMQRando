@@ -5,11 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="datafiles\entrances.yaml" />
     <None Remove="locations.yaml" />
+    <None Remove="rooms.yaml" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="locations.yaml" />
+    <EmbeddedResource Include="datafiles\entrances.yaml" />
+    <EmbeddedResource Include="datafiles\rooms.yaml" />
+    <EmbeddedResource Include="datafiles\locations.yaml" />
   </ItemGroup>
 
   <ItemGroup>

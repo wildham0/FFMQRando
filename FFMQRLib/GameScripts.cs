@@ -10,7 +10,7 @@ namespace FFMQLib
 	{
 		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, LocationIds startinglocation, MT19337 rng)
 		{
-			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
+			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
 
 			/*** Overworld ***/
 			// GameStart - Skip Mountain collapse
@@ -850,17 +850,16 @@ namespace FFMQLib
 
 			/*** Giant Tree ***/
 			// Set door to chests in Giant Tree to open only once chimera is defeated
-			var treeDoorChangeId = MapChanges.Add(Blob.FromHex("3806122F3F"));
-			MapObjects[0x46][0x04].RawOverwrite(Blob.FromHex("0002073816002C")); // Put new map object to talk to
-			GameMaps[(int)MapList.GiantTreeB].ModifyMap(0x38, 0x07, 0x3E); // Change map to block exit
-			Teleporters.TeleportersA[0x94].TargetY = 0x08;  // Change exit coordinate
+			//var treeDoorChangeOpen = MapChanges.Add(Blob.FromHex("3806122F3F"));
+			var treeDoorChangeClosed = MapChanges.Add(Blob.FromHex("3806122F3E"));
+			MapObjects[0x46][0x04].RawOverwrite(Blob.FromHex("2802073816002C")); // Put new map object to talk to
+			//GameMaps[(int)MapList.GiantTreeB].ModifyMap(0x38, 0x07, 0x3E); // Change map to block exit
+			//Teleporters.TeleportersA[0x94].TargetY = 0x08;  // Change exit coordinate
+			MapChanges.AddAction(0x46, 0x28, treeDoorChangeClosed, 0x22);
 
 			TalkScripts.AddScript(0x02, new ScriptBuilder(new List<string>
 				{
-					"2e28[04]",
-					TextToHex("You may enter.") + "36",
-					$"2a{treeDoorChangeId:X2}2a10505eff9700ffff2bf3",
-					"00",
+					"2e28[02]",
 					TextToHex("Defeat Gidrah and I'll let you pass.") + "36",
 					"00"
 				}));

@@ -1,4 +1,4 @@
-rooms:
+entrances:
 - name: void
   area_id: 0
   treasures: []
@@ -37,7 +37,8 @@ rooms:
     y: 19
     teleport_id: 0
     teleport_type: 0
-    access: []
+    access:
+    - ["MegaGrenade", "DragonClaw"]
   - name: Main Entrance - Sand Floor
     id: 2
     x: 19
@@ -120,14 +121,16 @@ rooms:
     y: 29
     teleport_id: 3
     teleport_type: 6
-    access: []
+    access: 
+    - ["SunCoin"]
   - name: To Focus Tower 2F - From SandCoin
     id: 1
     x: 16
     y: 4
     teleport_id: 10
     teleport_type: 0
-    access: []
+    access: 
+    - ["SandCoin"]
   - name: To Focus Tower B1 - Main Hall
     id: 2
     x: 4
@@ -141,21 +144,24 @@ rooms:
     y: 17
     teleport_id: 12
     teleport_type: 0
-    access: []
+    access: 
+    - ["SunCoin"]
   - name: Sky Door
     id: 4
     x: 16
     y: 24
     teleport_id: 13
     teleport_type: 0
-    access: []
+    access: 
+    - ["SkyCoin"]
   - name: To Focus Tower 2F - From RiverCoin
     id: 5
     x: 16
     y: 10
     teleport_id: 14
     teleport_type: 0
-    access: []
+    access: 
+    - ["RiverCoin"]
   - name: To Focus Tower B1 - From Sky Door
     id: 6
     x: 16
@@ -531,7 +537,8 @@ rooms:
     y: 39
     teleport_id: 3
     teleport_type: 2
-    access: []
+    access: 
+    - ["Bomb"]
   - name: Tristam's Script
     id: 2
     x: 27
@@ -585,14 +592,16 @@ rooms:
     y: 13
     teleport_id: 5
     teleport_type: 2
-    access: []
+    access: 
+    - ["Bomb"]
   - name: To Two Skulls Room
     id: 1
     x: 29
     y: 15
     teleport_id: 6
     teleport_type: 2
-    access: []
+    access: 
+    - ["Bomb"]
   - name: To Checker Room
     id: 8
     x: 8
@@ -646,7 +655,8 @@ rooms:
     y: 57
     teleport_id: 9
     teleport_type: 2
-    access: []
+    access: 
+    - ["Bomb"]
   - name: To B2 - Exploding Skull Room
     id: 7
     x: 54
@@ -796,14 +806,16 @@ rooms:
     y: 16
     teleport_id: 42
     teleport_type: 0
-    access: []
+    access: 
+    - ["WakeWater"]
   - name: Spencer's Place Entrance Side
     id: 6
     x: 41
     y: 18
     teleport_id: 43
     teleport_type: 0
-    access: []
+    access:
+    - ["WakeWater"]
   - name: Summer Vendor House Entrance
     id: 7
     x: 40
@@ -894,14 +906,16 @@ rooms:
     y: 25
     teleport_id: 14
     teleport_type: 2
-    access: []
+    access:
+    - ["Bomb"]
   - name: To 2F
     id: 2
     x: 10
     y: 43
     teleport_id: 15
     teleport_type: 2
-    access: []
+    access: 
+    - ["Bomb", "Claw"]
   - name: Phoebe's Script
     id: 3
     x: 44
@@ -1035,35 +1049,40 @@ rooms:
     y: 27
     teleport_id: 57
     teleport_type: 0
-    access: []
+    access: 
+    - ["Sword"]
   - name: West Center Stairs to 2F West Room
     id: 3
     x: 11
     y: 15
     teleport_id: 58
     teleport_type: 0
-    access: []
+    access:
+    - ["Sword"]
   - name: East Center Stairs to 2F Center Room
     id: 4
     x: 25
     y: 16
     teleport_id: 59
     teleport_type: 0
-    access: []
+    access: 
+    - ["Sword"]
   - name: Upper Stairs to 2F Small North Room
     id: 5
     x: 31
     y: 1
     teleport_id: 60
     teleport_type: 0
-    access: []
+    access:
+    - ["Sword"]
   - name: East Stairs to 2F North Corridor
     id: 6
     x: 34
     y: 9
     teleport_id: 61
     teleport_type: 0
-    access: []
+    access:
+    - ["Sword"]
   - name: Statue's Script
     id: 7
     x: 21
@@ -1168,7 +1187,8 @@ rooms:
     y: 43
     teleport_id: 71
     teleport_type: 0
-    access: []
+    access:
+    - ["Sword"]
 - name: Ice Pyramid 4F Treasure Room
   area_id: 38
   treasures: []
@@ -1204,7 +1224,8 @@ rooms:
     y: 54
     teleport_id: 77
     teleport_type: 8
-    access: []    
+    access:
+    - ["Claw", "Bomb"]    
 - name: Ice Pyramid 5F Stairs to Ice Golem
   area_id: 39
   treasures: []
@@ -1251,7 +1272,8 @@ rooms:
     y: 45
     teleport_id: 79
     teleport_type: 0
-    access: []
+    access:
+    - ["Claw"]
 - name: Ice Pyramid Ice Golem Room
   area_id: 42
   treasures: []
@@ -1527,8 +1549,8 @@ rooms:
     id: 3
     x: 7
     y: 10
-    teleport_id: 39
-    teleport_type: 8
+    teleport_id: 95 # 39
+    teleport_type: 0 # 8
     access: []
   - name: Stairs to Gemini Room
     id: 4
@@ -2472,7 +2494,7 @@ rooms:
     teleport_id: 149
     teleport_type: 0
     access: []    
-- name: Giant Tree West Ledge
+- name: Giant Tree 2F West Ledge
   area_id: 69
   treasures: []
   entrances:
@@ -2505,7 +2527,7 @@ rooms:
     teleport_id: 150
     teleport_type: 0
     access: []
-  - name: North Face to Meteor #changed to a talk script
+  - name: North Face to Meteor #changed to a talk script/not changed anymore
     id: 1
     x: 56
     y: 7
@@ -2652,7 +2674,7 @@ rooms:
     teleport_id: 167
     teleport_type: 0
     access: []
-  - name: West Entrance
+  - name: East Entrance
     id: 3
     x: 57
     y: 28
@@ -2868,8 +2890,8 @@ rooms:
     id: 0
     x: 7
     y: 10
-    teleport_id: 38
-    teleport_type: 8
+    teleport_id: 178 # 38
+    teleport_type: 0 # 8
     access: []
   - name: Basement Stairs
     id: 2
@@ -3020,17 +3042,6 @@ rooms:
     teleport_id: 186
     teleport_type: 0
     access: []
-- name: Pazuzu Tower 1F Boxes Room
-  area_id: 83
-  treasures: []
-  entrances:    
-  - name: West Stairs
-    id: 6
-    x: 38
-    y: 17
-    teleport_id: 187
-    teleport_type: 0
-    access: []
   - name: Pazuzu Script 1
     id: 7
     x: 47
@@ -3044,6 +3055,17 @@ rooms:
     y: 8
     teleport_id: 16
     teleport_type: 8
+    access: []
+- name: Pazuzu Tower 1F Boxes Room
+  area_id: 83
+  treasures: []
+  entrances:    
+  - name: West Stairs
+    id: 6
+    x: 38
+    y: 17
+    teleport_id: 187
+    teleport_type: 0
     access: []
 - name: Pazuzu 2F
   area_id: 84
@@ -3876,3 +3898,275 @@ entrances_links_list:
   entrance_b: [70, 8]
 - entrance_a: [43, 8]
   entrance_b: [61, 8]
+- entrance_a: [00, 0] # Focus Tower
+  entrance_b: [07, 0]
+- entrance_a: [01, 0] 
+  entrance_b: [8, 0]
+- entrance_a: [05, 0] 
+  entrance_b: [12, 0]
+- entrance_a: [04, 0] 
+  entrance_b: [11, 0]
+- entrance_a: [06, 0] 
+  entrance_b: [15, 0]
+- entrance_a: [10, 0] 
+  entrance_b: [17, 0]
+- entrance_a: [13, 0] # > To Doom Castle
+  entrance_b: [84, 0]
+- entrance_a: [14, 0] 
+  entrance_b: [18, 0]
+- entrance_a: [20, 0] 
+  entrance_b: [24, 0]
+- entrance_a: [19, 0] 
+  entrance_b: [23, 0]
+- entrance_a: [32, 4] # Foresta
+  entrance_b: [34, 0]
+- entrance_a: [33, 0] 
+  entrance_b: [35, 0]
+- entrance_a: [00, 5] 
+  entrance_b: [86, 3]
+- entrance_a: [01, 5] 
+  entrance_b: [87, 3]
+- entrance_a: [02, 2] # Bone Dungeon
+  entrance_b: [88, 3]
+- entrance_a: [03, 2] 
+  entrance_b: [89, 3]
+- entrance_a: [04, 2] 
+  entrance_b: [90, 3]
+- entrance_a: [05, 2] 
+  entrance_b: [91, 3]
+- entrance_a: [06, 2] 
+  entrance_b: [92, 3]
+- entrance_a: [07, 2] 
+  entrance_b: [93, 3]
+- entrance_a: [8, 2] 
+  entrance_b: [94, 3]
+- entrance_a: [9, 2]
+  entrance_b: [95, 3]
+- entrance_a: [10, 5] # Aquaria
+  entrance_b: [05, 8]
+- entrance_a: [44, 4] 
+  entrance_b: [40, 8]
+- entrance_a: [11, 5] 
+  entrance_b: [75, 8]
+- entrance_a: [42, 0] # Spencer entrance, how to handle exactly? not shuffle? collapse in one entrance?
+  entrance_b: [82, 0]
+- entrance_a: [43, 0] 
+  entrance_b: [83, 0]
+- entrance_a: [47, 0] 
+  entrance_b: [48, 0]
+- entrance_a: [14, 2] # Wintry Cave
+  entrance_b: [96, 3]
+- entrance_a: [15, 2] 
+  entrance_b: [97, 3]
+- entrance_a: [50, 0] 
+  entrance_b: [51, 0]
+- entrance_a: [57, 0] # Ice Pyramid
+  entrance_b: [62, 0]
+- entrance_a: [67, 0]
+  entrance_b: [69, 0]
+- entrance_a: [58, 0]
+  entrance_b: [63, 0]
+- entrance_a: [59, 0]
+  entrance_b: [64, 0]
+- entrance_a: [60, 0]
+  entrance_b: [65, 0]
+- entrance_a: [61, 0]
+  entrance_b: [66, 0]
+- entrance_a: [68, 0]
+  entrance_b: [69, 0]
+- entrance_a: [71, 0]
+  entrance_b: [72, 0]
+- entrance_a: [73, 0]
+  entrance_b: [74, 0]
+- entrance_a: [75, 0]
+  entrance_b: [80, 0]
+- entrance_a: [76, 0]
+  entrance_b: [79, 0]
+- entrance_a: [78, 0]
+  entrance_b: [55, 0]
+- entrance_a: [81, 0] # Spencer Cave 2
+  entrance_b: [85, 0]
+- entrance_a: [91, 0] # Fireburg
+  entrance_b: [95, 0]
+- entrance_a: [96, 0]
+  entrance_b: [97, 0]
+- entrance_a: [16, 2]
+  entrance_b: [98, 3]
+- entrance_a: [17, 2]
+  entrance_b: [99, 3]
+- entrance_a: [213, 0]
+  entrance_b: [214, 0]
+- entrance_a: [11, 8]
+  entrance_b: [9, 8]
+- entrance_a: [93, 0]
+  entrance_b: [94, 0]
+- entrance_a: [99, 0] # Mine
+  entrance_b: [100, 0]
+- entrance_a: [20, 2]
+  entrance_b: [100, 3]
+- entrance_a: [21, 2]
+  entrance_b: [101, 3]
+- entrance_a: [22, 2]
+  entrance_b: [102, 3]
+- entrance_a: [31, 8] # Volcano
+  entrance_b: [27, 8]
+- entrance_a: [30, 8]
+  entrance_b: [15, 8]
+- entrance_a: [25, 2]
+  entrance_b: [103, 3]
+- entrance_a: [29, 8]
+  entrance_b: [26, 8]
+- entrance_a: [26, 2]
+  entrance_b: [104, 3]
+- entrance_a: [28, 8]
+  entrance_b: [79, 8]
+- entrance_a: [105, 0] # Lava Dome
+  entrance_b: [127, 0]
+- entrance_a: [106, 0]
+  entrance_b: [128, 0]
+- entrance_a: [108, 0]
+  entrance_b: [133, 0]
+- entrance_a: [111, 0]
+  entrance_b: [134, 0]
+- entrance_a: [107, 0]
+  entrance_b: [129, 0]
+- entrance_a: [109, 0]
+  entrance_b: [135, 0]
+- entrance_a: [110, 0]
+  entrance_b: [123, 0]
+- entrance_a: [112, 0]
+  entrance_b: [124, 0]
+- entrance_a: [113, 0]
+  entrance_b: [117, 0]
+- entrance_a: [114, 0]
+  entrance_b: [116, 0]
+- entrance_a: [29, 2]
+  entrance_b: [105, 3]
+- entrance_a: [138, 0]
+  entrance_b: [139, 0]
+- entrance_a: [115, 0]
+  entrance_b: [16, 0]
+- entrance_a: [119, 0]
+  entrance_b: [118, 0]
+- entrance_a: [120, 0]
+  entrance_b: [136, 0]
+- entrance_a: [121, 0]
+  entrance_b: [130, 0]
+- entrance_a: [122, 0]
+  entrance_b: [125, 0]
+- entrance_a: [126, 0]
+  entrance_b: [131, 0]
+- entrance_a: [132, 0]
+  entrance_b: [137, 0]
+- entrance_a: [143, 0] # Alive Forest
+  entrance_b: [49, 8]
+- entrance_a: [144, 0] # Giant Tree
+  entrance_b: [145, 0]
+- entrance_a: [149, 0]
+  entrance_b: [150, 0]
+- entrance_a: [151, 0]
+  entrance_b: [148, 0]
+- entrance_a: [146, 0]
+  entrance_b: [152, 0]
+- entrance_a: [147, 0]
+  entrance_b: [155, 0]
+- entrance_a: [156, 0]
+  entrance_b: [159, 0]
+- entrance_a: [153, 0]
+  entrance_b: [157, 0]
+- entrance_a: [158, 0]
+  entrance_b: [154, 0]
+- entrance_a: [160, 0]
+  entrance_b: [166, 0]
+- entrance_a: [161, 0]
+  entrance_b: [167, 0]
+- entrance_a: [162, 0]
+  entrance_b: [168, 0]
+- entrance_a: [165, 0]
+  entrance_b: [163, 0]
+- entrance_a: [164, 0]
+  entrance_b: [169, 0]
+- entrance_a: [30, 5] # Windia
+  entrance_b: [106, 3]
+- entrance_a: [33, 2]
+  entrance_b: [107, 3]
+- entrance_a: [31, 2]
+  entrance_b: [135, 3]
+- entrance_a: [215, 0]
+  entrance_b: [216, 0]
+- entrance_a: [32, 5]
+  entrance_b: [108, 3]
+- entrance_a: [176, 4]
+  entrance_b: [178, 0]
+- entrance_a: [180, 0]
+  entrance_b: [182, 0]
+- entrance_a: [177, 4]
+  entrance_b: [179, 0]
+- entrance_a: [181, 0]
+  entrance_b: [183, 0]
+- entrance_a: [185, 0] # Pazuzu
+  entrance_b: [29, 0]
+- entrance_a: [186, 0]
+  entrance_b: [189, 0]
+- entrance_a: [187, 0]
+  entrance_b: [190, 0]
+- entrance_a: [188, 0]
+  entrance_b: [21, 0]
+- entrance_a: [191, 0]
+  entrance_b: [194, 0]
+- entrance_a: [195, 0]
+  entrance_b: [198, 0]
+- entrance_a: [192, 0]
+  entrance_b: [30, 0]
+- entrance_a: [193, 0]
+  entrance_b: [40, 0]
+- entrance_a: [199, 0]
+  entrance_b: [202, 0]
+- entrance_a: [197, 0]
+  entrance_b: [2, 0]
+- entrance_a: [196, 0]
+  entrance_b: [22, 0]
+- entrance_a: [200, 0]
+  entrance_b: [41, 0]
+- entrance_a: [201, 0]
+  entrance_b: [38, 0]
+- entrance_a: [203, 0]
+  entrance_b: [205, 0]
+- entrance_a: [204, 0]
+  entrance_b: [3, 0]
+- entrance_a: [206, 0]
+  entrance_b: [27, 0]
+- entrance_a: [207, 0]
+  entrance_b: [28, 0]
+- entrance_a: [26, 0]
+  entrance_b: [39, 0]
+- entrance_a: [187, 0]
+  entrance_b: [190, 0]
+- entrance_a: [50, 8] # Mac Ship
+  entrance_b: [208, 0]
+- entrance_a: [51, 8]
+  entrance_b: [175, 0]
+- entrance_a: [52, 8]
+  entrance_b: [172, 0]
+- entrance_a: [53, 8]
+  entrance_b: [141, 0]
+- entrance_a: [88, 0]
+  entrance_b: [58, 8]
+- entrance_a: [87, 0]
+  entrance_b: [57, 8]
+- entrance_a: [56, 8]
+  entrance_b: [86, 0]
+- entrance_a: [102, 0]
+  entrance_b: [55, 8]
+- entrance_a: [57, 1]
+  entrance_b: [101, 0]
+- entrance_a: [35, 2] # Doom Castle
+  entrance_b: [109, 3]
+- entrance_a: [209, 8]
+  entrance_b: [210, 0]
+- entrance_a: [211, 0]
+  entrance_b: [212, 0]
+- entrance_a: [13, 2]
+  entrance_b: [110, 3]
+- entrance_a: [54, 0]
+  entrance_b: [52, 0]

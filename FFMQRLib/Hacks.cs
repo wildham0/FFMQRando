@@ -173,7 +173,7 @@ namespace FFMQLib
 
 			var test2 = itemsPlacement.ItemsLocations.Where(x => x.ObjectId < 0x20).ToList();
 
-			foreach(var location in itemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.Chest || x.Type == TreasureType.Box).ToList())
+			foreach(var location in itemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.Chest || x.Type == GameObjectType.Box).ToList())
             {
 				byte quantity = 1;
 
@@ -192,7 +192,7 @@ namespace FFMQLib
 				}
 
 
-				if (location.Type == TreasureType.Chest)
+				if (location.Type == GameObjectType.Chest)
 				{
 					GameFlags.CustomFlagToHex(lutResetBox, location.ObjectId, true);
 				}
