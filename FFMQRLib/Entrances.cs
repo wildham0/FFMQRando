@@ -227,7 +227,7 @@ namespace FFMQLib
 				new CrestTile(396, (0x1B, 6), (70, 8), MapList.Caves),
 				new CrestTile(334, (0x18, 6), (44, 8), MapList.HouseInterior),
 				new CrestTile(336, (0x17, 6), (43, 8), MapList.HouseInterior),
-				new CrestTile(397, (0x20, 6), (61, 8), MapList.ForestaInterior),
+				new CrestTile(397, (0x20, 6), (61, 8), MapList.ShipDock),
 			};
 
 			List<AccessReqs> crestAccess = new() { AccessReqs.LibraCrest, AccessReqs.GeminiCrest, AccessReqs.MobiusCrest };
