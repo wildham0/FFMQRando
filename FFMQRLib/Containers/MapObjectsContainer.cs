@@ -94,7 +94,7 @@ namespace FFMQLib
 		{
 			return _areaattributes[area][1];
 		}
-		public void WriteAll(FFMQRom rom)
+		public void Write(FFMQRom rom)
 		{
 			var pointerOffset = _attributepointers[0].ToUShorts()[0];
 			var pointersCount = 0;

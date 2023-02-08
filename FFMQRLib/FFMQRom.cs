@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.3.24";
+		public static string Version = "1.3.30";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -248,13 +248,13 @@ namespace FFMQLib
 			EntrancesData.Write(this);
 			Battlefields.Write(this);
 			Overworld.Write(this);
-			MapObjects.WriteAll(this);
+			MapObjects.Write(this);
 			MapSpriteSets.Write(this);
 			titleScreen.Write(this, Metadata.Version, seed, flags);
 
 
 			// Spoilers
-			//spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
+			spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
 			spoilers = flags.EnableSpoilers;
 			
 			// Remove header if any

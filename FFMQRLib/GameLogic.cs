@@ -412,10 +412,12 @@ namespace FFMQLib
 			}
 
 			// Clean Up requirements
+			List<AccessReqs> crestsList = new() { AccessReqs.LibraCrest, AccessReqs.GeminiCrest, AccessReqs.MobiusCrest };
+
 			foreach (var gameobject in GameObjects)
 			{
 				gameobject.AccessRequirements = gameobject.AccessRequirements.Select(x => x.Distinct().ToList()).ToList();
-				gameobject.AccessRequirements.OrderBy(x => x.Count);
+				gameobject.AccessRequirements = gameobject.AccessRequirements.OrderBy(x => x.Count + (x.Intersect(crestsList).ToList().Count * 2)).ToList(); // Add crest tax
 			}
 
 			// Expert Mode check

@@ -412,7 +412,7 @@ namespace FFMQLib
 			{
 				foreach (var location in FriendAccessReqs)
 				{
-					overworld.Locations.Find(x => x.LocationId == location.Key).AccessRequirements.ForEach(x => x.AddRange(location.Value));
+					//overworld.Locations.Find(x => x.LocationId == location.Key).AccessRequirements.ForEach(x => x.AddRange(location.Value));
 				}
 			}
 
@@ -432,8 +432,8 @@ namespace FFMQLib
 					teleporter1access.ForEach(x => x.AddRange(commonReqs.Concat(new List<AccessReqs> { teleporterlink.Item1, teleporterlink.Item2 })));
 					teleporter2access.ForEach(x => x.AddRange(commonReqs.Concat(new List<AccessReqs> { teleporterlink.Item1, teleporterlink.Item3 })));
 
-					overworld.Locations.Where(x => x.SubRegion == teleporter1subregion).ToList().ForEach(x => x.AccessRequirements.AddRange(teleporter2access));
-					overworld.Locations.Where(x => x.SubRegion == teleporter2subregion).ToList().ForEach(x => x.AccessRequirements.AddRange(teleporter1access));
+					//overworld.Locations.Where(x => x.SubRegion == teleporter1subregion).ToList().ForEach(x => x.AccessRequirements.AddRange(teleporter2access));
+					//overworld.Locations.Where(x => x.SubRegion == teleporter2subregion).ToList().ForEach(x => x.AccessRequirements.AddRange(teleporter1access));
 				}
 			}
 
@@ -457,7 +457,7 @@ namespace FFMQLib
 			{
 				List<AccessReqs> sealedTempleExit = new() { AccessReqs.RiverCoin, AccessReqs.SealedTempleCrestTile, AccessReqs.ExitBook, AccessReqs.GeminiCrest };
 
-				overworld.Locations.Where(x => x.SubRegion == SubRegions.Aquaria || x.SubRegion == SubRegions.AquariaFrozenField).ToList().ForEach(x => x.AccessRequirements.Add(sealedTempleExit));
+				//overworld.Locations.Where(x => x.SubRegion == SubRegions.Aquaria || x.SubRegion == SubRegions.AquariaFrozenField).ToList().ForEach(x => x.AccessRequirements.Add(sealedTempleExit));
 			}
 
 			// Collapse Access Requirements
@@ -466,10 +466,11 @@ namespace FFMQLib
 				var locRequirements = properties[i].AccessRequirements[0].ToList();
 				properties[i].AccessRequirements.Clear();
 
+				/*
 				foreach (var accessreqlist in overworld.Locations.Find(x => x.LocationId == properties[i].Location).AccessRequirements)
 				{
 					properties[i].AccessRequirements.Add(locRequirements.Concat(accessreqlist).ToList());
-				}
+				}*/
 
 				if (flags.ProgressiveGear)
 				{
