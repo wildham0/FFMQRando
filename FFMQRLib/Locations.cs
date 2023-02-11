@@ -399,7 +399,7 @@ namespace FFMQLib
 			}
 
 			// Place Aquaria outside the frozen strip
-			if (flags.LogicOptions != LogicOptions.Expert && !placedLocations.Contains(LocationIds.Aquaria))
+			if ((flags.LogicOptions != LogicOptions.Expert || flags.CrestShuffle) && !placedLocations.Contains(LocationIds.Aquaria))
 			{ 
 				var aquariaSafeLocactions = validLocations.Where(x => !placedLocations.Contains(x) && AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 != SubRegions.AquariaFrozenField).ToList();
 

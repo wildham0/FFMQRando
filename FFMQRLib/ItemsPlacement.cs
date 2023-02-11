@@ -72,6 +72,7 @@ namespace FFMQLib
 
 
 			List<RegionWeight> regionsWeight = new() { new RegionWeight(MapRegions.Foresta, 1), new RegionWeight(MapRegions.Aquaria, 1), new RegionWeight(MapRegions.Fireburg, 1), new RegionWeight(MapRegions.Windia, 1) };
+			List<GameObjectType> validTypes = new() { GameObjectType.Battlefield, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
 
 			List<GameObject> initialItemlocations = initialGameObjects.ToList();
 
@@ -118,8 +119,8 @@ namespace FFMQLib
 				{
 					List<GameObject> validLocations = new();
 
-					List<GameObject> validLocationsPriorized = ItemsLocations.Where(x => x.Accessible && x.IsPlaced == false && x.Prioritize == true).ToList();
-					List<GameObject> validLocationsLoose = ItemsLocations.Where(x => x.Accessible && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false).ToList();
+					List<GameObject> validLocationsPriorized = ItemsLocations.Where(x => validTypes.Contains(x.Type) && x.Accessible && x.IsPlaced == false && x.Prioritize == true).ToList();
+					List<GameObject> validLocationsLoose = ItemsLocations.Where(x => validTypes.Contains(x.Type) && x.Accessible && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false).ToList();
 
 					int diceRoll = rng.Between(1, itemsList.Count);
 
@@ -243,7 +244,7 @@ namespace FFMQLib
 			// Sky Coins
 			if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
 			{
-				var validSkyCoinLocations = ItemsLocations.Where(x => x.IsPlaced == false && x.Prioritize == false && x.Exclude == false && x.Location != LocationIds.DoomCastle).ToList();
+				var validSkyCoinLocations = ItemsLocations.Where(x => validTypes.Contains(x.Type) && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false && x.Location != LocationIds.DoomCastle).ToList();
 
 				if(validSkyCoinLocations.Count < 40)
                 {
@@ -266,7 +267,7 @@ namespace FFMQLib
 			// Fill excluded and unfilled locations
 			List<Items> consumables = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed };
 			
-			var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.Battlefield || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20) || x.Type == GameObjectType.Dummy)).ToList();
+			var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.Battlefield || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20))).ToList();
 
 			foreach (var location in unfilledLocations)
 			{
@@ -489,7 +490,8 @@ namespace FFMQLib
 		public string GenerateSpoilers(FFMQRom rom, string version, string hash, string flags, string seed)
 		{
 			List<Items> invalidItems = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
-			
+			List<GameObjectType> validType = new() { GameObjectType.Battlefield, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
+
 			string spoilers = "";
 
 			spoilers += "--- Spoilers File --- \n";
@@ -507,11 +509,11 @@ namespace FFMQLib
 			}
 
 			spoilers += "\n--- Placed Items ---\n";
-			var keyItems = ItemsLocations.Where(x => !invalidItems.Contains(x.Content)).ToList();
-			var forestaKi = keyItems.Where(x => AccessReferences.ReturnRegion(x.Location) == MapRegions.Foresta).OrderBy(x => x.Location).ToList();
-			var aquariaKi = keyItems.Where(x => AccessReferences.ReturnRegion(x.Location) == MapRegions.Aquaria).OrderBy(x => x.Location).ToList();
-			var fireburgKi = keyItems.Where(x => AccessReferences.ReturnRegion(x.Location) == MapRegions.Fireburg).OrderBy(x => x.Location).ToList();
-			var windiaKi = keyItems.Where(x => AccessReferences.ReturnRegion(x.Location) == MapRegions.Windia).OrderBy(x => x.Location).ToList();
+			var keyItems = ItemsLocations.Where(x => !invalidItems.Contains(x.Content) && validType.Contains(x.Type)).ToList();
+			var forestaKi = keyItems.Where(x => x.Region == MapRegions.Foresta).OrderBy(x => x.Location).ToList();
+			var aquariaKi = keyItems.Where(x => x.Region == MapRegions.Aquaria).OrderBy(x => x.Location).ToList();
+			var fireburgKi = keyItems.Where(x => x.Region == MapRegions.Fireburg).OrderBy(x => x.Location).ToList();
+			var windiaKi = keyItems.Where(x => x.Region == MapRegions.Windia).OrderBy(x => x.Location).ToList();
 
 			spoilers += "Foresta\n";
 			foreach (var item in forestaKi)
