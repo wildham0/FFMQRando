@@ -318,7 +318,7 @@
     access: ["Kaeli1", "Minotaur", "Elixir"]
   links:
   - target_room: 16
-    entrance: 45
+    entrance: 46
     teleporter: [86, 3]
     access: []
 - name: Foresta Houses - Old Man's House Main

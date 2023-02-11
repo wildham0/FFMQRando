@@ -1,19 +1,16 @@
 ﻿using RomUtilities;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using System.Reflection;
-using System.Diagnostics;
-
+using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-using YamlDotNet.RepresentationModel;
 
 namespace FFMQLib
 {
-	public class Entrance
+    public class Entrance
 	{
 		public string Name { get; set; }
 		public int Id { get; set; }
@@ -280,6 +277,22 @@ namespace FFMQLib
 						$"2A1227{newTeleporter.id:X2}{newTeleporter.type:X2}FFFF",
 						"00",
 						}));
+
+			}
+		}
+
+		public void UpdatEntrance(Flags flags, List<Room> rooms, MT19337 rng)
+		{
+			var flatLinkList = rooms.SelectMany(x => x.Links.Where(l => l.Entrance > 0)).ToList();
+
+			foreach (var link in flatLinkList)
+			{
+				var entranceToUpdate = Entrances.Where(x => x.Id == link.Entrance).ToList();
+
+				foreach (var entrance in entranceToUpdate)
+				{
+					entrance.Teleporter = link.Teleporter;
+				}
 
 			}
 		}

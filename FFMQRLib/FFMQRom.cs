@@ -206,7 +206,10 @@ namespace FFMQLib
 
 			// Locations & Logic
 			GameLogic.CrestShuffle(flags.CrestShuffle, rng);
+			GameLogic.FloorShuffle(true, rng);
 			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic.Rooms, rng);
+			EntrancesData.UpdatEntrance(flags, GameLogic.Rooms, rng);
+
 			var startingLocation = Overworld.ShuffleOverworld(flags, Battlefields, rng);
 			GameLogic.CrawlRooms(flags, Overworld, Battlefields);
 			

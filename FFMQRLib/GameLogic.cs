@@ -139,7 +139,7 @@ namespace FFMQLib
 		public RoomLink()
 		{
 			TargetRoom = 0;
-			Entrance = 0;
+			Entrance = -1;
 			Access = new();
 			Teleporter = (0, 0);
 		}

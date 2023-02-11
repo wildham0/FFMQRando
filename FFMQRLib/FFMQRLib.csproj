@@ -6,12 +6,14 @@
 
   <ItemGroup>
     <None Remove="datafiles\entrances.yaml" />
+    <None Remove="datafiles\entrancespairs.yaml" />
     <None Remove="locations.yaml" />
     <None Remove="rooms.yaml" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="datafiles\entrances.yaml" />
+    <EmbeddedResource Include="datafiles\entrancespairs.yaml" />
     <EmbeddedResource Include="datafiles\rooms.yaml" />
     <EmbeddedResource Include="datafiles\locations.yaml" />
   </ItemGroup>
