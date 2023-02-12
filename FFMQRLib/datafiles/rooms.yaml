@@ -662,7 +662,11 @@
     access: ["SummerAquaria"]
 - name: Phoebe's House
   id: 41
-  game_objects: []
+  game_objects:
+  - name: "Aquaria 01"
+    object_id: 0x41
+    type: "Box"
+    access: []
   links:
   - target_room: 40
     entrance: 93
@@ -674,6 +678,10 @@
   - name: "Aquaria Vendor Girl"
     object_id: 4
     type: "NPC"
+    access: []
+  - name: "Aquaria 02"
+    object_id: 0x42
+    type: "Box"
     access: []
   links:
   - target_room: 40
@@ -838,7 +846,15 @@
     access: ["LibraCrest"]
 - name: Fall Basin
   id: 52
-  game_objects: []
+  game_objects:
+  - name: "Crab Chest"
+    object_id: 0x0A
+    type: "Chest"
+    access: []
+  - name: "Fall Basin 01"
+    object_id: 0x4F
+    type: "Box"
+    access: []
   links:
   - target_room: 0
     entrance: 111

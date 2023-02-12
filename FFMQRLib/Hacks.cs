@@ -248,7 +248,7 @@ namespace FFMQLib
 			PutInBank(0x11, 0x8780, Blob.FromHex("bfd581008d880ebfdd81008d910e6b"));
 
 			// New header to load in fireburg, there's an extra byte to start in the actual city which clober the next demoplay, but we don't care about that
-			PutInBank(0x00, 0x81D5, Blob.FromHex("263335000caa2ea831"));
+			PutInBank(0x00, 0x81D5, Blob.FromHex("263335060caa2ea831"));
 
 			// Halve the input timer because of speedhack
 			PutInBank(0x00, 0x934E, Blob.FromHex("07"));
