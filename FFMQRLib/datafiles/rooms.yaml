@@ -807,7 +807,7 @@
   - target_room: 45
     entrance: 105
     teleporter: [96, 3]
-    access:
+    access: []
 - name: Wintry Cave 3F Bottom
   id: 50
   game_objects:
@@ -934,10 +934,6 @@
     entrance: 120
     teleporter: [61, 0]
     access: []
-  - target_room: 56
-    entrance: 116
-    teleporter: [57, 0]
-    access: []
 - name: Ice Pyramid 2F South Tiled Room
   id: 56
   game_objects:
@@ -991,8 +987,8 @@
     access: ["Sword"]
   links:
   - target_room: 55
-    entrance: 127
-    teleporter: [66, 0]
+    entrance: 126
+    teleporter: [65, 0]
     access: []
 - name: Ice Pyramid 2F North Corridor
   id: 60

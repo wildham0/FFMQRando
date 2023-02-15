@@ -342,15 +342,20 @@ namespace FFMQLib
 
 					foreach (var gamedata in room.GameObjects)
 					{
+						Console.WriteLine(room.Id + "------");
+						
 						var targetaccess = finalQueue.Where(x => x.Item1 == room.Id).ToList();
+						Console.WriteLine(targetaccess.Count);
 						List<List<AccessReqs>> finalAccess = new();
 						foreach (var access in targetaccess)
 						{
 							var tsubregion = overworld.Locations.Find(l => l.LocationId == access.Item2).SubRegion;
 							var tsubAccess = subRegionsAccess.Where(x => x.Item1 == tsubregion).ToList();
+							Console.WriteLine(tsubAccess.Count);
 							if (tsubAccess.Any())
 							{
 								var locReq = tsubAccess.Select(x => x.Item2).ToList();
+								Console.WriteLine(locReq.Count);
 								foreach (var locAccess in locReq)
 								{
 									finalAccess.Add(locAccess.Concat(access.Item3).ToList());
