@@ -157,12 +157,15 @@ namespace FFMQLib
 		public int Id { get; set; }
 		public List<GameObjectData> GameObjects { get; set; }
 		public List<RoomLink> Links { get; set; }
+		[YamlIgnore]
+		public LocationIds Location { get; set; }
 		public Room(string name, int id, int area, List<GameObjectData> objects, List<RoomLink> entrances)
 		{
 			Name = name;
 			Id = id;
 			GameObjects = objects; // shallowcopy?
 			Links = entrances;
+			Location = LocationIds.None;
 		}
 		public Room()
 		{
@@ -170,6 +173,7 @@ namespace FFMQLib
 			Id = 0;
 			GameObjects = new();
 			Links = new();
+			Location = LocationIds.None;
 		}
 	}
 
@@ -269,7 +273,7 @@ namespace FFMQLib
 			subRegionsAccess = subRegionsAccess.Where(x => !x.Item2.Contains(AccessReqs.Barred)).ToList();
 
 			// Add Sealed Temple/Exit book trick
-			if (flags.LogicOptions == LogicOptions.Expert && !(flags.OverworldShuffle || flags.CrestShuffle))
+			if (flags.LogicOptions == LogicOptions.Expert && !(flags.OverworldShuffle || flags.CrestShuffle || flags.FloorShuffle))
 			{
 				List<AccessReqs> sealedTempleExit = new() { AccessReqs.RiverCoin, AccessReqs.ExitBook, AccessReqs.GeminiCrest };
 				subRegionsAccess.Add((SubRegions.Aquaria, sealedTempleExit));
@@ -335,27 +339,27 @@ namespace FFMQLib
 				}
 				else
 				{
-
+					Console.WriteLine("Current room: " + room.Id);
+					
 					actualLocation = locationQueue.Where(x => x.Item1 == room.Id).OrderBy(x => x.Item2).ToList().First().Item3;
+					room.Location = actualLocation;
+
+					Console.WriteLine("Location Id: " + actualLocation);
 
 					Location targetLocation = overworld.Locations.Find(x => x.LocationId == actualLocation);
 
 					foreach (var gamedata in room.GameObjects)
 					{
-						Console.WriteLine(room.Id + "------");
-						
+					
 						var targetaccess = finalQueue.Where(x => x.Item1 == room.Id).ToList();
-						Console.WriteLine(targetaccess.Count);
 						List<List<AccessReqs>> finalAccess = new();
 						foreach (var access in targetaccess)
 						{
 							var tsubregion = overworld.Locations.Find(l => l.LocationId == access.Item2).SubRegion;
 							var tsubAccess = subRegionsAccess.Where(x => x.Item1 == tsubregion).ToList();
-							Console.WriteLine(tsubAccess.Count);
 							if (tsubAccess.Any())
 							{
 								var locReq = tsubAccess.Select(x => x.Item2).ToList();
-								Console.WriteLine(locReq.Count);
 								foreach (var locAccess in locReq)
 								{
 									finalAccess.Add(locAccess.Concat(access.Item3).ToList());
@@ -417,12 +421,12 @@ namespace FFMQLib
 			}
 
 			// Clean Up requirements
-			List<AccessReqs> crestsList = new() { AccessReqs.LibraCrest, AccessReqs.GeminiCrest, AccessReqs.MobiusCrest };
+			List<AccessReqs> unincentivizedAccess = new() { AccessReqs.LibraCrest, AccessReqs.GeminiCrest, AccessReqs.MobiusCrest, AccessReqs.IcePyramid3FStatue, AccessReqs.IcePyramid4FStatue, AccessReqs.BarrelPushed };
 
 			foreach (var gameobject in GameObjects)
 			{
 				gameobject.AccessRequirements = gameobject.AccessRequirements.Select(x => x.Distinct().ToList()).ToList();
-				gameobject.AccessRequirements = gameobject.AccessRequirements.OrderBy(x => x.Count + (x.Intersect(crestsList).ToList().Count * 2)).ToList(); // Add crest tax
+				gameobject.AccessRequirements = gameobject.AccessRequirements.OrderBy(x => x.Count + (x.Intersect(unincentivizedAccess).ToList().Count * 2)).ToList(); // Add crest tax
 			}
 
 			// Expert Mode check

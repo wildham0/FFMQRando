@@ -39,7 +39,9 @@ namespace FFMQLib
             set => internalSkyCoinFragmentsQty = value; }
         public bool EnableSpoilers { get; set; } = false;
         public bool OverworldShuffle { get; set; } = false;
+
         public bool CrestShuffle { get; set; } = false;
+        public bool FloorShuffle { get; set; } = false;
 
         private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;
 

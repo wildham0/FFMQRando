@@ -7,6 +7,37 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="presets\advanced.yaml" />
+    <None Remove="presets\beginner.yaml" />
+    <None Remove="presets\challenging.yaml" />
+    <None Remove="presets\quickplay.yaml" />
+    <None Remove="presets\sgl2022.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="presets\advanced.yaml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="presets\beginner.yaml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="presets\challenging.yaml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="presets\quickplay.yaml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="presets\sgl2022.yaml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\FFMQRLib\FFMQRLib.csproj" />
   </ItemGroup>
 </Project>

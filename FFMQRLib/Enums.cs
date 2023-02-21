@@ -188,11 +188,22 @@ namespace FFMQLib
 		WoodHouseGeminiCrestTile,
 		WoodHouseMobiusCrestTile,
 		
+		BarrelPushed,
+		
+		LongSpineBombed, 
+		ShortSpineBombed, 
+		Skull1Bombed, 
+		Skull2Bombed, 
+
+		IcePyramid1FStatue, //
 		IcePyramid3FStatue,
 		IcePyramid4FStatue,
 		IcePyramid5FStatue,
+
 		SpencerCaveLibraBlockBombed,
+
 		LavaDomePlate,
+
 		Pazuzu2FLock,
 		Pazuzu4FLock,
 		Pazuzu6FLock,
@@ -202,6 +213,7 @@ namespace FFMQLib
 		Pazuzu4F,
 		Pazuzu5F,
 		Pazuzu6F,
+
 		Barred,
 	}
 	public enum TreasureType : int

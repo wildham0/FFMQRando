@@ -162,6 +162,7 @@
         <Container Class="flagColumn">
             <BoolFlag UsePreset=usePreset Name="Tweak Frustrating Dungeons" @bind-Value="flags.TweakedDungeons" Tooltip="Make some small changes to a few of the most annoying dungeons.<br/><br/>Ice Pyramid: Add 3 shortcuts on the 1st floor.<br/><br/>Giant Tree: Add shortcuts on the 1st and 4th floors and curtail mushrooms population.<br/><br/>Pazuzu's Tower: Staircases are devoid of enemies (regardless of Enemies Density settings)." />
             <BoolFlag UsePreset=usePreset Name="Overworld Shuffle" @bind-Value="flags.OverworldShuffle" Tooltip="Shuffle all Overworld Locations." />
+            <BoolFlag UsePreset=usePreset Name="Dungeons Shuffle" @bind-Value="flags.FloorShuffle" Tooltip="Shuffle floors from all dungeons.<br/><br/>The 1st floor is kept the same.<br/><br/>Defeating Pazuzu won't teleport you to the 7th floor, you have to get there normally to save the Crystal and get Pazuzu's Chest." />
             <BoolFlag UsePreset=usePreset Name="Crests Shuffle" @bind-Value="flags.CrestShuffle" Tooltip="Shuffle the Crests' tiles between themselves." />        
         </Container>
     </Container>
