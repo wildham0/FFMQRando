@@ -106,6 +106,7 @@ namespace FFMQLib
 			TeleportersLong = rom.GetFromBank(TeleportersBank, TeleportersOffsetLong, TeleportersQtyLong * 4).Chunk(4).Select((x, i) => new Teleporter(i, x)).ToList();
 
 			ExtraTeleporters();
+			PushTeleporters();
 		}
 		private void ExtraTeleporters()
 		{
@@ -173,6 +174,17 @@ namespace FFMQLib
 			TeleportersLong.Add(new Teleporter(35, 0x18, 0x0A, FacingOrientation.Down, 0x43, 0x2D)); // Alive Forest - North teleporter
 			TeleportersB.Add(new Teleporter(140, 0x09, 0x18, FacingOrientation.Down, 0x2E, 0x23)); // Wintry Temple
 
+		}
+
+		private void PushTeleporters()
+		{
+			List<int> teleportersAtoPush = new() { 148, 152, 155, 159, 168 };
+			List<int> teleportersBtoPush = new() { 96, 97, 100, 101, 102, 105 };
+			List<int> teleportersWarptoPush = new() { };
+			List<int> teleportersLongtoPush = new() { };
+
+			TeleportersA.Where(t => teleportersAtoPush.Contains(t.Id)).ToList().ForEach(t => t.TargetY++);
+			TeleportersB.Where(t => teleportersBtoPush.Contains(t.Id)).ToList().ForEach(t => t.TargetY++);
 		}
 		public void Write(FFMQRom rom)
 		{
