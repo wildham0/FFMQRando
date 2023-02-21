@@ -1,19 +1,16 @@
 ﻿using RomUtilities;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using System.Reflection;
-using System.Diagnostics;
-
+using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-using YamlDotNet.RepresentationModel;
 
 namespace FFMQLib
 {
-	public class Entrance
+    public class Entrance
 	{
 		public string Name { get; set; }
 		public int Id { get; set; }
@@ -204,7 +201,7 @@ namespace FFMQLib
 				}
 			}
 		}
-		public void UpdateCrests(Flags flags, GameScriptManager tileScripts, GameMaps gameMaps, List<Room> rooms, MT19337 rng)
+		public void UpdateCrests(Flags flags, GameScriptManager tileScripts, GameMaps gameMaps, GameLogic logic, List<Teleporter> teleportersLong, MT19337 rng)
 		{
 			bool keepWintryTemple = !(flags.OverworldShuffle || flags.CrestShuffle);
 
@@ -257,15 +254,17 @@ namespace FFMQLib
 				(MapList.ForestaInterior, Items.MobiusCrest, 0x14),
 			};
 
-			var flatLinkList = rooms.SelectMany(x => x.Links).ToList();
+			var flatLinkList = logic.Rooms.SelectMany(x => x.Links).ToList();
 
 			foreach (var crest in crestsList)
 			{
 				var entranceToUpdate = Entrances.Where(x => x.Id == crest.Entrance).ToList();
 				var updatedLink = flatLinkList.Find(x => x.Entrance == crest.Entrance);
+				var targetLocation = logic.Rooms.Find(x => x.Id == logic.CrestRoomLinks.Find(x => x.Teleporter == crest.Script).Room).Location;
 				var access = crestAccess.Intersect(updatedLink.Access).ToList().First();
 				var crestItem = crestItemAccess.Find(c => c.Item2 == access).Item1;
 				var newTeleporter = crestsList.Find(x => x.Script == updatedLink.Teleporter).TargetTeleporter;
+				
 
 				foreach (var entrance in entranceToUpdate)
 				{
@@ -281,6 +280,29 @@ namespace FFMQLib
 						"00",
 						}));
 
+				if (newTeleporter.type == 6)
+				{
+					teleportersLong.Find(x => x.Id == newTeleporter.id).TargetLocation = (int)targetLocation;
+				}
+			}
+		}
+
+		public void UpdatEntrance(Flags flags, List<Room> rooms, MT19337 rng)
+		{
+			var flatLinkList = rooms.SelectMany(x => x.Links.Where(l => l.Entrance > 0)).ToList();
+			List<(int, (int, int))> entrancesProcessList = new();
+
+			foreach (var link in flatLinkList)
+			{
+				var teleporterToUpdate = Entrances.Find(x => x.Id == link.Entrance).Teleporter;
+				var entrancesToUpdate = Entrances.Where(x => x.Teleporter == teleporterToUpdate).ToList();
+
+				entrancesProcessList.AddRange(entrancesToUpdate.Select(x => (x.Id, link.Teleporter)).ToList());
+			}
+			
+			foreach (var entrance in entrancesProcessList)
+			{
+				Entrances.Find(x => x.Id == entrance.Item1).Teleporter = entrance.Item2;
 			}
 		}
 

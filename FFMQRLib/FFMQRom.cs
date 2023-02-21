@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.3.33";
+		public static string Version = "1.3.35";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -206,9 +206,14 @@ namespace FFMQLib
 
 			// Locations & Logic
 			GameLogic.CrestShuffle(flags.CrestShuffle, rng);
-			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic.Rooms, rng);
+			GameLogic.FloorShuffle(flags.FloorShuffle, rng);
+
 			var startingLocation = Overworld.ShuffleOverworld(flags, Battlefields, rng);
 			GameLogic.CrawlRooms(flags, Overworld, Battlefields);
+			
+			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, rng);
+			EntrancesData.UpdatEntrance(flags, GameLogic.Rooms, rng);
+
 			
 			// Items
 			ItemsPlacement itemsPlacement = new(flags, GameLogic.GameObjects, this, rng);

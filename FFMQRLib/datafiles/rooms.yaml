@@ -318,13 +318,15 @@
     access: ["Kaeli1", "Minotaur", "Elixir"]
   links:
   - target_room: 16
-    entrance: 45
+    entrance: 46
     teleporter: [86, 3]
     access: []
 - name: Foresta Houses - Old Man's House Main
   id: 18
   game_objects: []
   links:
+  - target_room: 19
+    access: ["BarrelPushed"]
   - target_room: 16
     entrance: 47
     teleporter: [34, 0]
@@ -336,9 +338,14 @@
     object_id: 0x05
     type: "Chest"
     access: []
+  - name: "Old Man Barrel"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["BarrelPushed"]
+    access: []
   links:
   - target_room: 18
-    access: []
+    access: ["BarrelPushed"]
   - target_room: 16
     entrance: 48
     teleporter: [35, 0]
@@ -448,16 +455,10 @@
     entrance: 59
     teleporter: [88, 3]
     access: []
-  - target_room: 202
-    access: ["Bomb"]
-- name: Bone Dungeon B1 - Waterway Bomb Corridor
-  id: 202
-  game_objects: []
-  links:
   - target_room: 28
     entrance: 57
     teleporter: [3, 2]
-    access: []
+    access: ["Bomb"]
 - name: Bone Dungeon B1 - Checker Room
   id: 28
   game_objects:
@@ -466,7 +467,7 @@
     type: "Box"
     access: ["Bomb"]
   links:
-  - target_room: 202
+  - target_room: 26
     entrance: 61
     teleporter: [89, 3]
     access: []
@@ -493,13 +494,18 @@
     object_id: 0x3B
     type: "Box"
     access: []
+  - name: "Long Spine"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["LongSpineBombed"]
+    access: ["Bomb"]
   links:
   - target_room: 28
     entrance: 65
     teleporter: [90, 3]
     access: []
   - target_room: 31
-    access: ["Bomb"]
+    access: ["LongSpineBombed"]
 - name: Bonne Dungeon B2 - Exploding Skull Room - Second Room
   id: 31
   game_objects:
@@ -507,13 +513,20 @@
     object_id: 0x3A
     type: "Box"
     access: []
+  - name: "Short Spine"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["ShortSpineBombed"]
+    access: ["Bomb"]
   links:
   - target_room: 29
     entrance: 63
     teleporter: [5, 2]
-    access: ["Bomb"]
+    access: ["LongSpineBombed"]
   - target_room: 32
-    access: ["Bomb"]
+    access: ["ShortSpineBombed"]
+  - target_room: 30
+    access: ["LongSpineBombed"]
 - name: Bonne Dungeon B2 - Exploding Skull Room - Third Room
   id: 32
   game_objects: []
@@ -522,6 +535,8 @@
     entrance: 64
     teleporter: [6, 2]
     access: []
+  - target_room: 31
+    access: ["ShortSpineBombed"]
 - name: Bonne Dungeon B2 - Box Room
   id: 33
   game_objects:
@@ -553,23 +568,35 @@
     object_id: 0x3C
     type: "Box"
     access: []
+  - name: "Skull 1"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["Skull1Bombed"]
+    access: ["Bomb"]
   links:
   - target_room: 32
     entrance: 71
     teleporter: [92, 3]
     access: []
   - target_room: 36
-    access: ["Bomb"]
+    access: ["Skull1Bombed"]
 - name: Bonne Dungeon B2 - Two Skulls Room - Second Room
   id: 36
-  game_objects: []
+  game_objects:
+  - name: "Skull 2"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["Skull2Bombed"]
+    access: ["Bomb"]
   links:
   - target_room: 33
     entrance: 68
     teleporter: [7, 2]
     access: []
   - target_room: 37
-    access: ["Bomb"]
+    access: ["Skull2Bombed"]
+  - target_room: 35
+    access: ["Skull1Bombed"]
 - name: Bonne Dungeon B2 - Two Skulls Room - Third Room
   id: 37
   game_objects: []
@@ -582,6 +609,8 @@
     entrance: 70
     teleporter: [9, 2]
     access: ["Bomb"]
+  - target_room: 36
+    access: ["Skull2Bombed"]
 - name: Bone Dungeon B2 - Boss Room
   id: 38
   game_objects:
@@ -605,7 +634,7 @@
   - target_room: 37
     entrance: 74
     teleporter: [95, 3]
-    access: ["Bomb"]
+    access: []
 - name: Libra Temple
   id: 39
   game_objects:
@@ -807,7 +836,7 @@
   - target_room: 45
     entrance: 105
     teleporter: [96, 3]
-    access:
+    access: []
 - name: Wintry Cave 3F Bottom
   id: 50
   game_objects:
@@ -886,14 +915,19 @@
     access: []
 - name: Ice Pyramid 1F Maze Lobby
   id: 54
-  game_objects: []
+  game_objects:
+  - name: "Ice Pyramid 1F Statue"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["IcePyramid1FStatue"]
+    access: ["Sword"]
   links:
   - target_room: 0
     entrance: 114
     teleporter: [56, 0]
     access: []
   - target_room: 55
-    access: ["Sword"]
+    access: ["IcePyramid1FStatue"]
 - name: Ice Pyramid 1F Maze
   id: 55
   game_objects:
@@ -934,10 +968,8 @@
     entrance: 120
     teleporter: [61, 0]
     access: []
-  - target_room: 56
-    entrance: 116
-    teleporter: [57, 0]
-    access: []
+  - target_room: 54
+    access: ["IcePyramid1FStatue"]
 - name: Ice Pyramid 2F South Tiled Room
   id: 56
   game_objects:
@@ -991,8 +1023,8 @@
     access: ["Sword"]
   links:
   - target_room: 55
-    entrance: 127
-    teleporter: [66, 0]
+    entrance: 126
+    teleporter: [65, 0]
     access: []
 - name: Ice Pyramid 2F North Corridor
   id: 60
@@ -1065,6 +1097,8 @@
     entrance: 131
     teleporter: [71, 0]
     access: []
+  - target_room: 62
+    access: ["IcePyramid3FStatue"]
 - name: Ice Pyramid 4F Main Loop
   id: 64
   game_objects: []
@@ -1077,6 +1111,8 @@
     entrance: 132
     teleporter: [72, 0]
     access: []
+  - target_room: 65
+    access: ["IcePyramid4FStatue"]
 - name: Ice Pyramid 4F Treasure Room
   id: 65
   game_objects:
@@ -1168,6 +1204,8 @@
   - target_room: 69
     entrance: 137
     teleporter: [76, 0]
+    access: []
+  - target_room: 65
     access: []
   - target_room: 70
     entrance: 136
@@ -1672,7 +1710,7 @@
   links:
   - target_room: 209
     entrance: 199
-    teleporter: [79, 8]
+    teleporter: [26, 8]
     access: []
 - name: Volcano Top Right
   id: 95
@@ -1688,7 +1726,7 @@
   links:
   - target_room: 99
     entrance: 200
-    teleporter: [26, 8]
+    teleporter: [79, 8]
     access: []
 - name: Volcano Right Path
   id: 96
@@ -1715,7 +1753,7 @@
     teleporter: [27, 8]
     access: []
   - target_room: 99
-    entrance: 2022
+    entrance: 202
     teleporter: [25, 2]
     access: []
   - target_room: 209
@@ -1823,6 +1861,8 @@
     access: []
   - target_room: 104
     access: ["Claw"]
+  - target_room: 100
+    access: ["Claw"]
 - name: Lava Dome Inner Ring Upper Ledge East
   id: 104
   game_objects: []
@@ -1842,7 +1882,7 @@
     teleporter: [114, 0]
     access: []
   - target_room: 121
-    entrance: 223
+    entrance: 222
     teleporter: [29, 2]
     access: ["LavaDomePlate"]
 - name: Lava Dome Inner Ring Tiny Bottom Ledge
@@ -3081,6 +3121,8 @@
   id: 178
   game_objects: []
   links:
+  - target_room: 177
+    access: ["DragonClaw"]
   - target_room: 176
     entrance: 381
     teleporter: [27, 0]

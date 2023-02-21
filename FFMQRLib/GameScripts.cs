@@ -860,6 +860,7 @@ namespace FFMQLib
 			TalkScripts.AddScript(0x02, new ScriptBuilder(new List<string>
 				{
 					"2e28[02]",
+					"00",
 					TextToHex("Defeat Gidrah and I'll let you pass.") + "36",
 					"00"
 				}));
@@ -1020,6 +1021,64 @@ namespace FFMQLib
 					"2A60463C46FFFF",
 					"00",
 				}));
+
+			/*** Pazuzu's Tower ***/
+			var newResetflags = new ScriptBuilder(new List<string> {
+						"2B47",
+						"2B48",
+						"2B49",
+						"2B40",
+						"2B41",
+						"2B42",
+						"2B43",
+						"2B44",
+						"2B45",
+						"2B46",
+						"00"
+					});
+			newResetflags.WriteAt(0x12, 0xC1A0, this);
+
+			var newPazuzuScript = new ScriptBuilder(new List<string> {
+						"2C50FF",
+						"07A0C112",
+						!flags.FloorShuffle ? "0898FD" : "00",
+						"00"
+					});
+
+			newPazuzuScript.WriteAt(0x03, 0xFD8C, this);
+
+			var standardCrystalScript = new ScriptBuilder(new List<string> {
+						"2A20500527205410575EFF4E01A057260161FF10530054202529E6FFFF",
+						"2305",
+						flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals ? "050260C11200" : "00",
+						"00"
+					});
+
+			var floorCrystalScript = new ScriptBuilder(new List<string> {
+						"2E05[04]",
+						"2A61FF10531050202529E6FFFF",
+						"2305",
+						flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals ? "050260C11200" : "00",
+						"00"
+					});
+
+			if (flags.FloorShuffle)
+			{
+				floorCrystalScript.WriteAt(0x03, 0xFD98, this);
+
+				TileScripts.AddScript(0x26,
+					new ScriptBuilder(new List<string>{
+						"0A98FD"
+					}));
+
+				//GameMaps[(int)MapList.PazuzuTowerB].ModifyMap(0x10, 0x28, 0x78);
+				MapChanges.Replace(0x12, Blob.FromHex("0F26334e4e4e4e2020784e20"));
+				MapObjects[0x59][0x06].Coord = (0x10, 0x28);
+			}
+			else
+			{
+				standardCrystalScript.WriteAt(0x03, 0xFD98, this);
+			}
 
 			/*** Ship's Dock ***/
 			GameFlags[0x1A] = false; // Mac Ship

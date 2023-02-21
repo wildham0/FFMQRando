@@ -988,21 +988,21 @@
   area: 54
   coordinates: [32, 5]
   teleporter: [30, 8]
-- name: Volcano Top Left - Top Exit
+- name: Volcano Top Right - Top Exit
   id: 198
   area: 55
   coordinates: [44, 8]
   teleporter: [103, 0]
-- name: Volcano Top Left - To Left-Right Path Script
+- name: Volcano Top Left - To Right-Left Path Script
   id: 199
-  area: 55
-  coordinates: [52, 24]
-  teleporter: [79, 8] # Original Value [26, 8]
-- name: Volcano Top Right - To Left-Right Path Script
-  id: 200
   area: 55
   coordinates: [40, 24]
   teleporter: [26, 8]
+- name: Volcano Top Right - To Left-Right Path Script
+  id: 200
+  area: 55
+  coordinates: [52, 24]
+  teleporter: [79, 8]  # Original Value [26, 8]
 - name: Volcano Right Path - To Volcano Base Script
   id: 201
   area: 56
@@ -1923,6 +1923,11 @@
   area: 89
   coordinates: [16, 44]
   teleporter: [22, 8]
+- name: Pazuzu 7F Main Room - Crystal Script # Added for floor shuffle
+  id: 445
+  area: 89
+  coordinates: [15, 40]
+  teleporter: [38, 8]
 - name: Pazuzu 1F to 3F - South Stairs
   id: 385
   area: 90
@@ -2123,17 +2128,17 @@
   area: 100
   coordinates: [16, 51]
   teleporter: [101, 0]
-- name: Mac Ship B1 Cental Corridor Cleared - South Stairs
+- name: Mac Ship B1 Central Corridor Cleared - South Stairs
   id: 425
   area: 100
   coordinates: [16, 38]
   teleporter: [102, 0]
-- name: Mac Ship B1 Cental Corridor Cleared - North Stairs
+- name: Mac Ship B1 Central Corridor Cleared - North Stairs
   id: 426
   area: 100
   coordinates: [16, 26]
   teleporter: [86, 0]
-- name: Mac Ship B1 Cental Corridor Cleared - Northwest Stairs
+- name: Mac Ship B1 Central Corridor Cleared - Northwest Stairs
   id: 427
   area: 100
   coordinates: [23, 10]

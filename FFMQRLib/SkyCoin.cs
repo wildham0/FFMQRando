@@ -60,7 +60,7 @@ namespace FFMQLib
 						$"0D5F01{(int)Items.SkyCoin:X2}0162",
 						"00"
 					});
-
+				/*
 				var pazuzuScript = new ScriptBuilder(new List<string> {
 						"2B47",
 						"2B48",
@@ -78,11 +78,11 @@ namespace FFMQLib
 
 				var pazuzuJumpScript = new ScriptBuilder(new List<string> {
 						"0502A0C11200"
-					});
+					});*/
 
 				crystalSkyCoinScript.WriteAt(0x12, 0xC160, this);
-				pazuzuScript.WriteAt(0x12, 0xC1A0, this);
-				pazuzuJumpScript.WriteAt(0x03, 0xFDAD, this);
+				//pazuzuScript.WriteAt(0x12, 0xC1A0, this);
+				//pazuzuJumpScript.WriteAt(0x03, 0xFDAD, this);
 			}
 			else if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
 			{
