@@ -339,12 +339,14 @@ namespace FFMQLib
 				}
 				else
 				{
-					Console.WriteLine("Current room: " + room.Id);
-					
-					actualLocation = locationQueue.Where(x => x.Item1 == room.Id).OrderBy(x => x.Item2).ToList().First().Item3;
-					room.Location = actualLocation;
+					var locationList = locationQueue.Where(x => x.Item1 == room.Id).OrderBy(x => x.Item2).ToList();
+					if (!locationList.Any())
+					{
+						throw new Exception("Game Logic: Unaccessible Room Error\n\n" + "Room: " + room.Id + "\n\n" + GenerateDumpFile());
+					}
 
-					Console.WriteLine("Location Id: " + actualLocation);
+					actualLocation = locationList.First().Item3;
+					room.Location = actualLocation;
 
 					Location targetLocation = overworld.Locations.Find(x => x.LocationId == actualLocation);
 

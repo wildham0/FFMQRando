@@ -352,10 +352,24 @@
         catch (Exception ex)
         {
             romMessage = ex.Message;
+            #if DEBUG
+                await ErrorDump(ex.Message);
+            #endif
         }
-
+    
         generatedRom = true;
     }
+
+    private async Task ErrorDump(string dump)
+    {
+        var errorDump = new MemoryStream(Encoding.UTF8.GetBytes(romMessage));
+        var fileNameSpoilers = "FFMQR_Error_" + FFMQLib.Metadata.Version + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".txt";
+
+        using var streamRefSpoilers = new DotNetStreamReference(stream: errorDump);
+
+        await JS.InvokeVoidAsync("downloadFileFromStream", fileNameSpoilers, streamRefSpoilers);        
+    }
+
 
     private async Task LoadFiles(FileChangedEventArgs e)
     {
