@@ -1072,7 +1072,7 @@ namespace FFMQLib
 					}));
 
 				//GameMaps[(int)MapList.PazuzuTowerB].ModifyMap(0x10, 0x28, 0x78);
-				MapChanges.Replace(0x12, Blob.FromHex("0F26334e4e4e4e2020784e20"));
+				MapChanges.Replace(0x12, Blob.FromHex("0F26334e4e4e4e2020794e20"));
 				MapObjects[0x59][0x06].Coord = (0x10, 0x28);
 			}
 			else
