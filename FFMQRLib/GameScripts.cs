@@ -415,6 +415,17 @@ namespace FFMQLib
 			// Change entrance tile to disable script
 			GameMaps[(int)MapList.IcePyramidA].ModifyMap(0x15, 0x20, 0x05);
 
+			// Open 4F door to avoid softlock in floor shuffle
+			if (flags.FloorShuffle)
+			{ 
+				GameMaps[(int)MapList.IcePyramidA].ModifyMap(0x37, 0x06,
+					new()
+					{
+						new() { 0xBF },
+						new() { 0xCF },
+					});
+			}
+
 			// Change tile properties from falling tile to script tile
 			GameMaps.TilesProperties[0x06][0x1E].Byte2 = 0x88;
 
@@ -422,7 +433,7 @@ namespace FFMQLib
 				new ScriptBuilder(new List<string>
 				{
 					"2D" + ScriptItemFlags[Items.CatClaw].Item1,
-					$"050c" + ScriptItemFlags[Items.CatClaw].Item2 + "[17]", // goto teleport
+					$"050c" + ScriptItemFlags[Items.CatClaw].Item2 + "[17]", // check sword
 					"2D" + ScriptItemFlags[Items.CharmClaw].Item1,
 					$"050c" + ScriptItemFlags[Items.CharmClaw].Item2 + "[17]",
 					"2D" + ScriptItemFlags[Items.DragonClaw].Item1,
@@ -438,6 +449,19 @@ namespace FFMQLib
 					"2C105A00",
 					"2C105700",
 					"2C105800",
+					"2D" + ScriptItemFlags[Items.SteelSword].Item1,
+					$"050c" + ScriptItemFlags[Items.SteelSword].Item2 + "[30]", // goto teleport
+					"2D" + ScriptItemFlags[Items.KnightSword].Item1,
+					$"050c" + ScriptItemFlags[Items.KnightSword].Item2 + "[30]",
+					"2D" + ScriptItemFlags[Items.Excalibur].Item1,
+					$"050c" + ScriptItemFlags[Items.Excalibur].Item2 + "[30]",
+					"0F8B0E",
+					"057C00[13]", // looking up
+					"057C01[14]",// looking right
+					"057C02[15]",  // lookingdown
+					"057C03[16]",// looking left
+					"1A48" + TextToHex("I should bring a sword with me before going down there.") + "36",
+					"00",
 					"0cee19000cef191a094cb20100" // Hack to excute the falling down routine
 				}));
 

@@ -282,7 +282,7 @@ namespace FFMQLib
 
 			// Create list of big rooms
 			List<BigRoom> bigRooms = new();
-			List<int> nonShuffledEntrances = new() { 89, 90, 145, 148, 166, 168, 274, 278, 289, 290, 293, 294 };
+			List<int> nonShuffledEntrances = new() { 89, 90, 113, 136, 137, 139, 140, 141, 145, 148, 166, 168, 274, 278, 251, 253, 289, 290, 293, 294 };
 
 			int maxId = 0;
 
@@ -326,8 +326,8 @@ namespace FFMQLib
 			List<(int, int)> forcedLinks = new()
 			{
 				(133, 134), // Ice Pyramid Loop
-				(113, 137),
-				(136, 141),
+				//(113, 137),
+				//(136, 141),
 				(rng.TakeFrom(lavadomeLinks), 215),
 				(rng.TakeFrom(lavadomeLinks), 219),
 				(280, rng.TakeFrom(giantree2fLinks)),
