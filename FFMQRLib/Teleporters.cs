@@ -175,7 +175,6 @@ namespace FFMQLib
 			TeleportersB.Add(new Teleporter(140, 0x09, 0x18, FacingOrientation.Down, 0x2E, 0x23)); // Wintry Temple
 
 		}
-
 		private void PushTeleporters()
 		{
 			List<int> teleportersAtoPush = new() { 148, 152, 155, 159, 168 };

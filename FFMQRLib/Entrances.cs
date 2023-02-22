@@ -54,7 +54,14 @@ namespace FFMQLib
 			Coordinates = (data[0], data[1]);
 			Teleporter = (data[2], 0);
 			Area = area;
-
+		}
+		public Entrance(int id, byte[] data)
+		{
+			Name = "OwEntrance";
+			Id = id;
+			Coordinates = (0, 0);
+			Teleporter = (data[0], data[1]);
+			Area = 0;
 		}
 		public Entrance(int id, Entrance entrance)
 		{
@@ -64,10 +71,13 @@ namespace FFMQLib
 			Teleporter = entrance.Teleporter;
 			Area = entrance.Area;
 		}
-
 		public byte[] ToBytes()
 		{
 			return new byte[] { (byte)Coordinates.x, (byte)Coordinates.y, (byte)Teleporter.id, (byte)Teleporter.type };
+		}
+		public byte[] OwToBytes()
+		{
+			return new byte[] { (byte)Teleporter.id, (byte)Teleporter.type };
 		}
 	}
 
@@ -139,6 +149,7 @@ namespace FFMQLib
 	public class EntrancesData
 	{
 		public List<Entrance> Entrances { get; set; }
+		public List<Entrance> OwEntrances { get; set; }
 		public List<EntrancesLink> EntrancesLinks { get; set; }
 		public List<EntrancesLinkList> EntrancesLinksList { get; set; }
 		public List<(AccessReqs crest, AccessReqs loc1, AccessReqs loc2)> CrestPairs { get; set; }
@@ -152,6 +163,10 @@ namespace FFMQLib
 		public const int NewEntrancesPointers = 0xA000;
 		public const int NewEntrancesOffset = 0xA0D8;
 
+		public const int OwEntrancesBank = 0x07;
+		public const int OwEntrancesOffset = 0xEFCB;
+		public const int OwEntrancesQty = 0x22;
+
 		public EntrancesData()
 		{
 			Entrances = new();
@@ -164,9 +179,14 @@ namespace FFMQLib
 			Entrances = new();
 
 			ReadDataFile();
+			ReadOwEntrances(rom);
 
 			EntrancesLinks = new();
 			EntrancesLinksList = new();
+		}
+		private void ReadOwEntrances(FFMQRom rom)
+		{
+			OwEntrances = rom.GetFromBank(OwEntrancesBank, OwEntrancesOffset, OwEntrancesQty * 2).Chunk(2).Select((x, i) => new Entrance(i + 0x16, x)).ToList();
 		}
 		public void ReadFromRom(FFMQRom rom)
 		{
@@ -304,8 +324,34 @@ namespace FFMQLib
 			{
 				Entrances.Find(x => x.Id == entrance.Item1).Teleporter = entrance.Item2;
 			}
-		}
 
+			if (flags.FloorShuffle)
+			{
+				UpdateVolcano();
+			}
+		}
+		private void UpdateVolcano()
+		{
+			List<((int id, int type), (int id, int type))> volcanoRealTeleporters = new()
+			{
+				((15, 8), (0x88, 1)),
+				((26, 8), (0x8B, 1)),
+				((27, 8), (0x89, 1)),
+				((28, 8), (0x1C, 2)),
+				((29, 8), (0x1B, 2)),
+				((30, 8), (0x18, 2)),
+				((31, 8), (0x17, 2)),
+				((79, 8), (0x8A, 1)),
+			};
+
+			foreach (var realTeleporter in volcanoRealTeleporters)
+			{ 
+				var entrancesToUpdate = Entrances.Where(x => x.Teleporter == realTeleporter.Item1).ToList();
+				entrancesToUpdate.ForEach(x => x.Teleporter = realTeleporter.Item2);
+			}
+
+			OwEntrances.Find(x => x.Id == (int)LocationIds.Volcano).Teleporter = (15, 8);
+		}
 		public void SwapEntrances((int id, int type) entranceA, (int id, int type) entranceB)
 		{
 			/*
@@ -365,6 +411,8 @@ namespace FFMQLib
 				currentaddress += (ushort)joineddata.Length;
 				currentpointer += 2;
 			}
+
+			rom.PutInBank(OwEntrancesBank, OwEntrancesOffset, OwEntrances.OrderBy(x => x.Id).SelectMany(x => x.OwToBytes()).ToArray());
 		}
 
 		public void EntranceHack(FFMQRom rom)

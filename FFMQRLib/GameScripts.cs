@@ -807,12 +807,27 @@ namespace FFMQLib
 					"00"
 				}));
 
-			TileScripts.AddScript((int)TileScriptsList.RopeBridgeFight,
-				new ScriptBuilder(new List<string> {
-					"2BF2",
-					"2C8801",
-					"00"
-				}));
+			if (flags.FloorShuffle)
+			{
+				TileScripts.AddScript((int)TileScriptsList.RopeBridgeFight,
+					new ScriptBuilder(new List<string> {
+						"2F",
+						"050C06[03]",
+						"23F2",
+						"2C1701",
+						"00"
+					}));
+			}
+			else
+			{
+				TileScripts.AddScript((int)TileScriptsList.RopeBridgeFight,
+					new ScriptBuilder(new List<string> {
+						"2BF2",
+						"2C8801",
+						"00"
+					}));
+			}
+
 			TileScripts.AddScript((int)TileScriptsList.VolcanoTeleportToBase,
 				new ScriptBuilder(new List<string> {
 					"2BF2",
