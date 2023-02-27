@@ -442,7 +442,7 @@ namespace FFMQLib
 		VolcanoTeleportToMedusa, // Teleport to Volcano > Medusa location
 		VolcanoTeleportTo2FLeft, // Teleport to Volcano 2nd level
 		VolcanoTeleportTo2FRight, // Teleport to Volcano 2nd level
-		Unknown20, // Teleport to Ice Pyramid Entrance
+		EnterIcePyramid, // Teleport to Ice Pyramid Entrance
 		Unknown21, // Nothing
 		Unknown22, // Nothing
 		Unknown23, // Nothing
@@ -487,7 +487,7 @@ namespace FFMQLib
 		FightJinn,
 		TristamQuitPartyBoneDungeon, // Nothing
 		EnterFallBasin, // Teleport and run intro script
-		EnterIcePyramid,
+		IcePyramidCheckStatue,
 		ReceiveWakeWater,
 		EnterWindiaInn // Teleport to an Inn
 	}

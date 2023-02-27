@@ -2228,3 +2228,178 @@
   area: 107
   coordinates: [47, 54]
   teleporter: [77, 0]
+- name: Overworld - Level Forest
+  id: 445
+  area: 0
+  type: "Overworld"
+  teleporter: [0x2E, 8]
+- name: Overworld - Foresta
+  id: 446
+  area: 0
+  type: "Overworld"
+  teleporter: [0x02, 1]
+- name: Overworld - Sand Temple
+  id: 447
+  area: 0
+  type: "Overworld"
+  teleporter: [0x03, 1]
+- name: Overworld - Bone Dungeon
+  id: 448
+  area: 0
+  type: "Overworld"
+  teleporter: [0x04, 1]
+- name: Overworld - Focus Tower Foresta
+  id: 449
+  area: 0
+  type: "Overworld"
+  teleporter: [0x05, 1]
+- name: Overworld - Focus Tower Aquaria
+  id: 450
+  area: 0
+  type: "Overworld"
+  teleporter: [0x13, 1]
+- name: Overworld - Libra Temple
+  id: 451
+  area: 0
+  type: "Overworld"
+  teleporter: [0x07, 1]
+- name: Overworld - Aquaria
+  id: 452
+  area: 0
+  type: "Overworld"
+  teleporter: [0x08, 8]
+- name: Overworld - Wintry Cave
+  id: 453
+  area: 0
+  type: "Overworld"
+  teleporter: [0x0A, 1]
+- name: Overworld - Life Temple
+  id: 454
+  area: 0
+  type: "Overworld"
+  teleporter: [0x0B, 1]
+- name: Overworld - Falls Basin
+  id: 455
+  area: 0
+  type: "Overworld"
+  teleporter: [0x0C, 1]
+- name: Overworld - Ice Pyramid
+  id: 456
+  area: 0
+  type: "Overworld"
+  teleporter: [0x0D, 1] # Will be switched to a script
+- name: Overworld - Spencer's Place
+  id: 457
+  area: 0
+  type: "Overworld"
+  teleporter: [0x30, 8]
+- name: Overworld - Wintry Temple
+  id: 458
+  area: 0
+  type: "Overworld"
+  teleporter: [0x10, 1]
+- name: Overworld - Focus Tower Frozen Strip
+  id: 459
+  area: 0
+  type: "Overworld"
+  teleporter: [0x11, 1]
+- name: Overworld - Focus Tower Fireburg
+  id: 460
+  area: 0
+  type: "Overworld"
+  teleporter: [0x12, 1]
+- name: Overworld - Fireburg
+  id: 461
+  area: 0
+  type: "Overworld"
+  teleporter: [0x14, 1]
+- name: Overworld - Mine
+  id: 462
+  area: 0
+  type: "Overworld"
+  teleporter: [0x15, 1]
+- name: Overworld - Sealed Temple
+  id: 463
+  area: 0
+  type: "Overworld"
+  teleporter: [0x16, 1]
+- name: Overworld - Volcano
+  id: 464
+  area: 0
+  type: "Overworld"
+  teleporter: [0x17, 1]
+- name: Overworld - Lava Dome
+  id: 465
+  area: 0
+  type: "Overworld"
+  teleporter: [0x18, 1]
+- name: Overworld - Focus Tower Windia
+  id: 466
+  area: 0
+  type: "Overworld"
+  teleporter: [0x06, 1]
+- name: Overworld - Rope Bridge
+  id: 467
+  area: 0
+  type: "Overworld"
+  teleporter: [0x19, 1]
+- name: Overworld - Alive Forest
+  id: 468
+  area: 0
+  type: "Overworld"
+  teleporter: [0x1A, 1]
+- name: Overworld - Giant Tree
+  id: 469
+  area: 0
+  type: "Overworld"
+  teleporter: [0x1B, 1]
+- name: Overworld - Kaidge Temple
+  id: 470
+  area: 0
+  type: "Overworld"
+  teleporter: [0x1C, 1]
+- name: Overworld - Windia
+  id: 471
+  area: 0
+  type: "Overworld"
+  teleporter: [0x1D, 1]
+- name: Overworld - Windhole Temple
+  id: 472
+  area: 0
+  type: "Overworld"
+  teleporter: [0x1E, 1]
+- name: Overworld - Mount Gale
+  id: 473
+  area: 0
+  type: "Overworld"
+  teleporter: [0x1F, 1]
+- name: Overworld - Pazuzu Tower
+  id: 474
+  area: 0
+  type: "Overworld"
+  teleporter: [0x20, 1]
+- name: Overworld - Ship Dock
+  id: 475
+  area: 0
+  type: "Overworld"
+  teleporter: [0x3E, 1]
+- name: Overworld - Doom Castle
+  id: 476
+  area: 0
+  type: "Overworld"
+  teleporter: [0x21, 1]
+- name: Overworld - Light Temple
+  id: 477
+  area: 0
+  type: "Overworld"
+  teleporter: [0x22, 1]
+- name: Overworld - Mac Ship
+  id: 478
+  area: 0
+  type: "Overworld"
+  teleporter: [0x24, 1]
+- name: Overworld - Mac Ship Doom
+  id: 479
+  area: 0
+  type: "Overworld"
+  teleporter: [0x24, 1]

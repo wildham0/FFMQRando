@@ -21,7 +21,147 @@
     object_id: 0x10
     type: "Battlefield"
     access: []
-  links: []
+  links:
+  - target_room: 15  # Level Forest
+    entrance: 445
+    teleporter: [0x2E, 8]
+    access: []
+  - target_room: 16  # Foresta
+    entrance: 446
+    teleporter: [0x02, 1]
+    access: []
+  - target_room: 24  # Sand Temple
+    entrance: 447
+    teleporter: [0x03, 1]
+    access: []
+  - target_room: 25  # Bone Dungeon
+    entrance: 448
+    teleporter: [0x04, 1]
+    access: []
+  - target_room: 3   # Focus Tower Foresta
+    entrance: 449
+    teleporter: [0x05, 1]
+    access: []
+  - target_room: 10  # Focus Tower Aquaria
+    entrance: 450
+    teleporter: [0x13, 1]
+    access: []
+  - target_room: 39  # Libra Temple
+    entrance: 451
+    teleporter: [0x07, 1]
+    access: []
+  - target_room: 40  # Aquaria
+    entrance: 452
+    teleporter: [0x08, 8]
+    access: []
+  - target_room: 45  # Wintry Cave
+    entrance: 453
+    teleporter: [0x0A, 1]
+    access: []
+  - target_room: 51  # Life Temple
+    entrance: 454
+    teleporter: [0x0B, 1]
+    access: []
+  - target_room: 52  # Falls Basin
+    entrance: 455
+    teleporter: [0x0C, 1]
+    access: []
+  - target_room: 54  # Ice Pyramid
+    entrance: 456
+    teleporter: [0x0D, 1] # Will be switched to a script
+    access: []
+  - target_room: 73  # Spencer's Place
+    entrance: 457
+    teleporter: [0x30, 8]
+    access: []
+  - target_room: 74  # Wintry Temple
+    entrance: 458
+    teleporter: [0x10, 1]
+    access: []
+  - target_room: 14  # Focus Tower Frozen Strip
+    entrance: 459
+    teleporter: [0x11, 1]
+    access: []
+  - target_room: 13  # Focus Tower Fireburg
+    entrance: 460
+    teleporter: [0x12, 1]
+    access: []
+  - target_room: 76  # Fireburg
+    entrance: 461
+    teleporter: [0x14, 1]
+    access: []
+  - target_room: 84  # Mine
+    entrance: 462
+    teleporter: [0x15, 1]
+    access: []
+  - target_room: 92  # Sealed Temple
+    entrance: 463
+    teleporter: [0x16, 1]
+    access: []
+  - target_room: 93  # Volcano
+    entrance: 464
+    teleporter: [0x17, 1] # Also this one / 0x0F, 8
+    access: []
+  - target_room: 100 # Lava Dome
+    entrance: 465
+    teleporter: [0x18, 1]
+    access: []
+  - target_room: 9   # Focus Tower Windia
+    entrance: 466
+    teleporter: [0x06, 1]
+    access: []
+  - target_room: 123 # Rope Bridge
+    entrance: 467
+    teleporter: [0x19, 1]
+    access: []
+  - target_room: 124 # Alive Forest
+    entrance: 468
+    teleporter: [0x1A, 1]
+    access: []
+  - target_room: 125 # Giant Tree
+    entrance: 469
+    teleporter: [0x1B, 1]
+    access: []
+  - target_room: 152 # Kaidge Temple
+    entrance: 470
+    teleporter: [0x1C, 1]
+    access: []
+  - target_room: 156 # Windia
+    entrance: 471
+    teleporter: [0x1D, 1]
+    access: []
+  - target_room: 154 # Windhole Temple
+    entrance: 472
+    teleporter: [0x1E, 1]
+    access: []
+  - target_room: 155 # Mount Gale
+    entrance: 473
+    teleporter: [0x1F, 1]
+    access: []
+  - target_room: 166 # Pazuzu Tower
+    entrance: 474
+    teleporter: [0x20, 1]
+    access: []
+  - target_room: 186 # Ship Dock
+    entrance: 475
+    teleporter: [0x3E, 1]
+    access: []
+  - target_room: 1   # Doom Castle
+    entrance: 476
+    teleporter: [0x21, 1]
+    access: []
+  - target_room: 185 # Light Temple
+    entrance: 477
+    teleporter: [0x23, 1]
+    access: []
+  - target_room: 187 # Mac Ship
+    entrance: 478
+    teleporter: [0x24, 1]
+    access: []
+  - target_room: 187 # Mac Ship Doom
+    entrance: 479
+    teleporter: [0x24, 1]
+    access: []
 - name: Doom Castle - Sand Floor
   id: 1
   game_objects:

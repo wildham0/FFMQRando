@@ -412,6 +412,17 @@ namespace FFMQLib
 			GameMaps.TilesProperties[0x0A][0x22].Byte2 = 0x08;
 
 			/*** Ice Pyramid ***/
+			// Ice Pyramid Entrance
+			var pyramidTeleporter = EntrancesData.Entrances.Find(x => x.Id == 456).Teleporter;
+			TileScripts.AddScript((int)TileScriptsList.EnterIcePyramid,
+				new ScriptBuilder(new List<string> {
+					"2F",
+					"050C06[03]",
+					"23F2",
+					$"2C{pyramidTeleporter.id:X2}{pyramidTeleporter.type:X2}",
+					"00",
+				}));
+
 			// Change entrance tile to disable script
 			GameMaps[(int)MapList.IcePyramidA].ModifyMap(0x15, 0x20, 0x05);
 
@@ -429,7 +440,7 @@ namespace FFMQLib
 			// Change tile properties from falling tile to script tile
 			GameMaps.TilesProperties[0x06][0x1E].Byte2 = 0x88;
 
-			TileScripts.AddScript((int)TileScriptsList.EnterIcePyramid,
+			TileScripts.AddScript((int)TileScriptsList.IcePyramidCheckStatue,
 				new ScriptBuilder(new List<string>
 				{
 					"2D" + ScriptItemFlags[Items.CatClaw].Item1,
@@ -809,12 +820,14 @@ namespace FFMQLib
 
 			if (flags.FloorShuffle)
 			{
+				var volcanoTeleporter = EntrancesData.Entrances.Find(x => x.Id == 464).Teleporter;
+
 				TileScripts.AddScript((int)TileScriptsList.RopeBridgeFight,
 					new ScriptBuilder(new List<string> {
 						"2F",
 						"050C06[03]",
 						"23F2",
-						"2C1701",
+						$"2C{volcanoTeleporter.id:X2}{volcanoTeleporter.type:X2}",
 						"00"
 					}));
 			}

@@ -10,11 +10,18 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace FFMQLib
 {
-    public class Entrance
+	public enum EntranceType
+	{ 
+		Standard = 0,
+		Overworld
+	}
+	
+	public class Entrance
 	{
 		public string Name { get; set; }
 		public int Id { get; set; }
 		public int Area { get; set; }
+		public EntranceType Type { get; set; }
 		[YamlIgnore]
 		public (int x, int y) Coordinates { get; set; }
 		[YamlIgnore]
@@ -37,6 +44,7 @@ namespace FFMQLib
 			Coordinates = (0, 0);
 			Teleporter = (0, 0);
 			Area = 0;
+			Type = EntranceType.Standard;
 		}
 		public Entrance(string name, int id, int x, int y, int teleid, int teletype)
 		{
@@ -45,6 +53,7 @@ namespace FFMQLib
 			Coordinates = (x, y);
 			Teleporter = (teleid, teletype);
 			Area = 0;
+			Type = EntranceType.Standard;
 		}
 
 		public Entrance(string name, int id, int area, byte[] data)
@@ -70,62 +79,22 @@ namespace FFMQLib
 			Coordinates = entrance.Coordinates;
 			Teleporter = entrance.Teleporter;
 			Area = entrance.Area;
+			Type = entrance.Type;
 		}
 		public byte[] ToBytes()
 		{
-			return new byte[] { (byte)Coordinates.x, (byte)Coordinates.y, (byte)Teleporter.id, (byte)Teleporter.type };
+			if (Type == EntranceType.Standard)
+			{
+				return new byte[] { (byte)Coordinates.x, (byte)Coordinates.y, (byte)Teleporter.id, (byte)Teleporter.type };
+			}
+			else
+			{
+				return new byte[] { (byte)Teleporter.id, (byte)Teleporter.type };
+			}
 		}
 		public byte[] OwToBytes()
 		{
 			return new byte[] { (byte)Teleporter.id, (byte)Teleporter.type };
-		}
-	}
-
-	public class EntrancesLinkList
-	{
-		public List<int> EntranceA { get; set; }
-		public List<int> EntranceB { get; set; }
-
-		public EntrancesLinkList()
-		{
-			EntranceA = new() { 0, 0 };
-			EntranceB = new() { 0, 0 };
-		}
-
-		public EntrancesLinkList(List<int> entrancea, List<int> entranceb)
-		{
-			EntranceA = entrancea.GetRange(0, 2);
-			EntranceB = entranceb.GetRange(0, 2);
-		}
-	}
-
-	public class EntrancesLink
-	{
-		public (int id, int type) EntranceA { get; set; }
-		public (int id, int type) EntranceB { get; set; }
-
-		public EntrancesLink()
-		{
-			EntranceA = (0, 0);
-			EntranceB = (0, 0);
-		}
-
-		public EntrancesLink((int, int) entrancea, (int, int) entranceb)
-		{
-			EntranceA = entrancea;
-			EntranceB = entranceb;
-		}
-
-		public EntrancesLink(List<int> entrancea, List<int> entranceb)
-		{
-			EntranceA = (entrancea[0], entrancea[1]);
-			EntranceB = (entranceb[0], entranceb[1]);
-		}
-
-		public EntrancesLink(EntrancesLinkList entrancelist)
-		{
-			EntranceA = (entrancelist.EntranceA[0], entrancelist.EntranceA[1]);
-			EntranceB = (entrancelist.EntranceB[0], entrancelist.EntranceB[1]);
 		}
 	}
 	public class CrestTile
@@ -150,28 +119,24 @@ namespace FFMQLib
 	{
 		public List<Entrance> Entrances { get; set; }
 		public List<Entrance> OwEntrances { get; set; }
-		public List<EntrancesLink> EntrancesLinks { get; set; }
-		public List<EntrancesLinkList> EntrancesLinksList { get; set; }
 		public List<(AccessReqs crest, AccessReqs loc1, AccessReqs loc2)> CrestPairs { get; set; }
 
-		public const int EntrancesBank = 0x05;
-		public const int EntrancesPointers = 0xF920;
-		public const int EntrancesPointersQty = 108;
-		public const int EntrancesOffset = 0xF9F8;
+		private const int EntrancesBank = 0x05;
+		private const int EntrancesPointers = 0xF920;
+		private const int EntrancesPointersQty = 108;
+		private const int EntrancesOffset = 0xF9F8;
 
-		public const int NewEntrancesBank = 0x12;
-		public const int NewEntrancesPointers = 0xA000;
-		public const int NewEntrancesOffset = 0xA0D8;
+		private const int NewEntrancesBank = 0x12;
+		private const int NewEntrancesPointers = 0xA000;
+		private const int NewEntrancesOffset = 0xA0D8;
 
-		public const int OwEntrancesBank = 0x07;
-		public const int OwEntrancesOffset = 0xEFCB;
-		public const int OwEntrancesQty = 0x22;
+		private const int OwEntrancesBank = 0x07;
+		private const int OwEntrancesOffset = 0xEFCB;
+		private const int OwEntrancesQty = 0x22;
 
 		public EntrancesData()
 		{
 			Entrances = new();
-			EntrancesLinks = new();
-			EntrancesLinksList = new();
 			CrestPairs = new();
 		}
 		public EntrancesData(FFMQRom rom)
@@ -179,10 +144,7 @@ namespace FFMQLib
 			Entrances = new();
 
 			ReadDataFile();
-			ReadOwEntrances(rom);
-
-			EntrancesLinks = new();
-			EntrancesLinksList = new();
+			//ReadOwEntrances(rom);
 		}
 		private void ReadOwEntrances(FFMQRom rom)
 		{
@@ -350,7 +312,7 @@ namespace FFMQLib
 				entrancesToUpdate.ForEach(x => x.Teleporter = realTeleporter.Item2);
 			}
 
-			OwEntrances.Find(x => x.Id == (int)LocationIds.Volcano).Teleporter = (15, 8);
+			Entrances.Find(x => x.Id == 464).Teleporter = (15, 8);
 		}
 		public void SwapEntrances((int id, int type) entranceA, (int id, int type) entranceB)
 		{
@@ -399,7 +361,7 @@ namespace FFMQLib
 			int currentpointer = 0;
 			for (int i = 0; i < EntrancesPointersQty; i++)
 			{
-				byte[] joineddata = Entrances.Where(x => x.Area == i).SelectMany(x => x.ToBytes()).ToArray();
+				byte[] joineddata = Entrances.Where(x => x.Area == i && x.Type == EntranceType.Standard).SelectMany(x => x.ToBytes()).ToArray();
 
 				if (joineddata.Length > 0)
 				{
@@ -412,7 +374,7 @@ namespace FFMQLib
 				currentpointer += 2;
 			}
 
-			rom.PutInBank(OwEntrancesBank, OwEntrancesOffset, OwEntrances.OrderBy(x => x.Id).SelectMany(x => x.OwToBytes()).ToArray());
+			rom.PutInBank(OwEntrancesBank, OwEntrancesOffset, Entrances.Where(x => x.Type == EntranceType.Overworld).OrderBy(x => x.Id).SelectMany(x => x.ToBytes()).ToArray());
 		}
 
 		public void EntranceHack(FFMQRom rom)
