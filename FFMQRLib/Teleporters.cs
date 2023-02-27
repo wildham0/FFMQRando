@@ -177,7 +177,7 @@ namespace FFMQLib
 		}
 		private void PushTeleporters()
 		{
-			List<int> teleportersAtoPush = new() { 148, 152, 155, 159, 168 };
+			List<int> teleportersAtoPush = new() { 148, 152, 155, 159, 168, 169 };
 			List<int> teleportersBtoPush = new() { 96, 97, 100, 101, 102, 105 };
 			List<int> teleportersWarptoPush = new() { };
 			List<int> teleportersLongtoPush = new() { };

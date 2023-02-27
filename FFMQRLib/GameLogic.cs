@@ -254,8 +254,8 @@ namespace FFMQLib
 
 			foreach (var bridge in bridgeQueue)
 			{
-				var subRegionA = AccessReferences.MapSubRegions.Find(x => x.Item2 == bridge.Item1).Item1;
-				var subRegionB = AccessReferences.MapSubRegions.Find(x => x.Item2 == bridge.Item2).Item1;
+				var subRegionA = overworld.Locations.Find(x => x.LocationId == bridge.Item1).SubRegion;
+				var subRegionB = overworld.Locations.Find(x => x.LocationId == bridge.Item2).SubRegion;
 
 				if (subRegionA != subRegionB)
 				{
