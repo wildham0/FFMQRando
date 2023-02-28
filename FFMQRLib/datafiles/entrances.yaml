@@ -1924,7 +1924,7 @@
   coordinates: [16, 44]
   teleporter: [22, 8]
 - name: Pazuzu 7F Main Room - Crystal Script # Added for floor shuffle
-  id: 445
+  id: 480
   area: 89
   coordinates: [15, 40]
   teleporter: [38, 8]

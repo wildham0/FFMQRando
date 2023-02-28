@@ -160,6 +160,12 @@ namespace FFMQLib
 			jumpScript.WriteAt(0x03, 0xFFD0, this);
 			PutInBank(0x03, 0xFE80, Blob.FromHex("08D0FF"));
 		}
+		public void ExitHack(LocationIds startingLocation)
+		{
+			// Using exit on overworld send you back to home location
+			PutInBank(0x00, 0xC064, Blob.FromHex("22d08711eaeaeaeaea"));
+			PutInBank(0x11, 0x87D0, Blob.FromHex($"ad910e297f00f004c907006b08e220a9{(int)startingLocation:X2}8d880e28386b"));
+		}
 		public void ChestsHacks(Flags flags, ItemsPlacement itemsPlacement)
 		{
 			// Include chests when loading graphics for empty boxes

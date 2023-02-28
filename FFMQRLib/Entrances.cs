@@ -185,7 +185,7 @@ namespace FFMQLib
 		}
 		public void UpdateCrests(Flags flags, GameScriptManager tileScripts, GameMaps gameMaps, GameLogic logic, List<Teleporter> teleportersLong, MT19337 rng)
 		{
-			bool keepWintryTemple = !(flags.OverworldShuffle || flags.CrestShuffle);
+			bool keepWintryTemple = (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Dungeons) && !flags.CrestShuffle;
 
 			List<CrestTile> crestsList = new()
 			{
@@ -269,7 +269,7 @@ namespace FFMQLib
 			}
 		}
 
-		public void UpdatEntrance(Flags flags, List<Room> rooms, MT19337 rng)
+		public void UpdateEntrances(Flags flags, List<Room> rooms, MT19337 rng)
 		{
 			var flatLinkList = rooms.SelectMany(x => x.Links.Where(l => l.Entrance > 0)).ToList();
 			List<(int, (int, int))> entrancesProcessList = new();
@@ -284,10 +284,11 @@ namespace FFMQLib
 			
 			foreach (var entrance in entrancesProcessList)
 			{
-				Entrances.Find(x => x.Id == entrance.Item1).Teleporter = entrance.Item2;
+				var targetEntrance = Entrances.Find(x => x.Id == entrance.Item1);
+				targetEntrance.Teleporter = entrance.Item2;
 			}
 
-			if (flags.FloorShuffle)
+			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld)
 			{
 				UpdateVolcano();
 			}
@@ -311,8 +312,6 @@ namespace FFMQLib
 				var entrancesToUpdate = Entrances.Where(x => x.Teleporter == realTeleporter.Item1).ToList();
 				entrancesToUpdate.ForEach(x => x.Teleporter = realTeleporter.Item2);
 			}
-
-			Entrances.Find(x => x.Id == 464).Teleporter = (15, 8);
 		}
 		public void SwapEntrances((int id, int type) entranceA, (int id, int type) entranceB)
 		{
@@ -329,30 +328,6 @@ namespace FFMQLib
 		}
 		public void Write(FFMQRom rom)
 		{
-			/*
-			var resthouseentrance = Rooms.Find(x => x.Name == "Foresta").Entrances.Find(x => x.Id == 7);
-			var resthouseexit = Rooms.Find(x => x.Name == "Foresta Houses - Rest House").Entrances.Find(x => x.Id == 6);
-
-			var oldmanhouseentrance = Rooms.Find(x => x.Name == "Foresta").Entrances.Find(x => x.Id == 4);
-			var oldmanhouseexit = Rooms.Find(x => x.Name == "Foresta Houses - Old Man's House").Entrances.Find(x => x.Id == 0);
-
-			var temptpid = resthouseentrance.TeleportId;
-			var temptype = resthouseentrance.TeleportType;
-			resthouseentrance.TeleportId = oldmanhouseentrance.TeleportId;
-			resthouseentrance.TeleportType = oldmanhouseentrance.TeleportType;
-			oldmanhouseentrance.TeleportId = temptpid;
-			oldmanhouseentrance.TeleportType = temptype;
-
-			temptpid = resthouseexit.TeleportId;
-			temptype = resthouseexit.TeleportType;
-			resthouseexit.TeleportId = oldmanhouseexit.TeleportId;
-			resthouseexit.TeleportType = oldmanhouseexit.TeleportType;
-			oldmanhouseexit.TeleportId = temptpid;
-			oldmanhouseexit.TeleportType = temptype;
-			*/
-
-			//			var orderedentrances = Entrances.OrderBy(e => e.Area).GroupBy(x => x.Area).Select(x => x.ToList()).ToList();
-
 			// Modify how entrances work
 			EntranceHack(rom);
 
@@ -374,6 +349,7 @@ namespace FFMQLib
 				currentpointer += 2;
 			}
 
+			var owarray = Entrances.Where(x => x.Type == EntranceType.Overworld).OrderBy(x => x.Id).ToList();
 			rom.PutInBank(OwEntrancesBank, OwEntrancesOffset, Entrances.Where(x => x.Type == EntranceType.Overworld).OrderBy(x => x.Id).SelectMany(x => x.ToBytes()).ToArray());
 		}
 

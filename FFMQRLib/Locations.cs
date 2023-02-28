@@ -316,7 +316,7 @@ namespace FFMQLib
 			}
 
 			Locations[(int)LocationIds.LibraBattlefield02].DirectionFlags[(int)NodeDirections.North] = (int)GameFlagsList.WakeWaterUsed;
-			if (flags.OverworldShuffle || flags.CrestShuffle)
+			if (flags.MapShuffling != MapShufflingMode.None || flags.CrestShuffle)
 			{
 				Locations[(int)LocationIds.LibraBattlefield01].DirectionFlags[(int)NodeDirections.South] = (int)GameFlagsList.WakeWaterUsed;
 			}
@@ -338,13 +338,13 @@ namespace FFMQLib
 			Locations[(int)LocationIds.DoomCastle].Destinations[(int)NodeDirections.North] = LocationIds.FocusTowerForesta;
 			Locations[(int)LocationIds.DoomCastle].Steps[(int)NodeDirections.North] = new List<byte> { 0x86 };
 		}
-		public LocationIds ShuffleOverworld(Flags flags, Battlefields battlefields, MT19337 rng)
+		public void ShuffleOverworld(Flags flags, Battlefields battlefields, MT19337 rng)
 		{
-			LocationIds startingLocation = LocationIds.LevelForest;
+			bool shuffleOverworld = flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Dungeons;
 
-			if (!flags.OverworldShuffle)
+			if (!shuffleOverworld)
 			{
-				return startingLocation;
+				return;
 			}
 
 			var safeGoldBattlefield = (LocationIds)(battlefields.GetAllRewardType().Select((x, i) => (i, x)).ToList().Find(x => x.x == BattlefieldRewardType.Gold).i + 1);
@@ -422,10 +422,8 @@ namespace FFMQLib
 			}
 
 			UpdateBattlefieldsColor(battlefields);
-			
-			startingLocation = Locations.Find(x => x.Position == (0x0E, 0x28)).LocationId;
-			
-			return startingLocation;
+
+			StartingLocation = Locations.Find(x => x.Position == (0x0E, 0x28)).LocationId;
 		}
 		public void SwapLocations(LocationIds locA, LocationIds locB)
 		{
