@@ -6,6 +6,7 @@ using System.Linq;
 using System.IO;
 using System.Reflection;
 using System.Diagnostics;
+using System.ComponentModel;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.RepresentationModel;
@@ -21,6 +22,21 @@ namespace FFMQLib
 		Trigger,
 		Companion,
 		Dummy
+
+	}
+	public enum MapShufflingMode
+	{
+		[Description("None")]
+		None,
+		[Description("Overworld")]
+		Overworld,
+		[Description("Dungeons")]
+		Dungeons,
+		[Description("Overworld+Dungeons")]
+		OverworldDungeons,
+		[Description("Everything")]
+		Everything
+
 
 	}
 	public class GameObjectData
@@ -273,7 +289,7 @@ namespace FFMQLib
 			subRegionsAccess = subRegionsAccess.Where(x => !x.Item2.Contains(AccessReqs.Barred)).ToList();
 
 			// Add Sealed Temple/Exit book trick
-			if (flags.LogicOptions == LogicOptions.Expert && !(flags.OverworldShuffle || flags.CrestShuffle || flags.FloorShuffle))
+			if (flags.LogicOptions == LogicOptions.Expert && flags.MapShuffling == MapShufflingMode.None && !flags.CrestShuffle)
 			{
 				List<AccessReqs> sealedTempleExit = new() { AccessReqs.RiverCoin, AccessReqs.ExitBook, AccessReqs.GeminiCrest };
 				subRegionsAccess.Add((SubRegions.Aquaria, sealedTempleExit));

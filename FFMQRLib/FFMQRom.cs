@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.3.41";
+		public static string Version = "1.3.42";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -206,13 +206,13 @@ namespace FFMQLib
 
 			// Locations & Logic
 			GameLogic.CrestShuffle(flags.CrestShuffle, rng);
-			GameLogic.FloorShuffle(flags.FloorShuffle, rng);
+			GameLogic.FloorShuffle(flags.MapShuffling, rng);
 
-			var startingLocation = Overworld.ShuffleOverworld(flags, Battlefields, rng);
+			Overworld.ShuffleOverworld(flags, Battlefields, rng);
 			GameLogic.CrawlRooms(flags, Overworld, Battlefields);
 			
 			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, rng);
-			EntrancesData.UpdatEntrance(flags, GameLogic.Rooms, rng);
+			EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
 
 			
 			// Items
@@ -220,7 +220,7 @@ namespace FFMQLib
 
 			SetStartingWeapons(itemsPlacement);
 			MapObjects.UpdateChests(itemsPlacement);
-			UpdateScripts(flags, itemsPlacement, startingLocation, rng);
+			UpdateScripts(flags, itemsPlacement, Overworld.StartingLocation, rng);
 			ChestsHacks(flags, itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
 
@@ -232,6 +232,7 @@ namespace FFMQLib
 			SetLevelingCurve(flags.LevelingCurve);
 			ProgressiveGears(flags.ProgressiveGear);
 			SkyCoinMode(flags, rng);
+			ExitHack(Overworld.StartingLocation);
 			credits.Update();
 
 			// Preferences

@@ -412,11 +412,24 @@ namespace FFMQLib
 			GameMaps.TilesProperties[0x0A][0x22].Byte2 = 0x08;
 
 			/*** Ice Pyramid ***/
+			// Ice Pyramid Entrance
+			var pyramidTeleporter = EntrancesData.Entrances.Find(x => x.Id == 456).Teleporter;
+			TileScripts.AddScript((int)TileScriptsList.EnterIcePyramid,
+				new ScriptBuilder(new List<string> {
+					"2F",
+					"050C06[03]",
+					"23F2",
+					$"2C{pyramidTeleporter.id:X2}{pyramidTeleporter.type:X2}",
+					"00",
+				}));
+
+			EntrancesData.Entrances.Find(x => x.Id == 456).Teleporter = (32, 8);
+
 			// Change entrance tile to disable script
 			GameMaps[(int)MapList.IcePyramidA].ModifyMap(0x15, 0x20, 0x05);
 
 			// Open 4F door to avoid softlock in floor shuffle
-			if (flags.FloorShuffle)
+			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld)
 			{ 
 				GameMaps[(int)MapList.IcePyramidA].ModifyMap(0x37, 0x06,
 					new()
@@ -429,7 +442,7 @@ namespace FFMQLib
 			// Change tile properties from falling tile to script tile
 			GameMaps.TilesProperties[0x06][0x1E].Byte2 = 0x88;
 
-			TileScripts.AddScript((int)TileScriptsList.EnterIcePyramid,
+			TileScripts.AddScript((int)TileScriptsList.IcePyramidCheckStatue,
 				new ScriptBuilder(new List<string>
 				{
 					"2D" + ScriptItemFlags[Items.CatClaw].Item1,
@@ -807,16 +820,20 @@ namespace FFMQLib
 					"00"
 				}));
 
-			if (flags.FloorShuffle)
+			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld)
 			{
+				var volcanoTeleporter = EntrancesData.Entrances.Find(x => x.Id == 464).Teleporter;
+
 				TileScripts.AddScript((int)TileScriptsList.RopeBridgeFight,
 					new ScriptBuilder(new List<string> {
 						"2F",
 						"050C05[03]",
 						"23F2",
-						"2C1701",
+						$"2C{volcanoTeleporter.id:X2}{volcanoTeleporter.type:X2}",
 						"00"
 					}));
+
+				EntrancesData.Entrances.Find(x => x.Id == 464).Teleporter = (15, 8);
 			}
 			else
 			{
@@ -905,7 +922,9 @@ namespace FFMQLib
 					"00"
 				}));
 
-			// Walking Script
+			// Giant Tree Walking Script
+			bool exitToGiantTree = flags.MapShuffling == MapShufflingMode.None;
+
 			TalkScripts.AddScript(0x50, new ScriptBuilder(new List<string>
 				{
 					"2E28[10]",
@@ -913,7 +932,7 @@ namespace FFMQLib
 					"36",
 					"2A142A10505EFFAA00072B10511B25FFFF",
 					"23FE",
-					"2A1C2510531053062BAB0061FF" + (flags.OverworldShuffle ? "2D" : "2E") + "29" + "FFFF",
+					"2A1C2510531053062BAB0061FF" + (exitToGiantTree ? "2E" : "2D") + "29" + "FFFF",
 					"2BFE",
 					"233C",
 					"236A",
@@ -927,7 +946,7 @@ namespace FFMQLib
 			MapObjects[0x4C].RemoveAt(0);
 
 			// Change entrance to not teleport to giant tree ow location
-			if (flags.OverworldShuffle)
+			if (!exitToGiantTree)
 			{
 				TileScripts.AddScript(0x31, new ScriptBuilder(new List<string>
 				{
@@ -1081,7 +1100,7 @@ namespace FFMQLib
 			var newPazuzuScript = new ScriptBuilder(new List<string> {
 						"2C50FF",
 						"07A0C112",
-						!flags.FloorShuffle ? "0898FD" : "00",
+						(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld) ? "00" : "0898FD",
 						"00"
 					});
 
@@ -1102,7 +1121,7 @@ namespace FFMQLib
 						"00"
 					});
 
-			if (flags.FloorShuffle)
+			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld)
 			{
 				floorCrystalScript.WriteAt(0x03, 0xFD98, this);
 

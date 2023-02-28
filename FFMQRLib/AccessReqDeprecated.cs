@@ -453,7 +453,7 @@ namespace FFMQLib
 			}
 
 			// Add Sealed Temple/Exit book trick
-			if (flags.LogicOptions == LogicOptions.Expert && !(flags.OverworldShuffle || flags.CrestShuffle))
+			if (flags.LogicOptions == LogicOptions.Expert)
 			{
 				List<AccessReqs> sealedTempleExit = new() { AccessReqs.RiverCoin, AccessReqs.SealedTempleCrestTile, AccessReqs.ExitBook, AccessReqs.GeminiCrest };
 

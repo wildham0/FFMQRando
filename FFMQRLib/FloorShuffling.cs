@@ -50,7 +50,13 @@ namespace FFMQLib
 			ForceLinkOrigin = false;
 			ForceDeadEnd = false;
 			ValidSiblings = 0;
+		}
 
+		public void UpdateCurrent(RoomLink link)
+		{ 
+			Current.Entrance = link.Entrance;
+			Current.TargetRoom = link.TargetRoom;
+			Current.Teleporter = link.Teleporter;
 		}
 	}
 	public class BigRoom
@@ -94,6 +100,7 @@ namespace FFMQLib
 	public class ShufflingData
 	{ 
 		public List<int> FixedEntrances { get; set; }
+		public List<int> TownsCaves { get; set; }
 		public List<int> OneWays { get; set; }
 		public List<int> ForcedDeadends { get; set; }
 		public List<ForcedLink> ForcedLinks { get; set; }
@@ -101,6 +108,7 @@ namespace FFMQLib
 		public ShufflingData()
 		{
 			FixedEntrances = new();
+			TownsCaves = new();
 			OneWays = new();
 			ForcedDeadends = new();
 			ForcedLinks = new();
@@ -142,6 +150,7 @@ namespace FFMQLib
 			OneWays = result.OneWays;
 			ForcedDeadends = result.ForcedDeadends;
 			ForcedLinks = result.ForcedLinks;
+			TownsCaves = result.TownsCaves;
 
 			foreach (var link in ForcedLinks)
 			{
@@ -304,14 +313,19 @@ namespace FFMQLib
 				Rooms.Find(x => x.Id == newlink.roomid).Links.Add(newlink.link);
 			}
 		}
-		public void FloorShuffle(bool shufflefloors, MT19337 rng)
+		public void FloorShuffle(MapShufflingMode mapshuffling, MT19337 rng)
 		{
-		
-			if (!shufflefloors)
+
+			bool shuffleFloors = mapshuffling == MapShufflingMode.Dungeons || mapshuffling == MapShufflingMode.OverworldDungeons || mapshuffling == MapShufflingMode.Everything;
+			bool includeTemplesTowns = mapshuffling == MapShufflingMode.Everything;
+
+			if (!shuffleFloors)
 			{
 				return;
 			}
-			
+
+			newLinkToProcess = new();
+
 			ReadPairs();
 			ShufflingData shufflingData = new();
 			shufflingData.ReadData(rng);
@@ -320,6 +334,11 @@ namespace FFMQLib
 			var flatLinks = Rooms.SelectMany(r => r.Links.Where(l => l.Entrance >= 0).Select(l => (r.Id, l)).ToList()).ToList();
 			var linkSet = entrancesPairs.Select(e => new FloorLink(flatLinks.Find(l => l.l.Entrance == e[0]).Id, flatLinks.Find(l => l.l.Entrance == e[0]).l, flatLinks.Find(l => l.l.Entrance == e[1]).l)).ToList();
 			linkSet.AddRange(entrancesPairs.Select(e => new FloorLink(flatLinks.Find(l => l.l.Entrance == e[1]).Id, flatLinks.Find(l => l.l.Entrance == e[1]).l, flatLinks.Find(l => l.l.Entrance == e[0]).l)).ToList());
+
+			if (!includeTemplesTowns)
+			{
+				linkSet = linkSet.Where(x => !shufflingData.TownsCaves.Contains(x.Current.Entrance)).ToList();
+			}
 
 			// Create list of big rooms
 			List<BigRoom> bigRooms = new();
@@ -368,15 +387,55 @@ namespace FFMQLib
 			var macShipBarredRooms = crestRooms.Append(157);
 			int macShipDeck = 187;
 
-			// Sort initial rooms
-			List<int> seedRooms = Rooms.Where(x => x.Links.Where(l => l.TargetRoom == 0).Any()).Select(x => x.Id).ToList();
-			List<BigRoom> seedBigRooms = bigRooms.Where(x => x.Rooms.Intersect(seedRooms).Any()).ToList();
-			bigRooms = bigRooms.Except(seedBigRooms).ToList();
-			
-			var progressBigRooms = bigRooms.Where(x => x.Links.Count > 1).ToList();
+			var progressBigRooms = bigRooms.Where(x => x.Links.Count > 1 && !x.Rooms.Contains(0)).ToList();
 			var deadendBigRooms = bigRooms.Where(x => x.Links.Count == 1).ToList();
 
-			newLinkToProcess = new();
+			// Select base rooms
+			List<BigRoom> seedBigRooms = new();
+
+			progressBigRooms.Shuffle(rng);
+			deadendBigRooms.Shuffle(rng);
+
+			seedBigRooms.AddRange(progressBigRooms.GetRange(0, includeTemplesTowns ? 12 : 8));
+			seedBigRooms.AddRange(deadendBigRooms.GetRange(0, includeTemplesTowns ? 10 : 4));
+
+			progressBigRooms = progressBigRooms.Except(seedBigRooms).ToList();
+			deadendBigRooms = deadendBigRooms.Except(seedBigRooms).ToList();
+
+			var originalSeedRooms = bigRooms.Where(x => x.Links.Where(l => l.Current.TargetRoom == 0).Any()).ToList();
+			originalSeedRooms = originalSeedRooms.Where(x => !seedBigRooms.Contains(x)).ToList();
+
+			// Update base rooms link to overworld
+			foreach (var room in seedBigRooms)
+			{
+				BigRoom newSeedRoom;
+				FloorLink owLink;
+				FloorLink originRoomLink;
+
+				if (!room.Links.Where(l => l.Current.TargetRoom == 0).Any())
+				{
+					newSeedRoom = rng.TakeFrom(originalSeedRooms);
+					owLink = bigRooms.Find(x => x.Rooms.Contains(0)).Links.Find(x => x.Origins.Entrance == newSeedRoom.Links.Find(x => x.Current.TargetRoom == 0).Current.Entrance);
+
+					var validLinks = room.Links.Where(x => !x.ForceDeadEnd && !x.OneWay && !x.ForceLinkOrigin && !x.ForceLinkDestination).ToList();
+					originRoomLink = rng.PickFrom(validLinks);
+					room.Links.Remove(originRoomLink);
+				}
+				else
+				{
+					newSeedRoom = room;
+					owLink = bigRooms.Find(x => x.Rooms.Contains(0)).Links.Find(x => x.Origins.Entrance == newSeedRoom.Links.Find(x => x.Current.TargetRoom == 0).Current.Entrance);
+
+					originRoomLink = room.Links.Find(x => x.Current.TargetRoom == 0);
+					room.Links.Remove(originRoomLink);
+				}
+
+
+				ConnectLink(owLink, originRoomLink);
+			}
+
+			// Remove all links to overworld, these can't be shuffled
+			//bigRooms.ForEach(x => x.Links = x.Links.Where(l => !(l.Current.TargetRoom == 0) && !(l.Origins.TargetRoom == 0)).ToList());
 
 			seedBigRooms.Shuffle(rng);
 			seedBigRooms = seedBigRooms.Where(x => x.Links.Count > 0).ToList();

@@ -23,6 +23,8 @@ namespace FFMQLib
 
     public partial class Overworld
     {
+        public LocationIds StartingLocation { get; set; }
+        
         private const int OWObjectBank = 0x07;
         private const int OWObjectOffset = 0xEB44;
         private const int OWObjectQty = 0x8F;
@@ -39,6 +41,8 @@ namespace FFMQLib
         {
             owSprites = rom.GetFromBank(OWObjectBank, OWObjectOffset, 5 * OWObjectQty).Chunk(5).Select(x => new OverworldSprite(x)).ToList();
             owObjects = new();
+
+            StartingLocation = LocationIds.LevelForest;
 
             ConstructOwObjects();
             CreateLocations(rom);
