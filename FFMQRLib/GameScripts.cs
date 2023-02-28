@@ -827,7 +827,7 @@ namespace FFMQLib
 				TileScripts.AddScript((int)TileScriptsList.RopeBridgeFight,
 					new ScriptBuilder(new List<string> {
 						"2F",
-						"050C06[03]",
+						"050C05[03]",
 						"23F2",
 						$"2C{volcanoTeleporter.id:X2}{volcanoTeleporter.type:X2}",
 						"00"
@@ -902,7 +902,8 @@ namespace FFMQLib
 				}));
 
 			// Fix Alive Forest's Mobius teleporter disapearing after clearing Giant Tree
-			MapChanges.Modify(0x0E, 0x17, 0x52);
+			var crestTile = GameMaps[(int)MapList.LevelAliveForest].TileValue(8, 52);
+			MapChanges.Modify(0x0E, 0x17, crestTile);
 
 			/*** Giant Tree ***/
 			// Set door to chests in Giant Tree to open only once chimera is defeated
