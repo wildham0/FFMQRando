@@ -1392,12 +1392,12 @@
   id: 278
   area: 68
   coordinates: [18, 31]
-  teleporter: [49, 8]
+  teleporter: [56, 1] # The script is restored if no map shuffling [49, 8]
 - name: Giant Tree 1F - Entrance Script 2
   id: 279
   area: 68
   coordinates: [19, 31]
-  teleporter: [49, 8]
+  teleporter: [56, 1] # Same [49, 8]
 - name: Giant Tree 1F - North Entrance To 2F
   id: 280
   area: 68

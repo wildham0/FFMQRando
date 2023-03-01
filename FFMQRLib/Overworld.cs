@@ -207,8 +207,13 @@ namespace FFMQLib
                 (0, 0)));
         }
 
-        public void UpdateBattlefieldsColor(Battlefields battlefields)
+        public void UpdateBattlefieldsColor(Flags flags, Battlefields battlefields)
         {
+            if (!flags.ShuffleBattlefieldRewards && (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Dungeons))
+            {
+                return;
+            }
+            
             const byte gpColor = 3;
             const byte itemColor = 4;
             const byte xpColor = 6;

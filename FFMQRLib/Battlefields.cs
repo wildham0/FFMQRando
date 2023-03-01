@@ -79,8 +79,6 @@ namespace FFMQLib
 					BattlefieldsWithItem.Add((LocationIds)(i + 1));
 				}
 			}
-
-			overworld.UpdateBattlefieldsColor(this);
 		}
 		public BattlefieldRewardType GetRewardType(LocationIds targetBattlefield)
 		{

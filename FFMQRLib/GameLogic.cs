@@ -246,7 +246,7 @@ namespace FFMQLib
 		public void CrawlRooms(Flags flags, Overworld overworld, Battlefields battlefields)
 		{
 
-			var locationsByEntrances = AccessReferences.LocationsByEntrances;
+			var locationsByEntrances = AccessReferences.LocationsByEntrances2;
 
 			//gameObjects = _rooms.SelectMany(x => x.GameObjects.Select(o => new GameObject(o)).ToList()).ToList();
 
@@ -254,13 +254,22 @@ namespace FFMQLib
 			bridgeQueue = new();
 			locationQueue = new();
 
+			List<(int, int)> seedRooms = Rooms.Find(x => x.Id == 0).Links.Select(x => (x.Entrance, x.TargetRoom)).ToList();
+
+			foreach (var room in seedRooms)
+			{
+				ProcessRoom(room.Item2, new List<int>(), new List<AccessReqs>(), (locationsByEntrances.Find(x => x.Item2 == room.Item1).Item1, 0));
+			}
+			
+			
+			/*
 			List<int> seedRooms = Rooms.Where(x => x.Links.Where(l => l.TargetRoom == 0).Any()).Select(x => x.Id).ToList();
 
 			foreach (var room in seedRooms)
 			{
 				var location = locationsByEntrances.Find(x => x.Item2 == Rooms.Find(x => x.Id == room).Links.Find(l => l.TargetRoom == 0).Entrance).Item1;
 				ProcessRoom(room, new List<int>(), new List<AccessReqs>(), (location, 0));
-			}
+			}*/
 
 			var finalQueue = accessQueue.Select(x => (x.Item1, x.Item2, x.Item3.Distinct().ToList())).Distinct().ToList();
 
@@ -518,5 +527,39 @@ namespace FFMQLib
 			accessQueue.Add((roomid, locPriority.Item1, access));
 		}
 
+		public LocationIds FindTriggerLocation(AccessReqs trigger)
+		{
+			var initialRoom = Rooms.Find(x => x.GameObjects.Where(o => o.OnTrigger.Contains(trigger)).Any());
+			List<AccessReqs> crestsList = new() { AccessReqs.LibraCrest, AccessReqs.GeminiCrest, AccessReqs.MobiusCrest };
+			List<int> roomToProcess = new() { initialRoom.Id };
+			List<int> roomProcessed = new();
+
+			while (roomToProcess.Any())
+			{
+				var currentRoom = roomToProcess.First();
+				var linksToProcess = Rooms.Find(x => x.Id == currentRoom).Links.Where(x => !x.Access.Intersect(crestsList).Any()).ToList();
+
+				foreach (var link in linksToProcess)
+				{
+					if (link.TargetRoom == 0)
+					{
+						var owLink = Rooms.Find(x => x.Id == 0).Links.Find(l => l.TargetRoom == currentRoom);
+						return AccessReferences.LocationsByEntrances2.Find(x => x.Item2 == owLink.Entrance).Item1;
+					}
+					else
+					{
+						if (!roomProcessed.Contains(link.TargetRoom))
+						{
+							roomToProcess.Add(link.TargetRoom);
+						}
+					}
+				}
+
+				roomProcessed.Add(currentRoom);
+				roomToProcess.Remove(currentRoom);
+			}
+
+			return LocationIds.None;
+		}
 	}
 }
