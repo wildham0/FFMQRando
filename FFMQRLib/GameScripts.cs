@@ -894,6 +894,7 @@ namespace FFMQLib
 			/*** Living Forest ***/
 			GameFlags[(int)GameFlagsList.GiantTreeSet] = true;
 			GameFlags[(int)GameFlagsList.GiantTreeUnset] = false;
+			bool exitToGiantTree = flags.MapShuffling == MapShufflingMode.None;
 
 			// Remove Giant Tree Script
 			TalkScripts.AddScript((int)TalkScriptsList.GiantTree,
@@ -905,13 +906,15 @@ namespace FFMQLib
 			var crestTile = GameMaps[(int)MapList.LevelAliveForest].TileValue(8, 52);
 			MapChanges.Modify(0x0E, 0x17, crestTile);
 
+			if (!exitToGiantTree)
+			{
+				MapChanges.Replace(0x0E, Blob.FromHex("0000"));
+			}
+
 			/*** Giant Tree ***/
 			// Set door to chests in Giant Tree to open only once chimera is defeated
-			//var treeDoorChangeOpen = MapChanges.Add(Blob.FromHex("3806122F3F"));
 			var treeDoorChangeClosed = MapChanges.Add(Blob.FromHex("3806122F3E"));
 			MapObjects[0x46][0x04].RawOverwrite(Blob.FromHex("2802073816002C")); // Put new map object to talk to
-			//GameMaps[(int)MapList.GiantTreeB].ModifyMap(0x38, 0x07, 0x3E); // Change map to block exit
-			//Teleporters.TeleportersA[0x94].TargetY = 0x08;  // Change exit coordinate
 			MapChanges.AddAction(0x46, 0x28, treeDoorChangeClosed, 0x22);
 
 			TalkScripts.AddScript(0x02, new ScriptBuilder(new List<string>
@@ -923,8 +926,6 @@ namespace FFMQLib
 				}));
 
 			// Giant Tree Walking Script
-			bool exitToGiantTree = flags.MapShuffling == MapShufflingMode.None;
-
 			TalkScripts.AddScript(0x50, new ScriptBuilder(new List<string>
 				{
 					"2E28[10]",
@@ -941,21 +942,14 @@ namespace FFMQLib
 					"00"
 				}));
 
-
 			// Remove Kaeli
 			MapObjects[0x4C].RemoveAt(0);
 
 			// Change entrance to not teleport to giant tree ow location
-			if (!exitToGiantTree)
+			if (exitToGiantTree)
 			{
-				TileScripts.AddScript(0x31, new ScriptBuilder(new List<string>
-				{
-					"2E3C[03]",
-					"2C3801",
-					"00",
-					"2C0900",
-					"00"
-				}));
+				EntrancesData.Entrances.Find(x => x.Id == 278).Teleporter = (0x31, 8);
+				EntrancesData.Entrances.Find(x => x.Id == 279).Teleporter = (0x31, 8);
 			}
 
 			/*** Windia ***/

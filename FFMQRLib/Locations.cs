@@ -59,11 +59,13 @@ namespace FFMQLib
 	}
 	public partial class Overworld
 	{
-		public List<Location> Locations = new();
+		public List<Location> Locations { get; set; }
 
 		private List<byte> ShipWestSteps = new();
 		private List<byte> ShipEastSteps = new();
-	
+
+		private List<(LocationIds, LocationIds)> locationsToUpdate;
+
 		private const int OWMovementBank = 0x07;
 		private const int OWMovementArrows = 0xEE84;
 		private const int OWWalkStepsPointers = 0xF011;
@@ -77,6 +79,8 @@ namespace FFMQLib
 		private const int OWExitCoordBank = 0x07;
 		private const int OWExitCoordOffset = 0xF7C3;
 
+
+
 		private void CreateLocations(FFMQRom rom)
 		{
 			var movementArrows = rom.GetFromBank(OWMovementBank, OWMovementArrows, (OwNodesQty + 1) * 0x05).Chunk(5);
@@ -85,6 +89,7 @@ namespace FFMQLib
 			var exitCoords = rom.GetFromBank(OWExitCoordBank, OWExitCoordOffset, (OwNodesQty + 1) * 2).Chunk(2);
 
 			Locations = new();
+			locationsToUpdate = new();
 			foreach (var arrow in movementArrows)
 			{
 				Locations.Add(new Location(arrow));
@@ -338,7 +343,7 @@ namespace FFMQLib
 			Locations[(int)LocationIds.DoomCastle].Destinations[(int)NodeDirections.North] = LocationIds.FocusTowerForesta;
 			Locations[(int)LocationIds.DoomCastle].Steps[(int)NodeDirections.North] = new List<byte> { 0x86 };
 		}
-		public void ShuffleOverworld(Flags flags, Battlefields battlefields, MT19337 rng)
+		public void ShuffleOverworld(Flags flags, GameLogic gamelogic, Battlefields battlefields, MT19337 rng)
 		{
 			bool shuffleOverworld = flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Dungeons;
 
@@ -352,8 +357,20 @@ namespace FFMQLib
 			List<LocationIds> validLocations = Enum.GetValues<LocationIds>().ToList();
 			List<LocationIds> invalidLocations = new() { LocationIds.DoomCastle, LocationIds.FocusTowerForesta, LocationIds.FocusTowerAquaria, LocationIds.FocusTowerFrozen, LocationIds.FocusTowerFireburg, LocationIds.FocusTowerWindia, LocationIds.GiantTree, LocationIds.HillOfDestiny, LocationIds.LifeTemple, LocationIds.LightTemple, LocationIds.MacsShip, LocationIds.MacsShipDoom, LocationIds.None, LocationIds.ShipDock, LocationIds.SpencersPlace };
 			validLocations.RemoveAll(x => invalidLocations.Contains(x));
+			
+			locationsToUpdate.AddRange(invalidLocations.Select(x => (x, x)).ToList());
 
-			List<LocationIds> companionLocation = new() { LocationIds.SandTemple, LocationIds.LibraTemple, LocationIds.Fireburg };
+
+
+
+			List<LocationIds> companionLocations = new() { 
+				gamelogic.FindTriggerLocation(AccessReqs.Tristam),
+				gamelogic.FindTriggerLocation(AccessReqs.Reuben1),
+				gamelogic.FindTriggerLocation(AccessReqs.Phoebe1)
+			};
+
+			LocationIds aquariaPlaza = gamelogic.FindTriggerLocation(AccessReqs.SummerAquaria);
+
 			//List<LocationIds> excludeFromStart = new() { LocationIds.IcePyramid, LocationIds.Mine, LocationIds.Volcano, LocationIds.LavaDome, LocationIds.AliveForest, LocationIds.MountGale, LocationIds.PazuzusTower };
 
 			List<LocationIds> excludeFromStart = new();
@@ -368,17 +385,22 @@ namespace FFMQLib
 			var loc2 = LocationIds.None;
 
 			// Place guaranteed locations
-			List<LocationIds> earlyLocations = new() { rng.PickFrom(companionLocation), safeGoldBattlefield };
+			List<LocationIds> earlyLocations = new() { rng.PickFrom(companionLocations), safeGoldBattlefield };
 
 			while (earlyLocations.Any())
 			{
 				loc1 = rng.TakeFrom(forestaLocations);
 				loc2 = earlyLocations.First();
 
-				SwapLocations(loc1, loc2);
+				//SwapLocations(loc1, loc2);
+				locationsToUpdate.Add((loc1, loc2));
+				locationsToUpdate.Add((loc2, loc1));
 				placedLocations.Add(loc1);
 				placedLocations.Add(loc2);
-				earlyLocations.RemoveAt(0);
+				earlyLocations.Remove(loc1);
+				earlyLocations.Remove(loc2);
+				forestaLocations.Remove(loc1);
+				forestaLocations.Remove(loc2);
 			}
 			
 			forestaLocations = forestaLocations.Where(x => !placedLocations.Contains(x)).ToList();
@@ -390,7 +412,9 @@ namespace FFMQLib
 				loc1 = rng.PickFrom(forestaLocations);
 				loc2 = rng.PickFrom(validStartingLocations);
 
-				SwapLocations(loc1, loc2);
+				//SwapLocations(loc1, loc2);
+				locationsToUpdate.Add((loc1, loc2));
+				locationsToUpdate.Add((loc2, loc1));
 				placedLocations.Add(loc1);
 				placedLocations.Add(loc2);
 
@@ -399,13 +423,15 @@ namespace FFMQLib
 			}
 
 			// Place Aquaria outside the frozen strip
-			if ((flags.LogicOptions != LogicOptions.Expert || flags.CrestShuffle) && !placedLocations.Contains(LocationIds.Aquaria))
+			if ((flags.LogicOptions != LogicOptions.Expert || flags.CrestShuffle) && !placedLocations.Contains(aquariaPlaza))
 			{ 
 				var aquariaSafeLocactions = validLocations.Where(x => !placedLocations.Contains(x) && AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 != SubRegions.AquariaFrozenField).ToList();
 
 				loc2 = rng.PickFrom(aquariaSafeLocactions);
-				
-				SwapLocations(LocationIds.Aquaria, loc2);
+
+				//SwapLocations(LocationIds.Aquaria, loc2);
+				locationsToUpdate.Add((LocationIds.Aquaria, loc2));
+				locationsToUpdate.Add((loc2, LocationIds.Aquaria));
 				placedLocations.Add(LocationIds.Aquaria);
 				placedLocations.Add(loc2);
 			}
@@ -418,12 +444,39 @@ namespace FFMQLib
 				loc1 = rng.TakeFrom(validLocations);
 				loc2 = rng.TakeFrom(validLocations);
 
-				SwapLocations(loc1, loc2);
+				//SwapLocations(loc1, loc2);
+				locationsToUpdate.Add((loc1, loc2));
+				locationsToUpdate.Add((loc2, loc1));
 			}
 
-			UpdateBattlefieldsColor(battlefields);
+			if (validLocations.Any())
+			{
+				locationsToUpdate.Add((validLocations.First(), validLocations.First()));
+			}
+			
+
+		}
+		public void UpdateOverworld(Flags flags, Battlefields battlefields)
+		{
+			List<Location> newLocations = new();
+
+			foreach (var location in locationsToUpdate)
+			{
+				newLocations.Add(new Location(Locations[(int)location.Item1], Locations[(int)location.Item2]));
+			}
+
+			Locations = newLocations.OrderBy(x => x.LocationId).ToList();
+
+			foreach (var node in Locations)
+			{
+				for (int i = 0; i < node.Destinations.Count; i++)
+				{
+					node.Destinations[i] = locationsToUpdate.Find(x => x.Item1 == node.Destinations[i]).Item2;
+				}
+			}
 
 			StartingLocation = Locations.Find(x => x.Position == (0x0E, 0x28)).LocationId;
+			UpdateBattlefieldsColor(flags, battlefields);
 		}
 		public void SwapLocations(LocationIds locA, LocationIds locB)
 		{
@@ -542,6 +595,27 @@ namespace FFMQLib
 			LocationId = node.LocationId;
 			Region = node.Region;
 			SubRegion = node.SubRegion;
+		}
+		public void UpdateFromLocation(Location node)
+		{
+			NodeName = node.NodeName;
+			OwMapObjects = node.OwMapObjects.ToList();
+			TargetTeleporter = node.TargetTeleporter;
+			LocationId = node.LocationId;
+		}
+		public Location(Location origin, Location node)
+		{
+			NodeName = node.NodeName;
+			OwMapObjects = node.OwMapObjects.ToList();
+			TargetTeleporter = node.TargetTeleporter;
+			LocationId = node.LocationId;
+
+			DirectionFlags = origin.DirectionFlags.ToList();
+			Steps = origin.Steps.ToList();
+			Destinations = origin.Destinations.ToList();
+			Position = origin.Position;
+			Region = origin.Region;
+			SubRegion = origin.SubRegion;
 		}
 		public void AddDestination(LocationIds destination, List<byte> steps)
 		{

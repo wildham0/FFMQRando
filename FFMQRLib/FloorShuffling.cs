@@ -387,6 +387,9 @@ namespace FFMQLib
 			var macShipBarredRooms = crestRooms.Append(157);
 			int macShipDeck = 187;
 
+			var seedRooms = Rooms.Where(r => r.Links.Where(l => l.TargetRoom == 0).Any())).ToList();
+
+
 			var progressBigRooms = bigRooms.Where(x => x.Links.Count > 1 && !x.Rooms.Contains(0)).ToList();
 			var deadendBigRooms = bigRooms.Where(x => x.Links.Count == 1).ToList();
 
@@ -396,7 +399,7 @@ namespace FFMQLib
 			progressBigRooms.Shuffle(rng);
 			deadendBigRooms.Shuffle(rng);
 
-			seedBigRooms.AddRange(progressBigRooms.GetRange(0, includeTemplesTowns ? 12 : 8));
+			seedBigRooms.AddRange(progressBigRooms.GetRange(0, includeTemplesTowns ? 11 : 7));
 			seedBigRooms.AddRange(deadendBigRooms.GetRange(0, includeTemplesTowns ? 10 : 4));
 
 			progressBigRooms = progressBigRooms.Except(seedBigRooms).ToList();
@@ -448,7 +451,6 @@ namespace FFMQLib
 				var originLinks = receivingRoom.Links.Where(x => !x.ForceLinkDestination).ToList();
 				var originLink = rng.PickFrom(originLinks);
 				//Console.WriteLine("Origin Link: " + originLink.Current.Entrance);
-				receivingRoom.Links.Remove(originLink);
 
 				List<BigRoom> givingRooms;
 
@@ -480,6 +482,8 @@ namespace FFMQLib
 						continue;
 					}
 				}
+
+				receivingRoom.Links.Remove(originLink);
 
 				var givingRoom = rng.PickFrom(givingRooms);
 				progressBigRooms.Remove(givingRoom);
@@ -587,9 +591,11 @@ namespace FFMQLib
 				}
 			}
 
+			// Dead end count error
 			if ((deadendBigRooms.Count % 2) == 1)
 			{
 				throw new Exception("Floor Shuffle: Deadends Count Error\n" + GenerateDumpFile());
+				// shouldn't happen anymore?
 			}
 
 			while (deadendBigRooms.Any())
