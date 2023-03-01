@@ -458,20 +458,27 @@ namespace FFMQLib
 		}
 		public void UpdateOverworld(Flags flags, Battlefields battlefields)
 		{
+			
 			List<Location> newLocations = new();
 
-			foreach (var location in locationsToUpdate)
+			if (locationsToUpdate.Any())
 			{
-				newLocations.Add(new Location(Locations[(int)location.Item1], Locations[(int)location.Item2]));
-			}
-
-			Locations = newLocations.OrderBy(x => x.LocationId).ToList();
-
-			foreach (var node in Locations)
-			{
-				for (int i = 0; i < node.Destinations.Count; i++)
+				List<LocationIds> newLocationsList = locationsToUpdate.Select(x => x.Item1).ToList();
+				
+				foreach (var location in locationsToUpdate)
 				{
-					node.Destinations[i] = locationsToUpdate.Find(x => x.Item1 == node.Destinations[i]).Item2;
+					newLocations.Add(new Location(Locations[(int)location.Item1], Locations[(int)location.Item2]));
+				}
+
+				var oldLocationsToKeep = Locations.Where(x => !newLocationsList.Contains(x.LocationId)).ToList();
+				Locations = newLocations.Concat(oldLocationsToKeep).OrderBy(x => x.LocationId).ToList();
+
+				foreach (var node in Locations)
+				{
+					for (int i = 0; i < node.Destinations.Count; i++)
+					{
+						node.Destinations[i] = locationsToUpdate.Find(x => x.Item1 == node.Destinations[i]).Item2;
+					}
 				}
 			}
 

@@ -441,57 +441,7 @@ namespace FFMQLib
 			var seedBigRoomsIds = seedBigRooms.SelectMany(x => x.Rooms).Append(0).ToList();
 			var progressBigRooms = bigRooms.Where(x => x.Links.Count > 1 && !x.Rooms.Intersect(seedBigRoomsIds).Any()).ToList();
 			var deadendBigRooms = bigRooms.Where(x => x.Links.Count == 1 && !x.Rooms.Intersect(seedBigRoomsIds).Any()).ToList();
-			/*
-			var progressBigRooms = bigRooms.Where(x => x.Links.Count > 1 && !x.Rooms.Contains(0)).ToList();
-			var deadendBigRooms = bigRooms.Where(x => x.Links.Count == 1).ToList();
 
-			// Select base rooms
-			List<BigRoom> seedBigRooms = new();
-
-			progressBigRooms.Shuffle(rng);
-			deadendBigRooms.Shuffle(rng);
-
-			seedBigRooms.AddRange(progressBigRooms.GetRange(0, includeTemplesTowns ? 11 : 7));
-			seedBigRooms.AddRange(deadendBigRooms.GetRange(0, includeTemplesTowns ? 10 : 4));
-
-			progressBigRooms = progressBigRooms.Except(seedBigRooms).ToList();
-			deadendBigRooms = deadendBigRooms.Except(seedBigRooms).ToList();
-
-			var originalSeedRooms = bigRooms.Where(x => x.Links.Where(l => l.Current.TargetRoom == 0).Any()).ToList();
-			originalSeedRooms = originalSeedRooms.Where(x => !seedBigRooms.Contains(x)).ToList();*/
-
-			// Update base rooms link to overworld
-			/*
-			foreach (var room in seedBigRooms)
-			{
-				BigRoom newSeedRoom;
-				FloorLink owLink;
-				FloorLink originRoomLink;
-
-				if (!room.Links.Where(l => l.Current.TargetRoom == 0).Any())
-				{
-					newSeedRoom = rng.TakeFrom(originalSeedRooms);
-					owLink = bigRooms.Find(x => x.Rooms.Contains(0)).Links.Find(x => x.Origins.Entrance == newSeedRoom.Links.Find(x => x.Current.TargetRoom == 0).Current.Entrance);
-
-					var validLinks = room.Links.Where(x => !x.ForceDeadEnd && !x.OneWay && !x.ForceLinkOrigin && !x.ForceLinkDestination).ToList();
-					originRoomLink = rng.PickFrom(validLinks);
-					room.Links.Remove(originRoomLink);
-				}
-				else
-				{
-					newSeedRoom = room;
-					owLink = bigRooms.Find(x => x.Rooms.Contains(0)).Links.Find(x => x.Origins.Entrance == newSeedRoom.Links.Find(x => x.Current.TargetRoom == 0).Current.Entrance);
-
-					originRoomLink = room.Links.Find(x => x.Current.TargetRoom == 0);
-					room.Links.Remove(originRoomLink);
-				}
-
-
-				ConnectLink(owLink, originRoomLink);
-			}*/
-
-			// Remove all links to overworld, these can't be shuffled
-			//bigRooms.ForEach(x => x.Links = x.Links.Where(l => !(l.Current.TargetRoom == 0) && !(l.Origins.TargetRoom == 0)).ToList());
 
 			seedBigRooms.Shuffle(rng);
 			seedBigRooms = seedBigRooms.Where(x => x.Links.Count > 0).ToList();
@@ -505,35 +455,27 @@ namespace FFMQLib
 				var originLink = rng.PickFrom(originLinks);
 				//Console.WriteLine("Origin Link: " + originLink.Current.Entrance);
 
-				List<BigRoom> givingRooms;
+				List<BigRoom> givingRooms = progressBigRooms;
 
 				if (originLink.ForceLinkOrigin)
 				{
-					givingRooms = progressBigRooms.Where(x => !x.Links.Where(l => l.ForceLinkDestination).Any()).ToList();
+					givingRooms = givingRooms.Where(x => !x.Links.Where(l => l.ForceLinkDestination).Any()).ToList();
+				}
 
-					if (!givingRooms.Any())
-					{
-						continue;
-					}
-				}
-				else if (originLink.ForceDeadEnd)
+				if (originLink.ForceDeadEnd)
 				{
-					givingRooms = progressBigRooms.Where(x => !x.Rooms.Intersect(crestRooms).Any()).ToList();
-				}
-				else
-				{
-					givingRooms = progressBigRooms;
+					givingRooms = givingRooms.Where(x => !x.Rooms.Intersect(crestRooms).Any() && (x.Links.Count % 2 == 0)).ToList();
 				}
 
 				// Mac Ship Failsafe
 				if (receivingRoom.Rooms.Contains(macShipDeck))
 				{
 					givingRooms = progressBigRooms.Where(x => !x.Rooms.Intersect(macShipBarredRooms).Any()).ToList();
+				}
 
-					if (!givingRooms.Any())
-					{
-						continue;
-					}
+				if (!givingRooms.Any())
+				{
+					continue;
 				}
 
 				receivingRoom.Links.Remove(originLink);
@@ -644,10 +586,19 @@ namespace FFMQLib
 				}
 			}
 
-			// Dead end count error
+			// Add Dummy room if there was too much locations to equalize
 			if ((deadendBigRooms.Count % 2) == 1)
 			{
-				throw new Exception("Floor Shuffle: Deadends Count Error\n" + GenerateDumpFile());
+				var originLink = new RoomLink(500, 0, (141, 1), new List<AccessReqs>());
+				var targetLink = new RoomLink(0, 481, (0, 10), new List<AccessReqs>());
+
+				deadendBigRooms.Add(
+					new BigRoom(new List<int>() { 500 },
+					new List<FloorLink>() { new FloorLink(500, targetLink, originLink) }));
+
+				Rooms.Add(new Room("Dummy Room", 500, 0x11, new List<GameObjectData>() { }, new List<RoomLink> { }));
+
+				//throw new Exception("Floor Shuffle: Deadends Count Error\n" + GenerateDumpFile());
 				// shouldn't happen anymore?
 			}
 

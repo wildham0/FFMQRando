@@ -266,6 +266,43 @@ namespace FFMQLib
 			PutInBank(0x0C, 0xA82E, Blob.FromHex("33338aaa888aaaa33333553a8888888b8bbb2bbbbb2b8bbb33bbbbbbbb99b9bbb73373373338"));
 			PutInBank(0x0C, 0xA8C0, Blob.FromHex("33"));
 		}
+		public void RestoreHillOfDestiny()
+		{
+			// Maybe one day, tilesets is linked to bone dungeons'
+			//  this map is a mess
+			const int hoDtileData = 0xAD00;
+			const int tileDataBank = 0x06;
+
+			List<byte> tileToBlock = new() { 0x41, 0x51, 0x57, 0x58, 0x61, 0x63, 0x64, 0x74 };
+			GameMaps[(int)MapList.HillOfDestiny].ModifyMap(0x13, 0x0A, new List<List<byte>>() {
+				new List<byte>() { 0x51 },
+				new List<byte>() { 0x51 },
+				new List<byte>() { 0x51 },
+			});
+
+			foreach (var tile in tileToBlock)
+			{
+				var tilevalue = GetFromBank(tileDataBank, hoDtileData + (tile * 2), 1);
+				tilevalue[0] = (byte)(tilevalue[0] | 0x07);
+				PutInBank(tileDataBank, hoDtileData + (tile * 2), tilevalue);
+			}
+
+		}
+		public void DummyRoom()
+		{
+			// Add a small dummy room for Floor shuffle
+			var dummyroomTiny = new List<List<byte>>() {
+				new List<byte>() { 0x20, 0x21, 0x20 },
+				new List<byte>() { 0x21, 0x22, 0x21 },
+				new List<byte>() { 0x22, 0x05, 0x22 },
+				new List<byte>() { 0x27, 0x7F, 0x02 },
+				new List<byte>() { 0x37, 0x7F, 0x03 },
+				new List<byte>() { 0x20, 0x7F, 0x20 },
+				new List<byte>() { 0x20, 0x33, 0x20 },
+			};
+
+			GameMaps[(int)MapList.ForestaInterior].ModifyMap(0x28, 0x35, dummyroomTiny);
+		}
 		public void BugFixes()
 		{
 			// Fix vendor buy 0 bug

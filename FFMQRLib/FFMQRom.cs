@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.3.43";
+		public static string Version = "1.3.44";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -185,6 +185,7 @@ namespace FFMQLib
 			BugFixes();
 			NonSpoilerDemoplay();
 			CompanionRoutines();
+			DummyRoom();
 
 			// spoilersText = tempLocat.GenerateYaml();
 

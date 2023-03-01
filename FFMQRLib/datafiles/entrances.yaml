@@ -2403,3 +2403,13 @@
   area: 0
   type: "Overworld"
   teleporter: [0x24, 1]
+- name: Dummy House - Bed Script
+  id: 480
+  area: 17
+  coordinates: [0x28, 0x38]
+  teleporter: [1, 8]
+- name: Dummy House - Entrance
+  id: 481
+  area: 17
+  coordinates: [0x29, 0x3B]
+  teleporter: [0, 10] #None
