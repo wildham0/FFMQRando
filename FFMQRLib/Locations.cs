@@ -360,17 +360,31 @@ namespace FFMQLib
 			
 			locationsToUpdate.AddRange(invalidLocations.Select(x => (x, x)).ToList());
 
+			List<LocationIds> companionLocations = new();
 
+			List<AccessReqs> companionToFind = new() { AccessReqs.Tristam, AccessReqs.Reuben1, AccessReqs.Phoebe1 };
+			foreach (var companion in companionToFind)
+			{
+				var locationfound = gamelogic.FindTriggerLocation(companion);
+				if (locationfound != LocationIds.None)
+				{
+					companionLocations.Add(locationfound);
+				}
+			}
 
-
+/*
 			List<LocationIds> companionLocations = new() { 
 				gamelogic.FindTriggerLocation(AccessReqs.Tristam),
 				gamelogic.FindTriggerLocation(AccessReqs.Reuben1),
 				gamelogic.FindTriggerLocation(AccessReqs.Phoebe1)
-			};
+			};*/
 
 			LocationIds aquariaPlaza = gamelogic.FindTriggerLocation(AccessReqs.SummerAquaria);
 
+			if (aquariaPlaza == LocationIds.None)
+			{
+				throw new Exception("Overworld Shuffle: Can't find Aquaria");
+			}
 			//List<LocationIds> excludeFromStart = new() { LocationIds.IcePyramid, LocationIds.Mine, LocationIds.Volcano, LocationIds.LavaDome, LocationIds.AliveForest, LocationIds.MountGale, LocationIds.PazuzusTower };
 
 			List<LocationIds> excludeFromStart = new();

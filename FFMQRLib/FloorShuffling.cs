@@ -409,7 +409,7 @@ namespace FFMQLib
 			var newSeedBigRoomsToUpdate = newSeedBigRooms.Where(x => !x.Rooms.Intersect(seedRooms).Any()).ToList();
 			var validInitalSeedRoomsToSwitch = seedBigRoomsToShuffle.Except(newSeedBigRooms).ToList();
 
-			foreach (var room in newSeedBigRoomsToUpdate)
+			foreach (var room in newSeedBigRooms)
 			{
 				BigRoom newSeedRoom;
 				FloorLink owLink;
