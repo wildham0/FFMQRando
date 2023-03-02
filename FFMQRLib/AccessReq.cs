@@ -81,7 +81,8 @@ namespace FFMQLib
 			(MapRegions.Windia, LocationIds.ShipDock),
 			(MapRegions.Windia, LocationIds.DoomCastle),
 			(MapRegions.Windia, LocationIds.LightTemple),
-			(MapRegions.Windia, LocationIds.MacsShip)
+			(MapRegions.Windia, LocationIds.MacsShip),
+			(MapRegions.Windia, LocationIds.MacsShipDoom)
 		};
 		public static List<(SubRegions, LocationIds)> MapSubRegions => new()
 		{
@@ -139,7 +140,8 @@ namespace FFMQLib
 			(SubRegions.ShipDock, LocationIds.ShipDock),
 			(SubRegions.DoomCastle, LocationIds.DoomCastle),
 			(SubRegions.LightTemple, LocationIds.LightTemple),
-			(SubRegions.MacShip, LocationIds.MacsShip)
+			(SubRegions.MacShip, LocationIds.MacsShip),
+			(SubRegions.MacShip, LocationIds.MacsShipDoom)
 		};
 		public static List<(SubRegions, List<List<AccessReqs>>)> SubRegionsAccess => new()
 		{
