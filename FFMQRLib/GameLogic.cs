@@ -258,7 +258,8 @@ namespace FFMQLib
 
 			foreach (var room in seedRooms)
 			{
-				ProcessRoom(room.Item2, new List<int>(), new List<AccessReqs>(), (locationsByEntrances.Find(x => x.Item2 == room.Item1).Item1, 0));
+				var roomLocation = locationsByEntrances.Find(x => x.Item2 == room.Item1).Item1;
+				ProcessRoom(room.Item2, new List<int>(), new List<AccessReqs>(), (roomLocation, 0));
 			}
 			
 			
@@ -509,7 +510,8 @@ namespace FFMQLib
 				{
 					if (origins.Count > 0)
 					{
-						bridgeQueue.Add((locPriority.Item1, AccessReferences.LocationsByEntrances.Find(x => x.Item2 == children.Entrance).Item1, access));
+						var target = Rooms[0].Links.Find(x => x.TargetRoom == targetroom.Id).Entrance;
+						bridgeQueue.Add((locPriority.Item1, AccessReferences.LocationsByEntrances2.Find(x => x.Item2 == target).Item1, access));
 					}
 				}
 				else if (!origins.Contains(children.TargetRoom))

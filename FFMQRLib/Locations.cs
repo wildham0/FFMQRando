@@ -474,6 +474,8 @@ namespace FFMQLib
 		{
 			
 			List<Location> newLocations = new();
+			
+			locationsToUpdate = locationsToUpdate.Distinct().ToList();
 
 			if (locationsToUpdate.Any())
 			{
