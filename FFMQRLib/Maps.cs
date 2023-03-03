@@ -1115,6 +1115,10 @@ namespace FFMQLib
 		{
 			MapChangeActions.Add(new MapChangeAction(area, new byte[] { _gameflag, _changeid, _action }));
 		}
+		public void RemoveActionByFlag(int area, int flag)
+		{
+			MapChangeActions.RemoveAll(x => x.Area == area && x.GetBytes()[0] == flag);
+		}
 		private void UpdatePointers()
 		{
 			_pointers.Clear();

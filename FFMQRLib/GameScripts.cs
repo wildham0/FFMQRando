@@ -908,7 +908,7 @@ namespace FFMQLib
 
 			if (!exitToGiantTree)
 			{
-				MapChanges.Replace(0x0E, Blob.FromHex("0000"));
+				MapChanges.RemoveActionByFlag(0x43, 0x3C);
 			}
 
 			/*** Giant Tree ***/
