@@ -387,7 +387,7 @@ namespace FFMQLib
 			var macShipBarredRooms = crestRooms.Append(157);
 			int macShipDeck = 187;
 
-			var seedRooms = Rooms.Find(x => x.Id == 0).Links.Select(l => l.TargetRoom).ToList();
+			var seedRooms = Rooms.Find(x => x.Id == 0).Links.Select(l => l.TargetRoom).Except(new List<int> { 125 }).ToList();
 			var seedBigRooms = bigRooms.Where(x => x.Rooms.Intersect(seedRooms).Any()).ToList();
 			var seedBigRoomsToShuffle = seedBigRooms.Where(x => x.Links.Where(l => l.Current.TargetRoom == 0).Any()).ToList();
 			var seedBigRoomsFixed = seedBigRooms.Except(seedBigRoomsToShuffle).ToList();

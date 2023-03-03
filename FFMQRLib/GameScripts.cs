@@ -951,6 +951,11 @@ namespace FFMQLib
 				EntrancesData.Entrances.Find(x => x.Id == 278).Teleporter = (0x31, 8);
 				EntrancesData.Entrances.Find(x => x.Id == 279).Teleporter = (0x31, 8);
 			}
+			else
+			{
+				//var giantTreeEntrance = EntrancesData.Entrances.Find(x => x.Id == 274).Teleporter;
+				EntrancesData.Entrances.Find(x => x.Id == 469).Teleporter = ((int)TileScriptsList.DriedUpSpringOfLife, 8);
+			}
 
 			/*** Windia ***/
 			TalkScripts.AddMobileScript(0x5D);

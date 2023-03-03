@@ -992,7 +992,7 @@
   id: 198
   area: 55
   coordinates: [44, 8]
-  teleporter: [103, 0]
+  teleporter: [9, 0] # Original value [103, 0] changed to volcano escape so floor shuffling doesn't pick it up
 - name: Volcano Top Left - To Right-Left Path Script
   id: 199
   area: 55
