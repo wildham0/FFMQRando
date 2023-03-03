@@ -444,9 +444,9 @@ namespace FFMQLib
 				loc2 = rng.PickFrom(aquariaSafeLocactions);
 
 				//SwapLocations(LocationIds.Aquaria, loc2);
-				locationsToUpdate.Add((LocationIds.Aquaria, loc2));
-				locationsToUpdate.Add((loc2, LocationIds.Aquaria));
-				placedLocations.Add(LocationIds.Aquaria);
+				locationsToUpdate.Add((aquariaPlaza, loc2));
+				locationsToUpdate.Add((loc2, aquariaPlaza));
+				placedLocations.Add(aquariaPlaza);
 				placedLocations.Add(loc2);
 			}
 
