@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.3.46";
+		public static string Version = "1.3.47";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -183,7 +183,7 @@ namespace FFMQLib
 			RemoveStrobing();
 			SmallFixes();
 			BugFixes();
-			NonSpoilerDemoplay();
+			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
 			CompanionRoutines();
 			DummyRoom();
 
