@@ -1627,7 +1627,7 @@
   id: 325
   area: 80
   coordinates: [21, 9]
-  teleporter: [41, 8]
+  teleporter: [10, 6] # Change to entrance, usually a script [41, 8]
 - name: Otto's House - Attic Stairs
   id: 326
   area: 81
