@@ -147,6 +147,7 @@ namespace FFMQLib
 			TeleportersB.Add(new Teleporter(139, 0x08, 0x17, FacingOrientation.Down, 0x38, 0x29)); // Volcano - From Top Left
 
 			TeleportersB.Add(new Teleporter(141, 0x29, 0x3B, FacingOrientation.Up, 0x11, 0x17)); // To Dummy Room
+			TeleportersB.Add(new Teleporter(142, 0x30, 0x0F, FacingOrientation.Up, 0x19, 0x1D)); // Spring Aquaria Leaf
 
 			// Battlefields teleporters
 			TeleportersB.Add(new Teleporter(115, 0x0E, 0x23, FacingOrientation.Down, 0x00, 0x01)); // Foresta South

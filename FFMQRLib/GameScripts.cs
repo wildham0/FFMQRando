@@ -241,6 +241,7 @@ namespace FFMQLib
 
 			/*** Aquaria ***/
 			// Entering Aquaria
+			/*
 			TileScripts.AddScript((int)TileScriptsList.EnterAquaria,
 				new ScriptBuilder(new List<string> {
 					"050B02[03]",
@@ -255,7 +256,37 @@ namespace FFMQLib
 					"00",
 					"2C0801",
 					"00",
+				}));*/
+
+			TileScripts.AddScript((int)TileScriptsList.EnterAquaria,
+				new ScriptBuilder(new List<string> {
+					"050B02[03]",
+					"2C0901",
+					"00",
+					"2C0801",
+					"00",
 				}));
+
+
+			//MapObjects[0x18].Add(new MapObject(Blob.FromHex("003F073816002C"))); // Put new map object to talk to
+			//MapObjects[0x18][0x06].Coord = (0x10, 0x0E);
+			MapObjects[0x18][0x04].Value = 0x3F;
+			MapObjects[0x18][0x04].Type = MapObjectType.Talk;
+
+
+			TalkScripts.AddScript((int)TalkScriptsList.Unknown3f, new ScriptBuilder(new List<string>
+				{
+					"04",
+					"2F",
+					"050D02[07]",
+					$"23{(int)NewGameFlagsList.WakeWaterUsed:X2}",
+					"2A15271225304506ff8E01FFFF",
+					"234F",
+					"00",
+					"1A00" + TextToHex("Maybe the WakeWater can save this poor plant.") + "36",
+					"00"
+				}));
+
 			/*
 			TileScripts.AddScript((int)TileScriptsList.EnterPhoebesHouse,
 				new ScriptBuilder(new List<string> { "2C0A0200" }));
@@ -914,7 +945,8 @@ namespace FFMQLib
 			/*** Giant Tree ***/
 			// Set door to chests in Giant Tree to open only once chimera is defeated
 			var treeDoorChangeClosed = MapChanges.Add(Blob.FromHex("3806122F3E"));
-			MapObjects[0x46][0x04].RawOverwrite(Blob.FromHex("2802073816002C")); // Put new map object to talk to
+			//MapObjects[0x46][0x04].RawOverwrite(Blob.FromHex("2802073816002C")); // Put new map object to talk to
+			MapObjects[0x46].Add(new MapObject(Blob.FromHex("2802073816002C"))); // Put new map object to talk to
 			MapChanges.AddAction(0x46, 0x28, treeDoorChangeClosed, 0x22);
 
 			TalkScripts.AddScript(0x02, new ScriptBuilder(new List<string>

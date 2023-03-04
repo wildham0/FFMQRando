@@ -193,6 +193,10 @@ namespace FFMQLib
 
 			UpdateValues();
 		}
+		public MapObject(byte[] rawArray)
+		{
+			RawOverwrite(rawArray);
+		}
 		public void CopyFrom(MapObject mapobject)
 		{
 			RawOverwrite(mapobject.RawArray());
