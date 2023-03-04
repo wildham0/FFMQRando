@@ -926,6 +926,7 @@ namespace FFMQLib
 				}));
 
 			// Giant Tree Walking Script
+			var newGidrahLocation = GameLogic.FindTriggerLocation(AccessReqs.Gidrah);
 			TalkScripts.AddScript(0x50, new ScriptBuilder(new List<string>
 				{
 					"2E28[10]",
@@ -933,7 +934,7 @@ namespace FFMQLib
 					"36",
 					"2A142A10505EFFAA00072B10511B25FFFF",
 					"23FE",
-					"2A1C2510531053062BAB0061FF" + (exitToGiantTree ? "2E" : "2D") + "29" + "FFFF",
+					"2A1C2510531053062BAB0061FF" + (exitToGiantTree ? "2E" : $"{(int)newGidrahLocation:X2}") + "29" + "FFFF",
 					"2BFE",
 					"233C",
 					"236A",
@@ -946,8 +947,23 @@ namespace FFMQLib
 			MapObjects[0x4C].RemoveAt(0);
 
 			// Change entrance to not teleport to giant tree ow location
+			// Change entrance to not teleport to giant tree ow location
+			if (flags.OverworldShuffle)
+			{
+
+			}
+
 			if (exitToGiantTree)
 			{
+				TileScripts.AddScript(0x31, new ScriptBuilder(new List<string>
+				{
+					"2E3C[03]",
+					"2C3801",
+					"00",
+					"2C0900",
+					"00"
+				}));
+
 				EntrancesData.Entrances.Find(x => x.Id == 278).Teleporter = (0x31, 8);
 				EntrancesData.Entrances.Find(x => x.Id == 279).Teleporter = (0x31, 8);
 			}
@@ -1081,6 +1097,8 @@ namespace FFMQLib
 				}));
 
 			/*** Pazuzu's Tower ***/
+			bool skip7fteleport = flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld;
+
 			var newResetflags = new ScriptBuilder(new List<string> {
 						"2B47",
 						"2B48",
@@ -1094,16 +1112,20 @@ namespace FFMQLib
 						"2B46",
 						"00"
 					});
-			newResetflags.WriteAt(0x12, 0xC1A0, this);
 
 			var newPazuzuScript = new ScriptBuilder(new List<string> {
 						"2C50FF",
 						"07A0C112",
-						(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld) ? "00" : "0898FD",
+						skip7fteleport ? "00" : "0898FD",
 						"00"
 					});
 
-			newPazuzuScript.WriteAt(0x03, 0xFD8C, this);
+			var jumpToResetFlagsShort = new ScriptBuilder(new List<string> {
+						"07A6C11200",
+					});
+			var newJumpInRoutineToReset = new ScriptBuilder(new List<string> {
+						"08D5FF",
+					});
 
 			var standardCrystalScript = new ScriptBuilder(new List<string> {
 						"2A20500527205410575EFF4E01A057260161FF10530054202529E6FFFF",
@@ -1120,7 +1142,12 @@ namespace FFMQLib
 						"00"
 					});
 
-			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld)
+			newResetflags.WriteAt(0x12, 0xC1A0, this);
+			newJumpInRoutineToReset.WriteAt(0x03, 0xFC6B, this);
+			jumpToResetFlagsShort.WriteAt(0x03, 0xFFD5, this);
+			newPazuzuScript.WriteAt(0x03, 0xFD8C, this);
+
+			if (skip7fteleport)
 			{
 				floorCrystalScript.WriteAt(0x03, 0xFD98, this);
 
