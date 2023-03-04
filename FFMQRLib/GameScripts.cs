@@ -925,6 +925,10 @@ namespace FFMQLib
 					"00"
 				}));
 
+			// Add hook to avoid softlock
+			MapObjects[0x47].Add(new MapObject(MapObjects[0x47][0x15]));
+			MapObjects[0x47][0x16].Coord = (0x2D, 0x36);
+
 			// Giant Tree Walking Script
 			var newGidrahLocation = GameLogic.FindTriggerLocation(AccessReqs.Gidrah);
 			TalkScripts.AddScript(0x50, new ScriptBuilder(new List<string>
@@ -969,8 +973,11 @@ namespace FFMQLib
 			}
 			else
 			{
-				//var giantTreeEntrance = EntrancesData.Entrances.Find(x => x.Id == 274).Teleporter;
-				EntrancesData.Entrances.Find(x => x.Id == 469).Teleporter = ((int)TileScriptsList.DriedUpSpringOfLife, 8);
+				var disableGiantTreeEntrance = new ScriptBuilder(new List<string> {
+						"0A06A5",
+					});
+
+				disableGiantTreeEntrance.WriteAt(0x03, 0xA624, this);
 			}
 
 			/*** Windia ***/

@@ -2412,7 +2412,7 @@
   links:
   - target_room: 124
     entrance: 278
-    teleporter: [49, 8]
+    teleporter: [56, 1] # [49, 8] script restored if no map shuffling
     access: []
   - target_room: 127
     entrance: 280
