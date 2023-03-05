@@ -38,10 +38,9 @@ namespace FFMQLib
             get => SkyCoinMode == SkyCoinModes.ShatteredSkyCoin ? internalSkyCoinFragmentsQty : SkyCoinFragmentsQty.Mid24;
             set => internalSkyCoinFragmentsQty = value; }
         public bool EnableSpoilers { get; set; } = false;
-        public bool OverworldShuffle { get; set; } = false;
+        public ProgressiveFormationsModes ProgressiveFormations { get; set; } = ProgressiveFormationsModes.Disabled;
         public MapShufflingMode MapShuffling { get; set; } = MapShufflingMode.None;
         public bool CrestShuffle { get; set; } = false;
-        public bool FloorShuffle { get; set; } = false;
 
         private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;
 
