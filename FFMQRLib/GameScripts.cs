@@ -983,12 +983,6 @@ namespace FFMQLib
 			MapObjects[0x4C].RemoveAt(0);
 
 			// Change entrance to not teleport to giant tree ow location
-			// Change entrance to not teleport to giant tree ow location
-			if (flags.OverworldShuffle)
-			{
-
-			}
-
 			if (exitToGiantTree)
 			{
 				TileScripts.AddScript(0x31, new ScriptBuilder(new List<string>

@@ -627,7 +627,7 @@
     entrance: 62
     teleporter: [91, 3]
     access: []
-- name: Bonne Dungeon B2 - Exploding Skull Room - First Room
+- name: Bone Dungeon B2 - Exploding Skull Room - First Room
   id: 30
   game_objects:
   - name: "Bone Dungeon B1 03"
@@ -646,7 +646,7 @@
     access: []
   - target_room: 31
     access: ["LongSpineBombed"]
-- name: Bonne Dungeon B2 - Exploding Skull Room - Second Room
+- name: Bone Dungeon B2 - Exploding Skull Room - Second Room
   id: 31
   game_objects:
   - name: "Bone Dungeon B1 04"
@@ -667,7 +667,7 @@
     access: ["ShortSpineBombed"]
   - target_room: 30
     access: ["LongSpineBombed"]
-- name: Bonne Dungeon B2 - Exploding Skull Room - Third Room
+- name: Bone Dungeon B2 - Exploding Skull Room - Third Room
   id: 32
   game_objects: []
   links:
@@ -677,7 +677,7 @@
     access: []
   - target_room: 31
     access: ["ShortSpineBombed"]
-- name: Bonne Dungeon B2 - Box Room
+- name: Bone Dungeon B2 - Box Room
   id: 33
   game_objects:
   - name: "Bone Dungeon B2 02"
@@ -689,7 +689,7 @@
     entrance: 66
     teleporter: [93, 3]
     access: []
-- name: Bonne Dungeon B2 - Quake Room
+- name: Bone Dungeon B2 - Quake Room
   id: 34
   game_objects:
   - name: "Penultimate Room Chest"
@@ -701,7 +701,7 @@
     entrance: 67
     teleporter: [94, 3]
     access: []
-- name: Bonne Dungeon B2 - Two Skulls Room - First Room
+- name: Bone Dungeon B2 - Two Skulls Room - First Room
   id: 35
   game_objects:
   - name: "Bone Dungeon B2 01"
@@ -720,7 +720,7 @@
     access: []
   - target_room: 36
     access: ["Skull1Bombed"]
-- name: Bonne Dungeon B2 - Two Skulls Room - Second Room
+- name: Bone Dungeon B2 - Two Skulls Room - Second Room
   id: 36
   game_objects:
   - name: "Skull 2"
@@ -737,7 +737,7 @@
     access: ["Skull2Bombed"]
   - target_room: 35
     access: ["Skull1Bombed"]
-- name: Bonne Dungeon B2 - Two Skulls Room - Third Room
+- name: Bone Dungeon B2 - Two Skulls Room - Third Room
   id: 37
   game_objects: []
   links:
@@ -1555,7 +1555,7 @@
     entrance: 166
     teleporter: [11, 8]
     access: ["MultiKey"]
-- name: Reuben House
+- name: Reuben's House
   id: 77
   game_objects:
   - name: "Arion"
@@ -1576,7 +1576,7 @@
     entrance: 167
     teleporter: [98, 3]
     access: []
-- name: GrenadeMan House
+- name: GrenadeMan's House
   id: 78
   game_objects:
   - name: "MegaGrenade Dude"
@@ -1592,7 +1592,7 @@
     entrance: 169
     teleporter: [93, 0]
     access: []
-- name: GrenadeMan Mobius Room
+- name: GrenadeMan's Mobius Room
   id: 79
   game_objects: []
   links:

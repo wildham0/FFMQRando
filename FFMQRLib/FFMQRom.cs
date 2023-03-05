@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.3.49";
+		public static string Version = "1.3.50";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -236,6 +236,7 @@ namespace FFMQLib
 			ProgressiveGears(flags.ProgressiveGear);
 			SkyCoinMode(flags, rng);
 			ExitHack(Overworld.StartingLocation);
+			ProgressiveFormation(flags.ProgressiveFormations, Overworld, rng);
 			credits.Update();
 
 			// Preferences

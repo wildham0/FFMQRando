@@ -145,6 +145,7 @@
         </Container>
         <Container Class="flagColumn">
             <BoolFlag UsePreset=usePreset Name="Shuffle Enemies' Positions" @bind-Value="flags.ShuffleEnemiesPosition" Tooltip="Instead of their original position in a given map, enemies are randomly placed." />
+            <EnumFlag UsePreset=usePreset Name="Progressive Formations" @bind-Value="flags.ProgressiveFormations" Tooltip="Ennemies' formations are select by regions, with the weakeast formations always selected in Foresta and the strongest in Windia.<br /><br />Disabled: Standard formations are used.<br /><br />By Regions (Strict): Formations will be exclusively from the current region, whatever the map is.<br /><br />By Regions (Keep Type): Formations will keep the original enemy's type and match with the nearest power level." />
         </Container>
     </Container>
 </Container>
