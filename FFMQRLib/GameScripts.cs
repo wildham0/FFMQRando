@@ -433,12 +433,6 @@ namespace FFMQLib
 					"00"
 				}));
 
-			// Enter Fall Basin
-			TileScripts.AddScript((int)TileScriptsList.EnterFallBasin,
-				new ScriptBuilder(new List<string> {
-					"2C0C0100",
-				}));
-
 			// Exit Fall Basin
 			GameMaps.TilesProperties[0x0A][0x22].Byte2 = 0x08;
 
@@ -945,7 +939,6 @@ namespace FFMQLib
 			/*** Giant Tree ***/
 			// Set door to chests in Giant Tree to open only once chimera is defeated
 			var treeDoorChangeClosed = MapChanges.Add(Blob.FromHex("3806122F3E"));
-			//MapObjects[0x46][0x04].RawOverwrite(Blob.FromHex("2802073816002C")); // Put new map object to talk to
 			MapObjects[0x46].Add(new MapObject(Blob.FromHex("2802073816002C"))); // Put new map object to talk to
 			MapChanges.AddAction(0x46, 0x28, treeDoorChangeClosed, 0x22);
 
@@ -957,7 +950,22 @@ namespace FFMQLib
 					"00"
 				}));
 
-			// Add hook to avoid softlock
+			// Add check for Dragon Claw on 2F to avoid softlock
+			PutInBank(0x06, 0x93F4, Blob.FromHex("4c4d5c5d")); // Add new tile+properties to execute script
+			GameMaps.TilesProperties[0x09][0x7D].Byte1 = 0x00;
+			GameMaps.TilesProperties[0x09][0x7D].Byte2 = 0x88;
+			GameMaps[(int)MapList.GiantTreeA].ModifyMap(0x2E, 0x33, 0x7D);
+
+			TileScripts.AddScript((int)TileScriptsList.EnterFallBasin,
+				new ScriptBuilder(new List<string> {
+					"2D" + ScriptItemFlags[Items.DragonClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.DragonClaw].Item2 + "[04]",
+					"1A48" + TextToHex("Wait, I'll need the Dragon Claw to come back up!") + "36",
+					"2C105000",
+					"0cee19000cef1916094cb20100" // Hack to excute the falling down routine
+				}));
+
+			// Add hook on 3F to avoid softlock
 			MapObjects[0x47].Add(new MapObject(MapObjects[0x47][0x15]));
 			MapObjects[0x47][0x16].Coord = (0x2D, 0x36);
 

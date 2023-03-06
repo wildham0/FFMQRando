@@ -56,6 +56,9 @@ namespace FFMQLib
 		public void ProgressiveFormation(ProgressiveFormationsModes formationmode, Overworld overworld, MT19337 rng)
 		{
 
+			const int formationsVariantsBank = 0x02;
+			const int formationsVariantsOffset = 0xCE12;
+			
 			if (formationmode == ProgressiveFormationsModes.Disabled)
 			{
 				return;
@@ -69,18 +72,29 @@ namespace FFMQLib
 
 			List<EnemyCategory> level4TypesList = new() { EnemyCategory.Tree, EnemyCategory.Slime, EnemyCategory.Frog, EnemyCategory.Worm, EnemyCategory.Skull, EnemyCategory.Bird, EnemyCategory.Mummy, EnemyCategory.Hag, EnemyCategory.Ninja, EnemyCategory.Sphinx, EnemyCategory.Ghost, EnemyCategory.Eye, EnemyCategory.Bat, EnemyCategory.Mage, EnemyCategory.Scorpion, EnemyCategory.Doggo, EnemyCategory.Lamia, EnemyCategory.Devil };
 
+			List<(byte, Blob)> newFormationsVariants = new()
+			{
+				(0x24, Blob.FromHex("070608")), // Madplants
+				(0x25, Blob.FromHex("191819")), // Mintmint
+				(0x26, Blob.FromHex("424243")), // Jelly
+				(0x27, Blob.FromHex("474748")), // Plantman
+				(0x29, Blob.FromHex("1E1D20")), // Giant Toad
+				(0x2B, Blob.FromHex("454544")), // Sting Rat
+				//(0x2F, Blob.FromHex("")),
+			};
+
 			List<(EnemyCategory, List<byte>)> formationsList = new()
 			{
-				(EnemyCategory.Imp, new() { 0x15, 0x03, 0x54, 0x54 }),
-				(EnemyCategory.Tree, new() { 0x00, 0x0D, 0x0D, 0x84 }),
-				(EnemyCategory.Slime, new() { 0x16, 0x0B, 0x0B, 0x8F }),
-				(EnemyCategory.Frog, new() { 0x18, 0x05, 0x86, 0x86 }),
+				(EnemyCategory.Imp, new() { 0x15, 0x25, 0x54, 0x54 }),
+				(EnemyCategory.Tree, new() { 0x24, 0x27, 0x27, 0x84 }),
+				(EnemyCategory.Slime, new() { 0x16, 0x26, 0x26, 0x8F }),
+				(EnemyCategory.Frog, new() { 0x18, 0x29, 0x86, 0x86 }),
 				(EnemyCategory.Reptile, new() { 0x19, 0x53, 0x79, 0x79 }),
 				(EnemyCategory.Worm, new() { 0x1C, 0x2A , 0x8B, 0x8B }),
 				(EnemyCategory.Skull, new() { 0x19, 0x51, 0x51, 0x8E }),
 				(EnemyCategory.Bird, new() { 0x1B, 0x2D, 0x9A, 0x9A }),
 				(EnemyCategory.Mummy, new() { 0x50, 0x50, 0x50, 0x7F }),
-				(EnemyCategory.Hag, new() { 0x07, 0x07, 0x93, 0x93 }),
+				(EnemyCategory.Hag, new() { 0x32, 0x32, 0x93, 0x93 }),
 				(EnemyCategory.Ninja, new() { 0x66, 0x66, 0x66, 0xBE }),
 				(EnemyCategory.Sphinx, new() { 0x4B, 0x4B, 0x9C, 0x9C }),
 				(EnemyCategory.Centaur, new() { 0x28, 0x28, 0x5C, 0x5C }),
@@ -92,7 +106,7 @@ namespace FFMQLib
 				(EnemyCategory.Turtle, new() { 0x2C, 0x2C, 0x75, 0x75 }),
 				(EnemyCategory.Scorpion, new() { 0x22, 0x22, 0x85, 0x85 }),
 				(EnemyCategory.Doggo, new() { 0x5D, 0x5D, 0x5D, 0xC6 }),
-				(EnemyCategory.Edgehog, new() { 0x23, 0x23, 0x0C, 0x0C }),
+				(EnemyCategory.Edgehog, new() { 0x23, 0x23, 0x2B, 0x2B }),
 				(EnemyCategory.Lamia, new() { 0x37, 0x37, 0xB1, 0xB1 }),
 				(EnemyCategory.Devil, new() { 0x67, 0x67, 0x67, 0xB9 }),
 				(EnemyCategory.Minotaur, new() { 0x20, 0x20, 0x20, 0x20 }),
@@ -228,6 +242,11 @@ namespace FFMQLib
 					formations.Add(formationsList.Find(x => x.Item1 == category));
 					animations.Add((category, new() { animationsList.Find(x => x.Item1 == level1Sprite).Item2, animationsList.Find(x => x.Item1 == level2Sprite).Item2, animationsList.Find(x => x.Item1 == level3Sprite).Item2, animationsList.Find(x => x.Item1 == level4Sprite).Item2 }));
 				}
+			}
+
+			foreach (var variant in newFormationsVariants)
+			{
+				PutInBank(formationsVariantsBank, formationsVariantsOffset + (3 * variant.Item1), variant.Item2);
 			}
 
 			// see 11_9600_ProgressiveFormations.asm

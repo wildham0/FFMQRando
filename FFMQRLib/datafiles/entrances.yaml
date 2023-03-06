@@ -1423,6 +1423,11 @@
   area: 69
   coordinates: [34, 37]
   teleporter: [147, 0]
+- name: Giant Tree 2F Fall From Vine Script
+  id: 482
+  area: 69
+  coordinates: [0x2E, 0x33]
+  teleporter: [76, 8]
 - name: Giant Tree Meteor Chest Room - To 2F Mushroom Room
   id: 285
   area: 69
