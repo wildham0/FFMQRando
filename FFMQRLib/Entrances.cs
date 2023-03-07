@@ -183,7 +183,7 @@ namespace FFMQLib
 				}
 			}
 		}
-		public void UpdateCrests(Flags flags, GameScriptManager tileScripts, GameMaps gameMaps, GameLogic logic, List<Teleporter> teleportersLong, MT19337 rng)
+		public void UpdateCrests(Flags flags, GameScriptManager tileScripts, GameMaps gameMaps, GameLogic logic, List<Teleporter> teleportersLong, FFMQRom rom, MT19337 rng)
 		{
 			bool keepWintryTemple = (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Dungeons) && !flags.CrestShuffle;
 
@@ -237,16 +237,23 @@ namespace FFMQLib
 			};
 
 			var flatLinkList = logic.Rooms.SelectMany(x => x.Links).ToList();
+			int scriptAddress = 0x8000;
 
 			foreach (var crest in crestsList)
 			{
 				var entranceToUpdate = Entrances.Where(x => x.Id == crest.Entrance).ToList();
 				var updatedLink = flatLinkList.Find(x => x.Entrance == crest.Entrance);
+				var currentLocation = logic.Rooms.Find(x => x.Links.Select(l => l.Entrance).Contains(crest.Entrance)).Location;
 				var targetLocation = logic.Rooms.Find(x => x.Id == logic.CrestRoomLinks.Find(x => x.Teleporter == crest.Script).Room).Location;
 				var access = crestAccess.Intersect(updatedLink.Access).ToList().First();
 				var crestItem = crestItemAccess.Find(c => c.Item2 == access).Item1;
 				var newTeleporter = crestsList.Find(x => x.Script == updatedLink.Teleporter).TargetTeleporter;
-				
+
+				bool externalLink = (newTeleporter.type == 6);
+				bool cancelInvisiblity = (currentLocation == LocationIds.IcePyramid || currentLocation == LocationIds.Volcano) && externalLink;
+				bool enableVolcanoInvisibility = (targetLocation == LocationIds.Volcano) && externalLink;
+				bool enablePyramidInvisibility = (targetLocation == LocationIds.IcePyramid) && externalLink;
+				bool enableInvisibility = enableVolcanoInvisibility || enablePyramidInvisibility;
 
 				foreach (var entrance in entranceToUpdate)
 				{
@@ -256,11 +263,23 @@ namespace FFMQLib
 				}
 
 				tileScripts.AddScript(updatedLink.Teleporter.id, new ScriptBuilder(new List<string> {
+						$"07{(scriptAddress % 0x100):X2}{(scriptAddress / 0x100):X2}1400",
+					}));
+
+				ScriptBuilder teleportScript = new(new List<string> {
 						"2F",
-						$"050D{(int)crestItem:X2}[03]",
+						$"050D{(int)crestItem:X2}[08]",
+						cancelInvisiblity ? "2BF2" : "",
+						enableInvisibility ? "2F" : "",
+						enablePyramidInvisibility ? "050C06[07]" : "",
+						enableVolcanoInvisibility ? "050C05[07]" : "",
+						enableInvisibility ? "23F2" : "",
 						$"2A1227{newTeleporter.id:X2}{newTeleporter.type:X2}FFFF",
 						"00",
-						}));
+					});
+
+				teleportScript.WriteAt(0x14, scriptAddress, rom);
+				scriptAddress += 0x20;
 
 				if (newTeleporter.type == 6)
 				{

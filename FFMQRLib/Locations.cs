@@ -332,6 +332,8 @@ namespace FFMQLib
 
 			Locations[(int)LocationIds.PazuzusTower].DirectionFlags[(int)NodeDirections.North] = 0xDC;
 			Locations[(int)LocationIds.SpencersPlace].DirectionFlags[(int)NodeDirections.South] = 0xDC;
+			Locations[(int)LocationIds.ShipDock].DirectionFlags[(int)NodeDirections.North] = 0x1A;
+			Locations[(int)LocationIds.MacsShip].DirectionFlags[(int)NodeDirections.South] = 0x1A;
 		}
 		public void DoomCastleShortcut()
 		{
@@ -393,7 +395,7 @@ namespace FFMQLib
 
 			var forestaLocations = validLocations.Where(x => AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 == SubRegions.Foresta).ToList();
 
-			List<LocationIds> placedLocations = new();
+			List<LocationIds> placedLocations = invalidLocations.ToList();
 
 			var loc1 = LocationIds.None;
 			var loc2 = LocationIds.None;
@@ -479,6 +481,11 @@ namespace FFMQLib
 
 			if (locationsToUpdate.Any())
 			{
+				if (locationsToUpdate.Count() > 57)
+				{
+					throw new Exception("Overworld Error: Too Many Locations");
+				}
+
 				List<LocationIds> newLocationsList = locationsToUpdate.Select(x => x.Item1).ToList();
 				
 				foreach (var location in locationsToUpdate)

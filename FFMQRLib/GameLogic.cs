@@ -545,7 +545,7 @@ namespace FFMQLib
 				{
 					if (link.TargetRoom == 0)
 					{
-						var owLink = Rooms.Find(x => x.Id == 0).Links.Find(l => l.TargetRoom == currentRoom);
+						var owLink = Rooms.Find(x => x.Id == 0).Links.Find(l => l.TargetRoom == currentRoom && l.Entrance != 469);
 						return AccessReferences.LocationsByEntrances2.Find(x => x.Item2 == owLink.Entrance).Item1;
 					}
 					else
