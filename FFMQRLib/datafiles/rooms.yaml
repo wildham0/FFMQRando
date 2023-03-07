@@ -983,6 +983,11 @@
   - name: "Wintry Squid Chest"
     object_id: 0x09
     type: "Chest"
+    access: ["Phanquid"]
+  - name: "Phanquid"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["Phanquid"]
     access: []
   - name: "Wintry Cave 12"
     object_id: 0x4D
@@ -1019,6 +1024,11 @@
   - name: "Crab Chest"
     object_id: 0x0A
     type: "Chest"
+    access: ["FreezerCrab"]
+  - name: "Freezer Crab"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["FreezerCrab"]
     access: []
   - name: "Fall Basin 01"
     object_id: 0x4F
@@ -1377,6 +1387,11 @@
   - name: "Ice Golem Chest"
     object_id: 0x0E
     type: "Chest"
+    access: ["IceGolem"]
+  - name: "Ice Golem"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["IceGolem"]
     access: []
   links:
   - target_room: 67
@@ -1701,12 +1716,17 @@
     access: ["Claw"]
 - name: Mine Exterior South East Platforms
   id: 87
-  game_objects: []
+  game_objects:
+  - name: "Jinn"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["Jinn"]
+    access: []
   links:
   - target_room: 91
     entrance: 180
     teleporter: [99, 0]
-    access: []
+    access: ["Jinn"]
   - target_room: 86
     access: []
   - target_room: 85
@@ -1842,6 +1862,11 @@
   - name: "Medusa Chest"
     object_id: 0x12
     type: "Chest"
+    access: ["Medusa"]
+  - name: "Medusa"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["Medusa"]
     access: []
   - name: "Volcano Top 02"
     object_id: 0x82
@@ -2303,7 +2328,7 @@
   - name: "Hydra Chest"
     object_id: 0x14
     type: "Chest"
-    access: []
+    access: ["DualheadHydra"]
   - name: "Dualhead Hydra"
     object_id: 0
     type: "Trigger"
@@ -2325,7 +2350,7 @@
   - target_room: 122
     entrance: 251
     teleporter: [138, 0]
-    access: []
+    access: ["DualheadHydra"]
 - name: Lava Dome Escape Corridor
   id: 122
   game_objects: []
@@ -2819,6 +2844,11 @@
   - name: "Dullahan Chest"
     object_id: 0x17
     type: "Chest"
+    access: ["DragonClaw", "Dullahan"]
+  - name: "Dullahan"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["Dullahan"]
     access: ["DragonClaw"]
   - name: "Mount Gale 01"
     object_id: 0xC3

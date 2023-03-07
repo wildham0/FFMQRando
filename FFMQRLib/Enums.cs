@@ -152,8 +152,15 @@ namespace FFMQLib
 		ShipSteeringWheel,
 
 		Minotaur,
+		FlamerusRex,
+		Phanquid,
+		FreezerCrab,
+		IceGolem,
+		Jinn,
+		Medusa,
 		DualheadHydra,
 		Gidrah,
+		Dullahan,
 		Pazuzu,
 		
 		ExitBook,

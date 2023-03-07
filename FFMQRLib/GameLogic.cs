@@ -412,12 +412,6 @@ namespace FFMQLib
 					}
 				}
 			}
-			/*
-						foreach (var gamedata in gameObjects)
-						{ 
-							Console.WriteLine(gamedata.Data.Name)
-						}
-			*/
 			
 			// Add Friendly logic extra requirements
 			if (flags.LogicOptions == LogicOptions.Friendly)
@@ -425,6 +419,27 @@ namespace FFMQLib
 				foreach (var location in AccessReferences.FriendlyAccessReqs)
 				{
 					GameObjects.Where(x => x.Location == location.Key).ToList().ForEach(x => x.AccessRequirements.ForEach(a => a.AddRange(location.Value)));
+				}
+			}
+
+			// Avoid Bosses early softlock
+			List<AccessReqs> windiaBosses = new() { AccessReqs.Gidrah, AccessReqs.Dullahan, AccessReqs.Pazuzu1F };
+			List<AccessReqs> otherBosses = new() { AccessReqs.FreezerCrab, AccessReqs.IceGolem, AccessReqs.Jinn, AccessReqs.Medusa, AccessReqs.DualheadHydra };
+			otherBosses.AddRange(windiaBosses);
+			List<AccessReqs> progressCoin = new() { AccessReqs.SandCoin, AccessReqs.RiverCoin };
+
+			foreach (var gameobject in GameObjects)
+			{
+				foreach (var requirements in gameobject.AccessRequirements)
+				{
+					if (requirements.Intersect(otherBosses).Any() && gameobject.Region == MapRegions.Foresta)
+					{
+						requirements.AddRange(progressCoin);
+					}
+					else if (requirements.Intersect(windiaBosses).Any())
+					{
+						requirements.AddRange(progressCoin);
+					}
 				}
 			}
 
