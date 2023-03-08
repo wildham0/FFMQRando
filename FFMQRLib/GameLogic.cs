@@ -246,7 +246,7 @@ namespace FFMQLib
 		public void CrawlRooms(Flags flags, Overworld overworld, Battlefields battlefields)
 		{
 
-			var locationsByEntrances = AccessReferences.LocationsByEntrances2;
+			var locationsByEntrances = AccessReferences.LocationsByEntrances;
 
 			//gameObjects = _rooms.SelectMany(x => x.GameObjects.Select(o => new GameObject(o)).ToList()).ToList();
 
@@ -526,7 +526,7 @@ namespace FFMQLib
 					if (origins.Count > 0)
 					{
 						var target = Rooms[0].Links.Find(x => x.TargetRoom == targetroom.Id).Entrance;
-						bridgeQueue.Add((locPriority.Item1, AccessReferences.LocationsByEntrances2.Find(x => x.Item2 == target).Item1, access));
+						bridgeQueue.Add((locPriority.Item1, AccessReferences.LocationsByEntrances.Find(x => x.Item2 == target).Item1, access));
 					}
 				}
 				else if (!origins.Contains(children.TargetRoom))
@@ -561,7 +561,7 @@ namespace FFMQLib
 					if (link.TargetRoom == 0)
 					{
 						var owLink = Rooms.Find(x => x.Id == 0).Links.Find(l => l.TargetRoom == currentRoom && l.Entrance != 469);
-						return AccessReferences.LocationsByEntrances2.Find(x => x.Item2 == owLink.Entrance).Item1;
+						return AccessReferences.LocationsByEntrances.Find(x => x.Item2 == owLink.Entrance).Item1;
 					}
 					else
 					{
@@ -577,6 +577,100 @@ namespace FFMQLib
 			}
 
 			return LocationIds.None;
+		}
+
+		public (LocationIds, int) CrawlForChestRating(LocationIds location)
+        {
+			var initialRoom = Rooms.Find(x => x.Id == 0).Links.Find(l => l.Entrance == AccessReferences.LocationsByEntrances.Find(x => x.Item1 == location).Item2).TargetRoom;
+
+			List<int> chestsList = new();
+			List<int> visitedRooms = new() { 0 };
+
+			ProcessRoomForChests(0, initialRoom, chestsList, visitedRooms);
+
+			int rating = 0;
+
+			foreach(var chest in chestsList)
+			{
+				if (chest == 0)
+				{
+					rating += 10;
+				}
+				else if (chest == 1)
+				{
+					rating += 3;
+				}
+				else if (chest > 1)
+				{
+					rating += 1;
+				}
+			}
+
+			return (location, rating);
+		}
+
+		public void ProcessRoomForChests(int reqcount, int roomid, List<int> chestlist, List<int> visitedrooms)
+		{
+			var currentRoom = Rooms.Find(x => x.Id == roomid);
+
+			visitedrooms.Add(roomid);
+
+			foreach (var chest in currentRoom.GameObjects.Where(o => o.Type == GameObjectType.Chest))
+			{
+				chestlist.Add(reqcount + chest.Access.Count);
+			}
+
+			foreach (var link in currentRoom.Links.Where(l => !visitedrooms.Contains(l.TargetRoom) && !l.Access.Intersect(AccessReferences.CrestsAccess).Any()))
+			{
+				ProcessRoomForChests(reqcount + link.Access.Count, link.TargetRoom, chestlist, visitedrooms);
+			}
+		}
+
+		public (LocationIds, int) CrawlForCompanionRating(LocationIds location)
+		{
+			var initialRoom = Rooms.Find(x => x.Id == 0).Links.Find(l => l.Entrance == AccessReferences.LocationsByEntrances.Find(x => x.Item1 == location).Item2).TargetRoom;
+
+			List<int> companionsList = new();
+			List<int> visitedRooms = new() { 0 };
+
+			ProcessRoomForCompanions(0, initialRoom, companionsList, visitedRooms);
+
+			int rating = 0;
+
+			foreach (var companion in companionsList)
+			{
+				if (companion == 0)
+				{
+					rating += 10;
+				}
+				else if (companion == 1)
+				{
+					rating += 3;
+				}
+				else if (companion > 1)
+				{
+					rating += 1;
+				}
+			}
+
+			return (location, rating);
+		}
+
+		public void ProcessRoomForCompanions(int reqcount, int roomid, List<int> companionlist, List<int> visitedrooms)
+		{
+			var currentRoom = Rooms.Find(x => x.Id == roomid);
+
+			visitedrooms.Add(roomid);
+
+			foreach (var companion in currentRoom.GameObjects.Where(o => o.Type == GameObjectType.Trigger && o.OnTrigger.Intersect(AccessReferences.FavoredCompanionsAccess).Any()))
+			{
+				companionlist.Add(reqcount + companion.Access.Count);
+			}
+
+			foreach (var link in currentRoom.Links.Where(l => !visitedrooms.Contains(l.TargetRoom) && !l.Access.Intersect(AccessReferences.CrestsAccess).Any()))
+			{
+				ProcessRoomForCompanions(reqcount + link.Access.Count, link.TargetRoom, companionlist, visitedrooms);
+			}
 		}
 	}
 }

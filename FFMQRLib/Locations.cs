@@ -362,24 +362,17 @@ namespace FFMQLib
 			
 			locationsToUpdate.AddRange(invalidLocations.Select(x => (x, x)).ToList());
 
-			List<LocationIds> companionLocations = new();
 
-			List<AccessReqs> companionToFind = new() { AccessReqs.Tristam, AccessReqs.Reuben1, AccessReqs.Phoebe1 };
-			foreach (var companion in companionToFind)
+			// Find best companion location
+			List<(LocationIds, int)> companionsRating = new();
+
+			foreach (var location in validLocations.Where(x => x > LocationIds.HillOfDestiny))
 			{
-				var locationfound = gamelogic.FindTriggerLocation(companion);
-				if (locationfound != LocationIds.None)
-				{
-					companionLocations.Add(locationfound);
-				}
+				companionsRating.Add(gamelogic.CrawlForCompanionRating(location));
 			}
-
-/*
-			List<LocationIds> companionLocations = new() { 
-				gamelogic.FindTriggerLocation(AccessReqs.Tristam),
-				gamelogic.FindTriggerLocation(AccessReqs.Reuben1),
-				gamelogic.FindTriggerLocation(AccessReqs.Phoebe1)
-			};*/
+			companionsRating.Shuffle(rng);
+			companionsRating = companionsRating.OrderByDescending(x => x.Item2).ToList();
+			var companionLocation = companionsRating.First().Item1;
 
 			LocationIds aquariaPlaza = gamelogic.FindTriggerLocation(AccessReqs.SummerAquaria);
 
@@ -387,11 +380,19 @@ namespace FFMQLib
 			{
 				throw new Exception("Overworld Shuffle: Can't find Aquaria");
 			}
-			//List<LocationIds> excludeFromStart = new() { LocationIds.IcePyramid, LocationIds.Mine, LocationIds.Volcano, LocationIds.LavaDome, LocationIds.AliveForest, LocationIds.MountGale, LocationIds.PazuzusTower };
 
 			List<LocationIds> excludeFromStart = new();
 
 			excludeFromStart.AddRange(Enum.GetValues<LocationIds>().ToList().GetRange(9, 12));
+
+			List<(LocationIds, int)> locationRating = new();
+
+			foreach (var location in validLocations.Where(x => x > LocationIds.HillOfDestiny))
+			{
+				locationRating.Add(gamelogic.CrawlForChestRating(location));
+			}
+
+			locationRating = locationRating.Where(x => x.Item1 != companionLocation).OrderByDescending(x => x.Item2).ToList();
 
 			var forestaLocations = validLocations.Where(x => AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 == SubRegions.Foresta).ToList();
 
@@ -401,7 +402,7 @@ namespace FFMQLib
 			var loc2 = LocationIds.None;
 
 			// Place guaranteed locations
-			List<LocationIds> earlyLocations = new() { rng.PickFrom(companionLocations), safeGoldBattlefield };
+			List<LocationIds> earlyLocations = new() { companionLocation, safeGoldBattlefield, locationRating[0].Item1, locationRating[1].Item1 };
 
 			while (earlyLocations.Any())
 			{
@@ -490,7 +491,7 @@ namespace FFMQLib
 				
 				foreach (var location in locationsToUpdate)
 				{
-					newLocations.Add(new Location(Locations[(int)location.Item1], Locations[(int)location.Item2]));
+					newLocations.Add(new Location(Locations.Find(x => x.LocationId == location.Item1), Locations.Find(x => x.LocationId == location.Item2)));
 				}
 
 				var oldLocationsToKeep = Locations.Where(x => !newLocationsList.Contains(x.LocationId)).ToList();

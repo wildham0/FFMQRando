@@ -2439,15 +2439,23 @@
     entrance: 278
     teleporter: [56, 1] # [49, 8] script restored if no map shuffling
     access: []
+  - target_room: 202
+    access: ["DragonClaw"]
+- name: Giant Tree 1F North Island
+  id: 202
+  game_objects: []
+  links:
   - target_room: 127
     entrance: 280
     teleporter: [144, 0]
+    access: []
+  - target_room: 125
     access: ["DragonClaw"]
 - name: Giant Tree 1F Central Island
   id: 126
   game_objects: []
   links:
-  - target_room: 125
+  - target_room: 202
     access: ["DragonClaw"]
 - name: Giant Tree 2F Main Lobby
   id: 127
@@ -2458,7 +2466,7 @@
     access: []
   links:
   - target_room: 126
-    access: []
+    access: ["DragonClaw"]
   - target_room: 125
     entrance: 281
     teleporter: [145, 0]

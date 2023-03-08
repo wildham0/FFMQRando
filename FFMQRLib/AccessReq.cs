@@ -214,43 +214,19 @@ namespace FFMQLib
 			{ Items.MegaGrenade, new List<AccessReqs> { AccessReqs.Bomb, AccessReqs.MegaGrenade } },
 			{ Items.ExitBook, new List<AccessReqs> { AccessReqs.ExitBook } },
 		};
-		public static List<(LocationIds, int)> LocationsByEntrances = new()
+		public static List<AccessReqs> CrestsAccess = new()
 		{
-			(LocationIds.LevelForest, 28),
-			(LocationIds.Foresta, 38),
-			(LocationIds.SandTemple, 54),
-			(LocationIds.BoneDungeon, 55),
-			(LocationIds.FocusTowerForesta, 3),
-			(LocationIds.FocusTowerAquaria, 16),
-			(LocationIds.LibraTemple, 75),
-			(LocationIds.LifeTemple, 107),
-			(LocationIds.Aquaria, 77),
-			(LocationIds.WintryCave, 99),
-			(LocationIds.FallsBasin, 111),
-			(LocationIds.IcePyramid, 114),
-			(LocationIds.SpencersPlace, 151),
-			(LocationIds.WintryTemple, 157),
-			(LocationIds.FocusTowerFrozen, 24),
-			(LocationIds.FocusTowerFireburg, 22),
-			(LocationIds.Fireburg, 159),
-			(LocationIds.SealedTemple, 190),
-			(LocationIds.Mine, 179),
-			(LocationIds.Volcano, 192),
-			(LocationIds.LavaDome, 209),
-			(LocationIds.FocusTowerWindia, 9),
-			(LocationIds.RopeBridge, 255),
-			(LocationIds.AliveForest, 272),
-			(LocationIds.KaidgeTemple, 307),
-			(LocationIds.WindholeTemple, 309),
-			(LocationIds.MountGale, 310),
-			(LocationIds.Windia, 312),
-			(LocationIds.PazuzusTower, 341),
-			(LocationIds.LightTemple, 395),
-			(LocationIds.ShipDock, 399),
-			(LocationIds.MacsShip, 400),
-			(LocationIds.DoomCastle, 1),
+			AccessReqs.LibraCrest,
+			AccessReqs.GeminiCrest,
+			AccessReqs.MobiusCrest,
 		};
-		public static List<(LocationIds, int)> LocationsByEntrances2 = new()
+		public static List<AccessReqs> FavoredCompanionsAccess = new()
+		{
+			AccessReqs.Tristam,
+			AccessReqs.Phoebe1,
+			AccessReqs.Reuben1,
+		};
+		public static List<(LocationIds, int)> LocationsByEntrances = new()
 		{
 			(LocationIds.LevelForest, 445),
 			(LocationIds.Foresta, 446),

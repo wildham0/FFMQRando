@@ -37,6 +37,7 @@ namespace FFMQLib
 		public bool ForceLinkOrigin { get; set; }
 		public int ValidSiblings{ get; set; }
 		public int Room { get; set; }
+		public List<int> ForbiddenDestinations { get; set; }
 		public RoomLink Current { get; set; }
 		public RoomLink Origins { get; set; }
 
@@ -50,6 +51,7 @@ namespace FFMQLib
 			ForceLinkOrigin = false;
 			ForceDeadEnd = false;
 			ValidSiblings = 0;
+			ForbiddenDestinations = new();
 		}
 
 		public void UpdateCurrent(RoomLink link)
@@ -335,6 +337,17 @@ namespace FFMQLib
 			var linkSet = entrancesPairs.Select(e => new FloorLink(flatLinks.Find(l => l.l.Entrance == e[0]).Id, flatLinks.Find(l => l.l.Entrance == e[0]).l, flatLinks.Find(l => l.l.Entrance == e[1]).l)).ToList();
 			linkSet.AddRange(entrancesPairs.Select(e => new FloorLink(flatLinks.Find(l => l.l.Entrance == e[1]).Id, flatLinks.Find(l => l.l.Entrance == e[1]).l, flatLinks.Find(l => l.l.Entrance == e[0]).l)).ToList());
 
+			// Forbidden Destinations
+			var roomstrigger = Rooms.SelectMany(r => r.GameObjects.Where(o => o.Type == GameObjectType.Trigger).Select(o => (r.Id, o.OnTrigger)).ToList()).ToList();
+			var roomsReq = Rooms.SelectMany(r => r.Links.Where(l => l.Access.Any()).Select(l => (r.Id, l)).ToList()).ToList();
+			List<(int entrance, int room)> forbiddenDestinations = new();
+			foreach (var trigger in roomstrigger)
+			{
+				var affectedRooms = roomsReq.Where(x => x.l.Access.Intersect(trigger.OnTrigger).Any() && x.Id != trigger.Id && x.l.Entrance != -1).ToList();
+				forbiddenDestinations.AddRange(affectedRooms.Select(x => (x.l.Entrance, trigger.Id)).ToList());
+			}
+			
+
 			if (!includeTemplesTowns)
 			{
 				linkSet = linkSet.Where(x => !shufflingData.TownsCaves.Contains(x.Current.Entrance)).ToList();
@@ -377,6 +390,8 @@ namespace FFMQLib
 			linkSet.ForEach(x => x.ForceDeadEnd = shufflingData.ForcedDeadends.Contains(x.Current.Entrance));
 			linkSet.ForEach(x => x.ForceLinkOrigin = shufflingData.ForcedLinks.Select(x => x.Origin).ToList().Contains(x.Current.Entrance));
 			linkSet.ForEach(x => x.ForceLinkDestination = shufflingData.ForcedLinks.Select(x => x.Destination).ToList().Contains(x.Current.Entrance));
+			forbiddenDestinations.ForEach(x => linkSet.Find(l => l.Current.Entrance == x.entrance).ForbiddenDestinations = new() { x.room });
+
 			foreach (var link in linkSet.Where(x => x.ForceLinkOrigin).ToList())
             {
 				link.ValidSiblings = shufflingData.ForcedLinks.Find(x => x.Origin == link.Current.Entrance).Destination;
@@ -384,7 +399,7 @@ namespace FFMQLib
 
 			List<AccessReqs> crestAccess = new() { AccessReqs.LibraCrest, AccessReqs.GeminiCrest, AccessReqs.MobiusCrest };
 			var crestRooms = Rooms.Where(x => x.Links.Where(l => l.Access.Intersect(crestAccess).Any()).Any()).Select(x => x.Id).ToList();
-			var macShipBarredRooms = crestRooms.Append(157);
+			var macShipBarredRooms = crestRooms.Append(157).Concat(forbiddenDestinations.Select(x => x.room)).ToList();
 			int macShipDeck = 187;
 
 			var seedRooms = Rooms.Find(x => x.Id == 0).Links.Select(l => l.TargetRoom).Except(new List<int> { 125 }).ToList();
@@ -453,25 +468,13 @@ namespace FFMQLib
 
 				var originLinks = receivingRoom.Links.Where(x => !x.ForceLinkDestination).ToList();
 				var originLink = rng.PickFrom(originLinks);
-				//Console.WriteLine("Origin Link: " + originLink.Current.Entrance);
-
-				List<BigRoom> givingRooms = progressBigRooms;
-
-				if (originLink.ForceLinkOrigin)
-				{
-					givingRooms = givingRooms.Where(x => !x.Links.Where(l => l.ForceLinkDestination).Any()).ToList();
-				}
-
-				if (originLink.ForceDeadEnd)
-				{
-					givingRooms = givingRooms.Where(x => !x.Rooms.Intersect(crestRooms).Any() && (x.Links.Count % 2 == 0)).ToList();
-				}
-
-				// Mac Ship Failsafe
-				if (receivingRoom.Rooms.Contains(macShipDeck))
-				{
-					givingRooms = progressBigRooms.Where(x => !x.Rooms.Intersect(macShipBarredRooms).Any()).ToList();
-				}
+				
+				List<BigRoom> givingRooms = progressBigRooms.Where(x => 
+					!x.Rooms.Intersect(originLink.ForbiddenDestinations).Any() &&
+					(originLink.ForceLinkOrigin ? !x.Links.Where(l => l.ForceLinkDestination).Any() : true) &&
+					(originLink.ForceDeadEnd ? (!x.Rooms.Intersect(crestRooms).Any() && (x.Links.Count % 2 == 0)) : true) &&
+					(receivingRoom.Rooms.Contains(macShipDeck) ? !x.Rooms.Intersect(macShipBarredRooms).Any() : true)
+				).ToList();
 
 				if (!givingRooms.Any())
 				{
@@ -512,6 +515,9 @@ namespace FFMQLib
 					validNewHeads.ForEach(x => x.ForceDeadEnd = true);
 				}
 
+				var newLinkHeads = givingRoom.Links;
+				newLinkHeads.ForEach(x => x.ForbiddenDestinations.AddRange(originLink.ForbiddenDestinations));
+
 				receivingRoom.Merge(givingRoom);
 			}
 
@@ -545,43 +551,48 @@ namespace FFMQLib
 			{
 				var deadendLinks = room.Links.Where(x => x.ForceDeadEnd).ToList();
 
-				foreach (var link in deadendLinks)
+				while (deadendLinks.Any())
 				{
-					var validDeadEnds = deadendBigRooms.Where(x => !x.Rooms.Intersect(crestRooms).Any()).ToList();
+					var currentLink = deadendLinks.First();
 
-					// MacShip protect
-					if (room.Rooms.Contains(macShipDeck))
+					List<BigRoom> givingRooms = deadendBigRooms.Where(x =>
+						!x.Rooms.Intersect(crestRooms).Any() &&
+						!x.Rooms.Intersect(currentLink.ForbiddenDestinations).Any() &&
+						(room.Rooms.Contains(macShipDeck) ? !x.Rooms.Intersect(macShipBarredRooms).Any() : true)
+					).ToList();
+
+					if (!givingRooms.Any())
 					{
-						validDeadEnds = deadendBigRooms.Where(x => !x.Rooms.Intersect(macShipBarredRooms).Any()).ToList();
+						continue;
 					}
 
-					var connectRoom = rng.PickFrom(validDeadEnds);
-					deadendBigRooms.Remove(connectRoom);
-					var seedLink = rng.PickFrom(room.Links);
-					room.Links.Remove(seedLink);
-					var addonLink = rng.TakeFrom(connectRoom.Links);
-					ConnectLink(seedLink, addonLink);
+					room.Links.Remove(currentLink);
+					deadendLinks.Remove(currentLink);
 
+					var connectRoom = rng.PickFrom(givingRooms);
+					var addonLink = rng.TakeFrom(connectRoom.Links);
+					deadendBigRooms.Remove(connectRoom);
+
+					ConnectLink(currentLink, addonLink);
 					room.Merge(connectRoom);
 				}
-				
+
 				if ((room.Links.Count % 2) == 1)
 				{
-					var validDeadEnds = deadendBigRooms;
-
-					// MacShip protect
-					if (room.Rooms.Contains(macShipDeck))
-					{
-						validDeadEnds = deadendBigRooms.Where(x => !x.Rooms.Intersect(macShipBarredRooms).Any()).ToList();
-					}
-
-					var connectRoom = rng.PickFrom(validDeadEnds);
-					deadendBigRooms.Remove(connectRoom);
 					var seedLink = rng.PickFrom(room.Links);
-					room.Links.Remove(seedLink);
-					var addonLink = rng.TakeFrom(connectRoom.Links);
-					ConnectLink(seedLink, addonLink);
 
+					List<BigRoom> givingRooms = deadendBigRooms.Where(x =>
+						!x.Rooms.Intersect(seedLink.ForbiddenDestinations).Any() &&
+						room.Rooms.Contains(macShipDeck) ? !x.Rooms.Intersect(macShipBarredRooms).Any() : true
+					).ToList();
+
+					var connectRoom = rng.PickFrom(givingRooms);
+					var addonLink = rng.TakeFrom(connectRoom.Links);
+
+					deadendBigRooms.Remove(connectRoom);
+					room.Links.Remove(seedLink);
+					
+					ConnectLink(seedLink, addonLink);
 					room.Merge(connectRoom);
 				}
 			}
@@ -597,27 +608,38 @@ namespace FFMQLib
 					new List<FloorLink>() { new FloorLink(500, targetLink, originLink) }));
 
 				Rooms.Add(new Room("Dummy Room", 500, 0x11, new List<GameObjectData>() { }, new List<RoomLink> { }));
-
-				//throw new Exception("Floor Shuffle: Deadends Count Error\n" + GenerateDumpFile());
-				// shouldn't happen anymore?
 			}
 
+			var macshipexcepttioncount = 0;
 			while (deadendBigRooms.Any())
 			{
-				var unfilledBigRooms = seedBigRooms.Where(x => x.Links.Count > 0).ToList();
+				deadendBigRooms.Shuffle(rng);
+				var deadends = new List<BigRoom>() { deadendBigRooms[0], deadendBigRooms[1] };
 
-				var deadends = new List<BigRoom>() { rng.TakeFrom(deadendBigRooms), rng.TakeFrom(deadendBigRooms) };
-				
-				if (deadends[0].Rooms.Intersect(macShipBarredRooms).Any() || deadends[1].Rooms.Intersect(macShipBarredRooms).Any())
+				//var unfilledBigRooms = seedBigRooms.Where(x => x.Links.Count > 0).ToList();
+
+				var unfilledBigRooms = seedBigRooms.Where(x => 
+					x.Links.Count > 0 &&
+					!x.Links.SelectMany(l => l.ForbiddenDestinations).Intersect(deadends.SelectMany(d => d.Rooms)).Any() &&
+					!x.Links.SelectMany(l => l.ForbiddenDestinations).Intersect(deadends.SelectMany(d => d.Rooms)).Any() &&
+					(macShipBarredRooms.Intersect(deadends.SelectMany(d => d.Rooms)).Any() ? !x.Rooms.Contains(macShipDeck) : true)
+					).ToList();
+
+				if (!unfilledBigRooms.Any())
 				{
-					unfilledBigRooms = unfilledBigRooms.Where(x => !x.Rooms.Contains(macShipDeck)).ToList();
-					if (!unfilledBigRooms.Any())
+					macshipexcepttioncount++;
+					if (macshipexcepttioncount > 50)
 					{
 						throw new Exception("Floor Shuffle: Mac Ship Crest Error\n" + GenerateDumpFile());
 					}
+
+					continue;
 				}
 
 				var pickedRoom = rng.PickFrom(unfilledBigRooms);
+
+				deadendBigRooms.Remove(deadends[0]);
+				deadendBigRooms.Remove(deadends[1]);
 
 				foreach (var connectRoom in deadends)
 				{
