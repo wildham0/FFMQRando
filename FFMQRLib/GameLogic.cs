@@ -252,7 +252,7 @@ namespace FFMQLib
 			bridgeQueue = new();
 			locationQueue = new();
 
-			List<(int, int)> seedRooms = Rooms.Find(x => x.Id == 0).Links.Select(x => (x.Entrance, x.TargetRoom)).ToList();
+			List<(int, int)> seedRooms = Rooms.Find(x => x.Id == 0).Links.Where(x => x.Entrance != 469).Select(x => (x.Entrance, x.TargetRoom)).ToList();
 
 			foreach (var room in seedRooms)
 			{
