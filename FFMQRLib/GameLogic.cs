@@ -248,8 +248,6 @@ namespace FFMQLib
 
 			var locationsByEntrances = AccessReferences.LocationsByEntrances;
 
-			//gameObjects = _rooms.SelectMany(x => x.GameObjects.Select(o => new GameObject(o)).ToList()).ToList();
-
 			accessQueue = new();
 			bridgeQueue = new();
 			locationQueue = new();
@@ -262,21 +260,10 @@ namespace FFMQLib
 				ProcessRoom(room.Item2, new List<int>(), new List<AccessReqs>(), (roomLocation, 0));
 			}
 			
-			
-			/*
-			List<int> seedRooms = Rooms.Where(x => x.Links.Where(l => l.TargetRoom == 0).Any()).Select(x => x.Id).ToList();
-
-			foreach (var room in seedRooms)
-			{
-				var location = locationsByEntrances.Find(x => x.Item2 == Rooms.Find(x => x.Id == room).Links.Find(l => l.TargetRoom == 0).Entrance).Item1;
-				ProcessRoom(room, new List<int>(), new List<AccessReqs>(), (location, 0));
-			}*/
-
 			var finalQueue = accessQueue.Select(x => (x.Item1, x.Item2, x.Item3.Distinct().ToList())).Distinct().ToList();
 
 			GameObjects = new();
 			List<(SubRegions, List<AccessReqs>)> subRegionsAccess = new();
-
 
 			foreach (var bridge in bridgeQueue)
 			{
@@ -306,38 +293,34 @@ namespace FFMQLib
 				subRegionsAccess.Add((SubRegions.AquariaFrozenField, sealedTempleExit));
 			}
 
-			List<int> subRegionAccessToRemove = new();
-
 			List<SubRegions> subRegions = Enum.GetValues<SubRegions>().ToList();
-			List<(SubRegions, List<AccessReqs>)> sbgRegionAccessKeep = new();
+			List<(SubRegions, List<AccessReqs>)> accessToKeep = new();
 
 			foreach (var subregion in subRegions)
 			{
-				//var targetAccesses = subRegionsAccess.Where(x => x.Item1 == subregion).ToList();
+				var accessToCompare = subRegionsAccess.Where(x => x.Item1 == subregion).OrderBy(x => x.Item2.Count).ToList();
 
-				for (int i = 0; i < subRegionsAccess.Count; i++)
+				int currentAccess = 0;
+				List<(SubRegions, List<AccessReqs>)> accessToRemove = new();
+
+				while (accessToCompare.Any())
 				{
-					if (subRegionAccessToRemove.Contains(i))
+					for (int i = 1; i < accessToCompare.Count; i++)
 					{
-						continue;
-					}
-
-					for (int j = 0; j < subRegionsAccess.Count; j++)
-					{
-						if (i == j || subRegionsAccess[i].Item1 != subRegionsAccess[j].Item1)
+						if (!accessToCompare[0].Item2.Except(accessToCompare[i].Item2).Any())
 						{
-							continue;
-						}
-
-						if (!subRegionsAccess[i].Item2.Except(subRegionsAccess[j].Item2).Any())
-						{
-							subRegionAccessToRemove.Add(j);
+							accessToRemove.Add(accessToCompare[i]);
 						}
 					}
+
+					accessToKeep.Add(accessToCompare[0]);
+					accessToRemove.Add(accessToCompare[0]);
+					accessToCompare = accessToCompare.Except(accessToRemove).ToList();
+					currentAccess++;
 				}
 			}
-
-			subRegionsAccess = subRegionsAccess.Where((x, i) => !subRegionAccessToRemove.Contains(i)).ToList();
+		
+			subRegionsAccess = accessToKeep;
 
 			foreach (var room in Rooms)
 			{
@@ -351,7 +334,6 @@ namespace FFMQLib
 					{
 						var bflocation = overworld.Locations.Find(l => l.LocationId == battlefields.BattlefieldsWithItem[battlefieldCount]);
 
-						//var targetaccess = finalQueue.Where(x => x.Item1 == room.Id);
 						List<List<AccessReqs>> finalAccess = new();
 						var locReq = subRegionsAccess.Where(x => x.Item1 == overworld.Locations.Find(l => l.LocationId == bflocation.LocationId).SubRegion).Select(x => x.Item2).ToList();
 						foreach (var locAccess in locReq)
@@ -378,7 +360,6 @@ namespace FFMQLib
 
 					foreach (var gamedata in room.GameObjects)
 					{
-					
 						var targetaccess = finalQueue.Where(x => x.Item1 == room.Id).ToList();
 						List<List<AccessReqs>> finalAccess = new();
 						foreach (var access in targetaccess)
@@ -395,17 +376,8 @@ namespace FFMQLib
 							}
 							else
 							{
-
-								var test2 = 0;
-
+								throw new Exception("Game Logic: Unaccessible Location\n\n" + "Room: " + room.Id + "\n\n" + GenerateDumpFile());
 							}
-
-							/*
-							var locReq = subRegionsAccess.Where(x => x.Item1 == overworld.Locations.Find(l => l.LocationId == access.Item2).SubRegion).Select(x => x.Item2).ToList();
-							foreach (var locAccess in locReq)
-							{
-								finalAccess.Add(locAccess.Concat(access.Item3).ToList());
-							}*/
 						}
 
 						GameObjects.Add(new GameObject(gamedata, targetLocation, finalAccess));
@@ -414,7 +386,7 @@ namespace FFMQLib
 			}
 			
 			// Add Friendly logic extra requirements
-			if (flags.LogicOptions == LogicOptions.Friendly)
+			if (flags.LogicOptions == LogicOptions.Friendly && (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Overworld))
 			{
 				foreach (var location in AccessReferences.FriendlyAccessReqs)
 				{
