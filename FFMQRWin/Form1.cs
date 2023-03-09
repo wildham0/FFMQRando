@@ -86,6 +86,8 @@ namespace FFMQRWin
                         textBox1.Text = openFileDialog.FileName;
 
                         label5.Text = "ROM file loaded successfully.";
+
+                        newRom.BackupOriginalData();
                     }
                     else
                     {
@@ -116,6 +118,8 @@ namespace FFMQRWin
 
         private void button4_Click(object sender, EventArgs e)
         {
+            newRom.RestoreOriginalData();
+            
             newRom.Randomize(seed, flags, preferences);
 
             var outputFile = File.Create(directoryPath + "FFMQR_" + seed.ToHex() + ".sfc");

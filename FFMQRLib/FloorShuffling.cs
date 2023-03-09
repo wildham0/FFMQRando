@@ -29,28 +29,28 @@ namespace FFMQLib
 			Crest = Items.LibraCrest;
 		}
 	}
-	public class FloorLink
+	public class LogicLink
 	{
-		public bool OneWay { get; set; }
+		public bool EntranceOnly { get; set; }
 		public bool ForceDeadEnd { get; set; }
 		public bool ForceLinkDestination { get; set; }
 		public bool ForceLinkOrigin { get; set; }
-		public int ValidSiblings{ get; set; }
+		public int ForcedDestination { get; set; }
 		public int Room { get; set; }
 		public List<int> ForbiddenDestinations { get; set; }
 		public RoomLink Current { get; set; }
-		public RoomLink Origins { get; set; }
+		public RoomLink Origin { get; set; }
 
-		public FloorLink(int room, RoomLink link, RoomLink origins)
+		public LogicLink(int room, RoomLink link, RoomLink origin)
 		{
 			Room = room;
 			Current = link;
-			Origins = origins;
-			OneWay = false;
+			Origin = origin;
+			EntranceOnly = false;
 			ForceLinkDestination = false;
 			ForceLinkOrigin = false;
 			ForceDeadEnd = false;
-			ValidSiblings = 0;
+			ForcedDestination = 0;
 			ForbiddenDestinations = new();
 		}
 
@@ -61,26 +61,49 @@ namespace FFMQLib
 			Current.Teleporter = link.Teleporter;
 		}
 	}
-	public class BigRoom
+	public class ClusterRoom
 	{ 
 		public List<int> Rooms { get; set; }
-		public List<FloorLink> Links { get; set; }
+		public List<LogicLink> Links { get; set; }
 
-		public BigRoom(List<int> rooms)
+		public ClusterRoom(List<int> rooms)
 		{
 			Rooms = rooms;
 			Links = new();
 		}
-		public BigRoom(List<int> rooms, List<FloorLink> links)
+		public ClusterRoom(List<int> rooms, List<LogicLink> links)
 		{
 			Rooms = rooms;
 			Links = links.ToList();
 		}
 
-		public void Merge(BigRoom room)
+		public void Merge(ClusterRoom room)
 		{
 			Rooms = Rooms.Concat(room.Rooms).ToList();
 			Links = Links.Concat(room.Links).ToList();
+		}
+		public void UpdateLinks(LogicLink originLink, MT19337 rng)
+		{
+			if (originLink.ForceLinkOrigin)
+			{
+				var validOrigins = Links.Where(x => !x.ForceLinkOrigin && !x.ForceLinkDestination).ToList();
+				if (!validOrigins.Any())
+				{
+					throw new Exception("Floor Shuffle: One way Orientation Error\n\n" + "Origin Link: " + originLink.Current.Entrance);
+				}
+
+				var newOrigin = rng.PickFrom(validOrigins);
+				newOrigin.ForceLinkOrigin = true;
+				newOrigin.ForcedDestination = originLink.ForcedDestination;
+			}
+
+			if (originLink.ForceDeadEnd)
+			{
+				var validDeadEnds = Links.Where(x => !x.ForceLinkOrigin && !x.ForceLinkDestination).ToList();
+				validDeadEnds.ForEach(x => x.ForceDeadEnd = true);
+			}
+
+			Links.ForEach(x => x.ForbiddenDestinations.AddRange(originLink.ForbiddenDestinations));
 		}
 	}
 	public class ForcedLink
@@ -224,8 +247,6 @@ namespace FFMQLib
 				Items.MobiusCrest,
 			};
 
-			List<AccessReqs> crestAcess = new() { AccessReqs.LibraCrest, AccessReqs.GeminiCrest, AccessReqs.MobiusCrest };
-
 			crestList.Shuffle(rng);
 			crestList = crestList.OrderByDescending(x => x.Priority).ToList();
 
@@ -303,8 +324,8 @@ namespace FFMQLib
 				crest1room.Links.Remove(crest1link);
 				crest2room.Links.Remove(crest2link);
 
-				newLinkToProcess.Add((crest1room.Id, new RoomLink(crest2room.Id, crest1link.Entrance, crest2.Origins, crest1link.Access.Except(crestAcess).Concat(AccessReferences.ItemAccessReq[crest1.Crest]).ToList())));
-				newLinkToProcess.Add((crest2room.Id, new RoomLink(crest1room.Id, crest2link.Entrance, crest1.Origins, crest2link.Access.Except(crestAcess).Concat(AccessReferences.ItemAccessReq[crest2.Crest]).ToList())));
+				newLinkToProcess.Add((crest1room.Id, new RoomLink(crest2room.Id, crest1link.Entrance, crest2.Origins, crest1link.Access.Except(AccessReferences.CrestsAccess).Concat(AccessReferences.ItemAccessReq[crest1.Crest]).ToList())));
+				newLinkToProcess.Add((crest2room.Id, new RoomLink(crest1room.Id, crest2link.Entrance, crest1.Origins, crest2link.Access.Except(AccessReferences.CrestsAccess).Concat(AccessReferences.ItemAccessReq[crest2.Crest]).ToList())));
 
 				CrestRoomLinks.Add((crest1link.Teleporter, crest2room.Id));
 				CrestRoomLinks.Add((crest2link.Teleporter, crest1room.Id));
@@ -333,32 +354,45 @@ namespace FFMQLib
 			shufflingData.ReadData(rng);
 
 			// Get links that can be shuffled
-			var flatLinks = Rooms.SelectMany(r => r.Links.Where(l => l.Entrance >= 0).Select(l => (r.Id, l)).ToList()).ToList();
-			var linkSet = entrancesPairs.Select(e => new FloorLink(flatLinks.Find(l => l.l.Entrance == e[0]).Id, flatLinks.Find(l => l.l.Entrance == e[0]).l, flatLinks.Find(l => l.l.Entrance == e[1]).l)).ToList();
-			linkSet.AddRange(entrancesPairs.Select(e => new FloorLink(flatLinks.Find(l => l.l.Entrance == e[1]).Id, flatLinks.Find(l => l.l.Entrance == e[1]).l, flatLinks.Find(l => l.l.Entrance == e[0]).l)).ToList());
+			var roomLinks = Rooms.SelectMany(r => r.Links.Where(l => l.Entrance >= 0).Select(l => (r.Id, l)).ToList()).ToList();
+			var logicLinks = entrancesPairs.Select(e => new LogicLink(roomLinks.Find(l => l.l.Entrance == e[0]).Id, roomLinks.Find(l => l.l.Entrance == e[0]).l, roomLinks.Find(l => l.l.Entrance == e[1]).l)).ToList();
+			logicLinks.AddRange(entrancesPairs.Select(e => new LogicLink(roomLinks.Find(l => l.l.Entrance == e[1]).Id, roomLinks.Find(l => l.l.Entrance == e[1]).l, roomLinks.Find(l => l.l.Entrance == e[0]).l)).ToList());
 
-			// Forbidden Destinations
-			var roomstrigger = Rooms.SelectMany(r => r.GameObjects.Where(o => o.Type == GameObjectType.Trigger).Select(o => (r.Id, o.OnTrigger)).ToList()).ToList();
+			// Find rooms that have requirements in other rooms to populate forbidden destinations
+			var roomTriggers = Rooms.SelectMany(r => r.GameObjects.Where(o => o.Type == GameObjectType.Trigger).Select(o => (r.Id, o.OnTrigger)).ToList()).ToList();
 			var roomsReq = Rooms.SelectMany(r => r.Links.Where(l => l.Access.Any()).Select(l => (r.Id, l)).ToList()).ToList();
+			
 			List<(int entrance, int room)> forbiddenDestinations = new();
-			foreach (var trigger in roomstrigger)
+			
+			foreach (var trigger in roomTriggers)
 			{
 				var affectedRooms = roomsReq.Where(x => x.l.Access.Intersect(trigger.OnTrigger).Any() && x.Id != trigger.Id && x.l.Entrance != -1).ToList();
 				forbiddenDestinations.AddRange(affectedRooms.Select(x => (x.l.Entrance, trigger.Id)).ToList());
 			}
 			
-
+			// Check if temples and towns need to be added
 			if (!includeTemplesTowns)
 			{
-				linkSet = linkSet.Where(x => !shufflingData.TownsCaves.Contains(x.Current.Entrance)).ToList();
+				logicLinks = logicLinks.Where(x => !shufflingData.TownsCaves.Contains(x.Current.Entrance)).ToList();
 			}
 
-			// Create list of big rooms
-			List<BigRoom> bigRooms = new();
+			// Update Logic Links with the shuffling data
+			logicLinks.ForEach(x => x.EntranceOnly = shufflingData.OneWays.Contains(x.Current.Entrance));
+			logicLinks.ForEach(x => x.ForceDeadEnd = shufflingData.ForcedDeadends.Contains(x.Current.Entrance));
+			logicLinks.ForEach(x => x.ForceLinkOrigin = shufflingData.ForcedLinks.Select(x => x.Origin).ToList().Contains(x.Current.Entrance));
+			logicLinks.ForEach(x => x.ForceLinkDestination = shufflingData.ForcedLinks.Select(x => x.Destination).ToList().Contains(x.Current.Entrance));
+			forbiddenDestinations.ForEach(x => logicLinks.Find(l => l.Current.Entrance == x.entrance).ForbiddenDestinations = new() { x.room });
+
+			foreach (var link in logicLinks.Where(x => x.ForceLinkOrigin).ToList())
+			{
+				link.ForcedDestination = shufflingData.ForcedLinks.Find(x => x.Origin == link.Current.Entrance).Destination;
+			}
+
+			// Create the initial list of cluster rooms which will be the basis for how everything is connected logically
+			List<ClusterRoom> clusterRooms = new();
 
 			int maxId = 0;
 
-			// Get rooms
 			foreach (var room in Rooms)
 			{
 				var internalLinks = room.Links.Where(x => x.Entrance < 0 || shufflingData.FixedEntrances.Contains(x.Entrance)).Select(x => x.TargetRoom).Append(room.Id).ToList();
@@ -368,265 +402,222 @@ namespace FFMQLib
 					maxId = (link > maxId) ? link : maxId;
 				}
 
-				bigRooms.Add(new BigRoom(internalLinks, linkSet.Where(l => l.Room == room.Id).ToList()));
+				clusterRooms.Add(new ClusterRoom(internalLinks, logicLinks.Where(l => l.Room == room.Id).ToList()));
 			}
 
 			for (int i = 0; i <= maxId; i++)
 			{ 
-				var commonBigRooms = bigRooms.Where(x => x.Rooms.Contains(i)).ToList();
+				var commonClusterRooms = clusterRooms.Where(x => x.Rooms.Contains(i)).ToList();
 
-				if (commonBigRooms.Count > 1)
+				if (commonClusterRooms.Count > 1)
 				{
-					var bigRoomsToMerge = commonBigRooms.GetRange(1, commonBigRooms.Count - 1);
+					var bigRoomsToMerge = commonClusterRooms.GetRange(1, commonClusterRooms.Count - 1);
 					foreach (var bigroom in bigRoomsToMerge)
 					{
-						bigRooms.Remove(bigroom);
-						commonBigRooms[0].Merge(bigroom);
+						clusterRooms.Remove(bigroom);
+						commonClusterRooms[0].Merge(bigroom);
 					}
 				}
 			}
 
-			linkSet.ForEach(x => x.OneWay = shufflingData.OneWays.Contains(x.Current.Entrance));
-			linkSet.ForEach(x => x.ForceDeadEnd = shufflingData.ForcedDeadends.Contains(x.Current.Entrance));
-			linkSet.ForEach(x => x.ForceLinkOrigin = shufflingData.ForcedLinks.Select(x => x.Origin).ToList().Contains(x.Current.Entrance));
-			linkSet.ForEach(x => x.ForceLinkDestination = shufflingData.ForcedLinks.Select(x => x.Destination).ToList().Contains(x.Current.Entrance));
-			forbiddenDestinations.ForEach(x => linkSet.Find(l => l.Current.Entrance == x.entrance).ForbiddenDestinations = new() { x.room });
-
-			foreach (var link in linkSet.Where(x => x.ForceLinkOrigin).ToList())
-            {
-				link.ValidSiblings = shufflingData.ForcedLinks.Find(x => x.Origin == link.Current.Entrance).Destination;
-			}
-
-			List<AccessReqs> crestAccess = new() { AccessReqs.LibraCrest, AccessReqs.GeminiCrest, AccessReqs.MobiusCrest };
-			var crestRooms = Rooms.Where(x => x.Links.Where(l => l.Access.Intersect(crestAccess).Any()).Any()).Select(x => x.Id).ToList();
+			// Special restrictions
+			var crestRooms = Rooms.Where(x => x.Links.Where(l => l.Access.Intersect(AccessReferences.CrestsAccess).Any()).Any()).Select(x => x.Id).ToList();
 			var macShipBarredRooms = crestRooms.Append(157).Concat(forbiddenDestinations.Select(x => x.room)).ToList();
 			int macShipDeck = 187;
 
+			// Shuffle our core locations
 			var seedRooms = Rooms.Find(x => x.Id == 0).Links.Select(l => l.TargetRoom).Except(new List<int> { 125 }).ToList();
-			var seedBigRooms = bigRooms.Where(x => x.Rooms.Intersect(seedRooms).Any()).ToList();
-			var seedBigRoomsToShuffle = seedBigRooms.Where(x => x.Links.Where(l => l.Current.TargetRoom == 0).Any()).ToList();
-			var seedBigRoomsFixed = seedBigRooms.Except(seedBigRoomsToShuffle).ToList();
-			var seedBigRoomsToShuffleProgress = seedBigRoomsToShuffle.Where(x => x.Links.Count > 1).ToList();
-			var seedBigRoomsToShuffleDeadends = seedBigRoomsToShuffle.Where(x => x.Links.Count == 1).ToList();
+			var seedClusterRooms = clusterRooms.Where(x => x.Rooms.Intersect(seedRooms).Any()).ToList();
+			var seedClusterRoomsToShuffle = seedClusterRooms.Where(x => x.Links.Where(l => l.Current.TargetRoom == 0).Any()).ToList();
+			var seedClusterRoomsFixed = seedClusterRooms.Except(seedClusterRoomsToShuffle).ToList();
+			var seedClusterRoomsToShuffleProgress = seedClusterRoomsToShuffle.Where(x => x.Links.Count > 1).ToList();
+			var seedClusterRoomsToShuffleDeadends = seedClusterRoomsToShuffle.Where(x => x.Links.Count == 1).ToList();
 
 
-			var initialProgressBigRooms = bigRooms.Where(x => x.Links.Count > 1 && !x.Rooms.Intersect(seedRooms).Any() && !x.Rooms.Contains(0)).Concat(seedBigRoomsToShuffleProgress).ToList();
-			var initialDeadendBigRooms = bigRooms.Where(x => x.Links.Count == 1 && !x.Rooms.Intersect(seedRooms).Any() && !x.Rooms.Contains(0)).Concat(seedBigRoomsToShuffleDeadends).ToList();
+			var initialProgressClusterRooms = clusterRooms.Where(x => x.Links.Count > 1 && !x.Rooms.Intersect(seedRooms).Any() && !x.Rooms.Contains(0)).Concat(seedClusterRoomsToShuffleProgress).ToList();
+			var initialDeadendClusterRooms = clusterRooms.Where(x => x.Links.Count == 1 && !x.Rooms.Intersect(seedRooms).Any() && !x.Rooms.Contains(0)).Concat(seedClusterRoomsToShuffleDeadends).ToList();
 
 
-			initialProgressBigRooms.Shuffle(rng);
-			initialDeadendBigRooms.Shuffle(rng);
+			initialProgressClusterRooms.Shuffle(rng);
+			initialDeadendClusterRooms.Shuffle(rng);
 
-			List<BigRoom> newSeedBigRooms = new();
-			newSeedBigRooms.AddRange(initialProgressBigRooms.GetRange(0, seedBigRoomsToShuffleProgress.Count));
-			newSeedBigRooms.AddRange(initialDeadendBigRooms.GetRange(0, seedBigRoomsToShuffleDeadends.Count));
+			List<ClusterRoom> coreClusterRooms = new();
+			coreClusterRooms.AddRange(initialProgressClusterRooms.GetRange(0, seedClusterRoomsToShuffleProgress.Count));
+			coreClusterRooms.AddRange(initialDeadendClusterRooms.GetRange(0, seedClusterRoomsToShuffleDeadends.Count));
 
-			var newSeedBigRoomsToUpdate = newSeedBigRooms.Where(x => !x.Rooms.Intersect(seedRooms).Any()).ToList();
-			var validInitalSeedRoomsToSwitch = seedBigRoomsToShuffle.Except(newSeedBigRooms).ToList();
+			var validSeecClusterRoomsToSwitch = seedClusterRoomsToShuffle.Except(coreClusterRooms).ToList();
 
-			foreach (var room in newSeedBigRooms)
+			foreach (var room in coreClusterRooms)
 			{
-				BigRoom newSeedRoom;
-				FloorLink owLink;
-				FloorLink originRoomLink;
+				ClusterRoom coreClusterRoom;
+				LogicLink overworldLink;
+				LogicLink coreClusterRoomLink;
 
 				if (!room.Links.Where(l => l.Current.TargetRoom == 0).Any())
 				{
-					newSeedRoom = rng.TakeFrom(validInitalSeedRoomsToSwitch);
-					owLink = bigRooms.Find(x => x.Rooms.Contains(0)).Links.Find(x => x.Origins.Entrance == newSeedRoom.Links.Find(x => x.Current.TargetRoom == 0).Current.Entrance);
+					coreClusterRoom = rng.TakeFrom(validSeecClusterRoomsToSwitch);
+					overworldLink = clusterRooms.Find(x => x.Rooms.Contains(0)).Links.Find(x => x.Origin.Entrance == coreClusterRoom.Links.Find(x => x.Current.TargetRoom == 0).Current.Entrance);
 
-					var validLinks = room.Links.Where(x => !x.ForceDeadEnd && !x.OneWay && !x.ForceLinkOrigin && !x.ForceLinkDestination).ToList();
-					originRoomLink = rng.PickFrom(validLinks);
-					room.Links.Remove(originRoomLink);
+					var validLinks = room.Links.Where(x => !x.ForceDeadEnd && !x.EntranceOnly && !x.ForceLinkOrigin && !x.ForceLinkDestination).ToList();
+					coreClusterRoomLink = rng.PickFrom(validLinks);
+					room.Links.Remove(coreClusterRoomLink);
 				}
 				else
 				{
-					newSeedRoom = room;
-					owLink = bigRooms.Find(x => x.Rooms.Contains(0)).Links.Find(x => x.Origins.Entrance == newSeedRoom.Links.Find(x => x.Current.TargetRoom == 0).Current.Entrance);
+					coreClusterRoom = room;
+					overworldLink = clusterRooms.Find(x => x.Rooms.Contains(0)).Links.Find(x => x.Origin.Entrance == coreClusterRoom.Links.Find(x => x.Current.TargetRoom == 0).Current.Entrance);
 
-					originRoomLink = room.Links.Find(x => x.Current.TargetRoom == 0);
-					room.Links.Remove(originRoomLink);
+					coreClusterRoomLink = room.Links.Find(x => x.Current.TargetRoom == 0);
+					room.Links.Remove(coreClusterRoomLink);
 				}
 
 
-				ConnectLink(owLink, originRoomLink);
+				ConnectLink(overworldLink, coreClusterRoomLink);
 			}
 
-			seedBigRooms = seedBigRoomsFixed.Concat(newSeedBigRooms).ToList();
-			var seedBigRoomsIds = seedBigRooms.SelectMany(x => x.Rooms).Append(0).ToList();
-			var progressBigRooms = bigRooms.Where(x => x.Links.Count > 1 && !x.Rooms.Intersect(seedBigRoomsIds).Any()).ToList();
-			var deadendBigRooms = bigRooms.Where(x => x.Links.Count == 1 && !x.Rooms.Intersect(seedBigRoomsIds).Any()).ToList();
+			coreClusterRooms = coreClusterRooms.Concat(seedClusterRoomsFixed).ToList();
+			var coreClusterRoomsIds = coreClusterRooms.SelectMany(x => x.Rooms).Append(0).ToList();
+			var progressClusterRooms = clusterRooms.Where(x => x.Links.Count > 1 && !x.Rooms.Intersect(coreClusterRoomsIds).Any()).ToList();
+			var deadendClusterRooms = clusterRooms.Where(x => x.Links.Count == 1 && !x.Rooms.Intersect(coreClusterRoomsIds).Any()).ToList();
 
+			coreClusterRooms.Shuffle(rng);
+			coreClusterRooms = coreClusterRooms.Where(x => x.Links.Count > 0).ToList();
 
-			seedBigRooms.Shuffle(rng);
-			seedBigRooms = seedBigRooms.Where(x => x.Links.Count > 0).ToList();
-
-			// Distribute non deadends room; a big dungeon is 15-20 rooms
-			while (progressBigRooms.Any())
+			// Distribute non deadends room
+			while (progressClusterRooms.Any())
 			{
-				var receivingRoom = rng.PickFrom(seedBigRooms);
-
-				var originLinks = receivingRoom.Links.Where(x => !x.ForceLinkDestination).ToList();
+				var originRoom = rng.PickFrom(coreClusterRooms);
+				var originLinks = originRoom.Links.Where(x => !x.ForceLinkDestination).ToList();
 				var originLink = rng.PickFrom(originLinks);
 				
-				List<BigRoom> givingRooms = progressBigRooms.Where(x => 
+				List<ClusterRoom> destinationRooms = progressClusterRooms.Where(x => 
 					!x.Rooms.Intersect(originLink.ForbiddenDestinations).Any() &&
 					(originLink.ForceLinkOrigin ? !x.Links.Where(l => l.ForceLinkDestination).Any() : true) &&
 					(originLink.ForceDeadEnd ? (!x.Rooms.Intersect(crestRooms).Any() && (x.Links.Count % 2 == 0)) : true) &&
-					(receivingRoom.Rooms.Contains(macShipDeck) ? !x.Rooms.Intersect(macShipBarredRooms).Any() : true)
+					(originRoom.Rooms.Contains(macShipDeck) ? !x.Rooms.Intersect(macShipBarredRooms).Any() : true)
 				).ToList();
 
-				if (!givingRooms.Any())
+				if (!destinationRooms.Any())
 				{
 					continue;
 				}
 
-				receivingRoom.Links.Remove(originLink);
+				var destinationRoom = rng.PickFrom(destinationRooms);
+				progressClusterRooms.Remove(destinationRoom);
 
-				var givingRoom = rng.PickFrom(givingRooms);
-				progressBigRooms.Remove(givingRoom);
-				//Console.WriteLine("Giving Room: " + givingRoom.Rooms[0]);
-				var destinationLinks = givingRoom.Links.Where(x => !x.OneWay && !x.ForceDeadEnd && !x.ForceLinkOrigin && !x.ForceLinkDestination).ToList();
+				var destinationLinks = destinationRoom.Links.Where(x => !x.EntranceOnly && !x.ForceDeadEnd && !x.ForceLinkOrigin && !x.ForceLinkDestination).ToList();
 				var destinationLink = rng.PickFrom(destinationLinks);
-				//Console.WriteLine("Destination Link: " + destinationLink.Current.Entrance);
-				givingRoom.Links.Remove(destinationLink);
+
+				originRoom.Links.Remove(originLink);
+				destinationRoom.Links.Remove(destinationLink);
 
 				ConnectLink(originLink, destinationLink);
-
-				if (originLink.ForceLinkOrigin)
-				{
-					//Console.WriteLine("Is a forced");
-					var validNewHeads = givingRoom.Links.Where(x => !x.ForceLinkOrigin && !x.ForceLinkDestination).ToList();
-					if (!validNewHeads.Any())
-					{
-						throw new Exception("Floor Shuffle: One way Orientation Error\n\n" + "Origin Link: " + originLink.Current.Entrance + "\n\n" + GenerateDumpFile());
-					}
-
-					var newLinkHead = rng.PickFrom(validNewHeads);
-					//Console.WriteLine("LinkHead: " + newLinkHead.Current.Entrance);
-					newLinkHead.ForceLinkOrigin = true;
-					newLinkHead.ValidSiblings = originLink.ValidSiblings;
-				}
-
-				if (originLink.ForceDeadEnd)
-				{
-					//Console.WriteLine("Is a forced");
-					var validNewHeads = givingRoom.Links.Where(x => !x.ForceLinkOrigin && !x.ForceLinkDestination).ToList();
-					validNewHeads.ForEach(x => x.ForceDeadEnd = true);
-				}
-
-				var newLinkHeads = givingRoom.Links;
-				newLinkHeads.ForEach(x => x.ForbiddenDestinations.AddRange(originLink.ForbiddenDestinations));
-
-				receivingRoom.Merge(givingRoom);
+				destinationRoom.UpdateLinks(originLink, rng);
+				originRoom.Merge(destinationRoom);
 			}
 
-			// Connect forced Links
-			foreach (var room in seedBigRooms)
+			// Connect Forced Links
+			foreach (var room in coreClusterRooms)
 			{
-				var logicaldeadends = room.Links.Where(x => x.ForceLinkOrigin).ToList();
+				var forcedLinks = room.Links.Where(x => x.ForceLinkOrigin).ToList();
 				
-				foreach (var deadend in logicaldeadends)
+				foreach (var forcedLink in forcedLinks)
 				{
-					if (!room.Links.Contains(deadend))
+					var forcedDestination = room.Links.Find(x => forcedLink.ForcedDestination == x.Current.Entrance);
+					if (forcedDestination == null)
 					{
-						continue;
+						throw new Exception("Map Shuffling Error: Lost forced destination rooms");
 					}
 
-					var validLinks = room.Links.Where(x => deadend.ValidSiblings == x.Current.Entrance).ToList();
-					if (!validLinks.Any())
-					{
-						validLinks = room.Links.Where(x => !x.ForceLinkDestination).ToList();
-					}
-					var seedLink = rng.PickFrom(validLinks);
-					room.Links.Remove(seedLink);
-					room.Links.Remove(deadend);
+					room.Links.Remove(forcedLink);
+					room.Links.Remove(forcedDestination);
 
-					ConnectLink(seedLink, deadend);
+					ConnectLink(forcedLink, forcedDestination);
 				}
 			}
 
 			// Forced Deadends and equalization
-			foreach (var room in seedBigRooms)
+			foreach (var room in coreClusterRooms)
 			{
 				var deadendLinks = room.Links.Where(x => x.ForceDeadEnd).ToList();
 
 				while (deadendLinks.Any())
 				{
-					var currentLink = deadendLinks.First();
+					var originLink = deadendLinks.First();
 
-					List<BigRoom> givingRooms = deadendBigRooms.Where(x =>
+					List<ClusterRoom> destinationRooms = deadendClusterRooms.Where(x =>
 						!x.Rooms.Intersect(crestRooms).Any() &&
-						!x.Rooms.Intersect(currentLink.ForbiddenDestinations).Any() &&
+						!x.Rooms.Intersect(originLink.ForbiddenDestinations).Any() &&
 						(room.Rooms.Contains(macShipDeck) ? !x.Rooms.Intersect(macShipBarredRooms).Any() : true)
 					).ToList();
 
-					if (!givingRooms.Any())
+					if (!destinationRooms.Any())
 					{
 						continue;
 					}
 
-					room.Links.Remove(currentLink);
-					deadendLinks.Remove(currentLink);
+					room.Links.Remove(originLink);
+					deadendLinks.Remove(originLink);
 
-					var connectRoom = rng.PickFrom(givingRooms);
-					var addonLink = rng.TakeFrom(connectRoom.Links);
-					deadendBigRooms.Remove(connectRoom);
+					var destinationRoom = rng.PickFrom(destinationRooms);
+					var destinationLink = rng.TakeFrom(destinationRoom.Links);
+					deadendClusterRooms.Remove(destinationRoom);
 
-					ConnectLink(currentLink, addonLink);
-					room.Merge(connectRoom);
+					ConnectLink(originLink, destinationLink);
+					room.Merge(destinationRoom);
 				}
 
 				if ((room.Links.Count % 2) == 1)
 				{
-					var seedLink = rng.PickFrom(room.Links);
+					var originLink = rng.PickFrom(room.Links);
 
-					List<BigRoom> givingRooms = deadendBigRooms.Where(x =>
-						!x.Rooms.Intersect(seedLink.ForbiddenDestinations).Any() &&
+					List<ClusterRoom> destinationRooms = deadendClusterRooms.Where(x =>
+						!x.Rooms.Intersect(originLink.ForbiddenDestinations).Any() &&
 						room.Rooms.Contains(macShipDeck) ? !x.Rooms.Intersect(macShipBarredRooms).Any() : true
 					).ToList();
 
-					var connectRoom = rng.PickFrom(givingRooms);
-					var addonLink = rng.TakeFrom(connectRoom.Links);
+					var destinationRoom = rng.PickFrom(destinationRooms);
+					var destinationLink = rng.TakeFrom(destinationRoom.Links);
 
-					deadendBigRooms.Remove(connectRoom);
-					room.Links.Remove(seedLink);
+					deadendClusterRooms.Remove(destinationRoom);
+					room.Links.Remove(originLink);
 					
-					ConnectLink(seedLink, addonLink);
-					room.Merge(connectRoom);
+					ConnectLink(originLink, destinationLink);
+					room.Merge(destinationRoom);
 				}
 			}
 
-			// Add Dummy room if there was too much locations to equalize
-			if ((deadendBigRooms.Count % 2) == 1)
+			// Add Dummy room if there was too many locations to equalize
+			if ((deadendClusterRooms.Count % 2) == 1)
 			{
 				var originLink = new RoomLink(500, 0, (141, 1), new List<AccessReqs>());
-				var targetLink = new RoomLink(0, 481, (0, 10), new List<AccessReqs>());
+				var destinationLink = new RoomLink(0, 481, (0, 10), new List<AccessReqs>());
 
-				deadendBigRooms.Add(
-					new BigRoom(new List<int>() { 500 },
-					new List<FloorLink>() { new FloorLink(500, targetLink, originLink) }));
+				deadendClusterRooms.Add(
+					new ClusterRoom(new List<int>() { 500 },
+					new List<LogicLink>() { new LogicLink(500, destinationLink, originLink) }));
 
 				Rooms.Add(new Room("Dummy Room", 500, 0x11, new List<GameObjectData>() { }, new List<RoomLink> { }));
 			}
 
+			// Connect remaining dead ends
 			var macshipexcepttioncount = 0;
-			while (deadendBigRooms.Any())
+			while (deadendClusterRooms.Any())
 			{
-				deadendBigRooms.Shuffle(rng);
-				var deadends = new List<BigRoom>() { deadendBigRooms[0], deadendBigRooms[1] };
+				deadendClusterRooms.Shuffle(rng);
+				var destinationRooms = new List<ClusterRoom>() { deadendClusterRooms[0], deadendClusterRooms[1] };
 
-				//var unfilledBigRooms = seedBigRooms.Where(x => x.Links.Count > 0).ToList();
-
-				var unfilledBigRooms = seedBigRooms.Where(x => 
+				var unfilledClusterRooms = coreClusterRooms.Where(x => 
 					x.Links.Count > 0 &&
-					!x.Links.SelectMany(l => l.ForbiddenDestinations).Intersect(deadends.SelectMany(d => d.Rooms)).Any() &&
-					!x.Links.SelectMany(l => l.ForbiddenDestinations).Intersect(deadends.SelectMany(d => d.Rooms)).Any() &&
-					(macShipBarredRooms.Intersect(deadends.SelectMany(d => d.Rooms)).Any() ? !x.Rooms.Contains(macShipDeck) : true)
+					!x.Links.SelectMany(l => l.ForbiddenDestinations).Intersect(destinationRooms.SelectMany(d => d.Rooms)).Any() &&
+					!x.Links.SelectMany(l => l.ForbiddenDestinations).Intersect(destinationRooms.SelectMany(d => d.Rooms)).Any() &&
+					(macShipBarredRooms.Intersect(destinationRooms.SelectMany(d => d.Rooms)).Any() ? !x.Rooms.Contains(macShipDeck) : true)
 					).ToList();
 
-				if (!unfilledBigRooms.Any())
+				if (!unfilledClusterRooms.Any())
 				{
+					// Keep counts here in case we hit the unlikely scenario of mac ship behind the only location left and the deadends left are forbidden to it
+					// We should just reroll in that unlikely scenario
 					macshipexcepttioncount++;
 					if (macshipexcepttioncount > 50)
 					{
@@ -636,25 +627,25 @@ namespace FFMQLib
 					continue;
 				}
 
-				var pickedRoom = rng.PickFrom(unfilledBigRooms);
+				var originRoom = rng.PickFrom(unfilledClusterRooms);
 
-				deadendBigRooms.Remove(deadends[0]);
-				deadendBigRooms.Remove(deadends[1]);
+				deadendClusterRooms.Remove(destinationRooms[0]);
+				deadendClusterRooms.Remove(destinationRooms[1]);
 
-				foreach (var connectRoom in deadends)
+				foreach (var destinationRoom in destinationRooms)
 				{
-					var seedLink = rng.PickFrom(pickedRoom.Links);
-					pickedRoom.Links.Remove(seedLink);
+					var originLink = rng.PickFrom(originRoom.Links);
+					originRoom.Links.Remove(originLink);
 
-					var addonLink = rng.TakeFrom(connectRoom.Links);
-					ConnectLink(seedLink, addonLink);
+					var destinationLink = rng.TakeFrom(destinationRoom.Links);
+					ConnectLink(originLink, destinationLink);
 
-					pickedRoom.Merge(connectRoom);
+					originRoom.Merge(destinationRoom);
 				}
 			}
 
 			// Tie loose ends
-			foreach (var room in seedBigRooms)
+			foreach (var room in coreClusterRooms)
 			{
 				while (room.Links.Any())
 				{
@@ -673,13 +664,13 @@ namespace FFMQLib
 			}
 		}
 
-		private void ConnectLink(FloorLink link1, FloorLink link2)
+		private void ConnectLink(LogicLink link1, LogicLink link2)
 		{
 			Rooms.Find(r => r.Id == link1.Room).Links.Remove(link1.Current);
 			Rooms.Find(r => r.Id == link2.Room).Links.Remove(link2.Current);
 
-			newLinkToProcess.Add((link1.Room, new RoomLink(link2.Room, link1.Current.Entrance, link2.Origins.Teleporter, link1.Current.Access)));
-			newLinkToProcess.Add((link2.Room, new RoomLink(link1.Room, link2.Current.Entrance, link1.Origins.Teleporter, link2.Current.Access)));
+			newLinkToProcess.Add((link1.Room, new RoomLink(link2.Room, link1.Current.Entrance, link2.Origin.Teleporter, link1.Current.Access)));
+			newLinkToProcess.Add((link2.Room, new RoomLink(link1.Room, link2.Current.Entrance, link1.Origin.Teleporter, link2.Current.Access)));
 		}
 
 		public void ReadPairs()

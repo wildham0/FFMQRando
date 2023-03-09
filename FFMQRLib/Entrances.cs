@@ -332,19 +332,6 @@ namespace FFMQLib
 				entrancesToUpdate.ForEach(x => x.Teleporter = realTeleporter.Item2);
 			}
 		}
-		public void SwapEntrances((int id, int type) entranceA, (int id, int type) entranceB)
-		{
-			/*
-			var entrancesListA = Entrances.SelectMany(x => x.Entrances).Where(x => x.TeleportId == entranceA.id && x.TeleportType == entranceA.type).ToList();
-			var entrancesListB = Entrances.SelectMany(x => x.Entrances).Where(x => x.TeleportId == entranceB.id && x.TeleportType == entranceB.type).ToList();
-
-			entrancesListA.ForEach(x => x.TeleportId = entranceB.id);
-			entrancesListA.ForEach(x => x.TeleportType = entranceB.type);
-
-			entrancesListB.ForEach(x => x.TeleportId = entranceA.id);
-			entrancesListB.ForEach(x => x.TeleportType = entranceA.type);
-			*/
-		}
 		public void Write(FFMQRom rom)
 		{
 			// Modify how entrances work

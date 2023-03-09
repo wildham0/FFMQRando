@@ -356,24 +356,27 @@ namespace FFMQLib
 
 			var safeGoldBattlefield = (LocationIds)(battlefields.GetAllRewardType().Select((x, i) => (i, x)).ToList().Find(x => x.x == BattlefieldRewardType.Gold).i + 1);
 
-			List<LocationIds> validLocations = Enum.GetValues<LocationIds>().ToList();
-			List<LocationIds> invalidLocations = new() { LocationIds.DoomCastle, LocationIds.FocusTowerForesta, LocationIds.FocusTowerAquaria, LocationIds.FocusTowerFrozen, LocationIds.FocusTowerFireburg, LocationIds.FocusTowerWindia, LocationIds.GiantTree, LocationIds.HillOfDestiny, LocationIds.LifeTemple, LocationIds.LightTemple, LocationIds.MacsShip, LocationIds.MacsShipDoom, LocationIds.None, LocationIds.ShipDock, LocationIds.SpencersPlace };
-			validLocations.RemoveAll(x => invalidLocations.Contains(x));
+			List<LocationIds> shuffleLocations = Enum.GetValues<LocationIds>().ToList();
+			List<LocationIds> fixedLocations = new() { LocationIds.DoomCastle, LocationIds.FocusTowerForesta, LocationIds.FocusTowerAquaria, LocationIds.FocusTowerFrozen, LocationIds.FocusTowerFireburg, LocationIds.FocusTowerWindia, LocationIds.GiantTree, LocationIds.HillOfDestiny, LocationIds.LifeTemple, LocationIds.LightTemple, LocationIds.MacsShip, LocationIds.MacsShipDoom, LocationIds.None, LocationIds.ShipDock, LocationIds.SpencersPlace };
+			shuffleLocations.RemoveAll(x => fixedLocations.Contains(x));
 			
-			locationsToUpdate.AddRange(invalidLocations.Select(x => (x, x)).ToList());
-
+			locationsToUpdate.AddRange(fixedLocations.Select(x => (x, x)).ToList());
+			List<LocationIds> placedLocations = fixedLocations.ToList();
+			List<LocationIds> excludeFromStart = Enum.GetValues<LocationIds>().ToList().GetRange(9, 12);
 
 			// Find best companion location
 			List<(LocationIds, int)> companionsRating = new();
 
-			foreach (var location in validLocations.Where(x => x > LocationIds.HillOfDestiny))
+			foreach (var location in shuffleLocations.Where(x => x > LocationIds.HillOfDestiny))
 			{
 				companionsRating.Add(gamelogic.CrawlForCompanionRating(location));
 			}
+			
 			companionsRating.Shuffle(rng);
 			companionsRating = companionsRating.OrderByDescending(x => x.Item2).ToList();
 			var companionLocation = companionsRating.First().Item1;
 
+			// Find Aquaria
 			LocationIds aquariaPlaza = gamelogic.FindTriggerLocation(AccessReqs.SummerAquaria);
 
 			if (aquariaPlaza == LocationIds.None)
@@ -381,97 +384,86 @@ namespace FFMQLib
 				throw new Exception("Overworld Shuffle: Can't find Aquaria");
 			}
 
-			List<LocationIds> excludeFromStart = new();
-
-			excludeFromStart.AddRange(Enum.GetValues<LocationIds>().ToList().GetRange(9, 12));
-
+			// Find most accessible locations for item placement
 			List<(LocationIds, int)> locationRating = new();
 
-			foreach (var location in validLocations.Where(x => x > LocationIds.HillOfDestiny))
+			foreach (var location in shuffleLocations.Where(x => x > LocationIds.HillOfDestiny && x != companionLocation))
 			{
 				locationRating.Add(gamelogic.CrawlForChestRating(location));
 			}
 
 			locationRating = locationRating.Where(x => x.Item1 != companionLocation).OrderByDescending(x => x.Item2).ToList();
 
-			var forestaLocations = validLocations.Where(x => AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 == SubRegions.Foresta).ToList();
+			// Create the early locations, these are always placed in Foresta
+			List<LocationIds> earlyLocations = new() { companionLocation, safeGoldBattlefield, locationRating[0].Item1, locationRating[1].Item1 };
 
-			List<LocationIds> placedLocations = invalidLocations.ToList();
-
+			// Place guaranteed locations
 			var loc1 = LocationIds.None;
 			var loc2 = LocationIds.None;
 
-			// Place guaranteed locations
-			List<LocationIds> earlyLocations = new() { companionLocation, safeGoldBattlefield, locationRating[0].Item1, locationRating[1].Item1 };
+			var forestaLocations = shuffleLocations.Where(x => AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 == SubRegions.Foresta).ToList();
 
 			while (earlyLocations.Any())
 			{
 				loc1 = rng.TakeFrom(forestaLocations);
 				loc2 = earlyLocations.First();
 
-				//SwapLocations(loc1, loc2);
-				locationsToUpdate.Add((loc1, loc2));
-				locationsToUpdate.Add((loc2, loc1));
-				placedLocations.Add(loc1);
-				placedLocations.Add(loc2);
-				earlyLocations.Remove(loc1);
-				earlyLocations.Remove(loc2);
-				forestaLocations.Remove(loc1);
-				forestaLocations.Remove(loc2);
-			}
-			
-			forestaLocations = forestaLocations.Where(x => !placedLocations.Contains(x)).ToList();
-			var validStartingLocations = validLocations.Where(x => !excludeFromStart.Contains(x) && !placedLocations.Contains(x)).ToList();
-
-			// Place Foresta region
-			while (forestaLocations.Count > 0)
-			{
-				loc1 = rng.PickFrom(forestaLocations);
-				loc2 = rng.PickFrom(validStartingLocations);
-
-				//SwapLocations(loc1, loc2);
 				locationsToUpdate.Add((loc1, loc2));
 				locationsToUpdate.Add((loc2, loc1));
 				placedLocations.Add(loc1);
 				placedLocations.Add(loc2);
 
 				forestaLocations = forestaLocations.Where(x => !placedLocations.Contains(x)).ToList();
-				validStartingLocations = validStartingLocations.Where(x => !placedLocations.Contains(x)).ToList();
+				earlyLocations = earlyLocations.Where(x => !placedLocations.Contains(x)).ToList();
+			}
+			
+			forestaLocations = forestaLocations.Where(x => !placedLocations.Contains(x)).ToList();
+			var startingLocations = shuffleLocations.Where(x => !excludeFromStart.Contains(x) && !placedLocations.Contains(x)).ToList();
+
+			// Place Foresta region
+			while (forestaLocations.Count > 0)
+			{
+				loc1 = rng.PickFrom(forestaLocations);
+				loc2 = rng.PickFrom(startingLocations);
+
+				locationsToUpdate.Add((loc1, loc2));
+				locationsToUpdate.Add((loc2, loc1));
+				placedLocations.Add(loc1);
+				placedLocations.Add(loc2);
+
+				forestaLocations = forestaLocations.Where(x => !placedLocations.Contains(x)).ToList();
+				startingLocations = startingLocations.Where(x => !placedLocations.Contains(x)).ToList();
 			}
 
 			// Place Aquaria outside the frozen strip
 			if ((flags.LogicOptions != LogicOptions.Expert || flags.CrestShuffle) && !placedLocations.Contains(aquariaPlaza))
 			{ 
-				var aquariaSafeLocactions = validLocations.Where(x => !placedLocations.Contains(x) && AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 != SubRegions.AquariaFrozenField).ToList();
+				var aquariaSafeLocactions = shuffleLocations.Where(x => !placedLocations.Contains(x) && AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 != SubRegions.AquariaFrozenField).ToList();
 
 				loc2 = rng.PickFrom(aquariaSafeLocactions);
 
-				//SwapLocations(LocationIds.Aquaria, loc2);
 				locationsToUpdate.Add((aquariaPlaza, loc2));
 				locationsToUpdate.Add((loc2, aquariaPlaza));
 				placedLocations.Add(aquariaPlaza);
 				placedLocations.Add(loc2);
 			}
 
-			validLocations = validLocations.Where(x => !placedLocations.Contains(x)).ToList();
+			shuffleLocations = shuffleLocations.Where(x => !placedLocations.Contains(x)).ToList();
 
 			// Place the rest
-			while (validLocations.Count > 1)
+			while (shuffleLocations.Count > 1)
 			{
-				loc1 = rng.TakeFrom(validLocations);
-				loc2 = rng.TakeFrom(validLocations);
+				loc1 = rng.TakeFrom(shuffleLocations);
+				loc2 = rng.TakeFrom(shuffleLocations);
 
-				//SwapLocations(loc1, loc2);
 				locationsToUpdate.Add((loc1, loc2));
 				locationsToUpdate.Add((loc2, loc1));
 			}
 
-			if (validLocations.Any())
+			if (shuffleLocations.Any())
 			{
-				locationsToUpdate.Add((validLocations.First(), validLocations.First()));
+				locationsToUpdate.Add((shuffleLocations.First(), shuffleLocations.First()));
 			}
-			
-
 		}
 		public void UpdateOverworld(Flags flags, Battlefields battlefields)
 		{
