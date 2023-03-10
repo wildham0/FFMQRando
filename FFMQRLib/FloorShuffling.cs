@@ -65,22 +65,26 @@ namespace FFMQLib
 	{ 
 		public List<int> Rooms { get; set; }
 		public List<LogicLink> Links { get; set; }
+		public int Size { get; set; }
 
 		public ClusterRoom(List<int> rooms)
 		{
 			Rooms = rooms;
 			Links = new();
+			Size = 0;
 		}
 		public ClusterRoom(List<int> rooms, List<LogicLink> links)
 		{
 			Rooms = rooms;
 			Links = links.ToList();
+			Size = 0;
 		}
 
 		public void Merge(ClusterRoom room)
 		{
 			Rooms = Rooms.Concat(room.Rooms).ToList();
 			Links = Links.Concat(room.Links).ToList();
+			Size++;
 		}
 		public void UpdateLinks(LogicLink originLink, MT19337 rng)
 		{
@@ -125,17 +129,19 @@ namespace FFMQLib
 	public class ShufflingData
 	{ 
 		public List<int> FixedEntrances { get; set; }
-		public List<int> TownsCaves { get; set; }
-		public List<int> OneWays { get; set; }
+		public List<int> TownsTemples { get; set; }
+		public List<int> EntranceOnly { get; set; }
 		public List<int> ForcedDeadends { get; set; }
 		public List<ForcedLink> ForcedLinks { get; set; }
+		public List<int> MacShipExclusions { get; set; }
 
 		public ShufflingData()
 		{
 			FixedEntrances = new();
-			TownsCaves = new();
-			OneWays = new();
+			TownsTemples = new();
+			EntranceOnly = new();
 			ForcedDeadends = new();
+			MacShipExclusions = new();
 			ForcedLinks = new();
 		}
 		public void ReadData(MT19337 rng)
@@ -172,10 +178,11 @@ namespace FFMQLib
 			}
 
 			FixedEntrances = result.FixedEntrances;
-			OneWays = result.OneWays;
+			EntranceOnly = result.EntranceOnly;
 			ForcedDeadends = result.ForcedDeadends;
 			ForcedLinks = result.ForcedLinks;
-			TownsCaves = result.TownsCaves;
+			TownsTemples = result.TownsTemples;
+			MacShipExclusions = result.MacShipExclusions;
 
 			foreach (var link in ForcedLinks)
 			{
@@ -373,11 +380,11 @@ namespace FFMQLib
 			// Check if temples and towns need to be added
 			if (!includeTemplesTowns)
 			{
-				logicLinks = logicLinks.Where(x => !shufflingData.TownsCaves.Contains(x.Current.Entrance)).ToList();
+				logicLinks = logicLinks.Where(x => !shufflingData.TownsTemples.Contains(x.Current.Entrance)).ToList();
 			}
 
 			// Update Logic Links with the shuffling data
-			logicLinks.ForEach(x => x.EntranceOnly = shufflingData.OneWays.Contains(x.Current.Entrance));
+			logicLinks.ForEach(x => x.EntranceOnly = shufflingData.EntranceOnly.Contains(x.Current.Entrance));
 			logicLinks.ForEach(x => x.ForceDeadEnd = shufflingData.ForcedDeadends.Contains(x.Current.Entrance));
 			logicLinks.ForEach(x => x.ForceLinkOrigin = shufflingData.ForcedLinks.Select(x => x.Origin).ToList().Contains(x.Current.Entrance));
 			logicLinks.ForEach(x => x.ForceLinkDestination = shufflingData.ForcedLinks.Select(x => x.Destination).ToList().Contains(x.Current.Entrance));
@@ -422,8 +429,9 @@ namespace FFMQLib
 
 			// Special restrictions
 			var crestRooms = Rooms.Where(x => x.Links.Where(l => l.Access.Intersect(AccessReferences.CrestsAccess).Any()).Any()).Select(x => x.Id).ToList();
-			var macShipBarredRooms = crestRooms.Append(157).Concat(forbiddenDestinations.Select(x => x.room)).ToList();
+			var macShipBarredRooms = crestRooms.Concat(shufflingData.MacShipExclusions).Concat(forbiddenDestinations.Select(x => x.room)).ToList();
 			int macShipDeck = 187;
+			int macShipMaxSize = 4;
 
 			// Shuffle our core locations
 			var seedRooms = Rooms.Find(x => x.Id == 0).Links.Select(l => l.TargetRoom).Except(new List<int> { 125 }).ToList();
@@ -497,7 +505,7 @@ namespace FFMQLib
 					(originRoom.Rooms.Contains(macShipDeck) ? !x.Rooms.Intersect(macShipBarredRooms).Any() : true)
 				).ToList();
 
-				if (!destinationRooms.Any())
+				if (!destinationRooms.Any() || (originRoom.Rooms.Contains(macShipDeck) && originRoom.Size >= macShipMaxSize))
 				{
 					continue;
 				}
