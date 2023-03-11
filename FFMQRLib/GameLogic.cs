@@ -331,11 +331,6 @@ namespace FFMQLib
 					{
 						accessToKeep.Add((subregion, hardaccess.First()));
 					}
-
-					accessToKeep.Add(accessToCompare[0]);
-					accessToRemove.Add(accessToCompare[0]);
-					accessToCompare = accessToCompare.Except(accessToRemove).ToList();
-					currentAccess++;
 				}
 				else
 				{

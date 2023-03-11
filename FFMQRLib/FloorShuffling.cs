@@ -109,29 +109,6 @@ namespace FFMQLib
 
 			Links.ForEach(x => x.ForbiddenDestinations.AddRange(originLink.ForbiddenDestinations));
 		}
-		public void UpdateLinks(LogicLink originLink, MT19337 rng)
-		{
-			if (originLink.ForceLinkOrigin)
-			{
-				var validOrigins = Links.Where(x => !x.ForceLinkOrigin && !x.ForceLinkDestination).ToList();
-				if (!validOrigins.Any())
-				{
-					throw new Exception("Floor Shuffle: One way Orientation Error\n\n" + "Origin Link: " + originLink.Current.Entrance);
-				}
-
-				var newOrigin = rng.PickFrom(validOrigins);
-				newOrigin.ForceLinkOrigin = true;
-				newOrigin.ForcedDestination = originLink.ForcedDestination;
-			}
-
-			if (originLink.ForceDeadEnd)
-			{
-				var validDeadEnds = Links.Where(x => !x.ForceLinkOrigin && !x.ForceLinkDestination).ToList();
-				validDeadEnds.ForEach(x => x.ForceDeadEnd = true);
-			}
-
-			Links.ForEach(x => x.ForbiddenDestinations.AddRange(originLink.ForbiddenDestinations));
-		}
 	}
 	public class ForcedLink
 	{
