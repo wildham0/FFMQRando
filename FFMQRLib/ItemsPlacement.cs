@@ -89,18 +89,20 @@ namespace FFMQLib
 				regionsWeight.Find(x => x.Region == MapRegions.Fireburg).Weight = 1;
 				regionsWeight.Find(x => x.Region == MapRegions.Windia).Weight = 1;
 
-				List<Items> itemsList = RandomizeItemsOrder(flags, rng);
+
+				ItemsList itemsList = new(flags, rng);
+				StartingItems = itemsList.Starting;
 
 				ItemsLocations = new(initialItemlocations.Select(x => new GameObject(x)));
 
 				prioritizedLocationsCount = ItemsLocations.Where(x => x.Prioritize == true).Count();
 
-				looseItemsCount = Max(0, itemsList.Count() - prioritizedLocationsCount);
-				prioritizedItemsCount = Min(prioritizedLocationsCount, itemsList.Count());
+				looseItemsCount = Max(0, itemsList.Count - prioritizedLocationsCount);
+				prioritizedItemsCount = Min(prioritizedLocationsCount, itemsList.Count);
 
 				List<Items> placedItems = new();
 
-				List<Items> nonRequiredItems = flags.SkyCoinMode == SkyCoinModes.Standard ? StartingItems : StartingItems.Append(Items.SkyCoin).ToList();
+				List<Items> nonRequiredItems = flags.SkyCoinMode == SkyCoinModes.Standard ? itemsList.Starting : itemsList.Starting.Append(Items.SkyCoin).ToList();
 
 				List<AccessReqs> accessReqsToProcess = new();
 				// Apply starting items access
@@ -115,12 +117,36 @@ namespace FFMQLib
 
 				ProcessRequirements(accessReqsToProcess);
 
-				while (itemsList.Any())
+				while (itemsList.Count > 0)
 				{
-					List<GameObject> validLocations = new();
+					Items itemToPlace;
 
-					List<GameObject> validLocationsPriorized = ItemsLocations.Where(x => validTypes.Contains(x.Type) && x.Accessible && x.IsPlaced == false && x.Prioritize == true).ToList();
-					List<GameObject> validLocationsLoose = ItemsLocations.Where(x => validTypes.Contains(x.Type) && x.Accessible && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false).ToList();
+					List<GameObject> validLocations = ItemsLocations.Where(x => validTypes.Contains(x.Type) && x.Accessible && x.IsPlaced == false && x.Exclude == false).ToList();
+
+					if (flags.LogicOptions == LogicOptions.Friendly)
+					{
+						if (!placedMirror && validLocations.Where(x => x.Location == LocationIds.IcePyramid).Any())
+						{
+							if (!placedItems.Contains(Items.MagicMirror))
+							{
+								validLocations = validLocations.Where(x => x.Location != LocationIds.IcePyramid).ToList();
+								itemsList.ForcedItem = Items.MagicMirror;
+							}
+							placedMirror = true;
+						}
+						else if (!placedMask && validLocations.Where(x => x.Location == LocationIds.Volcano).Any())
+						{
+							if (!placedItems.Contains(Items.Mask))
+							{
+								validLocations = validLocations.Where(x => x.Location != LocationIds.Volcano).ToList();
+								itemsList.ForcedItem = Items.Mask;
+							}
+							placedMask = true;
+						}
+					}
+
+					List<GameObject> validLocationsPriorized = validLocations.Where(x => x.Prioritize == true).ToList();
+					List<GameObject> validLocationsLoose = validLocations.Where(x => x.Prioritize == false).ToList();
 
 					int diceRoll = rng.Between(1, itemsList.Count);
 
@@ -148,6 +174,8 @@ namespace FFMQLib
 
 					MapRegions favoredRegion = rng.PickFrom(weightedRegionList);
 
+					int validLocationsCount = validLocations.Count;
+
 					List<GameObject> validLocationsFavored = validLocations.Where(x => x.Region == favoredRegion).ToList();
 
 					if (validLocationsFavored.Any())
@@ -155,7 +183,7 @@ namespace FFMQLib
 						validLocations = validLocationsFavored;
 					}
 
-					if (!validLocations.Any() && itemsList.Any())
+					if (!validLocations.Any() && itemsList.Count > 0)
 					{
 						Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
 						var unfiledValidLocations = ItemsLocations.Where(x => !x.Accessible && x.Prioritize).ToList();
@@ -168,46 +196,7 @@ namespace FFMQLib
 						break;
 					}
 					
-					var itemToPlace = itemsList.First();
-					var itemIndex = 0;
-
-					if (flags.LogicOptions == LogicOptions.Friendly)
-					{
-						if ((!placedMirror && validLocations.Where(x => x.Location == LocationIds.IcePyramid).Any()) || (itemToPlace == Items.MagicMirror))
-						{
-							validLocations = validLocations.Where(x => x.Location != LocationIds.IcePyramid).ToList();
-
-							if (!validLocations.Any())
-							{
-								Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
-								counter++;
-								badPlacement = true;
-								break;
-							}
-
-							itemIndex = itemsList.FindIndex(x => x == Items.MagicMirror);
-							itemToPlace = Items.MagicMirror;
-							placedMirror = true;
-						}
-						else if ((!placedMask && validLocations.Where(x => x.Location == LocationIds.Volcano).Any()) || (itemToPlace == Items.Mask))
-						{
-							validLocations = validLocations.Where(x => x.Location != LocationIds.Volcano).ToList();
-
-							if (!validLocations.Any())
-							{
-								Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
-								counter++;
-								badPlacement = true;
-								break;
-							}
-
-							itemIndex = itemsList.FindIndex(x => x == Items.Mask);
-							itemToPlace = Items.Mask;
-							placedMask = true;
-						}
-					}
-
-					itemsList.RemoveAt(itemIndex);
+					itemToPlace = itemsList.NextItem(validLocationsCount, rng);
 
 					GameObject targetLocation = rng.PickFrom(validLocations);
 					targetLocation.Content = itemToPlace;
@@ -349,144 +338,6 @@ namespace FFMQLib
 				}
 			}
 		}
-		private List<Items> RandomizeItemsOrder(Flags flags, MT19337 rng)
-		{
-			List<Items> FinalItems = new();
-			List<Items> StartingWeapons = new() { Items.SteelSword, Items.Axe, Items.CatClaw, Items.Bomb };
-			StartingItems = new() { Items.SteelArmor };
-			if (flags.RandomStartingWeapon)
-			{
-				StartingItems.Add(rng.PickFrom(StartingWeapons));
-			}
-			else
-			{
-				StartingItems.Add(Items.SteelSword);
-			}
-			List<Items> ProgressionBombs = new() { Items.Bomb, Items.JumboBomb };
-			List<Items> ProgressionSwords = new() { Items.SteelSword, Items.KnightSword, Items.Excalibur };
-			List<Items> ProgressionAxes = new() { Items.Axe, Items.BattleAxe, Items.GiantsAxe };
-			List<Items> ProgressionClaws = new() { Items.CatClaw, Items.CharmClaw };
-			List<Items> InitialProgressionItems = new() { Items.SandCoin, Items.RiverCoin };
-			List<Items> ProgressionItems = new()
-			{
-				Items.TreeWither, // NPC
-				Items.VenusKey, // NPC
-				Items.MultiKey, // NPC
-				Items.ThunderRock, // NPC
-				Items.CaptainCap, // NPC
-				Items.MobiusCrest,
-				Items.DragonClaw, // NPC
-				Items.MegaGrenade, //NPC
-				Items.Elixir, // NPC
-				Items.WakeWater, // NPC
-				Items.SunCoin
-			};
-			List<Items> NonProgressionItems = new()
-			{
-				Items.Mask,
-				Items.MagicMirror,
-				Items.LibraCrest,
-				Items.GeminiCrest, //Battlefield
-			};
-			List<Items> Gear = new()
-			{
-				Items.ExitBook, //Battlefield
-				Items.CureBook,
-				Items.HealBook,
-				Items.LifeBook,
-				Items.QuakeBook,
-				Items.BlizzardBook,
-				Items.FireBook,
-				Items.AeroBook,
-				Items.ThunderSeal, //Battlefield
-				Items.WhiteSeal,
-				Items.MeteorSeal,
-				Items.FlareSeal,
-				Items.SteelHelm, //NPC
-				Items.MoonHelm,
-				Items.ApolloHelm,
-				Items.SteelArmor,
-				Items.NobleArmor,
-				Items.GaiasArmor,
-				Items.SteelShield,
-				Items.VenusShield, //Chest-NPC
-				Items.AegisShield,
-				Items.Charm, //Battlefield
-				Items.MagicRing, //Battlefield
-				Items.CupidLock // NPC
-			};
-
-
-			// SkyCoin
-			if (flags.SkyCoinMode == SkyCoinModes.Standard)
-			{
-				ProgressionItems.Add(Items.SkyCoin);
-			}
-			else if(flags.SkyCoinMode == SkyCoinModes.StartWith)
-			{
-				StartingItems.Add(Items.SkyCoin);
-			}
-
-
-			// Remove Starting Items
-			ProgressionBombs.RemoveAll(x => StartingItems.Contains(x));
-			ProgressionSwords.RemoveAll(x => StartingItems.Contains(x));
-			ProgressionAxes.RemoveAll(x => StartingItems.Contains(x));
-			ProgressionClaws.RemoveAll(x => StartingItems.Contains(x));
-			InitialProgressionItems.RemoveAll(x => StartingItems.Contains(x));
-			ProgressionItems.RemoveAll(x => StartingItems.Contains(x));
-			NonProgressionItems.RemoveAll(x => StartingItems.Contains(x));
-			Gear.RemoveAll(x => StartingItems.Contains(x));
-
-			// Select Inital Progression
-			if (ProgressionBombs.Count > 1)
-			{
-				InitialProgressionItems.Add(rng.TakeFrom(ProgressionBombs));
-			}			
-			FinalItems.Add(rng.TakeFrom(InitialProgressionItems));
-
-			// Build Progression Items List
-			ProgressionItems.Add(rng.TakeFrom(ProgressionSwords));
-			ProgressionItems.Add(rng.TakeFrom(ProgressionBombs));
-			ProgressionItems.Add(rng.TakeFrom(ProgressionAxes));
-			ProgressionItems.Add(rng.TakeFrom(ProgressionClaws));
-			ProgressionItems.AddRange(InitialProgressionItems);
-			ProgressionItems.Shuffle(rng);
-
-			// Put Everything else in Non Progression Items
-			NonProgressionItems.AddRange(ProgressionBombs);
-			NonProgressionItems.AddRange(ProgressionSwords);
-			NonProgressionItems.AddRange(ProgressionAxes);
-			NonProgressionItems.AddRange(ProgressionClaws);
-
-			// Fill 3 tiers
-			// Tier3 is 5 random piece of gear
-			Gear.Shuffle(rng);
-			List<Items> Tier3 = Gear.GetRange(0, 5);
-			Gear.RemoveRange(0, 5);
-
-			// Tier1 is 5 random progression item, 5 random non progression+gear
-			NonProgressionItems.AddRange(Gear);
-			NonProgressionItems.Shuffle(rng);
-
-			List<Items> Tier1 = NonProgressionItems.GetRange(0, 5);
-			NonProgressionItems.RemoveRange(0, 5);
-			Tier1.AddRange(ProgressionItems.GetRange(0, 5));
-			ProgressionItems.RemoveRange(0, 5);
-			
-			// Tier2 is everything else
-			List<Items> Tier2 = ProgressionItems.ToList();
-			Tier2.AddRange(NonProgressionItems);
-
-			// Shuffle tiers
-			Tier1.Shuffle(rng);
-			Tier2.Shuffle(rng);
-			Tier3.Shuffle(rng);
-
-			FinalItems = FinalItems.Concat(Tier1).Concat(Tier2).Concat(Tier3).ToList();
-
-			return FinalItems;
-		}
 		public string GenerateSpoilers(FFMQRom rom, string version, string hash, string flags, string seed)
 		{
 			List<Items> invalidItems = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
@@ -543,11 +394,262 @@ namespace FFMQLib
 		}
 	}
 
-	public partial class FFMQRom : SnesRom
-	{
+	public class ItemsList
+	{ 
+		public List<Items> LowProgression { get; set; }
+		public List<Items> NonProgression { get; set; }
+		public List<Items> HighProgression { get; set; }
+		public List<Items> Starting { get; set; }
+		public Items ForcedItem { get; set; }
+		public int Count { get => LowProgression.Count + NonProgression.Count + HighProgression.Count; }
+		private int lastCoinCount;
+		private List<Items> coinsProgression = new() { Items.SandCoin, Items.RiverCoin, Items.SunCoin };
+		private int progressionThreshold = 2;
+		public Items NextItem(int availablelocations, MT19337 rng)
+		{
+			if (ForcedItem != Items.None)
+			{
+				Items item = ForcedItem;
+				LowProgression.Remove(item);
+				NonProgression.Remove(item);
+				HighProgression.Remove(item);
+				
+				ForcedItem = Items.None;
 
+				return item;
+			}
+			else if (lastCoinCount > 10 && coinsProgression.Intersect(HighProgression).Any())
+			{
+				Items item = coinsProgression.Intersect(HighProgression).First();
+				HighProgression.Remove(item);
+				lastCoinCount = 0;
 
+				return item;
+			}
+			else if (availablelocations > progressionThreshold || !HighProgression.Concat(LowProgression).Any())
+			{
+				Items item = rng.PickFrom(NonProgression.Concat(LowProgression).Concat(HighProgression).ToList());
 
+				if (coinsProgression.Contains(item))
+				{
+					lastCoinCount = 0;
+				}
+				else
+				{
+					lastCoinCount++;
+				}
 
+				LowProgression.Remove(item);
+				NonProgression.Remove(item);
+				HighProgression.Remove(item);
+
+				return item;
+			}
+			else if (availablelocations > 1)
+			{
+				Items item = rng.PickFrom(LowProgression.Concat(HighProgression).ToList());
+
+				if (coinsProgression.Contains(item))
+				{
+					lastCoinCount = 0;
+				}
+				else
+				{
+					lastCoinCount++;
+				}
+
+				LowProgression.Remove(item);
+				HighProgression.Remove(item);
+
+				return item;
+			}
+			else if (availablelocations == 1)
+			{
+				Items item = HighProgression.Concat(LowProgression).ToList().First();
+
+				if (coinsProgression.Contains(item))
+				{
+					lastCoinCount = 0;
+				}
+				else
+				{
+					lastCoinCount++;
+				}
+
+				LowProgression.Remove(item);
+				HighProgression.Remove(item);
+
+				return item;
+			}
+			else
+			{
+				throw new Exception("Logic error: Not supposed to be there");
+			}
+		}
+
+		public ItemsList(Flags flags, MT19337 rng)
+		{
+
+			lastCoinCount = 0;
+			ForcedItem = Items.None;
+			progressionThreshold = (flags.LogicOptions == LogicOptions.Friendly) ? 3 : 2;
+
+			List<Items> StartingWeapons = new() { Items.SteelSword, Items.Axe, Items.CatClaw, Items.Bomb };
+			List<Items> StartingItems = new() { Items.SteelArmor };
+
+			List<Items> ProgressionBombs = new() { Items.Bomb, Items.JumboBomb };
+			List<Items> ProgressionSwords = new() { Items.SteelSword, Items.KnightSword, Items.Excalibur };
+			List<Items> ProgressionAxes = new() { Items.Axe, Items.BattleAxe, Items.GiantsAxe };
+			List<Items> ProgressionClaws = new() { Items.CatClaw, Items.CharmClaw };
+			List<Items> ProgressionCoins = new() { Items.SandCoin, Items.RiverCoin };
+			List<Items> ProgressionSunCoin = new() { Items.SunCoin };
+			List<Items> ProgressionSkyCoin = new() { Items.SkyCoin };
+
+			List<Items> ProgressionItems = new()
+			{
+				Items.TreeWither, // NPC
+				Items.VenusKey, // NPC
+				Items.MultiKey, // NPC
+				Items.ThunderRock, // NPC
+				Items.CaptainCap, // NPC
+				Items.DragonClaw, // NPC
+				Items.MegaGrenade, //NPC
+				Items.Elixir, // NPC
+				Items.WakeWater, // NPC
+				Items.LibraCrest,
+				Items.GeminiCrest,
+				Items.MobiusCrest
+			};
+			List<Items> NonProgressionItems = new()
+			{
+				Items.Mask,
+				Items.MagicMirror,
+			};
+			List<Items> Gear = new()
+			{
+				Items.ExitBook, //Battlefield
+				Items.CureBook,
+				Items.HealBook,
+				Items.LifeBook,
+				Items.QuakeBook,
+				Items.BlizzardBook,
+				Items.FireBook,
+				Items.AeroBook,
+				Items.ThunderSeal, //Battlefield
+				Items.WhiteSeal,
+				Items.MeteorSeal,
+				Items.FlareSeal,
+				Items.SteelHelm, //NPC
+				Items.MoonHelm,
+				Items.ApolloHelm,
+				Items.SteelArmor,
+				Items.NobleArmor,
+				Items.GaiasArmor,
+				Items.SteelShield,
+				Items.VenusShield, //Chest-NPC
+				Items.AegisShield,
+				Items.Charm, //Battlefield
+				Items.MagicRing, //Battlefield
+				Items.CupidLock // NPC
+			};
+
+			Items startingWeapon = Items.SteelSword;
+
+			if (flags.RandomStartingWeapon)
+			{
+				startingWeapon = rng.PickFrom(StartingWeapons);
+			}
+			
+			StartingItems.Add(startingWeapon);
+
+			// SkyCoin
+			if (flags.SkyCoinMode == SkyCoinModes.StartWith)
+			{
+				StartingItems.Add(Items.SkyCoin);
+				ProgressionSkyCoin.Remove(Items.SkyCoin);
+			}
+			else if (flags.SkyCoinMode != SkyCoinModes.Standard)
+			{
+				ProgressionSkyCoin.Remove(Items.SkyCoin);
+			}
+
+			// Remove Starting Items
+			ProgressionBombs.RemoveAll(x => StartingItems.Contains(x));
+			ProgressionSwords.RemoveAll(x => StartingItems.Contains(x));
+			ProgressionAxes.RemoveAll(x => StartingItems.Contains(x));
+			ProgressionClaws.RemoveAll(x => StartingItems.Contains(x));
+			ProgressionItems.RemoveAll(x => StartingItems.Contains(x));
+			ProgressionCoins.RemoveAll(x => StartingItems.Contains(x));
+			ProgressionSunCoin.RemoveAll(x => StartingItems.Contains(x));
+			ProgressionSkyCoin.RemoveAll(x => StartingItems.Contains(x));
+			NonProgressionItems.RemoveAll(x => StartingItems.Contains(x));
+			Gear.RemoveAll(x => StartingItems.Contains(x));
+
+			// Collapse Weapons
+			if (flags.ProgressiveGear)
+			{
+				ProgressionItems.AddRange(ProgressionBombs);
+				ProgressionItems.AddRange(ProgressionClaws);
+
+				if (startingWeapon != Items.SteelSword)
+				{
+					ProgressionItems.Add(rng.TakeFrom(ProgressionSwords));
+				}
+
+				if (startingWeapon != Items.Axe)
+				{
+					ProgressionItems.Add(rng.TakeFrom(ProgressionAxes));
+				}
+
+				Gear.AddRange(ProgressionSwords);
+				Gear.AddRange(ProgressionAxes);
+			}
+			else
+			{
+				if (startingWeapon != Items.SteelSword)
+				{
+					ProgressionItems.Add(rng.TakeFrom(ProgressionSwords));
+				}
+
+				if (startingWeapon != Items.Axe)
+				{
+					ProgressionItems.Add(rng.TakeFrom(ProgressionAxes));
+				}
+
+				if (startingWeapon != Items.CatClaw)
+				{
+					ProgressionItems.Add(rng.TakeFrom(ProgressionClaws));
+				}
+
+				if (startingWeapon != Items.Bomb)
+				{
+					if (flags.MapShuffling == MapShufflingMode.None)
+					{
+						// On standard map, raise odds to open up bone dungeon first
+						ProgressionCoins.Add(rng.TakeFrom(ProgressionBombs));
+					}
+					else
+					{
+						ProgressionItems.Add(rng.TakeFrom(ProgressionBombs));
+					}
+					
+				}
+
+				Gear.AddRange(ProgressionSwords);
+				Gear.AddRange(ProgressionAxes);
+				Gear.AddRange(ProgressionClaws);
+				Gear.AddRange(ProgressionBombs);
+			}
+
+			// Shuffle Coins
+			ProgressionCoins.Shuffle(rng);
+
+			ProgressionItems.Shuffle(rng);
+			LowProgression = ProgressionItems;
+			NonProgression = NonProgressionItems.Concat(Gear).ToList();
+			HighProgression = ProgressionCoins.Concat(ProgressionSunCoin).Concat(ProgressionSkyCoin).ToList();
+			Starting = StartingItems;
+		}
 	}
+
 }
