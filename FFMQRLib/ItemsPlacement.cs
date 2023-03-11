@@ -492,7 +492,7 @@ namespace FFMQLib
 
 			lastCoinCount = 0;
 			ForcedItem = Items.None;
-			progressionThreshold = (flags.LogicOptions == LogicOptions.Friendly) ? 3 : 2;
+			progressionThreshold = (flags.LogicOptions == LogicOptions.Friendly || flags.ProgressiveGear) ? 3 : 2;
 
 			List<Items> StartingWeapons = new() { Items.SteelSword, Items.Axe, Items.CatClaw, Items.Bomb };
 			List<Items> StartingItems = new() { Items.SteelArmor };
@@ -646,8 +646,8 @@ namespace FFMQLib
 
 			ProgressionItems.Shuffle(rng);
 			LowProgression = ProgressionItems;
-			NonProgression = NonProgressionItems.Concat(Gear).ToList();
-			HighProgression = ProgressionCoins.Concat(ProgressionSunCoin).Concat(ProgressionSkyCoin).ToList();
+			NonProgression = NonProgressionItems.Concat(Gear).Concat(ProgressionSkyCoin).ToList();
+			HighProgression = ProgressionCoins.Concat(ProgressionSunCoin).ToList();
 			Starting = StartingItems;
 		}
 	}
