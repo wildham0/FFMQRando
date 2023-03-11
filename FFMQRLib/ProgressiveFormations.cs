@@ -75,10 +75,10 @@ namespace FFMQLib
 			List<(byte, Blob)> newFormationsVariants = new()
 			{
 				(0x24, Blob.FromHex("070608")), // Madplants
-				(0x25, Blob.FromHex("191819")), // Mintmint
-				(0x26, Blob.FromHex("424243")), // Jelly
-				(0x27, Blob.FromHex("474748")), // Plantman
-				(0x29, Blob.FromHex("1E1D20")), // Giant Toad
+				(0x25, Blob.FromHex("191A19")), // Mintmint
+				(0x26, Blob.FromHex("434443")), // Jelly
+				(0x27, Blob.FromHex("48494A")), // Plantman
+				(0x29, Blob.FromHex("1B1D1C")), // Giant Toad
 				(0x2B, Blob.FromHex("454544")), // Sting Rat
 				//(0x2F, Blob.FromHex("")),
 			};
@@ -91,7 +91,7 @@ namespace FFMQLib
 				(EnemyCategory.Frog, new() { 0x18, 0x29, 0x86, 0x86 }),
 				(EnemyCategory.Reptile, new() { 0x19, 0x53, 0x79, 0x79 }),
 				(EnemyCategory.Worm, new() { 0x1C, 0x2A , 0x8B, 0x8B }),
-				(EnemyCategory.Skull, new() { 0x19, 0x51, 0x51, 0x8E }),
+				(EnemyCategory.Skull, new() { 0x1D, 0x51, 0x51, 0x92 }),
 				(EnemyCategory.Bird, new() { 0x1B, 0x2D, 0x9A, 0x9A }),
 				(EnemyCategory.Mummy, new() { 0x50, 0x50, 0x50, 0x7F }),
 				(EnemyCategory.Hag, new() { 0x32, 0x32, 0x93, 0x93 }),

@@ -299,6 +299,7 @@ namespace FFMQLib
 			foreach (var subregion in subRegions)
 			{
 				var accessToCompare = subRegionsAccess.Where(x => x.Item1 == subregion).OrderBy(x => x.Item2.Count).ToList();
+				List<(SubRegions, List<AccessReqs>)> subRegionAccessToKeep = new();
 
 				int currentAccess = 0;
 				List<(SubRegions, List<AccessReqs>)> accessToRemove = new();
@@ -313,10 +314,32 @@ namespace FFMQLib
 						}
 					}
 
+					subRegionAccessToKeep.Add(accessToCompare[0]);
+					accessToRemove.Add(accessToCompare[0]);
+					accessToCompare = accessToCompare.Except(accessToRemove).ToList();
+					currentAccess++;
+				}
+
+				if (flags.LogicOptions != LogicOptions.Expert)
+				{
+					var hardaccess = AccessReferences.SubRegionsAccess.Find(x => x.Item1 == subregion).Item2;
+					if (hardaccess[0].Contains(AccessReqs.Barred))
+					{
+						accessToKeep.Add(subRegionAccessToKeep.OrderBy(x => x.Item2.Count).First());
+					}
+					else
+					{
+						accessToKeep.Add((subregion, hardaccess.First()));
+					}
+
 					accessToKeep.Add(accessToCompare[0]);
 					accessToRemove.Add(accessToCompare[0]);
 					accessToCompare = accessToCompare.Except(accessToRemove).ToList();
 					currentAccess++;
+				}
+				else
+				{
+					accessToKeep.AddRange(subRegionAccessToKeep);
 				}
 			}
 		
@@ -435,22 +458,9 @@ namespace FFMQLib
 				}
 			}
 
-			// Clean Up requirements
-			List<AccessReqs> unincentivizedAccess = new() { AccessReqs.LibraCrest, AccessReqs.GeminiCrest, AccessReqs.MobiusCrest, AccessReqs.IcePyramid3FStatue, AccessReqs.IcePyramid4FStatue, AccessReqs.BarrelPushed };
-
 			foreach (var gameobject in GameObjects)
 			{
 				gameobject.AccessRequirements = gameobject.AccessRequirements.Select(x => x.Distinct().ToList()).ToList();
-				gameobject.AccessRequirements = gameobject.AccessRequirements.OrderBy(x => x.Count + (x.Intersect(unincentivizedAccess).ToList().Count * 2)).ToList(); // Add crest tax
-			}
-
-			// Expert Mode check
-			if (flags.LogicOptions != LogicOptions.Expert)
-			{
-				foreach (var gameobject in GameObjects)
-				{
-					gameobject.AccessRequirements = gameobject.AccessRequirements.Where((x, i) => i == 0).ToList();
-				}
 			}
 
 			// Set Priorization
@@ -642,6 +652,31 @@ namespace FFMQLib
 			foreach (var link in currentRoom.Links.Where(l => !visitedrooms.Contains(l.TargetRoom) && !l.Access.Intersect(AccessReferences.CrestsAccess).Any()))
 			{
 				ProcessRoomForCompanions(reqcount + link.Access.Count, link.TargetRoom, companionlist, visitedrooms);
+			}
+		}
+
+		public List<AccessReqs> CrawlForRequirements(LocationIds location)
+		{
+			var initialRoom = Rooms.Find(x => x.Id == 0).Links.Find(l => l.Entrance == AccessReferences.LocationsByEntrances.Find(x => x.Item1 == location).Item2).TargetRoom;
+
+			List<AccessReqs> accessList = Rooms.Find(x => x.Id == initialRoom).Links.SelectMany(x => x.Access).ToList();
+			List<int> visitedRooms = new() { 0 };
+
+			ProcessRoomForRequirements(0, initialRoom, accessList, visitedRooms);
+
+			return accessList;
+		}
+
+		public void ProcessRoomForRequirements(int reqcount, int roomid, List<AccessReqs> accesslist, List<int> visitedrooms)
+		{
+			var currentRoom = Rooms.Find(x => x.Id == roomid);
+
+			visitedrooms.Add(roomid);
+
+			foreach (var link in currentRoom.Links.Where(l => !visitedrooms.Contains(l.TargetRoom) && !l.Access.Intersect(AccessReferences.CrestsAccess).Any()))
+			{
+				accesslist.AddRange(link.Access);
+				ProcessRoomForRequirements(reqcount + link.Access.Count, link.TargetRoom, accesslist, visitedrooms);
 			}
 		}
 	}

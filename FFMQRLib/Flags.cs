@@ -65,7 +65,7 @@ namespace FFMQLib
             }
 
             var actualbytes = BitConverter.GetBytes(flagstrinvalue);
-            string flagstring = Convert.ToBase64String(BitConverter.GetBytes(flagstrinvalue));
+            string flagstring = Convert.ToBase64String(BitConverter.GetBytes(flagstrinvalue).Concat(new byte[] { 0 }).ToArray());
             return flagstring.Replace('+', '-').Replace('/', '_').Replace('=', '~');
         }
 
@@ -111,7 +111,7 @@ namespace FFMQLib
             // Throw an error if the settings don't offer enough LocationIds.
             if ((NpcsShuffle == ItemShuffleNPCsBattlefields.Exclude || BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Exclude) && BoxesShuffle == ItemShuffleBoxes.Exclude)
             {
-                throw new Exception("Selected flags don't allow enough locations to place all Quest Items. Change flags to include more LocationIds.");
+                throw new Exception("Selected flags don't allow enough locations to place all Quest Items. Change flags to include more Locations.");
             }
             
             // Throw an error if the settings don't offer enough LocationIds.
