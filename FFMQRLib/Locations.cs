@@ -421,7 +421,6 @@ namespace FFMQLib
 			foreach (var region in specialRegionsAccess)
 			{
 				var location = specialActualLocations.Find(x => x.Item2 == region.Access).Item1;
-
 				var accessreq = gamelogic.CrawlForRequirements(location);
 
 				var commonaccess = accessreq.Intersect(specialLocations).ToList();
@@ -441,7 +440,7 @@ namespace FFMQLib
 			{
 				loc1 = earlyLocations.First();
 				loc2 = rng.PickFrom(forestaLocations);
-				
+
 				locationsToUpdate.Add((loc1, loc2));
 				placedLocations.Add(loc1);
 				takenLocations.Add(loc2);
