@@ -29,7 +29,6 @@ namespace FFMQLib
 		public EnemiesStats enemiesStats;
 		public GameLogic GameLogic;
 		public EntrancesData EntrancesData;
-		//public Locations NodeLocations;
 		private byte[] originalData;
 		public bool beta = false;
 		public bool spoilers = false;
@@ -186,9 +185,7 @@ namespace FFMQLib
 			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
 			CompanionRoutines();
 			DummyRoom();
-
-			// spoilersText = tempLocat.GenerateYaml();
-
+			PazuzuFixedFloorRng(rng);
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
@@ -216,7 +213,6 @@ namespace FFMQLib
 			
 			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this, rng);
 			EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
-
 			
 			// Items
 			ItemsPlacement itemsPlacement = new(flags, GameLogic.GameObjects, this, rng);

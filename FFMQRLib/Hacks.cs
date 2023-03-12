@@ -307,6 +307,24 @@ namespace FFMQLib
 
 			GameMaps[(int)MapList.ForestaInterior].ModifyMap(0x28, 0x35, dummyroomTiny);
 		}
+		public void PazuzuFixedFloorRng(MT19337 rng)
+		{
+			PutInBank(0x11, 0x8800, Blob.FromHex("08e230ad940ec91ff0031ad002a9008d940eaabf2088118d9e00286b"));
+
+			List<byte> randomJumps = new();
+			for (int i = 0; i < 0x20; i++)
+			{
+				randomJumps.Add((byte)rng.Between(1, 6));
+			}
+
+			PutInBank(0x11, 0x8820, randomJumps.ToArray());
+
+			var newPazuzuRng = new ScriptBuilder(new List<string> {
+						"090088112F",
+					});
+
+			newPazuzuRng.WriteAt(0x03, 0xFC7E, this);
+		}
 		public void BugFixes()
 		{
 			// Fix vendor buy 0 bug

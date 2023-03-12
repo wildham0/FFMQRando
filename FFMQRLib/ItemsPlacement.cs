@@ -297,8 +297,6 @@ namespace FFMQLib
 				finalChests[i].Content = finalConsumables[i];
 				finalChests[i].IsPlaced = true;
 			}
-
-			//ItemsLocations.AddRange(finalChests);
 		}
 
 		private void ProcessRequirements(List<AccessReqs> accessReqToProcess)
