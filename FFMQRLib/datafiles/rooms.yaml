@@ -301,7 +301,7 @@
 - name: Focus Tower 2F - Sand Coin Passage
   id: 10
   game_objects:
-  - name: "Focus Tower SansCoin Chest"
+  - name: "Focus Tower SandCoin Chest"
     object_id: 0x03
     type: "Chest"
     access: []

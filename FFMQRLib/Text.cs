@@ -244,7 +244,8 @@ namespace FFMQLib
 				"Playtesters\n" +
 				"spellzapp\n" +
 				"caleb\n" +
-				"VampireKnight\n\n" +
+				"VampireKnight\n" +
+				"RoanMaster\n\n" +
 				"Special Thanks\n" +
 				"Entroper\n" +
 				"nitz\n" +

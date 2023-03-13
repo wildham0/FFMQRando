@@ -453,10 +453,22 @@ namespace FFMQLib
 				}
 			}
 
+			// Prune duplicate reqs and update standard logic to excludwe Crest Teleporters
 			foreach (var gameobject in GameObjects)
 			{
 				gameobject.AccessRequirements = gameobject.AccessRequirements.Select(x => x.Distinct().ToList()).ToList();
+				var nonCrestAccesss = gameobject.AccessRequirements.Where(x => !x.Intersect(AccessReferences.CrestsAccess).Any()).ToList();
+
+				if (flags.LogicOptions != LogicOptions.Expert && nonCrestAccesss.Any())
+				{
+					gameobject.AccessRequirements = nonCrestAccesss;
+				}
 			}
+
+			// Special check for Ship Dock
+			var shipdockobject = GameObjects.Find(x => x.OnTrigger.Contains(AccessReqs.ShipDockAccess));
+
+			shipdockobject.AccessRequirements = shipdockobject.AccessRequirements.OrderBy(x => x.Count).Take(1).ToList();
 
 			// Set Priorization
 			if (flags.ChestsShuffle == ItemShuffleChests.Prioritize)
