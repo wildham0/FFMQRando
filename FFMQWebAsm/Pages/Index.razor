@@ -139,8 +139,8 @@
     <Container Class="flagBox">
         <Container Class="flagColumn">
             <EnumFlag UsePreset=usePreset Name="Enemies Density" @bind-Value="flags.EnemiesDensity" Tooltip="Set how many enemies are on each maps." />
-            <EnumFlag UsePreset=usePreset Name="Enemies' Stats Scaling" @bind-Value="flags.EnemiesScaling" Tooltip="Adjust enemies stats by the selected percentage." />
-            <EnumFlag UsePreset=usePreset Name="Scaling Spread" @bind-Value="flags.EnemiesScalingSpread" Tooltip="Add random variation to stats scaling of enemies.<br/><br/>The percentages are additive: eg. scaling of 100% with a spread of 25% means the stats scaling will vary between 75% and 125%." />
+            <DoubleEnumFlag UsePreset=usePreset Name="Standard Enemies Scaling" @bind-Value="flags.EnemiesScalingLower" @bind-Value2="flags.EnemiesScalingUpper" Tooltip="Randomly adjust enemies stats by the selected range percentage.<br/><br/>Include mini-bosses' weaker clones." />
+            <DoubleEnumFlag UsePreset=usePreset Name="Bosses Scaling" @bind-Value="flags.BossesScalingLower" @bind-Value2="flags.BossesScalingUpper" Tooltip="Randomly adjust bosses stats by the selected range percentage.<br/><br/>Include Mini-Bosses, Bosses, Bosses' refights and the Dark King." />
             <EnumFlag UsePreset=usePreset Name="Enemizer Attacks" @bind-Value="flags.EnemizerAttacks" Tooltip="Shuffles enemy attacks.<br /><br />Standard: No shuffle.<br /><br />Safe Randomization: Randomize every attack but leave out self-destruct and Dark King attacks<br /><br />Chaos Randomization: Randomize and include self destruct and Dark King attacks<br /><br />Self-destruct: Every enemy self destructs<br /><br />Simple Shuffle: Instead of randomizing, shuffle one monsters attacks to another. Dark King is left vanilla." />
         </Container>
         <Container Class="flagColumn">

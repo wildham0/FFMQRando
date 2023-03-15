@@ -1341,7 +1341,7 @@
   - target_room: 65
     access: []
   - target_room: 53
-    access: ["Bomb", "Claw"]
+    access: ["Bomb", "Claw", "Sword"]
 - name: Ice Pyramid 5F Stairs to Ice Golem
   id: 67
   game_objects:

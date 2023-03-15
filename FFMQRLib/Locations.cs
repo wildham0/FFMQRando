@@ -409,22 +409,22 @@ namespace FFMQLib
 				new SpecialRegion(SubRegions.VolcanoBattlefield, AccessReqs.DualheadHydra),
 			};
 
-			List <AccessReqs> specialLocations = new() { AccessReqs.SummerAquaria, AccessReqs.DualheadHydra, AccessReqs.LavaDomePlate, AccessReqs.Gidrah };
+			List <AccessReqs> gatingLocationsAccess = new() { AccessReqs.SummerAquaria, AccessReqs.DualheadHydra, AccessReqs.LavaDomePlate, AccessReqs.Gidrah };
 
-			List<(LocationIds, AccessReqs)> specialActualLocations = new();
+			List<(LocationIds, AccessReqs)> gatingLocations = new();
 
-			foreach (var location in specialLocations)
+			foreach (var location in gatingLocationsAccess)
 			{
-				specialActualLocations.Add((gamelogic.FindTriggerLocation(location), location));
+				gatingLocations.Add((gamelogic.FindTriggerLocation(location), location));
 			}
 
 			foreach (var region in specialRegionsAccess)
 			{
-				var location = specialActualLocations.Find(x => x.Item2 == region.Access).Item1;
+				var location = gatingLocations.Find(x => x.Item2 == region.Access).Item1;
 				var accessreq = gamelogic.CrawlForRequirements(location);
 
-				var commonaccess = accessreq.Intersect(specialLocations).ToList();
-				region.BarredLocations.AddRange(specialActualLocations.Where(x => commonaccess.Contains(x.Item2)).Select(x => x.Item1).Append(location));
+				var commonaccess = accessreq.Intersect(gatingLocationsAccess).ToList();
+				region.BarredLocations.AddRange(gatingLocations.Where(x => commonaccess.Contains(x.Item2)).Select(x => x.Item1).Append(location));
 			}
 
 			// Create the early locations, these are always placed in Foresta
@@ -467,6 +467,52 @@ namespace FFMQLib
 			}
 
 			// Place Special Regions
+			bool gatingLocationPlaced = false;
+			List<LocationIds> gatingLocationsList = gatingLocations.Select(l => l.Item1).ToList();
+
+			foreach (var region in specialRegionsAccess)
+			{
+				var gatedRegionLocations = destinationLocations.Where(x => (AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 == region.SubRegion) && !takenLocations.Contains(x)).ToList();
+
+				foreach (var location in gatedRegionLocations)
+				{
+					var regionSafeLocations = shuffleLocations.Where(x => !placedLocations.Contains(x) &&
+						!region.BarredLocations.Contains(x) &&
+						(gatingLocationPlaced ? !gatingLocationsList.Contains(x) : true)
+						).ToList();
+
+					loc1 = rng.PickFrom(regionSafeLocations);
+					loc2 = location;
+
+					if (gatingLocationsList.Contains(loc1))
+					{
+						gatingLocationPlaced = true;
+					}
+
+					locationsToUpdate.Add((loc1, loc2));
+					placedLocations.Add(loc1);
+					takenLocations.Add(loc2);
+				}
+			}
+
+
+			//var gatedRegionLocations = destinationLocations.Where(x => (AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 == SubRegions.VolcanoBattlefield || AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 == SubRegions.AquariaFrozenField) && !takenLocations.Contains(x)).ToList();
+			//var regionSafeLocations = shuffleLocations.Where(x => !placedLocations.Contains(x)).ToList();
+			/*
+			while (gatedRegionLocations.Count > 0)
+			{
+				loc1 = rng.PickFrom(startingLocations);
+				loc2 = rng.PickFrom(gatedRegionLocations);
+
+				locationsToUpdate.Add((loc1, loc2));
+				placedLocations.Add(loc1);
+				takenLocations.Add(loc2);
+
+				forestaLocations = forestaLocations.Where(x => !takenLocations.Contains(x)).ToList();
+				startingLocations = startingLocations.Where(x => !placedLocations.Contains(x)).ToList();
+			}
+
+
 			foreach (var region in specialRegionsAccess)
 			{
 				foreach (var location in region.BarredLocations.Distinct())
@@ -483,7 +529,7 @@ namespace FFMQLib
 						takenLocations.Add(loc2);
 					}
 				}
-			}
+			}*/
 
 			shuffleLocations = shuffleLocations.Where(x => !placedLocations.Contains(x)).ToList();
 			destinationLocations = destinationLocations.Where(x => !takenLocations.Contains(x)).ToList();

@@ -22,8 +22,10 @@ namespace FFMQLib
         public ItemShuffleNPCsBattlefields BattlefieldsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
         public LogicOptions LogicOptions { get; set; } = LogicOptions.Standard;
         public bool ShuffleEnemiesPosition { get; set; } = false;
-        public EnemiesScaling EnemiesScaling { get; set; } = EnemiesScaling.Normal;
-        public EnemiesScalingSpread EnemiesScalingSpread { get; set; } = EnemiesScalingSpread.None;
+        public EnemiesScaling EnemiesScalingLower { get; set; } = EnemiesScaling.Normal;
+        public EnemiesScaling EnemiesScalingUpper { get; set; } = EnemiesScaling.Normal;
+        public EnemiesScaling BossesScalingLower { get; set; } = EnemiesScaling.Normal;
+        public EnemiesScaling BossesScalingUpper { get; set; } = EnemiesScaling.Normal;
         public EnemizerAttacks EnemizerAttacks { get; set; } = EnemizerAttacks.Normal;
         public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
         public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;

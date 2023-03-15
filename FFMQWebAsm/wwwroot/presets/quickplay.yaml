@@ -29,19 +29,46 @@ Final Fantasy Mystic Quest:
   shuffle_enemies_position:
     true: 1
     false: 0
-  enemies_scaling:
+  enemies_scaling_lower:
     Quarter: 1
     Half: 0
     ThreeQuarter: 0
     Normal: 0
+    OneAndQuarter: 0
     OneAndHalf: 0
     Double: 0
     DoubleAndHalf: 0
-  enemies_scaling_spread:
-    None: 1
-    Quarter: 0
+    Triple: 0
+  enemies_scaling_upper:
+    Quarter: 1
     Half: 0
-    Full: 0
+    ThreeQuarter: 0
+    Normal: 0
+    OneAndQuarter: 0
+    OneAndHalf: 0
+    Double: 0
+    DoubleAndHalf: 0
+    Triple: 0
+  bosses_scaling_lower:
+    Quarter: 1
+    Half: 0
+    ThreeQuarter: 0
+    Normal: 0
+    OneAndQuarter: 0
+    OneAndHalf: 0
+    Double: 0
+    DoubleAndHalf: 0
+    Triple: 0
+  bosses_scaling_upper:
+    Quarter: 1
+    Half: 0
+    ThreeQuarter: 0
+    Normal: 0
+    OneAndQuarter: 0
+    OneAndHalf: 0
+    Double: 0
+    DoubleAndHalf: 0
+    Triple: 0
   enemizer_attacks:
     Normal: 1
     Safe: 0

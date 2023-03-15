@@ -552,7 +552,7 @@
   id: 110
   area: 33
   coordinates: [17, 5]
-  teleporter: [42, 8]
+  teleporter: [9, 0] # Remove script [42, 8] for overworld teleport (but not main exit)
 - name: Fall Basin - Main Exit
   id: 111
   area: 33

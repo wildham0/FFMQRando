@@ -38,12 +38,10 @@ namespace FFMQRWin
             trackBar1.TickFrequency = 1;
             trackBar1.Maximum = Enum.GetValues<FFMQLib.EnemiesScaling>().Length - 1;
             trackBar1.Minimum = 0;
-            trackBar1.Value = (int)flags.EnemiesScaling;
             
             trackBar2.TickFrequency = 1;
             trackBar2.Maximum = Enum.GetValues<FFMQLib.EnemiesScalingSpread>().Length - 1;
             trackBar2.Minimum = 0;
-            trackBar2.Value = (int)flags.EnemiesScalingSpread;
 
             trackBar3.TickFrequency = 1;
             trackBar3.Maximum = Enum.GetValues<FFMQLib.LevelingCurve>().Length - 1;
@@ -174,10 +172,6 @@ namespace FFMQRWin
                 checkBox2.Checked = flags.ShuffleEnemiesPosition;
                 comboBox1.SelectedItem = flags.EnemiesDensity;
                 comboBox2.SelectedItem = flags.BattlesQuantity;
-                trackBar1.Value = (int)flags.EnemiesScaling;
-                label6.Text = "Enemies Scaling: " + flags.EnemiesScaling.GetDescription();
-                trackBar2.Value = (int)flags.EnemiesScalingSpread;
-                label7.Text = "Scaling Spread: " + flags.EnemiesScalingSpread.GetDescription();
                 trackBar3.Value = (int)flags.LevelingCurve;
                 label8.Text = "Leveling Curve: " + flags.LevelingCurve.GetDescription();
             }
@@ -194,14 +188,10 @@ namespace FFMQRWin
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            flags.EnemiesScaling = (EnemiesScaling)((TrackBar)sender).Value;
-            label6.Text = "Enemies Scaling: " + flags.EnemiesScaling.GetDescription();
             textBox3.Text = flags.GenerateFlagString();
         }
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
-            flags.EnemiesScalingSpread = (EnemiesScalingSpread)((TrackBar)sender).Value;
-            label7.Text = "Scaling Spread: " + flags.EnemiesScalingSpread.GetDescription();
             textBox3.Text = flags.GenerateFlagString();
         }
 

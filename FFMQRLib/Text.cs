@@ -239,8 +239,8 @@ namespace FFMQLib
 				"FFMQ Randomizer\n\n" +
 				"Main Developer\n" +
 				"wildham\n\n" +
-				"FFMQ Enemizer\n" +
-				"Oipo\n\n" +
+				"Contributors\n" +
+				"Oipo (Enemizer)\n\n" +
 				"Playtesters\n" +
 				"spellzapp\n" +
 				"caleb\n" +
