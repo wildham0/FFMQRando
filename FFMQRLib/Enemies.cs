@@ -321,7 +321,7 @@ namespace FFMQLib
 
             rom.PutInBank(DarkKingAttackLinkBank, DarkKingAttackLinkAddress, _darkKingAttackLinkBytes);
         }
-        public void ShuffleAttacks(EnemizerAttacks enemizerattacks, MT19337 rng)
+        public void ShuffleAttacks(EnemizerAttacks enemizerattacks, EnemiesScaling bossscaling, MT19337 rng)
         {
             var possibleAttacks = new List<byte>();
             for(byte i = 0x40; i <= 0xDB; i++)
@@ -344,7 +344,7 @@ namespace FFMQLib
                     }
                     _ShuffleAttacks(possibleAttacks, rng);
                     */
-                    SafeShuffleAttacks(rng);
+                    SafeShuffleAttacks(bossscaling > EnemiesScaling.OneAndQuarter, rng);
                     break;
                 case EnemizerAttacks.Chaos:
                     _ShuffleAttacks(possibleAttacks, rng);
@@ -441,7 +441,7 @@ namespace FFMQLib
                 _darkKingAttackLinkBytes[i] = possibleAttacks[(int)(rng.Next() % possibleAttacks.Count)];
             }
         }
-        private void SafeShuffleAttacks(MT19337 rng)
+        private void SafeShuffleAttacks(bool highhpscaling, MT19337 rng)
         {
             List<AttackPattern> standardPatterns = new()
             {
@@ -482,12 +482,22 @@ namespace FFMQLib
 
             List<int> standardEnemies = Enumerable.Range(0, 0x40).ToList();
             List<int> miniBosses = Enumerable.Range(0x42, 8).ToList();
-            List<int> bosses = Enumerable.Range(0x4A, 9).ToList();
-            bosses.AddRange(new List<int>() { 0x40, 0x41, 0xFE, 0xFF });
+            List<int> crystalBosses = new List<int>() { 0x4A, 0x4B, 0x4C, 0x4E, 0xFE };
+            List<int> endBosses = new List<int>() { 0x40, 0x41, 0x4D, 0x4F, 0x50, 0x51, 0x52, 0xFF };
 
             List<int> allAttacks = Enumerable.Range(0x40, 156).ToList();
-            List<int> stronHpAttacks = Enumerable.Range(0x6C, 38).ToList();
-            stronHpAttacks.AddRange(new List<int>() { 0x68, 0x69, 0xB8, 0xBB, 0xBC, 0xBD, 0xC4, 0xC6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB });
+
+            List<int> lowHpAttacks = Enumerable.Range(0x5A, 14).ToList();
+            lowHpAttacks.AddRange(new List<int>() { 0xB9, 0xBA, 0xBE, 0xBF, 0xC0, 0xC5, 0xC7 });
+
+            List<int> midHpAttacks = Enumerable.Range(0x6C, 38).ToList();
+            midHpAttacks.AddRange(new List<int>() { 0x68, 0x69, 0xB8, 0xBB, 0xC4, 0xC6, 0xD9, 0xDA });
+           
+            List<int> statusHpAttacks = Enumerable.Range(0x92, 17).ToList();
+            
+            List<int> highHpAttacks = Enumerable.Range(0x80, 18).ToList();
+            highHpAttacks.AddRange(new List<int>() { 0xBC, 0xBD, 0xD7, 0xD8, 0xDB });
+
             List<int> dkAttacks = Enumerable.Range(0xCA, 13).ToList();
             List<int> psychshieldAttacks = Enumerable.Range(0xC8, 2).ToList();
             List<int> strongAttacks = new List<int>() { 0x45, 0x59, 0x6A, 0x6B, 0x7E, 0x80, 0x82, 0x84, 0x85, 0x8A, 0x8E, 0x9F, 0xBB };
@@ -557,22 +567,6 @@ namespace FFMQLib
                 {
                     if (nastyAttackBudget > 0)
                     {
-                        var validAttacks = commonAttacks.Concat(rareAttacks).ToList();
-
-                        if (selfdestructs < 0)
-                        {
-                            validAttacks.Remove(selfdestruct);
-                        }
-
-                        if (selfdestructs < 0)
-                        {
-                            validAttacks.Remove(selfdestruct);
-                        }
-
-                        validAttacks = validAttacks.Where(a => (selfdestructs <= 0 ? a != selfdestruct : true) &&
-                            (multipliers <= 0 ? a != multiply : true)).ToList();
-
-
                         var selectAttack = rng.PickFrom(commonAttacks.Concat(rareAttacks).ToList());
                         attackList.Add(selectAttack);
                         if (rareAttacks.Contains(selectAttack))
@@ -611,21 +605,18 @@ namespace FFMQLib
                     attackList.Add(0xFF);
                 }
 
-                List<byte> newAttackArray = new List<byte>() { (byte)pattern.Id };
-                newAttackArray.AddRange(attackList.Select(x => (byte)x).ToList());
-
                 _EnemyAttackLinks[enemy].AttackPattern = (byte)pattern.Id;
                 _EnemyAttackLinks[enemy].Attacks = attackList.Select(x => (byte)x).ToArray();
                 _EnemyAttackLinks[enemy].CastHeal = (byte)(healCaster ? healSpell : 0xFF);
                 _EnemyAttackLinks[enemy].CastCure = (byte)(cureCaster ? cureSpell : 0xFF);
             }
 
-            commonAttacks = allAttacks.Except(dkAttacks).Except(psychshieldAttacks).Except(deathstoneAttacks).Except(stronHpAttacks).ToList();
+            commonAttacks = allAttacks.Except(dkAttacks).Except(psychshieldAttacks).Except(deathstoneAttacks).Except(highHpAttacks).Except(midHpAttacks).Except(lowHpAttacks).Except(statusHpAttacks).ToList();
             commonAttacks.Remove(multiply);
             commonAttacks.Remove(selfdestruct);
-            rareAttacks = stronHpAttacks.Concat(deathstoneAttacks).ToList();
+            //rareAttacks = stronHpAttacks.Concat(deathstoneAttacks).ToList();
 
-            foreach (var boss in bosses)
+            foreach (var boss in crystalBosses.Concat(endBosses))
             {
                 var pattern = bossPatterns.Find(x => x.Id == boss);
                 int noOfAttacks = pattern.Count;
@@ -633,11 +624,41 @@ namespace FFMQLib
 
                 List<int> attackList = new();
 
+                List<int> validCommonAttacks;
+
+                if (highhpscaling)
+                {
+                    if (boss == 0x40 || boss == 0x41)
+                    {
+                        rareAttacks = deathstoneAttacks;
+                        validCommonAttacks = commonAttacks.Concat(dkAttacks).ToList();
+                    }
+                    else
+                    {
+                        rareAttacks = deathstoneAttacks.Concat(lowHpAttacks).Concat(statusHpAttacks).ToList();
+                        validCommonAttacks = endBosses.Contains(boss) ? commonAttacks.Concat(dkAttacks).ToList() : commonAttacks;
+                    }
+                }
+                else
+                {
+                    if (boss == 0x40 || boss == 0x41)
+                    {
+                        rareAttacks = deathstoneAttacks.Concat(lowHpAttacks).Concat(statusHpAttacks).ToList();
+                        validCommonAttacks = commonAttacks.Concat(dkAttacks).ToList();
+                    }
+                    else
+                    {
+                        rareAttacks = deathstoneAttacks.Concat(midHpAttacks).Concat(statusHpAttacks).ToList();
+                        validCommonAttacks = endBosses.Contains(boss) ? commonAttacks.Concat(dkAttacks).Concat(lowHpAttacks).ToList() : commonAttacks.Concat(lowHpAttacks).ToList();
+                    }
+                }
+
                 for (int i = 0; i < noOfAttacks; i++)
                 {
+
                     if (nastyAttackBudget > 0)
                     { 
-                        var selectAttack = rng.PickFrom(commonAttacks.Concat(rareAttacks).ToList());
+                        var selectAttack = rng.PickFrom(validCommonAttacks.Concat(rareAttacks).ToList());
                         attackList.Add(selectAttack);
                         if (rareAttacks.Contains(selectAttack))
                         {
@@ -646,7 +667,7 @@ namespace FFMQLib
                     }
                     else
                     {
-                        attackList.Add(rng.PickFrom(commonAttacks));
+                        attackList.Add(rng.PickFrom(validCommonAttacks));
                     }
                 }
 
@@ -664,7 +685,7 @@ namespace FFMQLib
                 else
                 {
                     // special check hydras as their scripts is splitted
-                    var targetHydra = (boss == 0xFF ? 0x4C : 0x4D);
+                    var targetHydra = (boss == 0xFE ? 0x4C : 0x4D);
 
                     _EnemyAttackLinks[targetHydra].Attacks[3] = (byte)attackList[0];
                     _EnemyAttackLinks[targetHydra].Attacks[4] = (byte)attackList[1];
