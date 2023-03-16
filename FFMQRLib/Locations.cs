@@ -389,18 +389,25 @@ namespace FFMQLib
 			}
 			
 			companionsRating.Shuffle(rng);
-			companionsRating = companionsRating.OrderByDescending(x => x.Item2).ToList();
-			var companionLocation = companionsRating.First().Item1;
+			companionsRating = companionsRating.Where(x => x.Item2 > 0).OrderByDescending(x => x.Item2).ToList();
+			LocationIds companionLocation = (flags.MapShuffling == MapShufflingMode.Everything) ? companionsRating.First().Item1 : rng.PickFrom(companionsRating).Item1;
 
 			// Find most accessible locations for item placement
 			List<(LocationIds, int)> locationRating = new();
 
-			foreach (var location in shuffleLocations.Where(x => x > LocationIds.HillOfDestiny && x != companionLocation))
+			foreach (var location in shuffleLocations.Where(x => x > LocationIds.HillOfDestiny))
 			{
 				locationRating.Add(gamelogic.CrawlForChestRating(location));
 			}
 
 			locationRating = locationRating.Where(x => x.Item1 != companionLocation).OrderByDescending(x => x.Item2).ToList();
+
+			List<LocationIds> guaranteedChestLocations = new();
+
+			
+			guaranteedChestLocations = (flags.MapShuffling == MapShufflingMode.Overworld) ?
+				new() { rng.PickFrom(AccessReferences.StartingWeaponAccess) } :
+				locationRating.GetRange(0, 2).Select(x => x.Item1).ToList();
 
 			// Find Special Locations
 			List<SpecialRegion> specialRegionsAccess = new()
@@ -428,7 +435,8 @@ namespace FFMQLib
 			}
 
 			// Create the early locations, these are always placed in Foresta
-			List<LocationIds> earlyLocations = new() { companionLocation, safeGoldBattlefield, locationRating[0].Item1, locationRating[1].Item1 };
+			List<LocationIds> earlyLocations = new() { companionLocation, safeGoldBattlefield };
+			earlyLocations.AddRange(guaranteedChestLocations);
 
 			// Place guaranteed locations
 			var loc1 = LocationIds.None;
@@ -494,42 +502,6 @@ namespace FFMQLib
 					takenLocations.Add(loc2);
 				}
 			}
-
-
-			//var gatedRegionLocations = destinationLocations.Where(x => (AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 == SubRegions.VolcanoBattlefield || AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 == SubRegions.AquariaFrozenField) && !takenLocations.Contains(x)).ToList();
-			//var regionSafeLocations = shuffleLocations.Where(x => !placedLocations.Contains(x)).ToList();
-			/*
-			while (gatedRegionLocations.Count > 0)
-			{
-				loc1 = rng.PickFrom(startingLocations);
-				loc2 = rng.PickFrom(gatedRegionLocations);
-
-				locationsToUpdate.Add((loc1, loc2));
-				placedLocations.Add(loc1);
-				takenLocations.Add(loc2);
-
-				forestaLocations = forestaLocations.Where(x => !takenLocations.Contains(x)).ToList();
-				startingLocations = startingLocations.Where(x => !placedLocations.Contains(x)).ToList();
-			}
-
-
-			foreach (var region in specialRegionsAccess)
-			{
-				foreach (var location in region.BarredLocations.Distinct())
-				{
-					if (!placedLocations.Contains(location))
-					{
-						var safeLocactions = destinationLocations.Where(x => !takenLocations.Contains(x) && AccessReferences.MapSubRegions.Find(r => r.Item2 == x).Item1 != region.SubRegion).ToList();
-
-						loc1 = location;
-						loc2 = rng.PickFrom(safeLocactions);
-
-						locationsToUpdate.Add((loc1, loc2));
-						placedLocations.Add(loc1);
-						takenLocations.Add(loc2);
-					}
-				}
-			}*/
 
 			shuffleLocations = shuffleLocations.Where(x => !placedLocations.Contains(x)).ToList();
 			destinationLocations = destinationLocations.Where(x => !takenLocations.Contains(x)).ToList();

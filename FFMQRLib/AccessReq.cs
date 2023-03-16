@@ -226,6 +226,18 @@ namespace FFMQLib
 			AccessReqs.Phoebe1,
 			AccessReqs.Reuben1,
 		};
+		public static List<LocationIds> StartingWeaponAccess = new()
+		{
+			LocationIds.LevelForest,
+			LocationIds.Foresta,
+			LocationIds.BoneDungeon,
+			LocationIds.IcePyramid,
+			LocationIds.Volcano,
+			LocationIds.AliveForest,
+			LocationIds.Aquaria,
+			LocationIds.Fireburg,
+			LocationIds.Windia
+		};
 		public static List<(LocationIds, int)> LocationsByEntrances = new()
 		{
 			(LocationIds.LevelForest, 445),
