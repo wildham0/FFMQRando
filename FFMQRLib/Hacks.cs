@@ -352,7 +352,7 @@ namespace FFMQLib
 			// Companion Weapon Drawing Routine
 			PutInBank(0x00, 0x8D33, Blob.FromHex("EA22C08911"));
 			PutInBank(0x00, 0x8D6C, Blob.FromHex("22e08911eaeaeaeaeaeaeaeaeaeaeaeaea"));
-			PutInBank(0x11, 0x89C0, Blob.FromHex("aef001e000f005ae600ed005aeb110e0ff6b"));
+			PutInBank(0x11, 0x89C0, Blob.FromHex("08aef001e000f00cc230ae610ef005ae600e8003aeb11028e0ff6b"));
 			PutInBank(0x11, 0x89E0, Blob.FromHex("22c08911dabf0098040a0a8df700c210686b"));
 		}
 		public void BugFixes()
