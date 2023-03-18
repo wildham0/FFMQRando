@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.3.57";
+		public static string Version = "1.3.58";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -186,6 +186,7 @@ namespace FFMQLib
 			CompanionRoutines();
 			DummyRoom();
 			PazuzuFixedFloorRng(rng);
+			KeyItemWindow();
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);

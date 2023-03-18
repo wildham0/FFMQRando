@@ -325,6 +325,36 @@ namespace FFMQLib
 
 			newPazuzuRng.WriteAt(0x03, 0xFC7E, this);
 		}
+		public void KeyItemWindow()
+		{
+			// Timer Hack
+			PutInBank(0x00, 0x8968, Blob.FromHex("22008911eaeaeaeaeaeaeaea"));
+			PutInBank(0x11, 0x8900, Blob.FromHex("a900005bee970ed003ee990ead610ed0049c600e6bce610e6b"));
+
+			// Give Item Routine
+			PutInBank(0x03, 0xB4F5, Blob.FromHex("07408911"));
+			PutInBank(0x11, 0x8940, Blob.FromHex("0928db0005061053890506146b860504406b8611600e0d610e2c0100"));
+
+			// Keep Weapon Sprite
+			PutInBank(0x03, 0x822E, Blob.FromHex("00"));
+
+			// Draw Empty Companion Stat Window
+			PutInBank(0x03, 0xB787, Blob.FromHex("2f2f07708911"));
+			PutInBank(0x11, 0x8970, Blob.FromHex("0530eaed089089280000"));
+
+			// Draw Complete Companion Stat Window
+			PutInBank(0x03, 0x8264, Blob.FromHex("2f07808911"));
+			PutInBank(0x11, 0x8980, Blob.FromHex("08908924012e1e0700"));
+
+			// Box drawing script
+			PutInBank(0x11, 0x8990, Blob.FromHex("0f600e0b004288241b300405151c3118fefe01fefe09298d00"));
+
+			// Companion Weapon Drawing Routine
+			PutInBank(0x00, 0x8D33, Blob.FromHex("EA22C08911"));
+			PutInBank(0x00, 0x8D6C, Blob.FromHex("22e08911eaeaeaeaeaeaeaeaeaeaeaeaea"));
+			PutInBank(0x11, 0x89C0, Blob.FromHex("aef001e000f005ae600ed005aeb110e0ff6b"));
+			PutInBank(0x11, 0x89E0, Blob.FromHex("22c08911dabf0098040a0a8df700c210686b"));
+		}
 		public void BugFixes()
 		{
 			// Fix vendor buy 0 bug
@@ -356,6 +386,10 @@ namespace FFMQLib
 			// see 11_87A0_CritCheck.asm
 			PutInBank(0x02, 0x9F24, Blob.FromHex("22A08711900AEAEAEAEA"));
 			PutInBank(0x11, 0x87A0, Blob.FromHex("A53AC949900CC950900AC9CA9004C9D79002386B186B"));
+
+			// Fix Skullrus Rex and Stone Golem not counting as boss for hp based attacks
+			PutInBank(0x02, 0x9B07, Blob.FromHex("22508811"));
+			PutInBank(0x11, 0x8850, Blob.FromHex("a53bc940f008c941f004c9449001386b"));
 
 			// Fix crashing when transitioning from door and switching weapon at the same time (experimental)
 			// We skip a PHA/PLP in an interrupt routine that seems to use vertical scanline location (OPVCT) to compute the status register ???

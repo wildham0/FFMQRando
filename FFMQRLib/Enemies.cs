@@ -628,29 +628,13 @@ namespace FFMQLib
 
                 if (highhpscaling)
                 {
-                    if (boss == 0x40 || boss == 0x41)
-                    {
-                        rareAttacks = deathstoneAttacks;
-                        validCommonAttacks = commonAttacks.Concat(dkAttacks).ToList();
-                    }
-                    else
-                    {
-                        rareAttacks = deathstoneAttacks.Concat(lowHpAttacks).Concat(statusHpAttacks).ToList();
-                        validCommonAttacks = endBosses.Contains(boss) ? commonAttacks.Concat(dkAttacks).ToList() : commonAttacks;
-                    }
+                    rareAttacks = deathstoneAttacks.Concat(lowHpAttacks).Concat(statusHpAttacks).ToList();
+                    validCommonAttacks = endBosses.Contains(boss) ? commonAttacks.Concat(dkAttacks).ToList() : commonAttacks;
                 }
                 else
                 {
-                    if (boss == 0x40 || boss == 0x41)
-                    {
-                        rareAttacks = deathstoneAttacks.Concat(lowHpAttacks).Concat(statusHpAttacks).ToList();
-                        validCommonAttacks = commonAttacks.Concat(dkAttacks).ToList();
-                    }
-                    else
-                    {
-                        rareAttacks = deathstoneAttacks.Concat(midHpAttacks).Concat(statusHpAttacks).ToList();
-                        validCommonAttacks = endBosses.Contains(boss) ? commonAttacks.Concat(dkAttacks).Concat(lowHpAttacks).ToList() : commonAttacks.Concat(lowHpAttacks).ToList();
-                    }
+                    rareAttacks = deathstoneAttacks.Concat(midHpAttacks).Concat(statusHpAttacks).ToList();
+                    validCommonAttacks = endBosses.Contains(boss) ? commonAttacks.Concat(dkAttacks).Concat(lowHpAttacks).ToList() : commonAttacks.Concat(lowHpAttacks).ToList();
                 }
 
                 for (int i = 0; i < noOfAttacks; i++)
