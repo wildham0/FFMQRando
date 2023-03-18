@@ -347,7 +347,7 @@ namespace FFMQLib
 			PutInBank(0x11, 0x8980, Blob.FromHex("08908924012e1e0700"));
 
 			// Box drawing script
-			PutInBank(0x11, 0x8990, Blob.FromHex("0f600e0b004288241b300405151c3118fefe01fefe09298d00"));
+			PutInBank(0x11, 0x8990, Blob.FromHex("10610e05ba0000a789241b300405151c3118fefe01fefe09298d"));
 
 			// Companion Weapon Drawing Routine
 			PutInBank(0x00, 0x8D33, Blob.FromHex("EA22C08911"));
