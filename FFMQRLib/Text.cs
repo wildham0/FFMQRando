@@ -240,7 +240,7 @@ namespace FFMQLib
 				"Main Developer\n" +
 				"wildham\n\n" +
 				"Contributors\n" +
-				"Oipo (Enemizer)\n\n" +
+				"Oipo - Enemizer\n\n" +
 				"Playtesters\n" +
 				"spellzapp\n" +
 				"caleb\n" +

@@ -347,12 +347,12 @@ namespace FFMQLib
 			PutInBank(0x11, 0x8980, Blob.FromHex("08908924012e1e0700"));
 
 			// Box drawing script
-			PutInBank(0x11, 0x8990, Blob.FromHex("10610e05ba0000a789241b300405151c3118fefe01fefe09298d"));
+			PutInBank(0x11, 0x8990, Blob.FromHex("0f000e0b55bc8910610e05c10000aa890fa0100bffbc890ab889241b300405151c3118fefe01fefe09298d0000"));
 
 			// Companion Weapon Drawing Routine
 			PutInBank(0x00, 0x8D33, Blob.FromHex("EA22C08911"));
 			PutInBank(0x00, 0x8D6C, Blob.FromHex("22e08911eaeaeaeaeaeaeaeaeaeaeaeaea"));
-			PutInBank(0x11, 0x89C0, Blob.FromHex("08aef001e000f00cc230ae610ef005ae600e8003aeb11028e0ff6b"));
+			PutInBank(0x11, 0x89C0, Blob.FromHex("08c230ae610ef005ae600e8003aeb11028e0ff6b"));
 			PutInBank(0x11, 0x89E0, Blob.FromHex("22c08911dabf0098040a0a8df700c210686b"));
 		}
 		public void BugFixes()
@@ -418,10 +418,12 @@ namespace FFMQLib
 				List<byte> tracks = Enumerable.Range(0, 0x1A).Select(x => (byte)x).ToList();
 				List<byte> goodordertracks = Enumerable.Range(0, 0x1B).Select(x => (byte)x).ToList();
 				tracks.Remove(0x00);
+				tracks.Remove(0x04);
 				tracks.Remove(0x15);
 
 				tracks.Shuffle(rng);
-				tracks.Insert(0, 0x00);
+				tracks.Insert(0x00, 0x00);
+				tracks.Insert(0x04, 0x04);
 				tracks.Insert(0x15, 0x15);
 				tracks.Add(0x1A);
 				List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();

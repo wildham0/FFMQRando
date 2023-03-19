@@ -243,6 +243,11 @@
   area: 17
   coordinates: [35, 27]
   teleporter: [35, 0]
+- name: Foresta - Old Man House - Barrel Tile Script # New, use the focus tower column's script
+  id: 483
+  area: 17
+  coordinates: [0x23, 0x1E]
+  teleporter: [0x0D, 8]
 - name: Foresta Houses - Rest House - Bed Script
   id: 49
   area: 17

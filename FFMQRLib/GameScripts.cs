@@ -133,6 +133,24 @@ namespace FFMQLib
 					"2C124100"
 				}));
 
+			// Barrel in Oldman's house
+			GameFlags[(int)NewGameFlagsList.ShowBarrelMoved] = false;
+			GameFlags[(int)NewGameFlagsList.ShowBarrelNotMoved] = true;
+
+			MapObjects[0x11][0x09].Gameflag = (byte)NewGameFlagsList.ShowBarrelNotMoved;
+			MapObjects[0x11].Add(new MapObject(MapObjects[0x11][0x09]));
+			MapObjects[0x11][0x0B].Gameflag = (byte)NewGameFlagsList.ShowBarrelMoved;
+			MapObjects[0x11][0x0B].X--;
+
+			GameMaps[(int)MapList.ForestaInterior].ModifyMap(0x23, 0x1E, 0x36);
+
+			TileScripts.AddScript((int)TileScriptsList.ColumnMoved, new ScriptBuilder(new List<string> {
+					"2320",
+					"2B21",
+					"00"
+				}));
+
+
 			/*** Sand Temple ***/
 			// Tristam
 			MapObjects[0x12][0x00].X = 0x39;
@@ -204,8 +222,14 @@ namespace FFMQLib
 			GameMaps[(int)MapList.BoneDungeon].ModifyMap(0x1D, 0x17, 0x84);
 
 			/*** Focus Tower ***/
-			GameFlags[(int)GameFlagsList.ShowColumnMoved] = true;
-			GameFlags[(int)GameFlagsList.ShowColumnNotMoved] = false;
+			//GameFlags[(int)GameFlagsList.ShowColumnMoved] = true;
+			//GameFlags[(int)GameFlagsList.ShowColumnNotMoved] = false;
+
+			MapObjects[0x0A][0x03].Gameflag = 0x00;
+			MapObjects[0x0A][0x05].Gameflag = 0x00;
+
+			GameMaps[(int)MapList.FocusTower].ModifyMap(48, 53, 0x49);
+
 			GameFlags[0xCB] = false; // Hide MysteriousMan Find Phoebe
 
 			// Venus Chest
@@ -225,6 +249,9 @@ namespace FFMQLib
 					$"2B{(int)NewGameFlagsList.VenusChestUnopened:X2}",
 					"00"
 				}));
+
+			MapObjects[0x0A].RemoveAt(4);
+			MapObjects[0x0A].RemoveAt(2);
 
 			/*** Libra Temple ***/
 			// Phoebe

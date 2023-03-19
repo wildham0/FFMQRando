@@ -71,6 +71,10 @@ namespace FFMQLib
 	{
 		WakeWaterUsed = 0x02, 
 
+		// Barrel Flag
+		ShowBarrelMoved = 0x20,
+		ShowBarrelNotMoved = 0x21,
+
 		// Kaeli new flags
 		ShowForestaKaeli = 0x62,
 		ShowSickKaeli = 0x7D,
@@ -430,7 +434,7 @@ namespace FFMQLib
 		FightIceGolem,
 		LockedDoor, // Fireburg?
 		BlowingOffMineBoulder,
-		Unknown0d,
+		ColumnMoved,
 		FightDualheadHydra,
 		RopeBridgeFight,
 		Unknown10, // I was waiting for you little beast!
