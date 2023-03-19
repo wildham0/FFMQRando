@@ -132,6 +132,39 @@ namespace FFMQLib
 
 			// Reorder end of battle sequence to check player first
 			PutInBank(0x02, 0x8107, Blob.FromHex("a594d04ca595d030"));
+
+			// Add Wait 1 second routine
+			PutInBank(0x11, 0x94A0, Blob.FromHex("da08a20000e220c210a93c4822a09600683ad0f728fa6b"));
+
+			// Fix vendor text to sell books & seals
+			var fullbookscript = new ScriptBuilder(new List<string>{
+					"054D0C",			// Get item names
+					"054320C10C",
+					"05EA0C",
+					"0F0015",			// Load item ID
+					"05041F[10]",
+					"050614[10]",
+					"05041B[09]",
+					TextToHex(" Book"),
+					"00",
+					TextToHex(" Seal"),
+					"00"
+				});
+
+			var jumpScript = new ScriptBuilder(new List<string>{
+					"07609411",
+					"00"
+				});
+
+			fullbookscript.WriteAt(0x11, 0x9460, this);
+			jumpScript.WriteAt(0x03, 0xFFD0, this);
+			PutInBank(0x03, 0xFE80, Blob.FromHex("08D0FF"));
+		}
+		public void ExitHack(LocationIds startingLocation)
+		{
+			// Using exit on overworld send you back to home location
+			PutInBank(0x00, 0xC064, Blob.FromHex("22d08711eaeaeaeaea"));
+			PutInBank(0x11, 0x87D0, Blob.FromHex($"ad910e297f00f004c907006b08e220a9{(int)startingLocation:X2}8d880e28386b"));
 		}
 		public void ChestsHacks(Flags flags, ItemsPlacement itemsPlacement)
 		{
@@ -146,7 +179,7 @@ namespace FFMQLib
 
 			var test2 = itemsPlacement.ItemsLocations.Where(x => x.ObjectId < 0x20).ToList();
 
-			foreach(var location in itemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.Chest || x.Type == TreasureType.Box).ToList())
+			foreach(var location in itemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.Chest || x.Type == GameObjectType.Box).ToList())
             {
 				byte quantity = 1;
 
@@ -165,7 +198,7 @@ namespace FFMQLib
 				}
 
 
-				if (location.Type == TreasureType.Chest)
+				if (location.Type == GameObjectType.Chest)
 				{
 					GameFlags.CustomFlagToHex(lutResetBox, location.ObjectId, true);
 				}
@@ -192,12 +225,12 @@ namespace FFMQLib
 			string mirrorBranch = "ff";
 			string skyCoinBranch = "ff";
 
-			if (itemsPlacement.ItemsLocations.Find(x => x.Content == Items.Mask).Location == Locations.Volcano)
+			if (itemsPlacement.ItemsLocations.Find(x => x.Content == Items.Mask).Location == LocationIds.Volcano)
 			{
 				maskBranch = "05";
 			}
 
-			if (itemsPlacement.ItemsLocations.Find(x => x.Content == Items.MagicMirror).Location == Locations.IcePyramid)
+			if (itemsPlacement.ItemsLocations.Find(x => x.Content == Items.MagicMirror).Location == LocationIds.IcePyramid)
 			{
 				mirrorBranch = "06";
 			}
@@ -211,7 +244,7 @@ namespace FFMQLib
 			PutInBank(0x11, 0x9200, Blob.FromHex($"C9{maskBranch}F013C9{mirrorBranch}F020C9{skyCoinBranch}F02D0BF4A60E2B224E97002B6B0BF4D0002BA992224E97002BAD9E0080E40BF4D0002BA992224E97002BAD9E0080D3EE930E6B"));
 			PutInBank(0x00, 0xDB82, Blob.FromHex("22009211EAEAEAEAEAEA"));
 		}
-		public void NonSpoilerDemoplay()
+		public void NonSpoilerDemoplay(bool shortenedLoop)
 		{
 			// Don't cycle through the 3 demoplays, just do the first one
 			PutInBank(0x00, 0x8184, Blob.FromHex("eaeaeaeaeaeaeaeaeaeaeaeaeaa900"));
@@ -221,7 +254,8 @@ namespace FFMQLib
 			PutInBank(0x11, 0x8780, Blob.FromHex("bfd581008d880ebfdd81008d910e6b"));
 
 			// New header to load in fireburg, there's an extra byte to start in the actual city which clober the next demoplay, but we don't care about that
-			PutInBank(0x00, 0x81D5, Blob.FromHex("263335000caa2ea831"));
+			var header = shortenedLoop ? "262834060caa2ea831" : "263335060caa2ea831";
+			PutInBank(0x00, 0x81D5, Blob.FromHex(header));
 
 			// Halve the input timer because of speedhack
 			PutInBank(0x00, 0x934E, Blob.FromHex("07"));
@@ -230,8 +264,96 @@ namespace FFMQLib
 			PutInBank(0x0C, 0xAA16, Blob.FromHex("A3"));
 
 			// First input series to wake up, climb out, got to inn and trigger band, then go wild, while also removing the end of the first serie to bleed into the second series
-			PutInBank(0x0C, 0xA82E, Blob.FromHex("33338aaa888aaaa33333553a8888888b8bbb2bbbbb2b8bbb33bbbbbbbb99b9bbb73373373338"));
+			var inputseries = shortenedLoop ?
+				"33338aa8888aaaaa3333aaa8888888888888bbbbbbbb99b9bbb73373373338aaabbb88838383" :
+				"33338aaa888aaaa33333553a8888888b8bbb2bbbbb2b8bbb33bbbbbbbb99b9bbb73373373338";
+			PutInBank(0x0C, 0xA82E, Blob.FromHex(inputseries));
 			PutInBank(0x0C, 0xA8C0, Blob.FromHex("33"));
+		}
+		public void RestoreHillOfDestiny()
+		{
+			// Maybe one day, tilesets is linked to bone dungeons'
+			//  this map is a mess
+			const int hoDtileData = 0xAD00;
+			const int tileDataBank = 0x06;
+
+			List<byte> tileToBlock = new() { 0x41, 0x51, 0x57, 0x58, 0x61, 0x63, 0x64, 0x74 };
+			GameMaps[(int)MapList.HillOfDestiny].ModifyMap(0x13, 0x0A, new List<List<byte>>() {
+				new List<byte>() { 0x51 },
+				new List<byte>() { 0x51 },
+				new List<byte>() { 0x51 },
+			});
+
+			foreach (var tile in tileToBlock)
+			{
+				var tilevalue = GetFromBank(tileDataBank, hoDtileData + (tile * 2), 1);
+				tilevalue[0] = (byte)(tilevalue[0] | 0x07);
+				PutInBank(tileDataBank, hoDtileData + (tile * 2), tilevalue);
+			}
+
+		}
+		public void DummyRoom()
+		{
+			// Add a small dummy room for Floor shuffle
+			var dummyroomTiny = new List<List<byte>>() {
+				new List<byte>() { 0x20, 0x21, 0x20 },
+				new List<byte>() { 0x21, 0x22, 0x21 },
+				new List<byte>() { 0x22, 0x05, 0x22 },
+				new List<byte>() { 0x27, 0x7F, 0x02 },
+				new List<byte>() { 0x37, 0x7F, 0x03 },
+				new List<byte>() { 0x20, 0x7F, 0x20 },
+				new List<byte>() { 0x20, 0x33, 0x20 },
+			};
+
+			GameMaps[(int)MapList.ForestaInterior].ModifyMap(0x28, 0x35, dummyroomTiny);
+		}
+		public void PazuzuFixedFloorRng(MT19337 rng)
+		{
+			PutInBank(0x11, 0x8800, Blob.FromHex("08e230ad940ec91ff0031ad002a9008d940eaabf2088118d9e00286b"));
+
+			List<byte> randomJumps = new();
+			for (int i = 0; i < 0x20; i++)
+			{
+				randomJumps.Add((byte)rng.Between(1, 6));
+			}
+
+			PutInBank(0x11, 0x8820, randomJumps.ToArray());
+
+			var newPazuzuRng = new ScriptBuilder(new List<string> {
+						"090088112F",
+					});
+
+			newPazuzuRng.WriteAt(0x03, 0xFC7E, this);
+		}
+		public void KeyItemWindow()
+		{
+			// Timer Hack
+			PutInBank(0x00, 0x8968, Blob.FromHex("22008911eaeaeaeaeaeaeaea"));
+			PutInBank(0x11, 0x8900, Blob.FromHex("a900005bee970ed003ee990ead610ed0049c600e6bce610e6b"));
+
+			// Give Item Routine
+			PutInBank(0x03, 0xB4F5, Blob.FromHex("07408911"));
+			PutInBank(0x11, 0x8940, Blob.FromHex("0928db0005061053890506146b860504406b8611600e0d610e2c0100"));
+
+			// Keep Weapon Sprite
+			PutInBank(0x03, 0x822E, Blob.FromHex("00"));
+
+			// Draw Empty Companion Stat Window
+			PutInBank(0x03, 0xB787, Blob.FromHex("2f2f07708911"));
+			PutInBank(0x11, 0x8970, Blob.FromHex("0530eaed089089280000"));
+
+			// Draw Complete Companion Stat Window
+			PutInBank(0x03, 0x8264, Blob.FromHex("2f07808911"));
+			PutInBank(0x11, 0x8980, Blob.FromHex("08908924012e1e0700"));
+
+			// Box drawing script
+			PutInBank(0x11, 0x8990, Blob.FromHex("0f000e0b55bc8910610e05c10000aa890fa0100bffbc890ab889241b300405151c3118fefe01fefe09298d0000"));
+
+			// Companion Weapon Drawing Routine
+			PutInBank(0x00, 0x8D33, Blob.FromHex("EA22C08911"));
+			PutInBank(0x00, 0x8D6C, Blob.FromHex("22e08911eaeaeaeaeaeaeaeaeaeaeaeaea"));
+			PutInBank(0x11, 0x89C0, Blob.FromHex("08c230ae610ef005ae600e8003aeb11028e0ff6b"));
+			PutInBank(0x11, 0x89E0, Blob.FromHex("22c08911dabf0098040a0a8df700c210686b"));
 		}
 		public void BugFixes()
 		{
@@ -265,6 +387,10 @@ namespace FFMQLib
 			PutInBank(0x02, 0x9F24, Blob.FromHex("22A08711900AEAEAEAEA"));
 			PutInBank(0x11, 0x87A0, Blob.FromHex("A53AC949900CC950900AC9CA9004C9D79002386B186B"));
 
+			// Fix Skullrus Rex and Stone Golem not counting as boss for hp based attacks
+			PutInBank(0x02, 0x9B07, Blob.FromHex("22508811"));
+			PutInBank(0x11, 0x8850, Blob.FromHex("a53bc940f008c941f004c9449001386b"));
+
 			// Fix crashing when transitioning from door and switching weapon at the same time (experimental)
 			// We skip a PHA/PLP in an interrupt routine that seems to use vertical scanline location (OPVCT) to compute the status register ???
 			//  vertscanline x3 + $0f (or + $9a)
@@ -292,10 +418,12 @@ namespace FFMQLib
 				List<byte> tracks = Enumerable.Range(0, 0x1A).Select(x => (byte)x).ToList();
 				List<byte> goodordertracks = Enumerable.Range(0, 0x1B).Select(x => (byte)x).ToList();
 				tracks.Remove(0x00);
+				tracks.Remove(0x04);
 				tracks.Remove(0x15);
 
 				tracks.Shuffle(rng);
-				tracks.Insert(0, 0x00);
+				tracks.Insert(0x00, 0x00);
+				tracks.Insert(0x04, 0x04);
 				tracks.Insert(0x15, 0x15);
 				tracks.Add(0x1A);
 				List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();

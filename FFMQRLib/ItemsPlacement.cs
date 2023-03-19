@@ -37,13 +37,16 @@ namespace FFMQLib
 		Friendly = 0,
 		[Description("Standard")]
 		Standard,
+		[Description("Expert")]
+		Expert,
 	}
 	public class ItemsPlacement
 	{
 		public List<Items> StartingItems { get; set; }
-		public List<TreasureObject> ItemsLocations { get; }
+		public List<GameObject> ItemsLocations { get; }
 		
 		private const int TreasuresOffset = 0x8000;
+
 		private class RegionWeight
 		{ 
 			public MapRegions Region { get; set; }
@@ -55,7 +58,7 @@ namespace FFMQLib
 				Weight = _weight;
 			}
 		}
-		public ItemsPlacement(Flags flags, Battlefields battlefields, FFMQRom rom, MT19337 rng)
+		public ItemsPlacement(Flags flags, List<GameObject> initialGameObjects, FFMQRom rom, MT19337 rng)
 		{
 			bool badPlacement = true;
 			int counter = 0;
@@ -69,6 +72,9 @@ namespace FFMQLib
 
 
 			List<RegionWeight> regionsWeight = new() { new RegionWeight(MapRegions.Foresta, 1), new RegionWeight(MapRegions.Aquaria, 1), new RegionWeight(MapRegions.Fireburg, 1), new RegionWeight(MapRegions.Windia, 1) };
+			List<GameObjectType> validTypes = new() { GameObjectType.Battlefield, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
+
+			List<GameObject> initialItemlocations = initialGameObjects.ToList();
 
 			while (badPlacement)
 			{
@@ -83,38 +89,64 @@ namespace FFMQLib
 				regionsWeight.Find(x => x.Region == MapRegions.Fireburg).Weight = 1;
 				regionsWeight.Find(x => x.Region == MapRegions.Windia).Weight = 1;
 
-				List<Items> itemsList = RandomizeItemsOrder(flags, rng);
 
-				ItemsLocations = new(ItemLocations.Generate(flags, battlefields).ToList());
-				
+				ItemsList itemsList = new(flags, rng);
+				StartingItems = itemsList.Starting;
+
+				ItemsLocations = new(initialItemlocations.Select(x => new GameObject(x)));
+
 				prioritizedLocationsCount = ItemsLocations.Where(x => x.Prioritize == true).Count();
 
-				looseItemsCount = Max(0, itemsList.Count() - prioritizedLocationsCount);
-				prioritizedItemsCount = Min(prioritizedLocationsCount, itemsList.Count());
+				looseItemsCount = Max(0, itemsList.Count - prioritizedLocationsCount);
+				prioritizedItemsCount = Min(prioritizedLocationsCount, itemsList.Count);
 
 				List<Items> placedItems = new();
 
-				List<Items> nonRequiredItems = flags.SkyCoinMode == SkyCoinModes.Standard ? StartingItems : StartingItems.Append(Items.SkyCoin).ToList();
+				List<Items> nonRequiredItems = flags.SkyCoinMode == SkyCoinModes.Standard ? itemsList.Starting : itemsList.Starting.Append(Items.SkyCoin).ToList();
 
+				List<AccessReqs> accessReqsToProcess = new();
 				// Apply starting items access
 				foreach (var item in nonRequiredItems)
 				{
 					List<AccessReqs> result;
-					if (ItemLocations.ItemAccessReq.TryGetValue(item, out result))
+					if(AccessReferences.ItemAccessReq.TryGetValue(item, out result))
 					{
-						for (int i = 0; i < ItemsLocations.Count; i++)
-						{
-							ItemsLocations[i].AccessRequirements = ItemsLocations[i].AccessRequirements.Where(x => !result.Contains(x)).ToList();
-						}
+						accessReqsToProcess.AddRange(result);
 					}
 				}
 
-				while (itemsList.Any())
-				{
-					List<TreasureObject> validLocations = new();
+				ProcessRequirements(accessReqsToProcess);
 
-					List<TreasureObject> validLocationsPriorized = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && x.Prioritize == true).ToList();
-					List<TreasureObject> validLocationsLoose = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false).ToList();
+				while (itemsList.Count > 0)
+				{
+					Items itemToPlace;
+
+					List<GameObject> validLocations = ItemsLocations.Where(x => validTypes.Contains(x.Type) && x.Accessible && x.IsPlaced == false && x.Exclude == false).ToList();
+
+					if (flags.LogicOptions == LogicOptions.Friendly)
+					{
+						if (!placedMirror && validLocations.Where(x => x.Location == LocationIds.IcePyramid).Any())
+						{
+							if (!placedItems.Contains(Items.MagicMirror))
+							{
+								validLocations = validLocations.Where(x => x.Location != LocationIds.IcePyramid).ToList();
+								itemsList.ForcedItem = Items.MagicMirror;
+							}
+							placedMirror = true;
+						}
+						else if (!placedMask && validLocations.Where(x => x.Location == LocationIds.Volcano).Any())
+						{
+							if (!placedItems.Contains(Items.Mask))
+							{
+								validLocations = validLocations.Where(x => x.Location != LocationIds.Volcano).ToList();
+								itemsList.ForcedItem = Items.Mask;
+							}
+							placedMask = true;
+						}
+					}
+
+					List<GameObject> validLocationsPriorized = validLocations.Where(x => x.Prioritize == true).ToList();
+					List<GameObject> validLocationsLoose = validLocations.Where(x => x.Prioritize == false).ToList();
 
 					int diceRoll = rng.Between(1, itemsList.Count);
 
@@ -135,104 +167,73 @@ namespace FFMQLib
 					}
 
 					List<MapRegions> weightedRegionList = new();
-					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Foresta, 8 / regionsWeight.Find(x => x.Region == MapRegions.Foresta).Weight ));
+					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Foresta, 8 / regionsWeight.Find(x => x.Region == MapRegions.Foresta).Weight));
 					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Aquaria, 16 / regionsWeight.Find(x => x.Region == MapRegions.Aquaria).Weight));
 					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Fireburg, 16 / regionsWeight.Find(x => x.Region == MapRegions.Fireburg).Weight));
 					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Windia, 16 / regionsWeight.Find(x => x.Region == MapRegions.Windia).Weight));
 
 					MapRegions favoredRegion = rng.PickFrom(weightedRegionList);
 
-					List<TreasureObject> validLocationsFavored = validLocations.Where(x => ItemLocations.ReturnRegion(x.Location) == favoredRegion).ToList();
+					int validLocationsCount = validLocations.Count;
+
+					List<GameObject> validLocationsFavored = validLocations.Where(x => x.Region == favoredRegion).ToList();
 
 					if (validLocationsFavored.Any())
 					{
 						validLocations = validLocationsFavored;
 					}
 
-					if (!validLocations.Any() && itemsList.Any())
+					if (!validLocations.Any() && itemsList.Count > 0)
 					{
 						Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
+						var unfiledValidLocations = ItemsLocations.Where(x => !x.Accessible && x.Prioritize).ToList();
 						counter++;
 						badPlacement = true;
+						if (counter >= 100)
+						{
+							throw new TimeoutException("Logic failure; try another seed.");
+						}
 						break;
 					}
 					
-					var itemToPlace = itemsList.First();
-					var itemIndex = 0;
+					itemToPlace = itemsList.NextItem(validLocationsCount, rng);
 
-					if (flags.LogicOptions == LogicOptions.Friendly)
-					{
-						if ((!placedMirror && validLocations.Where(x => x.Location == Locations.IcePyramid).Any()) || (itemToPlace == Items.MagicMirror))
-						{
-							validLocations = validLocations.Where(x => x.Location != Locations.IcePyramid).ToList();
-
-							if (!validLocations.Any())
-							{
-								Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
-								counter++;
-								badPlacement = true;
-								break;
-							}
-
-							itemIndex = itemsList.FindIndex(x => x == Items.MagicMirror);
-							itemToPlace = Items.MagicMirror;
-							placedMirror = true;
-						}
-						else if ((!placedMask && validLocations.Where(x => x.Location == Locations.Volcano).Any()) || (itemToPlace == Items.Mask))
-						{
-							validLocations = validLocations.Where(x => x.Location != Locations.Volcano).ToList();
-
-							if (!validLocations.Any())
-							{
-								Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
-								counter++;
-								badPlacement = true;
-								break;
-							}
-
-							itemIndex = itemsList.FindIndex(x => x == Items.Mask);
-							itemToPlace = Items.Mask;
-							placedMask = true;
-						}
-					}
-
-					itemsList.RemoveAt(itemIndex);
-
-					TreasureObject targetLocation = rng.PickFrom(validLocations);
+					GameObject targetLocation = rng.PickFrom(validLocations);
 					targetLocation.Content = itemToPlace;
 					targetLocation.IsPlaced = true;
-					regionsWeight.Find(x => x.Region == ItemLocations.ReturnRegion(targetLocation.Location)).Weight++;
+					regionsWeight.Find(x => x.Region == targetLocation.Region).Weight++;
 
-					if (targetLocation.Type == TreasureType.Chest || targetLocation.Type == TreasureType.Box)
+					if (targetLocation.Type == GameObjectType.Chest || targetLocation.Type == GameObjectType.Box)
 					{ 
-						targetLocation.Type = TreasureType.Chest;
+						targetLocation.Type = GameObjectType.Chest;
 						placedChests++;
 					}
 					placedItems.Add(itemToPlace);
 					//Console.WriteLine(Enum.GetName(targetLocation.Location) + "_" + targetLocation.ObjectId + " - " + Enum.GetName(itemToPlace));
 
 					List<AccessReqs> result;
-					if (ItemLocations.ItemAccessReq.TryGetValue(itemToPlace, out result))
+
+					if (AccessReferences.ItemAccessReq.TryGetValue(itemToPlace, out result))
 					{
-						for (int i = 0; i < ItemsLocations.Count; i++)
-						{
-							ItemsLocations[i].AccessRequirements = ItemsLocations[i].AccessRequirements.Where(x => !result.Contains(x)).ToList();
-						}
+						ProcessRequirements(result);
 					}
 				}
 
-				var unfiledValidLocations = ItemsLocations.Where(x => !x.AccessRequirements.Any() && x.Content == Items.None).ToList();
-				//Console.WriteLine("**** Unfiled Locations ****");
+				
+				//var unfiledValidLocations = ItemsLocations.Where(x => x.Accessible && x.Content == Items.None).ToList();
+				
+				/*var unfiledValidLocations = ItemsLocations.Where(x => x.Prioritize == true && x.Content == Items.None).ToList();
+				Console.WriteLine("**** Unfiled Locations ****");
 				foreach (var loc in unfiledValidLocations)
 				{
-					//Console.WriteLine(Enum.GetName(loc.Location) + " - " + loc.ObjectId);
-				}
+					Console.WriteLine(Enum.GetName(loc.Location) + " - " + loc.ObjectId);
+				}*/
 			}
 
 			// Sky Coins
 			if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
 			{
-				var validSkyCoinLocations = ItemsLocations.Where(x => x.IsPlaced == false && x.Prioritize == false && x.Exclude == false && x.Location != Locations.DoomCastle).ToList();
+				var validSkyCoinLocations = ItemsLocations.Where(x => validTypes.Contains(x.Type) && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false && x.Location != LocationIds.DoomCastle).ToList();
 
 				if(validSkyCoinLocations.Count < 40)
                 {
@@ -241,13 +242,13 @@ namespace FFMQLib
 
 				for (int i = 0; i < 40; i++)
 				{
-					TreasureObject targetLocation = rng.TakeFrom(validSkyCoinLocations);
+					GameObject targetLocation = rng.TakeFrom(validSkyCoinLocations);
 					targetLocation.Content = Items.SkyCoin;
 					targetLocation.IsPlaced = true;
 
-					if (targetLocation.Type == TreasureType.Chest || targetLocation.Type == TreasureType.Box)
+					if (targetLocation.Type == GameObjectType.Chest || targetLocation.Type == GameObjectType.Box)
 					{
-						targetLocation.Type = TreasureType.Chest;
+						targetLocation.Type = GameObjectType.Chest;
 					}
 				}
 			}
@@ -255,204 +256,91 @@ namespace FFMQLib
 			// Fill excluded and unfilled locations
 			List<Items> consumables = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed };
 			
-			var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == TreasureType.NPC || x.Type == TreasureType.Battlefield || (x.Type == TreasureType.Chest && x.ObjectId < 0x20))).ToList();
+			var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.Battlefield || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20))).ToList();
 
 			foreach (var location in unfilledLocations)
 			{
 				location.Content = rng.PickFrom(consumables);
 				location.IsPlaced = true;
-				if (location.Type == TreasureType.Chest || location.Type == TreasureType.Box)
+				if (location.Type == GameObjectType.Chest || location.Type == GameObjectType.Box)
 				{
-					location.Type = TreasureType.Box;
+					location.Type = GameObjectType.Box;
 				}
 			}
 
 			// Place consumables
-			for (int i = 0; i < ItemsLocations.Count; i++)
+			var consumableBox = ItemsLocations.Where(x => !x.IsPlaced && (x.Type == GameObjectType.Box || x.Type == GameObjectType.Chest) && (x.ObjectId < 0xF2 || x.ObjectId > 0xF5)).ToList();
+
+			foreach (var box in consumableBox)
 			{
-				if (ItemsLocations[i].IsPlaced == false)
+				if (flags.ShuffleBoxesContent)
 				{
+					box.Content = rng.TakeFrom(consumableList);
+				}
+				else
+				{
+					box.Content = consumableList[box.ObjectId - 0x1E];
+				}
 
-					if (flags.ShuffleBoxesContent)
-					{
-						ItemsLocations[i].Content = rng.TakeFrom(consumableList);
-					}
-					else
-					{
-						ItemsLocations[i].Content = consumableList[ItemsLocations[i].ObjectId - 0x1E];
-					}
-
-					ItemsLocations[i].IsPlaced = true;
-					if (ItemsLocations[i].Type == TreasureType.Chest || ItemsLocations[i].Type == TreasureType.Box)
-					{
-						ItemsLocations[i].Type = TreasureType.Box;
-					}
+				box.IsPlaced = true;
+				if (box.Type == GameObjectType.Chest || box.Type == GameObjectType.Box)
+				{
+					box.Type = GameObjectType.Box;
 				}
 			}
 
 			// Add the final chests so we can update their properties
-			List<TreasureObject> finalChests = new(ItemLocations.FinalChests());
+			List<GameObject> finalChests = ItemsLocations.Where(x => x.Type == GameObjectType.Chest && x.ObjectId >= 0xF2 && x.ObjectId <= 0xF5).ToList();
 
 			for(int i = 0; i < finalChests.Count; i++)
 			{
 				finalChests[i].Content = finalConsumables[i];
 				finalChests[i].IsPlaced = true;
 			}
+		}
 
-			ItemsLocations.AddRange(finalChests);
+		private void ProcessRequirements(List<AccessReqs> accessReqToProcess)
+		{
+			while (accessReqToProcess.Any())
+			{
+				var currentReq = accessReqToProcess.First();
+
+				// Update Locations
+				List<GameObject> unaccessibleLocations = ItemsLocations.Where(x => x.Accessible == false).ToList();
+				for (int i = 0; i < unaccessibleLocations.Count; i++)
+				{
+					for (int j = 0; j < unaccessibleLocations[i].AccessRequirements.Count; j++)
+					{
+						unaccessibleLocations[i].AccessRequirements[j] = unaccessibleLocations[i].AccessRequirements[j].Where(x => x != currentReq).ToList();
+						if (!unaccessibleLocations[i].AccessRequirements[j].Any())
+						{
+							unaccessibleLocations[i].Accessible = true;
+							if (unaccessibleLocations[i].Type == GameObjectType.Trigger)
+							{
+								accessReqToProcess.AddRange(unaccessibleLocations[i].OnTrigger);
+							}
+						}
+					}
+				}
+
+				accessReqToProcess.Remove(currentReq);
+			}
 		}
 		public void WriteChests(FFMQRom rom)
 		{
 			foreach (var item in ItemsLocations)
 			{
-				if (item.Type == TreasureType.Chest || item.Type == TreasureType.Box)
+				if (item.Type == GameObjectType.Chest || item.Type == GameObjectType.Box)
 				{
 					rom[TreasuresOffset + item.ObjectId] = (byte)item.Content;
 				}
 			}
 		}
-		private List<Items> RandomizeItemsOrder(Flags flags, MT19337 rng)
-		{
-			List<Items> FinalItems = new();
-			List<Items> StartingWeapons = new() { Items.SteelSword, Items.Axe, Items.CatClaw, Items.Bomb };
-			StartingItems = new() { Items.SteelArmor };
-			if (flags.RandomStartingWeapon)
-			{
-				StartingItems.Add(rng.PickFrom(StartingWeapons));
-			}
-			else
-			{
-				StartingItems.Add(Items.SteelSword);
-			}
-			List<Items> ProgressionBombs = new() { Items.Bomb, Items.JumboBomb };
-			List<Items> ProgressionSwords = new() { Items.SteelSword, Items.KnightSword, Items.Excalibur };
-			List<Items> ProgressionAxes = new() { Items.Axe, Items.BattleAxe, Items.GiantsAxe };
-			List<Items> ProgressionClaws = new() { Items.CatClaw, Items.CharmClaw };
-			List<Items> InitialProgressionItems = new() { Items.SandCoin, Items.RiverCoin };
-			List<Items> ProgressionItems = new()
-			{
-				Items.TreeWither, // NPC
-				Items.VenusKey, // NPC
-				Items.MultiKey, // NPC
-				Items.ThunderRock, // NPC
-				Items.CaptainCap, // NPC
-				Items.MobiusCrest,
-				Items.DragonClaw, // NPC
-				Items.MegaGrenade, //NPC
-				Items.Elixir, // NPC
-				Items.WakeWater, // NPC
-				Items.SunCoin
-			};
-			List<Items> NonProgressionItems = new()
-			{
-				Items.Mask,
-				Items.MagicMirror,
-				Items.LibraCrest,
-				Items.GeminiCrest, //Battlefield
-			};
-			List<Items> Gear = new()
-			{
-				Items.ExitBook, //Battlefield
-				Items.CureBook,
-				Items.HealBook,
-				Items.LifeBook,
-				Items.QuakeBook,
-				Items.BlizzardBook,
-				Items.FireBook,
-				Items.AeroBook,
-				Items.ThunderSeal, //Battlefield
-				Items.WhiteSeal,
-				Items.MeteorSeal,
-				Items.FlareSeal,
-				Items.SteelHelm, //NPC
-				Items.MoonHelm,
-				Items.ApolloHelm,
-				Items.SteelArmor,
-				Items.NobleArmor,
-				Items.GaiasArmor,
-				Items.SteelShield,
-				Items.VenusShield, //Chest-NPC
-				Items.AegisShield,
-				Items.Charm, //Battlefield
-				Items.MagicRing, //Battlefield
-				Items.CupidLock // NPC
-			};
-
-
-			// SkyCoin
-			if (flags.SkyCoinMode == SkyCoinModes.Standard)
-			{
-				ProgressionItems.Add(Items.SkyCoin);
-			}
-			else if(flags.SkyCoinMode == SkyCoinModes.StartWith)
-			{
-				StartingItems.Add(Items.SkyCoin);
-			}
-
-
-			// Remove Starting Items
-			ProgressionBombs.RemoveAll(x => StartingItems.Contains(x));
-			ProgressionSwords.RemoveAll(x => StartingItems.Contains(x));
-			ProgressionAxes.RemoveAll(x => StartingItems.Contains(x));
-			ProgressionClaws.RemoveAll(x => StartingItems.Contains(x));
-			InitialProgressionItems.RemoveAll(x => StartingItems.Contains(x));
-			ProgressionItems.RemoveAll(x => StartingItems.Contains(x));
-			NonProgressionItems.RemoveAll(x => StartingItems.Contains(x));
-			Gear.RemoveAll(x => StartingItems.Contains(x));
-
-			// Select Inital Progression
-			if (ProgressionBombs.Count > 1)
-			{
-				InitialProgressionItems.Add(rng.TakeFrom(ProgressionBombs));
-			}			
-			FinalItems.Add(rng.TakeFrom(InitialProgressionItems));
-
-			// Build Progression Items List
-			ProgressionItems.Add(rng.TakeFrom(ProgressionSwords));
-			ProgressionItems.Add(rng.TakeFrom(ProgressionBombs));
-			ProgressionItems.Add(rng.TakeFrom(ProgressionAxes));
-			ProgressionItems.Add(rng.TakeFrom(ProgressionClaws));
-			ProgressionItems.AddRange(InitialProgressionItems);
-			ProgressionItems.Shuffle(rng);
-
-			// Put Everything else in Non Progression Items
-			NonProgressionItems.AddRange(ProgressionBombs);
-			NonProgressionItems.AddRange(ProgressionSwords);
-			NonProgressionItems.AddRange(ProgressionAxes);
-			NonProgressionItems.AddRange(ProgressionClaws);
-
-			// Fill 3 tiers
-			// Tier3 is 5 random piece of gear
-			Gear.Shuffle(rng);
-			List<Items> Tier3 = Gear.GetRange(0, 5);
-			Gear.RemoveRange(0, 5);
-
-			// Tier1 is 5 random progression item, 5 random non progression+gear
-			NonProgressionItems.AddRange(Gear);
-			NonProgressionItems.Shuffle(rng);
-
-			List<Items> Tier1 = NonProgressionItems.GetRange(0, 5);
-			NonProgressionItems.RemoveRange(0, 5);
-			Tier1.AddRange(ProgressionItems.GetRange(0, 5));
-			ProgressionItems.RemoveRange(0, 5);
-			
-			// Tier2 is everything else
-			List<Items> Tier2 = ProgressionItems.ToList();
-			Tier2.AddRange(NonProgressionItems);
-
-			// Shuffle tiers
-			Tier1.Shuffle(rng);
-			Tier2.Shuffle(rng);
-			Tier3.Shuffle(rng);
-
-			FinalItems = FinalItems.Concat(Tier1).Concat(Tier2).Concat(Tier3).ToList();
-
-			return FinalItems;
-		}
 		public string GenerateSpoilers(FFMQRom rom, string version, string hash, string flags, string seed)
 		{
 			List<Items> invalidItems = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
-			
+			List<GameObjectType> validType = new() { GameObjectType.Battlefield, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
+
 			string spoilers = "";
 
 			spoilers += "--- Spoilers File --- \n";
@@ -470,11 +358,11 @@ namespace FFMQLib
 			}
 
 			spoilers += "\n--- Placed Items ---\n";
-			var keyItems = ItemsLocations.Where(x => !invalidItems.Contains(x.Content)).ToList();
-			var forestaKi = keyItems.Where(x => ItemLocations.ReturnRegion(x.Location) == MapRegions.Foresta).OrderBy(x => x.Location).ToList();
-			var aquariaKi = keyItems.Where(x => ItemLocations.ReturnRegion(x.Location) == MapRegions.Aquaria).OrderBy(x => x.Location).ToList();
-			var fireburgKi = keyItems.Where(x => ItemLocations.ReturnRegion(x.Location) == MapRegions.Fireburg).OrderBy(x => x.Location).ToList();
-			var windiaKi = keyItems.Where(x => ItemLocations.ReturnRegion(x.Location) == MapRegions.Windia).OrderBy(x => x.Location).ToList();
+			var keyItems = ItemsLocations.Where(x => !invalidItems.Contains(x.Content) && validType.Contains(x.Type)).ToList();
+			var forestaKi = keyItems.Where(x => x.Region == MapRegions.Foresta).OrderBy(x => x.Location).ToList();
+			var aquariaKi = keyItems.Where(x => x.Region == MapRegions.Aquaria).OrderBy(x => x.Location).ToList();
+			var fireburgKi = keyItems.Where(x => x.Region == MapRegions.Fireburg).OrderBy(x => x.Location).ToList();
+			var windiaKi = keyItems.Where(x => x.Region == MapRegions.Windia).OrderBy(x => x.Location).ToList();
 
 			spoilers += "Foresta\n";
 			foreach (var item in forestaKi)
@@ -504,11 +392,262 @@ namespace FFMQLib
 		}
 	}
 
-	public partial class FFMQRom : SnesRom
-	{
+	public class ItemsList
+	{ 
+		public List<Items> LowProgression { get; set; }
+		public List<Items> NonProgression { get; set; }
+		public List<Items> HighProgression { get; set; }
+		public List<Items> Starting { get; set; }
+		public Items ForcedItem { get; set; }
+		public int Count { get => LowProgression.Count + NonProgression.Count + HighProgression.Count; }
+		private int lastCoinCount;
+		private List<Items> coinsProgression = new() { Items.SandCoin, Items.RiverCoin, Items.SunCoin };
+		private int progressionThreshold = 2;
+		public Items NextItem(int availablelocations, MT19337 rng)
+		{
+			if (ForcedItem != Items.None)
+			{
+				Items item = ForcedItem;
+				LowProgression.Remove(item);
+				NonProgression.Remove(item);
+				HighProgression.Remove(item);
+				
+				ForcedItem = Items.None;
 
+				return item;
+			}
+			else if (lastCoinCount > 10 && coinsProgression.Intersect(HighProgression).Any())
+			{
+				Items item = coinsProgression.Intersect(HighProgression).First();
+				HighProgression.Remove(item);
+				lastCoinCount = 0;
 
+				return item;
+			}
+			else if (availablelocations > progressionThreshold || !HighProgression.Concat(LowProgression).Any())
+			{
+				Items item = rng.PickFrom(NonProgression.Concat(LowProgression).Concat(HighProgression).ToList());
 
+				if (coinsProgression.Contains(item))
+				{
+					lastCoinCount = 0;
+				}
+				else
+				{
+					lastCoinCount++;
+				}
 
+				LowProgression.Remove(item);
+				NonProgression.Remove(item);
+				HighProgression.Remove(item);
+
+				return item;
+			}
+			else if (availablelocations > 1)
+			{
+				Items item = rng.PickFrom(LowProgression.Concat(HighProgression).ToList());
+
+				if (coinsProgression.Contains(item))
+				{
+					lastCoinCount = 0;
+				}
+				else
+				{
+					lastCoinCount++;
+				}
+
+				LowProgression.Remove(item);
+				HighProgression.Remove(item);
+
+				return item;
+			}
+			else if (availablelocations == 1)
+			{
+				Items item = HighProgression.Concat(LowProgression).ToList().First();
+
+				if (coinsProgression.Contains(item))
+				{
+					lastCoinCount = 0;
+				}
+				else
+				{
+					lastCoinCount++;
+				}
+
+				LowProgression.Remove(item);
+				HighProgression.Remove(item);
+
+				return item;
+			}
+			else
+			{
+				throw new Exception("Logic error: Not supposed to be there");
+			}
+		}
+
+		public ItemsList(Flags flags, MT19337 rng)
+		{
+
+			lastCoinCount = 0;
+			ForcedItem = Items.None;
+			progressionThreshold = (flags.LogicOptions == LogicOptions.Friendly || flags.ProgressiveGear) ? 3 : 2;
+
+			List<Items> StartingWeapons = new() { Items.SteelSword, Items.Axe, Items.CatClaw, Items.Bomb };
+			List<Items> StartingItems = new() { Items.SteelArmor };
+
+			List<Items> ProgressionBombs = new() { Items.Bomb, Items.JumboBomb };
+			List<Items> ProgressionSwords = new() { Items.SteelSword, Items.KnightSword, Items.Excalibur };
+			List<Items> ProgressionAxes = new() { Items.Axe, Items.BattleAxe, Items.GiantsAxe };
+			List<Items> ProgressionClaws = new() { Items.CatClaw, Items.CharmClaw };
+			List<Items> ProgressionCoins = new() { Items.SandCoin, Items.RiverCoin };
+			List<Items> ProgressionSunCoin = new() { Items.SunCoin };
+			List<Items> ProgressionSkyCoin = new() { Items.SkyCoin };
+
+			List<Items> ProgressionItems = new()
+			{
+				Items.TreeWither, // NPC
+				Items.VenusKey, // NPC
+				Items.MultiKey, // NPC
+				Items.ThunderRock, // NPC
+				Items.CaptainCap, // NPC
+				Items.DragonClaw, // NPC
+				Items.MegaGrenade, //NPC
+				Items.Elixir, // NPC
+				Items.WakeWater, // NPC
+				Items.LibraCrest,
+				Items.GeminiCrest,
+				Items.MobiusCrest
+			};
+			List<Items> NonProgressionItems = new()
+			{
+				Items.Mask,
+				Items.MagicMirror,
+			};
+			List<Items> Gear = new()
+			{
+				Items.ExitBook, //Battlefield
+				Items.CureBook,
+				Items.HealBook,
+				Items.LifeBook,
+				Items.QuakeBook,
+				Items.BlizzardBook,
+				Items.FireBook,
+				Items.AeroBook,
+				Items.ThunderSeal, //Battlefield
+				Items.WhiteSeal,
+				Items.MeteorSeal,
+				Items.FlareSeal,
+				Items.SteelHelm, //NPC
+				Items.MoonHelm,
+				Items.ApolloHelm,
+				Items.SteelArmor,
+				Items.NobleArmor,
+				Items.GaiasArmor,
+				Items.SteelShield,
+				Items.VenusShield, //Chest-NPC
+				Items.AegisShield,
+				Items.Charm, //Battlefield
+				Items.MagicRing, //Battlefield
+				Items.CupidLock // NPC
+			};
+
+			Items startingWeapon = Items.SteelSword;
+
+			if (flags.RandomStartingWeapon)
+			{
+				startingWeapon = rng.PickFrom(StartingWeapons);
+			}
+			
+			StartingItems.Add(startingWeapon);
+
+			// SkyCoin
+			if (flags.SkyCoinMode == SkyCoinModes.StartWith)
+			{
+				StartingItems.Add(Items.SkyCoin);
+				ProgressionSkyCoin.Remove(Items.SkyCoin);
+			}
+			else if (flags.SkyCoinMode != SkyCoinModes.Standard)
+			{
+				ProgressionSkyCoin.Remove(Items.SkyCoin);
+			}
+
+			// Remove Starting Items
+			ProgressionBombs.RemoveAll(x => StartingItems.Contains(x));
+			ProgressionSwords.RemoveAll(x => StartingItems.Contains(x));
+			ProgressionAxes.RemoveAll(x => StartingItems.Contains(x));
+			ProgressionClaws.RemoveAll(x => StartingItems.Contains(x));
+			ProgressionItems.RemoveAll(x => StartingItems.Contains(x));
+			ProgressionCoins.RemoveAll(x => StartingItems.Contains(x));
+			ProgressionSunCoin.RemoveAll(x => StartingItems.Contains(x));
+			ProgressionSkyCoin.RemoveAll(x => StartingItems.Contains(x));
+			NonProgressionItems.RemoveAll(x => StartingItems.Contains(x));
+			Gear.RemoveAll(x => StartingItems.Contains(x));
+
+			// Collapse Weapons
+			if (flags.ProgressiveGear)
+			{
+				ProgressionItems.AddRange(ProgressionBombs);
+				ProgressionItems.AddRange(ProgressionClaws);
+
+				if (startingWeapon != Items.SteelSword)
+				{
+					ProgressionItems.Add(rng.TakeFrom(ProgressionSwords));
+				}
+
+				if (startingWeapon != Items.Axe)
+				{
+					ProgressionItems.Add(rng.TakeFrom(ProgressionAxes));
+				}
+
+				Gear.AddRange(ProgressionSwords);
+				Gear.AddRange(ProgressionAxes);
+			}
+			else
+			{
+				if (startingWeapon != Items.SteelSword)
+				{
+					ProgressionItems.Add(rng.TakeFrom(ProgressionSwords));
+				}
+
+				if (startingWeapon != Items.Axe)
+				{
+					ProgressionItems.Add(rng.TakeFrom(ProgressionAxes));
+				}
+
+				if (startingWeapon != Items.CatClaw)
+				{
+					ProgressionItems.Add(rng.TakeFrom(ProgressionClaws));
+				}
+
+				if (startingWeapon != Items.Bomb)
+				{
+					if (flags.MapShuffling == MapShufflingMode.None)
+					{
+						// On standard map, raise odds to open up bone dungeon first
+						ProgressionCoins.Add(rng.TakeFrom(ProgressionBombs));
+					}
+					else
+					{
+						ProgressionItems.Add(rng.TakeFrom(ProgressionBombs));
+					}
+					
+				}
+
+				Gear.AddRange(ProgressionSwords);
+				Gear.AddRange(ProgressionAxes);
+				Gear.AddRange(ProgressionClaws);
+				Gear.AddRange(ProgressionBombs);
+			}
+
+			// Shuffle Coins
+			ProgressionCoins.Shuffle(rng);
+
+			ProgressionItems.Shuffle(rng);
+			LowProgression = ProgressionItems;
+			NonProgression = NonProgressionItems.Concat(Gear).Concat(ProgressionSkyCoin).ToList();
+			HighProgression = ProgressionCoins.Concat(ProgressionSunCoin).ToList();
+			Starting = StartingItems;
+		}
 	}
+
 }

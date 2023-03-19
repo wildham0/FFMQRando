@@ -1,0 +1,104 @@
+﻿@using FFMQLib;
+@typeparam TItem
+
+    @if (!UsePreset)
+    {
+        <Field class="text-secondary dropFlag">
+            <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">@Name</FieldLabel>
+                <Tooltip Text=@Tooltip Inline Multiline Placement="TooltipPlacement.Right">
+                    <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+                </Tooltip>
+        <Row>
+            <Column ColumnSize="ColumnSize.Is6">
+        <Select @bind-SelectedValue="@Value" @onchange="@OnChange">
+             <SelectGroup Label="From">
+            @foreach (Enum item in Enum.GetValues(typeof(TItem)))
+            {
+            <SelectItem Value="@item" Disabled="@LowerBoundTooHigh(@item)">@(item.GetDescription())</SelectItem>
+            }
+             </SelectGroup>
+        </Select>
+        </Column>
+
+            <Column ColumnSize="ColumnSize.Is6">
+        <Select @bind-SelectedValue="@Value2" @onchange="@OnChange2">
+            <SelectGroup Label="To">
+            @foreach (Enum item in Enum.GetValues(typeof(TItem)))
+            {
+            <SelectItem Value="@item" Disabled="@UpperBoundTooLow(@item)">@(item.GetDescription())</SelectItem>
+            }
+            </SelectGroup>
+        </Select>
+        </Column>
+        </Row>
+        </Field>
+    }
+    else
+    {
+            <div class="fw-bold boolFlagFixed extra-padding">@Name: <div class="fw-normal d-inline">@(((Enum)Enum.Parse(typeof(TItem), Value.ToString())).GetDescription())</div> to <div class="fw-normal d-inline">@(((Enum)Enum.Parse(typeof(TItem), Value2.ToString())).GetDescription())</div>
+            <Tooltip Text=@Tooltip Inline Multiline Placement="TooltipPlacement.Right">
+                <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+            </Tooltip>
+            </div>
+    }
+
+
+@code
+{
+    [Parameter]
+    public string Name { get; set; }
+
+    [Parameter]
+    public string Tooltip { get; set; }
+
+    [Parameter]
+    public TItem Value { get; set; }
+
+    [Parameter]
+    public TItem Value2 { get; set; }
+
+    [Parameter]
+    public bool UsePreset { get; set; }
+
+    [Parameter]
+    public EventCallback<TItem> ValueChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<TItem> Value2Changed { get; set; }
+
+    void OnChange(ChangeEventArgs e)
+    {
+        Value = (TItem)Enum.Parse(typeof(TItem), e.Value.ToString());
+        ValueChanged.InvokeAsync(Value);
+    }
+
+    void OnChange2(ChangeEventArgs e)
+    {
+        Value2 = (TItem)Enum.Parse(typeof(TItem), e.Value.ToString());
+        Value2Changed.InvokeAsync(Value2);
+    }
+
+    bool UpperBoundTooLow(Enum item)
+    {
+        if (Convert.ToInt32(item) < Convert.ToInt32(Value))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+        bool LowerBoundTooHigh(Enum item)
+    {
+        if (Convert.ToInt32(item) > Convert.ToInt32(Value2))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+}

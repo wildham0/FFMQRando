@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.2.18";
+		public static string Version = "1.3.59";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -22,11 +22,13 @@ namespace FFMQLib
 		public Battlefields Battlefields;
 		public Overworld Overworld;
 		public GameMaps GameMaps;
+		public Teleporters Teleporters;
 		public MapSprites MapSpriteSets;
 		public EnemyAttackLinks EnemyAttackLinks;
 		public Attacks Attacks;
 		public EnemiesStats enemiesStats;
-		public NodeLocations NodeLocations;
+		public GameLogic GameLogic;
+		public EntrancesData EntrancesData;
 		private byte[] originalData;
 		public bool beta = false;
 		public bool spoilers = false;
@@ -154,7 +156,6 @@ namespace FFMQLib
 				sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
 
-			NodeLocations = new(this);
 			EnemyAttackLinks = new(this);
 			Attacks = new(this);
 			enemiesStats = new(this);
@@ -167,7 +168,10 @@ namespace FFMQLib
 			Battlefields = new(this);
 			MapChanges = new(this);
 			Overworld = new(this);
+			Teleporters = new(this);
 			MapSpriteSets = new(this);
+			GameLogic = new();
+			EntrancesData = new(this);
 			TitleScreen titleScreen = new(this);
 
 			// General modifications
@@ -178,8 +182,11 @@ namespace FFMQLib
 			RemoveStrobing();
 			SmallFixes();
 			BugFixes();
-			NonSpoilerDemoplay();
+			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
 			CompanionRoutines();
+			DummyRoom();
+			PazuzuFixedFloorRng(rng);
+			KeyItemWindow();
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
@@ -188,20 +195,32 @@ namespace FFMQLib
 			// Enemies
 			MapObjects.SetEnemiesDensity(flags.EnemiesDensity, rng);
 			MapObjects.ShuffleEnemiesPosition(flags.ShuffleEnemiesPosition, GameMaps, rng);
-			EnemyAttackLinks.ShuffleAttacks(flags.EnemizerAttacks, rng);
+			EnemyAttackLinks.ShuffleAttacks(flags.EnemizerAttacks, flags.BossesScalingUpper, rng);
 			enemiesStats.ScaleEnemies(flags, rng);
 
 			// Overworld
-			NodeLocations.OpenNodes();
+			Overworld.OpenNodes(flags);
 			Battlefields.SetBattlesQty(flags.BattlesQuantity, rng);
 			Battlefields.ShuffleBattelfieldRewards(flags.ShuffleBattlefieldRewards, Overworld, rng);
 
+			// Locations & Logic
+			GameLogic.CrestShuffle(flags.CrestShuffle, rng);
+			GameLogic.FloorShuffle(flags.MapShuffling, rng);
+			Overworld.ShuffleOverworld(flags, GameLogic, Battlefields, rng);
+
+			Overworld.UpdateOverworld(flags, Battlefields);
+
+			GameLogic.CrawlRooms(flags, Overworld, Battlefields);
+			
+			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this, rng);
+			EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
+			
 			// Items
-			ItemsPlacement itemsPlacement = new(flags, Battlefields, this, rng);
+			ItemsPlacement itemsPlacement = new(flags, GameLogic.GameObjects, this, rng);
 
 			SetStartingWeapons(itemsPlacement);
 			MapObjects.UpdateChests(itemsPlacement);
-			UpdateScripts(flags, itemsPlacement, rng);
+			UpdateScripts(flags, itemsPlacement, Overworld.StartingLocation, rng);
 			ChestsHacks(flags, itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
 
@@ -213,6 +232,8 @@ namespace FFMQLib
 			SetLevelingCurve(flags.LevelingCurve);
 			ProgressiveGears(flags.ProgressiveGear);
 			SkyCoinMode(flags, rng);
+			ExitHack(Overworld.StartingLocation);
+			ProgressiveFormation(flags.ProgressiveFormations, Overworld, rng);
 			credits.Update();
 
 			// Preferences
@@ -227,16 +248,17 @@ namespace FFMQLib
 			enemiesStats.Write(this);
 			GameMaps.Write(this);
 			MapChanges.Write(this);
+			Teleporters.Write(this);
 			TileScripts.Write(this);
 			TalkScripts.Write(this);
-			BadShipHack(flags.DoomCastleShortcut);
 			GameFlags.Write(this);
-			NodeLocations.Write(this);
+			EntrancesData.Write(this);
 			Battlefields.Write(this);
 			Overworld.Write(this);
-			MapObjects.WriteAll(this);
+			MapObjects.Write(this);
 			MapSpriteSets.Write(this);
 			titleScreen.Write(this, Metadata.Version, seed, flags);
+
 
 			// Spoilers
 			spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());

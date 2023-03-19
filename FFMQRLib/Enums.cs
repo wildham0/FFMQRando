@@ -12,30 +12,20 @@ namespace FFMQLib
 		South = 2,
 		West = 3,
 	}
-	public enum AccessBits : int
-	{
-		Elixir = 0b0000_0000_0000_0000_0000_0001,
-		TreeWither = 0b0000_0000_0000_0000_0000_0010,
-		WakeWater = 0b0000_0000_0000_0000_0000_0100,
-		VenusKey = 0b0000_0000_0000_0000_0000_1000,
-		MultiKey = 0b0000_0000_0000_0000_0001_0000,
-		Mask = 0b0000_0000_0000_0000_0010_0000,
-		MagicMirror = 0b0000_0000_0000_0000_0100_0000,
-		ThunderRock = 0b0000_0000_0000_0000_1000_0000,
-		CaptainCap = 0b0000_0000_0000_0001_0000_0000,
-		LibraCrest = 0b0000_0000_0000_0010_0000_0000,
-		GeminiCrest = 0b0000_0000_0000_0100_0000_0000,
-		MobiusCrest = 0b0000_0000_0000_1000_0000_0000,
-		SandCoin = 0b0000_0001_0001_0000_0000_0000,
-		RiverCoin = 0b0000_0000_0010_0000_0000_0000,
-		SunCoin = 0b0000_0000_0100_0000_0000_0000,
-		SkyCoin = 0b0000_0000_1000_0000_0000_0000,
-		Sword = 0b0000_0001_0000_0000_0000_0000,
-		Axe = 0b0000_0010_0000_0000_0000_0000,
-		Claw = 0b0000_0100_0000_0000_0000_0000,
-		DragonClaw = 0b0000_1000_0000_0000_0000_0000,
-		Bomb = 0b0001_0000_0000_0000_0000_0000,
-		MegaGrenade = 0b0010_0000_0000_0000_0000_0000,
+	public enum SubRegions
+	{ 
+		Foresta,
+		Aquaria,
+		LifeTemple,
+		AquariaFrozenField,
+		Fireburg,
+		VolcanoBattlefield,
+		Windia,
+		SpencerCave,
+		ShipDock,
+		MacShip,
+		LightTemple,
+		DoomCastle
 	}
 	public enum GameFlagsList : int
 	{
@@ -81,6 +71,10 @@ namespace FFMQLib
 	{
 		WakeWaterUsed = 0x02, 
 
+		// Barrel Flag
+		ShowBarrelMoved = 0x20,
+		ShowBarrelNotMoved = 0x21,
+
 		// Kaeli new flags
 		ShowForestaKaeli = 0x62,
 		ShowSickKaeli = 0x7D,
@@ -124,27 +118,6 @@ namespace FFMQLib
 	}
 	public enum AccessReqs : int
 	{
-		DefeatIceGoelm = 0x12,
-		SaveOldMan = 0x14,
-		DefeatMinotaur = 0x1E,
-		CureKaeli = 0x1F,
-		ColumnMoved = 0x20,
-		ColumnRemoved = 0x21,
-		HillCollapsed = 0x22,
-		UseSandCoin = 0x23,
-		VisitPhoebeHouse = 0x4D,
-		UseWakeWater = 0x4F,
-		UseRiverCoin = 0x5B,
-		BoulderRolled = 0x5C,
-		DefeatMedusa = 0x5D,
-		TalkToTristam = 0x6E,
-		TalkToPhoebe = 0x70,
-		ExitFallBasin = 0x73,
-		TalkToGrenadeGuy = 0x74,
-		RainbowRoad = 0xCF,
-		DefeatSquid = 0xE0,
-		TalkToGiantTree,
-		DefeatPazuzu,
 		Elixir,
 		TreeWither,
 		WakeWater,
@@ -171,17 +144,97 @@ namespace FFMQLib
 		SmallBomb,
 		JumboBomb,
 		MegaGrenade,
-		Kaeli,
+		
+		Kaeli1,
+		Kaeli2,
 		Tristam,
-		Phoebe,
-		Reuben
+		Phoebe1,
+		Reuben1,
+		ReubenDadSaved,
+		Otto,
+		CaptainMac,
+		ShipSteeringWheel,
+
+		Minotaur,
+		FlamerusRex,
+		Phanquid,
+		FreezerCrab,
+		IceGolem,
+		Jinn,
+		Medusa,
+		DualheadHydra,
+		Gidrah,
+		Dullahan,
+		Pazuzu,
+		
+		ExitBook,
+		
+		AquariaPlaza,
+		SummerAquaria,
+		MineCliff,
+		AliveForest,
+		
+		RainbowBridge,
+		SpencerCaveTrigger,
+		ShipLiberated,
+		ShipLoaned,
+		ShipDockAccess,
+		
+		LibraTempleCrestTile,
+		LifeTempleCrestTile,
+		AquariaVendorCrestTile,
+		FireburgVendorCrestTile,
+		FireburgGrenademanCrestTile,
+		SealedTempleCrestTile,
+		WintryTempleCrestTile,
+		KaidgeTempleCrestTile,
+		LightTempleCrestTile,
+		WindiaKidsCrestTile,
+		WindiaDockCrestTile,
+		ShipDockCrestTile,
+		AliveForestLibraCrestTile,
+		AliveForestGeminiCrestTile,
+		AliveForestMobiusCrestTile,
+		WoodHouseLibraCrestTile,
+		WoodHouseGeminiCrestTile,
+		WoodHouseMobiusCrestTile,
+		
+		BarrelPushed,
+		
+		LongSpineBombed, 
+		ShortSpineBombed, 
+		Skull1Bombed, 
+		Skull2Bombed, 
+
+		IcePyramid1FStatue, //
+		IcePyramid3FStatue,
+		IcePyramid4FStatue,
+		IcePyramid5FStatue,
+
+		SpencerCaveLibraBlockBombed,
+
+		LavaDomePlate,
+
+		Pazuzu2FLock,
+		Pazuzu4FLock,
+		Pazuzu6FLock,
+		Pazuzu1F,
+		Pazuzu2F,
+		Pazuzu3F,
+		Pazuzu4F,
+		Pazuzu5F,
+		Pazuzu6F,
+
+		Barred,
 	}
 	public enum TreasureType : int
 	{
 		Chest = 1,
 		Box,
 		NPC,
-		Battlefield
+		Battlefield,
+		Dummy
+			
 	}
 	public enum Companion : int
 	{
@@ -381,7 +434,7 @@ namespace FFMQLib
 		FightIceGolem,
 		LockedDoor, // Fireburg?
 		BlowingOffMineBoulder,
-		Unknown0d,
+		ColumnMoved,
 		FightDualheadHydra,
 		RopeBridgeFight,
 		Unknown10, // I was waiting for you little beast!
@@ -394,13 +447,13 @@ namespace FFMQLib
 		Unknown17, // Not beast one!
 		HeroStatue,
 		FightDarkKing,
-		Unknown1a, // Teleport out of dungeon?
-		Unknown1b, // Teleport out of dungeon?
-		Unknown1c, // Teleport to Volcano > Mask location
-		Unknown1d, // Teleport to Volcano > Medusa location
-		Unknown1e, // Teleport to Volcano 2nd level
-		Unknown1f, // Teleport to Volcano 2nd level
-		Unknown20, // Teleport to Ice Pyramid Entrance
+		VolcanoTeleportFromTop, // Teleport out of dungeon?
+		VolcanoTeleportToBase, // Teleport out of dungeon?
+		VolcanoTeleportToMask, // Teleport to Volcano > Mask location
+		VolcanoTeleportToMedusa, // Teleport to Volcano > Medusa location
+		VolcanoTeleportTo2FLeft, // Teleport to Volcano 2nd level
+		VolcanoTeleportTo2FRight, // Teleport to Volcano 2nd level
+		EnterIcePyramid, // Teleport to Ice Pyramid Entrance
 		Unknown21, // Nothing
 		Unknown22, // Nothing
 		Unknown23, // Nothing
@@ -445,7 +498,7 @@ namespace FFMQLib
 		FightJinn,
 		TristamQuitPartyBoneDungeon, // Nothing
 		EnterFallBasin, // Teleport and run intro script
-		EnterIcePyramid,
+		IcePyramidCheckStatue,
 		ReceiveWakeWater,
 		EnterWindiaInn // Teleport to an Inn
 	}
@@ -532,18 +585,6 @@ namespace FFMQLib
 		WindiaSellerGirl = 0x67,
 		CaptainMacOnShip = 0x75,
 		VenusChest = 0x7B,
-
-
-
-
-
-
-
-
-
-
-
-
 	}
 	public enum BattlefieldRewardType : byte
 	{
@@ -574,7 +615,7 @@ namespace FFMQLib
 		WindiaBattlefield01 = 0x23,
 		WindiaBattlefield02 = 0x24,
 	}
-	public enum Locations : byte
+	public enum LocationIds : byte
 	{
 		None = 0x00,
 		ForestaSouthBattlefield = 0x01,
@@ -603,8 +644,8 @@ namespace FFMQLib
 		Foresta = 0x17,
 		SandTemple = 0x18,
 		BoneDungeon = 0x19,
-		FocusTowerSouth = 0x1A,
-		FocusTowerWest = 0x1B,
+		FocusTowerForesta = 0x1A,
+		FocusTowerAquaria = 0x1B,
 		LibraTemple = 0x1C,
 		Aquaria = 0x1D,
 		WintryCave = 0x1E,
@@ -613,14 +654,14 @@ namespace FFMQLib
 		IcePyramid = 0x21,
 		SpencersPlace = 0x22,
 		WintryTemple = 0x23,
-		FocusTowerNorth = 0x24,
-		FocusTowerEast = 0x25,
+		FocusTowerFrozen = 0x24,
+		FocusTowerFireburg = 0x25,
 		Fireburg = 0x26,
 		Mine = 0x27,
 		SealedTemple = 0x28,
 		Volcano = 0x29,
 		LavaDome = 0x2A,
-		FocusTowerSouth2 = 0x2B,
+		FocusTowerWindia = 0x2B,
 		RopeBridge = 0x2C,
 		AliveForest = 0x2D,
 		GiantTree = 0x2E,
@@ -666,7 +707,7 @@ namespace FFMQLib
 		PazuzuTowerA = 0x19,
 		PazuzuTowerB = 0x1A,
 		SpencerCave = 0x1B,
-		Unknown2 = 0x1C,
+		ShipDock = 0x1C,
 		FallBasin = 0x1D,
 		HouseInterior = 0x1E,
 		Caves = 0x1F,
@@ -690,6 +731,236 @@ namespace FFMQLib
 		Aquaria,
 		Fireburg,
 		Windia,
+	}
+
+	public enum OverworldMapSprites : byte
+	{ 
+		Boulder1 = 0x00,
+		Boulder2,
+		Boulder3,
+		Boulder4,
+		Boulder5,
+		Boulder6,
+		GiantTree1,
+		GiantTree2,
+		GiantTree3,
+		GiantTree4,
+		MovedGiantTree1,
+		MovedGiantTree2,
+		MovedGiantTree3,
+		MovedGiantTree4,
+		StrandedShip,
+		ShipAtDock,
+		ShipAtDoom,
+		ForestaSouthBattlefield,
+		ForestaWestBattlefield,
+		ForestaEastBattlefield,
+		AquariaBattlefield01,
+		AquariaBattlefield02,
+		AquariaBattlefield03,
+		WintryBattlefield01,
+		WintryBattlefield02,
+		PyramidBattlefield01,
+		LibraBattlefield01,
+		LibraBattlefield02,
+		FireburgBattlefield01,
+		FireburgBattlefield02,
+		FireburgBattlefield03,
+		MineBattlefield01,
+		MineBattlefield02,
+		MineBattlefield03,
+		VolcanoBattlefield01,
+		WindiaBattlefield01,
+		WindiaBattlefield02,
+		ForestaSouthBattlefieldCleared,
+		ForestaWestBattlefieldCleared,
+		ForestaEastBattlefieldCleared,
+		AquariaBattlefield01Cleared,
+		AquariaBattlefield02Cleared,
+		AquariaBattlefield03Cleared,
+		WintryBattlefield01Cleared,
+		WintryBattlefield02Cleared,
+		PyramidBattlefield01Cleared,
+		LibraBattlefield01Cleared,
+		LibraBattlefield02Cleared,
+		FireburgBattlefield01Cleared,
+		FireburgBattlefield02Cleared,
+		FireburgBattlefield03Cleared,
+		MineBattlefield01Cleared,
+		MineBattlefield02Cleared,
+		MineBattlefield03Cleared,
+		VolcanoBattlefield01Cleared,
+		WindiaBattlefield01Cleared,
+		WindiaBattlefield02Cleared,
+		LevelForestMarker,
+		FallBasinMarker,
+		VolcanoMarker,
+		RopeBridgeMarker,
+		AliveForestMarker,
+		MountGaleMarker,
+		UnknownMarker1,
+		UnknownMarker2,
+		SandTempleCave,
+		LibraTempleCave,
+		LifeTempleCave,
+		SpencerCave,
+		WintryTempleCave,
+		SealedTempleCave,
+		KaidgeTempleCave,
+		WindholeTempleCave,
+		LightTempleCave,
+		ShipDockCave,
+		ForestaVillage1,
+		ForestaVillage2,
+		AquariaVillage1,
+		AquariaVillage2,
+		FireburgVillage1,
+		FireburgVillage2,
+		WindiaVillage1,
+		WindiaVillage2,
+		HillOfDestiny1,
+		HillOfDestiny2,
+		HillOfDestiny3,
+		HillOfDestiny4,
+		HillOfDestiny5,
+		HillOfDestiny6,
+		HillOfDestiny7,
+		LavaDome1,
+		LavaDome2,
+		LavaDome3,
+		LavaDome4,
+		LavaDome5,
+		LavaDome6,
+		LavaDome7,
+		MountGale1,
+		MountGale2,
+		MountGale3,
+		MountGale4,
+		MountGale5,
+		MountGale6,
+		MountGale7,
+		BoneDungeon1,
+		BoneDungeon2,
+		BoneDungeon3,
+		BoneDungeon4,
+		BoneDungeon5,
+		BoneDungeon6,
+		BoneDungeon7,
+		WintryCave1,
+		WintryCave2,
+		WintryCave3,
+		WintryCave4,
+		IcePyramid1,
+		IcePyramid2,
+		IcePyramid3,
+		IcePyramid4,
+		Mine1,
+		Mine2,
+		Mine3,
+		Mine4,
+		PazuzuTower1,
+		PazuzuTower2,
+		PazuzuTower3,
+		RainbowBridgeToPazuzu1,
+		RainbowBridgeToPazuzu2,
+		RainbowBridgeToSpencer1,
+		RainbowBridgeToSpencer2,
+		RainbowBridgeToSpencer3,
+		RainbowBridgeToSpencer4,
+		RainbowBridgeToSpencer5,
+		FocusTower1,
+		FocusTower2,
+		FocusTower3,
+		FocusTower4,
+		FocusTower5,
+		FocusTower6,
+		FocusTower7,
+		FocusTower8,
+		FocusTower9,
+		FocusTower10,
+	}
+	public enum OverworldMapObjects : int
+	{
+		BoulderFull = 0,
+		BoulderHalf,
+		GiantTree,
+		MovedGiantTree,
+		StrandedShip,
+		ShipAtDock,
+		ShipAtDoom,
+		ForestaSouthBattlefield,
+		ForestaWestBattlefield,
+		ForestaEastBattlefield,
+		AquariaBattlefield01,
+		AquariaBattlefield02,
+		AquariaBattlefield03,
+		WintryBattlefield01,
+		WintryBattlefield02,
+		PyramidBattlefield01,
+		LibraBattlefield01,
+		LibraBattlefield02,
+		FireburgBattlefield01,
+		FireburgBattlefield02,
+		FireburgBattlefield03,
+		MineBattlefield01,
+		MineBattlefield02,
+		MineBattlefield03,
+		VolcanoBattlefield01,
+		WindiaBattlefield01,
+		WindiaBattlefield02,
+		ForestaSouthBattlefieldCleared,
+		ForestaWestBattlefieldCleared,
+		ForestaEastBattlefieldCleared,
+		AquariaBattlefield01Cleared,
+		AquariaBattlefield02Cleared,
+		AquariaBattlefield03Cleared,
+		WintryBattlefield01Cleared,
+		WintryBattlefield02Cleared,
+		PyramidBattlefield01Cleared,
+		LibraBattlefield01Cleared,
+		LibraBattlefield02Cleared,
+		FireburgBattlefield01Cleared,
+		FireburgBattlefield02Cleared,
+		FireburgBattlefield03Cleared,
+		MineBattlefield01Cleared,
+		MineBattlefield02Cleared,
+		MineBattlefield03Cleared,
+		VolcanoBattlefield01Cleared,
+		WindiaBattlefield01Cleared,
+		WindiaBattlefield02Cleared,
+		LevelForestMarker,
+		FallBasinMarker,
+		UnknownMarker1,
+		RopeBridgeMarker,
+		AliveForestMarker,
+		UnknownMarker2,
+		VolcanoMarker,
+		MountGaleMarker,
+		SandTempleCave,
+		LibraTempleCave,
+		LifeTempleCave,
+		SpencerCave,
+		WintryTempleCave,
+		SealedTempleCave,
+		KaidgeTempleCave,
+		WindholeTempleCave,
+		LightTempleCave,
+		ShipDockCave,
+		ForestaVillage,
+		AquariaVillage,
+		FireburgVillage,
+		WindiaVillage,
+		HillOfDestiny,
+		LavaDome,
+		MountGale,
+		BoneDungeon,
+		WintryCave,
+		IcePyramid,
+		Mine,
+		PazuzuTower,
+		RainbowBridgeToPazuzu,
+		RainbowBridgeToSpencer,
+		FocusTower,
 	}
 	public partial class FFMQRom : SnesRom
 	{

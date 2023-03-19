@@ -26,22 +26,14 @@ namespace FFMQLib
 		Mid24,
 		[Description("High (32)")]
 		High32,
-		[Description("Random")]
-		Random,
+		[Description("Random 16-32")]
+		RandomNarrow,
+		[Description("Random 10-38")]
+		RandomWide,
+
 	}
 	public partial class FFMQRom : SnesRom
 	{
-		public void BadShipHack(bool shortcutenabled)
-		{
-			// Hack DK script to fix ship if shorcut is used
-			// get rid of it by actually fixing Dark King's script
-			if (shortcutenabled)
-			{
-				PutInBank(0x03, 0xC66F, Blob.FromHex("0700C312"));
-				PutInBank(0x12, 0xC300, Blob.FromHex("235923572B7F2B802B582B5423550C01060300"));
-			}
-		}
-		
 		public void SkyCoinMode(Flags flags, MT19337 rng)
 		{
 			if (flags.SkyCoinMode == SkyCoinModes.Standard)
@@ -68,7 +60,7 @@ namespace FFMQLib
 						$"0D5F01{(int)Items.SkyCoin:X2}0162",
 						"00"
 					});
-
+				/*
 				var pazuzuScript = new ScriptBuilder(new List<string> {
 						"2B47",
 						"2B48",
@@ -86,11 +78,11 @@ namespace FFMQLib
 
 				var pazuzuJumpScript = new ScriptBuilder(new List<string> {
 						"0502A0C11200"
-					});
+					});*/
 
 				crystalSkyCoinScript.WriteAt(0x12, 0xC160, this);
-				pazuzuScript.WriteAt(0x12, 0xC1A0, this);
-				pazuzuJumpScript.WriteAt(0x03, 0xFDAD, this);
+				//pazuzuScript.WriteAt(0x12, 0xC1A0, this);
+				//pazuzuJumpScript.WriteAt(0x03, 0xFDAD, this);
 			}
 			else if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
 			{
@@ -98,8 +90,9 @@ namespace FFMQLib
 				{
 					(SkyCoinFragmentsQty.Low16, 16),
 					(SkyCoinFragmentsQty.Mid24, 24),
-					(SkyCoinFragmentsQty.High32, 36),
-					(SkyCoinFragmentsQty.Random, rng.PickFrom(new List<int>() { 16, 24, 32 }))
+					(SkyCoinFragmentsQty.High32, 32),
+					(SkyCoinFragmentsQty.RandomNarrow, rng.Between(16,32)),
+					(SkyCoinFragmentsQty.RandomWide, rng.Between(10, 38))
 				};
 
 				int skycointqty = fragmentQtySelector[(int)flags.SkyCoinFragmentsQty].Item2;

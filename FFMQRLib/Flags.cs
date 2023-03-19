@@ -14,28 +14,37 @@ namespace FFMQLib
 {
     public class Flags
     {
-        public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.ThreeQuarter;
+        public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.All;
         public ItemShuffleChests ChestsShuffle { get; set; } = ItemShuffleChests.Prioritize;
         public ItemShuffleBoxes BoxesShuffle { get; set; } = ItemShuffleBoxes.Exclude;
         public bool ShuffleBoxesContent { get; set; } = false;
         public ItemShuffleNPCsBattlefields NpcsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
         public ItemShuffleNPCsBattlefields BattlefieldsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
-        public LogicOptions LogicOptions { get; set; } = LogicOptions.Friendly;
-        public bool ShuffleEnemiesPosition { get; set; } = true;
-        public EnemiesScaling EnemiesScaling { get; set; } = EnemiesScaling.Half;
-        public EnemiesScalingSpread EnemiesScalingSpread { get; set; } = EnemiesScalingSpread.Quarter;
+        public LogicOptions LogicOptions { get; set; } = LogicOptions.Standard;
+        public bool ShuffleEnemiesPosition { get; set; } = false;
+        public EnemiesScaling EnemiesScalingLower { get; set; } = EnemiesScaling.Normal;
+        public EnemiesScaling EnemiesScalingUpper { get; set; } = EnemiesScaling.Normal;
+        public EnemiesScaling BossesScalingLower { get; set; } = EnemiesScaling.Normal;
+        public EnemiesScaling BossesScalingUpper { get; set; } = EnemiesScaling.Normal;
         public EnemizerAttacks EnemizerAttacks { get; set; } = EnemizerAttacks.Normal;
-        public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Triple;
-        public BattlesQty BattlesQuantity { get; set; } = BattlesQty.RandomLow;
+        public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
+        public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;
         public bool ShuffleBattlefieldRewards { get; set; } = false;
         public bool RandomStartingWeapon { get; set; } = false;
         public bool ProgressiveGear { get; set; } = false;
-        public bool TweakedDungeons { get; set; } = true;
+        public bool TweakedDungeons { get; set; } = false;
         public DoomCastleModes DoomCastleMode { get; set; } = DoomCastleModes.Standard;
         public bool DoomCastleShortcut { get; set; } = false;
         public SkyCoinModes SkyCoinMode { get; set; } = SkyCoinModes.Standard;
-        public SkyCoinFragmentsQty SkyCoinFragmentsQty { get; set; } = SkyCoinFragmentsQty.Mid24;
+        public SkyCoinFragmentsQty SkyCoinFragmentsQty {
+            get => SkyCoinMode == SkyCoinModes.ShatteredSkyCoin ? internalSkyCoinFragmentsQty : SkyCoinFragmentsQty.Mid24;
+            set => internalSkyCoinFragmentsQty = value; }
         public bool EnableSpoilers { get; set; } = false;
+        public ProgressiveFormationsModes ProgressiveFormations { get; set; } = ProgressiveFormationsModes.Disabled;
+        public MapShufflingMode MapShuffling { get; set; } = MapShufflingMode.None;
+        public bool CrestShuffle { get; set; } = false;
+
+        private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;
 
         public string GenerateFlagString()
         {
@@ -57,7 +66,8 @@ namespace FFMQLib
                 }
             }
 
-            string flagstring = Convert.ToBase64String(BitConverter.GetBytes(flagstrinvalue));
+            var actualbytes = BitConverter.GetBytes(flagstrinvalue);
+            string flagstring = Convert.ToBase64String(BitConverter.GetBytes(flagstrinvalue).Concat(new byte[] { 0 }).ToArray());
             return flagstring.Replace('+', '-').Replace('/', '_').Replace('=', '~');
         }
 
@@ -100,13 +110,13 @@ namespace FFMQLib
 
         public void FlagSanityCheck()
         {
-            // Throw an error if the settings don't offer enough locations.
+            // Throw an error if the settings don't offer enough LocationIds.
             if ((NpcsShuffle == ItemShuffleNPCsBattlefields.Exclude || BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Exclude) && BoxesShuffle == ItemShuffleBoxes.Exclude)
             {
-                throw new Exception("Selected flags don't allow enough locations to place all Quest Items. Change flags to include more locations.");
+                throw new Exception("Selected flags don't allow enough locations to place all Quest Items. Change flags to include more Locations.");
             }
             
-            // Throw an error if the settings don't offer enough locations.
+            // Throw an error if the settings don't offer enough LocationIds.
             if (SkyCoinMode == SkyCoinModes.ShatteredSkyCoin && BoxesShuffle == ItemShuffleBoxes.Exclude)
             {
                 throw new Exception("Selected flags don't allow enough locations to place all Sky Coin Fragments. Set Brown Boxes to Include.");

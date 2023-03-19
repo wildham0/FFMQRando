@@ -1,0 +1,137 @@
+﻿@using System.IO;
+@using System.Text;
+@inject HttpClient Http
+@using System.Net.Http
+@using FFMQLib;
+
+<Container class="sectionBox">
+    <div class="box-title text-secondary">Presets</div> 
+    <Container Class="flagBox">
+        <Container Class="flagColumn">
+            <Field Class="dropFlag">
+                <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Preset Selection</FieldLabel> 
+                <Select TValue="string" @bind-SelectedValue="@presetSelection" @onchange="@OnChange">
+                    <SelectGroup Label="Config">
+                        <SelectItem Value="@("custom")">Custom</SelectItem>
+                        <SelectItem Value="@("import")">Import from File</SelectItem>
+                        <SelectItem Value="@("export")">Export to File</SelectItem>
+                    </SelectGroup>
+                    <SelectGroup Label="Presets">
+                        <SelectItem Value="@("beginner")">Beginner</SelectItem>
+                        <SelectItem Value=@("sgl2022")>Standard / SGL2022</SelectItem>
+                        <SelectItem Value=@("challenging")>Challenging</SelectItem>
+                        <SelectItem Value=@("quickplay")>Quick Play</SelectItem>
+                        <SelectItem Value=@("overworldshuffle")>Overworld Shuffle</SelectItem>
+                        <SelectItem Value=@("oops")>Oops All Random</SelectItem>
+                    </SelectGroup>
+                </Select>
+            </Field>
+        </Container>
+        <Container Class="flagColumn">
+        @if (presetSelection == "import")
+            {
+                <Field Class="dropFlag">
+                    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">
+                        Load File
+                        <Tooltip Text="Load the flags selection from a Yaml configuration file.<br/><br/>With a text editor, each options can be manually weighted. If a Yaml file is loaded, each time a seed is rolled, the flags will be configured randomly using the weighted values. Exporting to file reset the weighting." Inline Multiline Placement="TooltipPlacement.Right">
+                            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+                        </Tooltip>     
+                    </FieldLabel> 
+                    <FileEdit Filter=".yaml" AutoReset="false" Changed="@LoadYamlFromUpload"></FileEdit>
+                    <FieldHelp>@yamlMessage</FieldHelp>
+                </Field>
+            }
+            else if (presetSelection == "export")
+            {
+            <Field Class="dropFlag">
+            <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Name</FieldLabel> 
+                <TextEdit @bind-Text="@yamlName"></TextEdit>
+            </Field>
+            <Field Class="dropFlag">
+                <Button Color="Color.Primary" Clicked="@ExportFile">Export</Button>
+            </Field>      
+        }
+
+        </Container>
+    </Container>
+</Container>
+
+@code
+{
+    [Parameter]
+    public string Name { get; set; }
+
+    [Parameter]
+    public string Tooltip { get; set; }
+
+    [Parameter]
+    public string Value { get; set; }
+
+    [Parameter] public Action<(StreamReader file, bool usepreset, bool loadfromfile)> SetPresetAction { get; set; }
+
+    [Parameter] public Action<string> SetExportFile { get; set; }
+
+    [Parameter]
+    public bool UsePreset { get; set; }
+
+    private string presetSelection = "custom";
+    //private string yamlPreset = "";
+    private string yamlMessage = "";
+    private string yamlName = "default";
+
+    async Task OnChange(ChangeEventArgs e)
+    {
+
+        presetSelection = e.Value.ToString();
+        if (presetSelection == "custom")
+        {
+            SetPresetAction.Invoke((null, false, false));
+        }
+        else if(presetSelection == "import" || presetSelection == "export")
+        {
+            //StateHasChanged();
+        }
+        else
+        {
+            StreamReader streamreader = await LoadYamlFromFile(e.Value.ToString());
+            //StreamReader streamreader = streamtask;
+            yamlName = e.Value.ToString();
+            SetPresetAction.Invoke((streamreader, true, false));
+        }
+        //Value = (TItem)Enum.Parse(typeof(TItem), e.Value.ToString());
+        //ValueChanged.InvokeAsync(Value);
+    }
+
+    void ExportFile()
+    {
+        SetExportFile.Invoke(yamlName);
+    }
+
+    void LoadYamlFromUpload(FileChangedEventArgs e)
+    {
+        try
+        {
+            SetPresetAction.Invoke((new StreamReader(e.Files.First().OpenReadStream(), Encoding.UTF8), true, true));
+            yamlName = e.Files.First().Name.Split('.')[0];
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    async Task<StreamReader> LoadYamlFromFile(string presetname)
+    {
+        try
+        {
+            var stream = await Http.GetStreamAsync("presets/" + presetname + ".yaml");
+
+            return new StreamReader(stream, Encoding.UTF8);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
+    }
+}

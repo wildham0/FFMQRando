@@ -8,13 +8,14 @@ namespace FFMQLib
 {
 	public partial class FFMQRom : SnesRom
 	{
-		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, MT19337 rng)
+		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, LocationIds startinglocation, MT19337 rng)
 		{
-			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == TreasureType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
+			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
 
 			/*** Overworld ***/
 			// GameStart - Skip Mountain collapse
-			Put(RomOffsets.GameStartScript, Blob.FromHex("23222b7a2a0b2700200470002ab05320501629ffff00"));
+			Put(RomOffsets.GameStartScript, Blob.FromHex($"23222b7a2a0b2700200470002ab0532050{((byte)startinglocation):X2}29ffff00"));
+			//Put(RomOffsets.GameStartScript, Blob.FromHex("23222b7a2a0b2700200470002ab05320501629ffff00"));
 
 			GameFlags[(int)GameFlagsList.ShowPazuzuBridge] = true;
 
@@ -132,6 +133,24 @@ namespace FFMQLib
 					"2C124100"
 				}));
 
+			// Barrel in Oldman's house
+			GameFlags[(int)NewGameFlagsList.ShowBarrelMoved] = false;
+			GameFlags[(int)NewGameFlagsList.ShowBarrelNotMoved] = true;
+
+			MapObjects[0x11][0x09].Gameflag = (byte)NewGameFlagsList.ShowBarrelNotMoved;
+			MapObjects[0x11].Add(new MapObject(MapObjects[0x11][0x09]));
+			MapObjects[0x11][0x0B].Gameflag = (byte)NewGameFlagsList.ShowBarrelMoved;
+			MapObjects[0x11][0x0B].X--;
+
+			GameMaps[(int)MapList.ForestaInterior].ModifyMap(0x23, 0x1E, 0x36);
+
+			TileScripts.AddScript((int)TileScriptsList.ColumnMoved, new ScriptBuilder(new List<string> {
+					"2320",
+					"2B21",
+					"00"
+				}));
+
+
 			/*** Sand Temple ***/
 			// Tristam
 			MapObjects[0x12][0x00].X = 0x39;
@@ -196,12 +215,21 @@ namespace FFMQLib
 				}));
 
 			// Tristam Quit Party Tile
+			/*
 			TileScripts.AddScript((int)TileScriptsList.TristamQuitPartyBoneDungeon,
 				new ScriptBuilder(new List<string> { "00" }));
+			*/
+			GameMaps[(int)MapList.BoneDungeon].ModifyMap(0x1D, 0x17, 0x84);
 
 			/*** Focus Tower ***/
-			GameFlags[(int)GameFlagsList.ShowColumnMoved] = true;
-			GameFlags[(int)GameFlagsList.ShowColumnNotMoved] = false;
+			//GameFlags[(int)GameFlagsList.ShowColumnMoved] = true;
+			//GameFlags[(int)GameFlagsList.ShowColumnNotMoved] = false;
+
+			MapObjects[0x0A][0x03].Gameflag = 0x00;
+			MapObjects[0x0A][0x05].Gameflag = 0x00;
+
+			GameMaps[(int)MapList.FocusTower].ModifyMap(48, 53, 0x49);
+
 			GameFlags[0xCB] = false; // Hide MysteriousMan Find Phoebe
 
 			// Venus Chest
@@ -222,6 +250,9 @@ namespace FFMQLib
 					"00"
 				}));
 
+			MapObjects[0x0A].RemoveAt(4);
+			MapObjects[0x0A].RemoveAt(2);
+
 			/*** Libra Temple ***/
 			// Phoebe
 			TalkScripts.AddScript((int)TalkScriptsList.PhoebeLibraTemple,
@@ -237,6 +268,7 @@ namespace FFMQLib
 
 			/*** Aquaria ***/
 			// Entering Aquaria
+			/*
 			TileScripts.AddScript((int)TileScriptsList.EnterAquaria,
 				new ScriptBuilder(new List<string> {
 					"050B02[03]",
@@ -251,10 +283,61 @@ namespace FFMQLib
 					"00",
 					"2C0801",
 					"00",
+				}));*/
+
+			TileScripts.AddScript((int)TileScriptsList.EnterAquaria,
+				new ScriptBuilder(new List<string> {
+					"050B02[03]",
+					"2C0901",
+					"00",
+					"2C0801",
+					"00",
 				}));
 
+
+			//MapObjects[0x18].Add(new MapObject(Blob.FromHex("003F073816002C"))); // Put new map object to talk to
+			//MapObjects[0x18][0x06].Coord = (0x10, 0x0E);
+			MapObjects[0x18][0x04].Value = 0x3F;
+			MapObjects[0x18][0x04].Type = MapObjectType.Talk;
+
+
+			TalkScripts.AddScript((int)TalkScriptsList.Unknown3f, new ScriptBuilder(new List<string>
+				{
+					"04",
+					"2F",
+					"050D02[07]",
+					$"23{(int)NewGameFlagsList.WakeWaterUsed:X2}",
+					"2A15271225304506ff8E01FFFF",
+					"234F",
+					"00",
+					"1A00" + TextToHex("Maybe the WakeWater can save this poor plant.") + "36",
+					"00"
+				}));
+
+			/*
 			TileScripts.AddScript((int)TileScriptsList.EnterPhoebesHouse,
 				new ScriptBuilder(new List<string> { "2C0A0200" }));
+			*/
+
+			// Change Phoebe's script for the house exit to account for aquaria winter/summer 
+			TileScripts.AddScript((int)TileScriptsList.EnterPhoebesHouse,
+				new ScriptBuilder(new List<string> {
+					"2E02" + "[03]",
+					"2C6F01",
+					"00",
+					"2C7001",
+					"00"
+				}));
+
+			// Take Tristam's script for the INN exit to account for aquaria winter/summer 
+			TileScripts.AddScript((int)TileScriptsList.TristamQuitPartyBoneDungeon,
+				new ScriptBuilder(new List<string> {
+					"2E02" + "[03]",
+					"2C7101",
+					"00",
+					"2C7201",
+					"00"
+				}));
 
 			// Move girl that blocks Aquaria Seller's House
 			MapObjects[0x18][0x02].X = 0x06;
@@ -377,30 +460,45 @@ namespace FFMQLib
 					"00"
 				}));
 
-			// Enter Fall Basin
-			TileScripts.AddScript((int)TileScriptsList.EnterFallBasin,
-				new ScriptBuilder(new List<string> {
-					"2C0C0100",
-				}));
-
 			// Exit Fall Basin
 			GameMaps.TilesProperties[0x0A][0x22].Byte2 = 0x08;
 
 			/*** Ice Pyramid ***/
+			// Ice Pyramid Entrance
+			var pyramidTeleporter = EntrancesData.Entrances.Find(x => x.Id == 456).Teleporter;
+			TileScripts.AddScript((int)TileScriptsList.EnterIcePyramid,
+				new ScriptBuilder(new List<string> {
+					"2F",
+					"050C06[03]",
+					"23F2",
+					$"2C{pyramidTeleporter.id:X2}{pyramidTeleporter.type:X2}",
+					"00",
+				}));
+
+			EntrancesData.Entrances.Find(x => x.Id == 456).Teleporter = (32, 8);
+
 			// Change entrance tile to disable script
 			GameMaps[(int)MapList.IcePyramidA].ModifyMap(0x15, 0x20, 0x05);
 
-			// Add teleport coordinates
-			PutInBank(0x05, 0xFED5, Blob.FromHex("2F364D"));
+			// Open 4F door to avoid softlock in floor shuffle
+			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld)
+			{ 
+				GameMaps[(int)MapList.IcePyramidA].ModifyMap(0x37, 0x06,
+					new()
+					{
+						new() { 0xBF },
+						new() { 0xCF },
+					});
+			}
 
 			// Change tile properties from falling tile to script tile
 			GameMaps.TilesProperties[0x06][0x1E].Byte2 = 0x88;
 
-			TileScripts.AddScript((int)TileScriptsList.EnterIcePyramid,
+			TileScripts.AddScript((int)TileScriptsList.IcePyramidCheckStatue,
 				new ScriptBuilder(new List<string>
 				{
 					"2D" + ScriptItemFlags[Items.CatClaw].Item1,
-					$"050c" + ScriptItemFlags[Items.CatClaw].Item2 + "[17]", // goto teleport
+					$"050c" + ScriptItemFlags[Items.CatClaw].Item2 + "[17]", // check sword
 					"2D" + ScriptItemFlags[Items.CharmClaw].Item1,
 					$"050c" + ScriptItemFlags[Items.CharmClaw].Item2 + "[17]",
 					"2D" + ScriptItemFlags[Items.DragonClaw].Item1,
@@ -416,6 +514,19 @@ namespace FFMQLib
 					"2C105A00",
 					"2C105700",
 					"2C105800",
+					"2D" + ScriptItemFlags[Items.SteelSword].Item1,
+					$"050c" + ScriptItemFlags[Items.SteelSword].Item2 + "[30]", // goto teleport
+					"2D" + ScriptItemFlags[Items.KnightSword].Item1,
+					$"050c" + ScriptItemFlags[Items.KnightSword].Item2 + "[30]",
+					"2D" + ScriptItemFlags[Items.Excalibur].Item1,
+					$"050c" + ScriptItemFlags[Items.Excalibur].Item2 + "[30]",
+					"0F8B0E",
+					"057C00[13]", // looking up
+					"057C01[14]",// looking right
+					"057C02[15]",  // lookingdown
+					"057C03[16]",// looking left
+					"1A48" + TextToHex("I should bring a sword with me before going down there.") + "36",
+					"00",
 					"0cee19000cef191a094cb20100" // Hack to excute the falling down routine
 				}));
 
@@ -761,6 +872,54 @@ namespace FFMQLib
 					"00"
 				}));
 
+			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld)
+			{
+				var volcanoTeleporter = EntrancesData.Entrances.Find(x => x.Id == 464).Teleporter;
+
+				TileScripts.AddScript((int)TileScriptsList.RopeBridgeFight,
+					new ScriptBuilder(new List<string> {
+						"2F",
+						"050C05[03]",
+						"23F2",
+						$"2C{volcanoTeleporter.id:X2}{volcanoTeleporter.type:X2}",
+						"00"
+					}));
+
+				EntrancesData.Entrances.Find(x => x.Id == 464).Teleporter = (15, 8);
+			}
+			else
+			{
+				TileScripts.AddScript((int)TileScriptsList.RopeBridgeFight,
+					new ScriptBuilder(new List<string> {
+						"2BF2",
+						"2C8801",
+						"00"
+					}));
+			}
+
+			TileScripts.AddScript((int)TileScriptsList.VolcanoTeleportToBase,
+				new ScriptBuilder(new List<string> {
+					"2BF2",
+					"2C8901",
+					"00"
+				}));
+			TileScripts.AddScript((int)TileScriptsList.VolcanoTeleportFromTop,
+				new ScriptBuilder(new List<string> {
+					"2F",
+					"050C05[03]",
+					"23F2",
+					"2C8B01",
+					"00"
+				}));
+			TileScripts.AddScript((int)TileScriptsList.EnterWindiaInn,
+				new ScriptBuilder(new List<string> {
+					"2F",
+					"050C05[03]",
+					"23F2",
+					"2C8A01",
+					"00"
+				}));
+
 			/*** Lava Dome ***/
 			// Fight Hydra
 			TileScripts.AddScript((int)TileScriptsList.FightDualheadHydra,
@@ -779,12 +938,15 @@ namespace FFMQLib
 				}));
 
 			/*** Rope Bridge ***/
+			GameMaps[(int)MapList.RopeBridge].ModifyMap(0xD, 0x0C, 0x38);
+			/*
 			TileScripts.AddScript((int)TileScriptsList.RopeBridgeFight,
-				new ScriptBuilder(new List<string> { "00" }));
+				new ScriptBuilder(new List<string> { "00" }));*/
 
 			/*** Living Forest ***/
 			GameFlags[(int)GameFlagsList.GiantTreeSet] = true;
 			GameFlags[(int)GameFlagsList.GiantTreeUnset] = false;
+			bool exitToGiantTree = flags.MapShuffling == MapShufflingMode.None;
 
 			// Remove Giant Tree Script
 			TalkScripts.AddScript((int)TalkScriptsList.GiantTree,
@@ -793,26 +955,91 @@ namespace FFMQLib
 				}));
 
 			// Fix Alive Forest's Mobius teleporter disapearing after clearing Giant Tree
-			MapChanges.Modify(0x0E, 0x17, 0x52);
+			var crestTile = GameMaps[(int)MapList.LevelAliveForest].TileValue(8, 52);
+			MapChanges.Modify(0x0E, 0x17, crestTile);
+
+			if (!exitToGiantTree)
+			{
+				MapChanges.RemoveActionByFlag(0x43, 0x3C);
+			}
 
 			/*** Giant Tree ***/
 			// Set door to chests in Giant Tree to open only once chimera is defeated
-			var treeDoorChangeId = MapChanges.Add(Blob.FromHex("3806122F3F"));
-			MapObjects[0x46][0x04].RawOverwrite(Blob.FromHex("0002073816002C")); // Put new map object to talk to
-			GameMaps[(int)MapList.GiantTreeB].ModifyMap(0x38, 0x07, 0x3E); // Change map to block exit
-			Data[0x02F65D] = 0x08; // Change exit coordinate
-
-
+			var treeDoorChangeClosed = MapChanges.Add(Blob.FromHex("3806122F3E"));
+			MapObjects[0x46].Add(new MapObject(Blob.FromHex("2802073816002C"))); // Put new map object to talk to
+			MapChanges.AddAction(0x46, 0x28, treeDoorChangeClosed, 0x22);
 
 			TalkScripts.AddScript(0x02, new ScriptBuilder(new List<string>
 				{
-					"2e28[04]",
-					TextToHex("You may enter.") + "36",
-					$"2a{treeDoorChangeId:X2}2a10505eff9700ffff2bf3",
+					"2e28[02]",
 					"00",
 					TextToHex("Defeat Gidrah and I'll let you pass.") + "36",
 					"00"
 				}));
+
+			// Add check for Dragon Claw on 2F to avoid softlock
+			PutInBank(0x06, 0x93F4, Blob.FromHex("4c4d5c5d")); // Add new tile+properties to execute script
+			GameMaps.TilesProperties[0x09][0x7D].Byte1 = 0x00;
+			GameMaps.TilesProperties[0x09][0x7D].Byte2 = 0x88;
+			GameMaps[(int)MapList.GiantTreeA].ModifyMap(0x2E, 0x33, 0x7D);
+
+			TileScripts.AddScript((int)TileScriptsList.EnterFallBasin,
+				new ScriptBuilder(new List<string> {
+					"2D" + ScriptItemFlags[Items.DragonClaw].Item1,
+					$"050c" + ScriptItemFlags[Items.DragonClaw].Item2 + "[04]",
+					"1A48" + TextToHex("Wait, I'll need the Dragon Claw to come back up!") + "36",
+					"2C105000",
+					"0cee19000cef1916094cb20100" // Hack to excute the falling down routine
+				}));
+
+			// Add hook on 3F to avoid softlock
+			MapObjects[0x47].Add(new MapObject(MapObjects[0x47][0x15]));
+			MapObjects[0x47][0x16].Coord = (0x2D, 0x36);
+
+			// Giant Tree Walking Script
+			var newGidrahLocation = GameLogic.FindTriggerLocation(AccessReqs.Gidrah);
+			TalkScripts.AddScript(0x50, new ScriptBuilder(new List<string>
+				{
+					"2E28[10]",
+					"66B4C0FFBAC5B4C7B8B9C8494655B95CFFB55EC7483FC2C6407C4BC6CE309ABFBF58FFC04046B6B4C5C559446F",
+					"36",
+					"2A142A10505EFFAA00072B10511B25FFFF",
+					"23FE",
+					"2A1C2510531053062BAB0061FF" + (exitToGiantTree ? "2E" : $"{(int)newGidrahLocation:X2}") + "29" + "FFFF",
+					"2BFE",
+					"233C",
+					"236A",
+					"00",
+					"A2B9FF55B64FFFB55E4220484D417C4B45CABC4AB7BCC6B4C3C35EC5CE",
+					"00"
+				}));
+
+			// Remove Kaeli
+			MapObjects[0x4C].RemoveAt(0);
+
+			// Change entrance to not teleport to giant tree ow location
+			if (exitToGiantTree)
+			{
+				TileScripts.AddScript(0x31, new ScriptBuilder(new List<string>
+				{
+					"2E3C[03]",
+					"2C3801",
+					"00",
+					"2C0900",
+					"00"
+				}));
+
+				EntrancesData.Entrances.Find(x => x.Id == 278).Teleporter = (0x31, 8);
+				EntrancesData.Entrances.Find(x => x.Id == 279).Teleporter = (0x31, 8);
+			}
+			else
+			{
+				var disableGiantTreeEntrance = new ScriptBuilder(new List<string> {
+						"0A06A5",
+					});
+
+				disableGiantTreeEntrance.WriteAt(0x03, 0xA624, this);
+			}
 
 			/*** Windia ***/
 			TalkScripts.AddMobileScript(0x5D);
@@ -901,11 +1128,6 @@ namespace FFMQLib
 					"00"
 				}));
 
-			TileScripts.AddScript((int)TileScriptsList.EnterWindiaInn,
-				new ScriptBuilder(new List<string> {
-					"2C1F0200",
-				}));
-
 			// Otto
 			TalkScripts.AddScript((int)TalkScriptsList.Otto,
 				new ScriptBuilder(new List<string> {
@@ -942,6 +1164,75 @@ namespace FFMQLib
 					"00",
 				}));
 
+			/*** Pazuzu's Tower ***/
+			bool skip7fteleport = flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld;
+
+			var newResetflags = new ScriptBuilder(new List<string> {
+						"2B47",
+						"2B48",
+						"2B49",
+						"2B40",
+						"2B41",
+						"2B42",
+						"2B43",
+						"2B44",
+						"2B45",
+						"2B46",
+						"00"
+					});
+
+			var newPazuzuScript = new ScriptBuilder(new List<string> {
+						"2C50FF",
+						"07A0C112",
+						skip7fteleport ? "00" : "0898FD",
+						"00"
+					});
+
+			var jumpToResetFlagsShort = new ScriptBuilder(new List<string> {
+						"07A6C11200",
+					});
+			var newJumpInRoutineToReset = new ScriptBuilder(new List<string> {
+						"08D5FF",
+					});
+
+			var standardCrystalScript = new ScriptBuilder(new List<string> {
+						"2A20500527205410575EFF4E01A057260161FF10530054202529E6FFFF",
+						"2305",
+						flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals ? "050260C11200" : "00",
+						"00"
+					});
+
+			var floorCrystalScript = new ScriptBuilder(new List<string> {
+						"2E05[04]",
+						"2A61FF10531050202529E6FFFF",
+						"2305",
+						flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals ? "050260C11200" : "00",
+						"00"
+					});
+
+			newResetflags.WriteAt(0x12, 0xC1A0, this);
+			newJumpInRoutineToReset.WriteAt(0x03, 0xFC6B, this);
+			jumpToResetFlagsShort.WriteAt(0x03, 0xFFD5, this);
+			newPazuzuScript.WriteAt(0x03, 0xFD8C, this);
+
+			if (skip7fteleport)
+			{
+				floorCrystalScript.WriteAt(0x03, 0xFD98, this);
+
+				TileScripts.AddScript(0x26,
+					new ScriptBuilder(new List<string>{
+						"0A98FD"
+					}));
+
+				//GameMaps[(int)MapList.PazuzuTowerB].ModifyMap(0x10, 0x28, 0x78);
+				MapChanges.Replace(0x12, Blob.FromHex("0F26334e4e4e4e2020794e20"));
+				MapObjects[0x59][0x06].Coord = (0x10, 0x28);
+			}
+			else
+			{
+				standardCrystalScript.WriteAt(0x03, 0xFD98, this);
+			}
+
 			/*** Ship's Dock ***/
 			GameFlags[0x1A] = false; // Mac Ship
 			GameFlags[0x56] = false; // Mac Ship
@@ -969,6 +1260,101 @@ namespace FFMQLib
 					"00"
 				}));
 
+			/*** Doom Castle ***/
+			TileScripts.AddScript((int)TileScriptsList.HeroStatue,
+				new ScriptBuilder(new List<string> {
+					"2E39[07]",
+					"2A14250C27B05520501925FFFF",
+					"1AA7" + TextToHex("... Knights of the Light...\nWe Crystals now entrust you with our power.") + "36",
+					"0829E6",
+					"2339",
+					"2B19",
+					"2A0C260527052B0221FFFF",
+					"00"
+				}));
+
+
+			/*** Ending ***/
+			MapObjects[0x06][0x01].X = 0x10;
+			MapObjects[0x06][0x01].Y = 0x0F;
+			MapObjects[0x06][0x01].Gameflag = 0xF4;
+
+			string darkKingFight = "29950C0106030800801A0020504DCA40C0B8B842B442BFB465531B7AA2C1B7B8B8B74D4F4CC158FF55CABC4AC64B67C0B8533166B7547E3F477DC6C26FB040CA547EB4BFBF58FF5546C5C87B43C5FFB05CBFB7D2329ABFB4C64DC6BCBFBF59BBC87AC1C64D66C06DC657C54078C74BC5BCB5BF40C6B8B6C5B8C7CE305BB442A9C5C2C3BBB8B6CCCF019ABA60FFB4BA726665B4C5C76870C5C8C05CCE30B076B669404641C3586A5A9DB4C5BEC160C6CE23E405E4CE000C010600080080";
+			string flagSwitch = "6123022304235923572B7F2B802B582B542355";
+
+			TileScripts.AddScript((int)TileScriptsList.FightDarkKing,
+				new ScriptBuilder(new List<string> {
+					darkKingFight,
+					flagSwitch,
+					"2A0121FFFF",
+					"0C010618080080",
+					"2A3027005402443055024507251427FFFF",
+					"05E8",
+					"08EE85",
+					"09A09411",
+					"09A09411",
+					"23F4",
+					"23F3",
+					"2A2E251D0140511052305110501E051051605010531050FFFF",
+					"09A09411",
+					"2362",
+					"2A10537052105130520201105030532050000550502144E1453344FFFF",
+					"09A09411",
+					"2AB0541054FFFF",
+					"09A09411",
+					"2A314561440054FFFF",
+					"09A09411",
+					"2AB0541054FFFF",
+					"09A09411",
+					"2A104230441344FFFF",
+					"09A09411",
+					"2A5052090150502053105230531050805310503053520130520144FFFF",
+					"09A09411",
+					"2A6050140120536050505310501105FFFF",
+					"0C010614",
+					"080080",
+					"2AC050205300541442FFFF",
+					"2B80",
+					"09A09411",
+					"2AB05220514052FFFF",
+					"0C010618",
+					"080080",
+					"2A110606FF530106FF1054FFFF",
+					"09A09411",
+					"2C3054",
+					"09A09411",
+					"2A1052164437443054FFFF",
+					"09A09411",
+					"2C1054",
+					"09A09411",
+					"2A2050154439443054FFFF",
+					"09A09411",
+					"2C1054",
+					"09A09411",
+					"2A1050124434443054FFFF",
+					"09A09411",
+					"2C1054",
+					"09A09411",
+					"2A21440145FFFF",
+					"09A09411",
+					"2A1050104431441054FFFF",
+					"09A09411",
+					"2C3054",
+					"09A09411",
+					"2A50442050205403440844054409440244044400440144A054FFFF",
+					"09A09411",
+					"2A4050205440404140A0543050B0541050510106FFE055A054B3E15001FFFF",
+					"0920940C",
+					"0C010613",
+					"080080",
+					"2A51013055105406FF305406FF1054B3E13146814300541142FFFF",
+					"09A09411",
+					"2CE055",
+					"2C5001",
+					"0C010619",
+					"080080",
+					"0994940C",
+				}));
 		}
 	}
 }

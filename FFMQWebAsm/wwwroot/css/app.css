@@ -8,6 +8,10 @@ a, .btn-link {
     color: #0366d6;
 }
 
+h2 {
+    text-align: center;
+}
+
 .btn-primary {
     color: #fff;
     background-color: #1b6ec2;
@@ -15,7 +19,7 @@ a, .btn-link {
 }
 
 .content {
-    padding-top: 1.1rem;
+    /*padding-top: 1.1rem;*/
 }
 
 .valid.modified:not([type=checkbox]) {
@@ -29,6 +33,107 @@ a, .btn-link {
 .validation-message {
     color: red;
 }
+
+.sectionBox {
+    margin-bottom: 0.3em;
+    padding: 1em;
+    background-color: rgba(0,0,0,0.2);
+    display: block;
+    border: 5px solid white;
+    border-radius: 15px;
+}
+
+.flagBox {
+    margin-bottom: 0;
+    padding: 0;
+    background-color: rgba(0,0,0,0);
+    display: flex;
+    border: 0px;
+    border-radius: 0px;
+    flex-wrap: wrap;
+    gap: 0px 20px;
+    padding-top: 5px;
+    align-content: center;
+}
+
+.infoBox {
+    margin-bottom: 0;
+    padding: 0;
+    background-color: rgba(0,0,0,0);
+    display: block;
+    border: 0px;
+    border-radius: 0px;
+    flex-wrap: wrap;
+    gap: 0px 20px;
+    padding-top: 5px;
+    align-content: center;
+}
+
+.flagColumn {
+    margin-bottom: 0;
+    padding: 0;
+    background-color: rgba(0,0,0,0);
+    display: block;
+    border: 0px;
+    flex: 1;
+    border-radius: 0px;
+    gap: 0px 20px;
+    align-content: center;
+}
+
+.box-title {
+    padding: 0 10px;
+    position: relative;
+    background: rgba(27,42,81,1);
+    width: fit-content;
+    font-size: 1.25em;
+    border: 5px solid white;
+    border-radius: 15px;
+    white-space: nowrap;
+    margin-top: -2em;
+    font-size: 1.4rem;
+}
+
+.box-text {
+    flex: 1;
+    min-width: 300px;
+}
+
+.dropFlag {
+    flex: 3;
+    min-width: 200px;
+}
+
+.switchFlag {
+    flex: 2;
+    min-width: 200px;
+}
+
+.romFlag {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+}
+
+.romBtn {
+    width: fit-content; 
+    white-space: nowrap;
+}
+
+.extra-padding {
+    padding-right: 5px;
+}
+
+.boolFlagFixed {
+    color: white;
+    min-width: 200px;
+}
+
+.boolFlagFixedGrey {
+    color: dimgrey;
+    min-width: 200px;
+}
+
 
 #blazor-error-ui {
     background: lightyellow;

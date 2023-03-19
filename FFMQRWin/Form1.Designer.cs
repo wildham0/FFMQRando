@@ -54,6 +54,7 @@ namespace FFMQRWin
             this.label9 = new System.Windows.Forms.Label();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.button5 = new System.Windows.Forms.Button();
+            this.comboPresets = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar3)).BeginInit();
@@ -284,11 +285,20 @@ namespace FFMQRWin
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
+            // comboPresets
+            // 
+            this.comboPresets.FormattingEnabled = true;
+            this.comboPresets.Location = new System.Drawing.Point(443, 113);
+            this.comboPresets.Name = "comboPresets";
+            this.comboPresets.Size = new System.Drawing.Size(350, 23);
+            this.comboPresets.TabIndex = 27;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.comboPresets);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.comboBox2);
@@ -351,6 +361,7 @@ namespace FFMQRWin
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.ComboBox comboBox2;
         private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.ComboBox comboPresets;
     }
 }
 

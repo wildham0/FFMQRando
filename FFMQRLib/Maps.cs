@@ -776,9 +776,18 @@ namespace FFMQLib
 
 			ModifiedMap = true;
 		}
-		public void ModifyMap(int destx, int desty, byte modifications)
+		public void ModifyMap(int destx, int desty, byte modifications, bool keepLayerData = false)
 		{
-			_mapUncompressed[destx + (desty * _dimensions.Item1)] = modifications;
+
+			if (!keepLayerData)
+			{
+				_mapUncompressed[destx + (desty * _dimensions.Item1)] = modifications;
+			}
+			else
+			{
+				var layervalue = _mapUncompressed[destx + (desty * _dimensions.Item1)] & 0x80;
+				_mapUncompressed[destx + (desty * _dimensions.Item1)] = (byte)(modifications | layervalue);
+			}
 
 			ModifiedMap = true;
 		}
@@ -973,6 +982,7 @@ namespace FFMQLib
 		{
 			return _mapUncompressed.Distinct().ToList();
 		}
+		/*
 		public void ExitLocationDump(FFMQRom.ExitList exits, MapUtilities maputilities)
 		{
 			var tempmap = _mapUncompressed.GetRange(0, _dimensions.Item1 * _dimensions.Item2).Select(x => ((_tileData[(x & 0x7F)].Byte1 & 0x07) == 0x07) ? 0xFF : 0x00).ToArray();
@@ -994,6 +1004,33 @@ namespace FFMQLib
 
 				Console.WriteLine(myStringOutput);
 			}
+		}*/
+	}
+
+	public class MapChangeAction
+	{
+		public byte Area {get; set;}
+		private byte gameflag;
+		private byte action;
+		private byte changeid;
+
+		public MapChangeAction(int id, byte[] initialarray)
+		{
+			Area = (byte)id;
+			gameflag = initialarray[0];
+			changeid = initialarray[1];
+			action = initialarray[2];
+		}
+		public MapChangeAction(int id, byte _gameflag, byte _changeid, byte _action)
+		{
+			Area = (byte)id;
+			gameflag = _gameflag;
+			changeid = _changeid;
+			action = _action;
+		}
+		public byte[] GetBytes()
+		{
+			return new byte[] { gameflag, changeid, action };
 		}
 	}
 
@@ -1001,6 +1038,7 @@ namespace FFMQLib
 	{
 		private List<Blob> _pointers;
 		private List<Blob> _mapchanges;
+		private List<MapChangeAction> MapChangeActions;
 
 		private const int MapChangesPointersOld = 0xB93A;
 		private const int MapChangesEntriesOld = 0xBA0E;
@@ -1010,6 +1048,14 @@ namespace FFMQLib
 		private const int MapChangesEntriesNew = 0x8100;
 		private const int MapChangesBankNew = 0x12;
 		private const int MapChangesQtyNew = 0x80;
+
+		private const int MapActionsInitialPointers = 0xBE77;
+		private const int MapActionsSecondaryPointers = 0xBEE3;
+		private const int MapActionsOffset = 0xBF15;
+		private const int MapActionsNewPointers = 0x9400;
+		private const int MapActionsNewOffset = 0x94D8;
+		private const int MapActionsQty = 0x6C;
+
 
 		public MapChanges(FFMQRom rom)
 		{
@@ -1022,6 +1068,27 @@ namespace FFMQLib
 				var sizeByte = rom.GetFromBank(MapChangesBankOld, MapChangesEntriesOld + pointer.ToUShorts()[0] + 2, 1)[0];
 				var size = (sizeByte & 0x0F) * (sizeByte / 0x10);
 				_mapchanges.Add(rom.GetFromBank(MapChangesBankOld, MapChangesEntriesOld + pointer.ToUShorts()[0], size + 3));
+			}
+
+			MapChangeActions = new();
+			var actionInitialPointers = rom.GetFromBank(MapChangesBankOld, MapActionsInitialPointers, MapActionsQty);
+
+			for (int i = 0; i < actionInitialPointers.Length; i++)
+			{
+				byte individualPointer = actionInitialPointers[i];
+				if (individualPointer != 0xFF)
+				{
+					var actualPointer = rom.GetFromBank(MapChangesBankOld, MapActionsSecondaryPointers + (individualPointer * 2), 2).ToUShorts()[0];
+
+					var action = rom.GetFromBank(MapChangesBankOld, MapActionsOffset + actualPointer, 3);
+
+					while (action[0] != 0xFF)
+					{
+						MapChangeActions.Add(new MapChangeAction(i, action));
+						actualPointer += 3;
+						action = rom.GetFromBank(MapChangesBankOld, MapActionsOffset + actualPointer, 3);
+					}
+				}
 			}
 		}
 		public byte Add(Blob mapchange)
@@ -1044,6 +1111,14 @@ namespace FFMQLib
 		{
 			_mapchanges[index] = mapchange;
 		}
+		public void AddAction(int area, byte _gameflag, byte _changeid, byte _action)
+		{
+			MapChangeActions.Add(new MapChangeAction(area, new byte[] { _gameflag, _changeid, _action }));
+		}
+		public void RemoveActionByFlag(int area, int flag)
+		{
+			MapChangeActions.RemoveAll(x => x.Area == area && x.GetBytes()[0] == flag);
+		}
 		private void UpdatePointers()
 		{
 			_pointers.Clear();
@@ -1055,9 +1130,33 @@ namespace FFMQLib
 				currentpointer += (ushort)change.Length;
 			}
 		}
+		private void UpdateMapChangeActions(FFMQRom rom)
+		{
+			ushort currentPointer = 0x0000;
+			List<ushort> pointerList = new();
+			List<byte> actionData = new();
+
+			for (int i = 0; i < MapActionsQty; i++)
+			{
+				pointerList.Add(currentPointer);
+
+				var currentChanges = MapChangeActions.Where(x => x.Area == i).ToList();
+				foreach (var change in currentChanges)
+				{
+					actionData.AddRange(change.GetBytes());
+					currentPointer += 3;
+				}
+				actionData.Add(0xFF);
+				currentPointer++;
+			}
+
+			rom.PutInBank(MapChangesBankNew, MapActionsNewPointers, Blob.FromUShorts(pointerList.ToArray()));
+			rom.PutInBank(MapChangesBankNew, MapActionsNewOffset, actionData.ToArray());
+		}
 		public void Write(FFMQRom rom)
 		{
 			UpdatePointers();
+			UpdateMapChangeActions(rom);
 
 			rom.PutInBank(MapChangesBankNew, MapChangesPointersNew, _pointers.SelectMany(x => x.ToBytes()).ToArray());
 			rom.PutInBank(MapChangesBankNew, MapChangesEntriesNew, _mapchanges.SelectMany(x => x.ToBytes()).ToArray());
@@ -1068,6 +1167,34 @@ namespace FFMQLib
 			rom.PutInBank(0x01, 0xC5B6, Blob.FromHex("008112")); // Change X base
 			rom.PutInBank(0x01, 0xC5CB, Blob.FromHex("028112")); // Change Size base
 			rom.PutInBank(0x01, 0xC5EB, Blob.FromHex("008112")); // Change Entry base
+
+			// Change MapAction routine
+			rom.PutInBank(0x01, 0xC8B2, Blob.FromHex("EAEAEAEAEAEAEA")); // skip initial table check
+			rom.PutInBank(0x01, 0xC8BF, new byte[] { (MapActionsNewPointers % 0x100), (MapActionsNewPointers / 0x100), MapChangesBankNew }); // new pointers address
+			rom.PutInBank(0x01, 0xC8C5, new byte[] { (MapActionsNewOffset % 0x100), (MapActionsNewOffset / 0x100), MapChangesBankNew }); // new offsets
+			rom.PutInBank(0x01, 0xC8D3, new byte[] { ((MapActionsNewOffset + 1) % 0x100), (MapActionsNewOffset / 0x100), MapChangesBankNew }); // new offsets
+			rom.PutInBank(0x01, 0xC8DA, new byte[] { ((MapActionsNewOffset + 2) % 0x100), (MapActionsNewOffset / 0x100), MapChangesBankNew }); // new offsets
+		}
+	}
+
+	public class MapUtilities
+	{
+		private List<Blob> _areaattributes = new();
+
+		public MapUtilities(FFMQRom rom)
+		{
+			var attributepointers = rom.Get(RomOffsets.AreaAttributesPointers, RomOffsets.AreaAttributesPointersQty * 2).Chunk(2);
+
+			foreach (var pointer in attributepointers)
+			{
+				var address = RomOffsets.AreaAttributesPointersBase + pointer[1] * 0x100 + pointer[0];
+				_areaattributes.Add(rom.Get(address, 8));
+			}
+		}
+
+		public byte AreaIdToMapId(byte areaid)
+		{
+			return _areaattributes[(int)areaid][1];
 		}
 	}
 }

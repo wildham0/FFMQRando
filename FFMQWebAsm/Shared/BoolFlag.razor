@@ -1,0 +1,47 @@
+﻿@using FFMQLib;
+
+
+    @if (!UsePreset)
+    {
+    <Field class="text-secondary switchFlag">
+        <Switch TValue="bool" @bind-Checked="@Value" @onchange="@OnChange">
+            <Text TextColor="TextColor.Secondary" class="fw-bold">@Name</Text>
+            <Tooltip Text=@Tooltip Inline Multiline Placement="TooltipPlacement.Right">
+                <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+            </Tooltip>
+        </Switch>
+    </Field>
+    }
+    else
+    {
+            <div class="fw-bold @(Value ? "boolFlagFixed" : "boolFlagFixedGrey")">@Name
+            <Tooltip Text=@Tooltip Inline Multiline Placement="TooltipPlacement.Right">
+                <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+            </Tooltip>
+            </div>
+    }
+
+
+@code
+{
+    [Parameter]
+    public string Name { get; set; }
+
+    [Parameter]
+    public string Tooltip { get; set; }
+
+    [Parameter]
+    public bool Value { get; set; }
+
+    [Parameter]
+    public bool UsePreset { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> ValueChanged { get; set; }
+
+    void OnChange(ChangeEventArgs e)
+	{
+		Value = (bool)e.Value;
+		ValueChanged.InvokeAsync(Value);
+	}
+}

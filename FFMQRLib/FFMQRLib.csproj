@@ -5,6 +5,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="datafiles\entrances.yaml" />
+    <None Remove="datafiles\entrancespairs.yaml" />
+    <None Remove="datafiles\overworld.yaml" />
+    <None Remove="datafiles\shufflingdata.yaml" />
+    <None Remove="locations.yaml" />
+    <None Remove="rooms.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="datafiles\entrances.yaml" />
+    <EmbeddedResource Include="datafiles\overworld.yaml" />
+    <EmbeddedResource Include="datafiles\shufflingdata.yaml" />
+    <EmbeddedResource Include="datafiles\entrancespairs.yaml" />
+    <EmbeddedResource Include="datafiles\rooms.yaml" />
+    <EmbeddedResource Include="datafiles\locations.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="RomUtilities" Version="3.1.0" />
     <PackageReference Include="YamlDotNet" Version="12.0.0" />
   </ItemGroup>
