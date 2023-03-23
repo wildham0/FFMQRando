@@ -416,6 +416,7 @@ namespace FFMQLib
 		CupidLock = 0x3F,
 		BombRefill = 0xDD,
 		ProjectileRefill = 0xDE,
+		APItem = 0xF0,
 		None = 0xFF,
 	}
 

@@ -17,16 +17,6 @@ namespace FFMQLib
 		// Scripts
 		public const int GameStartScript = 0x01f811;
 
-		public const int TalkScriptsPointers = 0x01d5e5;
-		public const int TileScriptsPointers = 0x01bb81;
-		public const int TileScriptPointerQty = 0x50;
-		public const int TalkScriptPointerQty = 0x7C;
-
-		public const int TileScriptOffset = 0xbc21;
-		public const int TalkScriptOffset = 0xd6dd;
-		public const int TileScriptEndOffset = 0xd280;
-		public const int TalkScriptEndOffset = 0xf811;
-
 		// Exits
 		public const int ExitTilesCoordPointers = 0x02F920;
 		public const int ExitTilesCoordPointersQty = 108;

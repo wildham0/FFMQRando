@@ -174,8 +174,12 @@ namespace FFMQLib
 			// New routine to get the quantity of items, use a lut instead of comparing chest id
 			PutInBank(0x11, 0x9000, Blob.FromHex("08c230ad9e00aabf0091118d6601e230c901f004a9808002a9008d6501286b"));
 
-			// Generate lut of boxes & chests quantity
-			byte[] lutResetBox = new byte[0x20];
+			// Newer routine to set item quantity, supersed previous (to remove)
+			PutInBank(0x00, 0xDACC, Blob.FromHex("22509011ea"));
+            PutInBank(0x11, 0x9050, Blob.FromHex("e220ad910ec96ad012ad5f01c9f2900bc9f6b007a9188d66018026ad9e00c910900cc914900fc9dd9004c9f0900e9c6601a900800ea9028d66018005a9098d6601a9808d65016b"));
+
+            // Generate lut of boxes & chests quantity
+            byte[] lutResetBox = new byte[0x20];
 
 			var test2 = itemsPlacement.ItemsLocations.Where(x => x.ObjectId < 0x20).ToList();
 
