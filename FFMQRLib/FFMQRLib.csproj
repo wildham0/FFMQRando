@@ -19,7 +19,6 @@
     <EmbeddedResource Include="datafiles\shufflingdata.yaml" />
     <EmbeddedResource Include="datafiles\entrancespairs.yaml" />
     <EmbeddedResource Include="datafiles\rooms.yaml" />
-    <EmbeddedResource Include="datafiles\locations.yaml" />
   </ItemGroup>
 
   <ItemGroup>

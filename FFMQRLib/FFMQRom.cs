@@ -187,6 +187,7 @@ namespace FFMQLib
 			DummyRoom();
 			PazuzuFixedFloorRng(rng);
 			KeyItemWindow();
+			ArchipelagoSupport();
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
