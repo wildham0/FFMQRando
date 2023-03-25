@@ -240,9 +240,10 @@ namespace FFMQLib
 			// Preferences
 			Msu1SupportRandom(preferences.RandomMusic, sillyrng);
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
+			WindowPalette(preferences.WindowPalette);
 
-			// Write everything back			
-			itemsPlacement.WriteChests(this);
+            // Write everything back			
+            itemsPlacement.WriteChests(this);
 			credits.Write(this);
 			EnemyAttackLinks.Write(this);
 			Attacks.Write(this);

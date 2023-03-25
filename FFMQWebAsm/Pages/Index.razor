@@ -194,6 +194,13 @@
         <Container Class="flagColumn">
             <BoolFlag UsePreset=false Name="Randomize Benjamin's Palette" @bind-Value="preferences.RandomBenjaminPalette" Tooltip="Randomly select Benjamin's palette, giving him a brand new look!" />
             <BoolFlag UsePreset=false Name="Randomize Music" @bind-Value="preferences.RandomMusic" Tooltip="Shuffle the music tracks." />
+            <Field>
+                <Text TextColor="TextColor.Secondary" class="fw-bold">Default Window Palette</Text>
+                <Tooltip Text="Set the Window starting palette.<br/><br/>Default blue is RGB 0, 80, 160 (#0050A0)." Inline Multiline Placement="TooltipPlacement.Right">
+                    <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small />
+                </Tooltip>
+                <ColorEdit Color="@windowPalette" ColorChanged="@WindowPaletteChange" />
+            </Field>
             <Field class="text-secondary dropFlag romBtn">
                 <Button Color="Color.Primary" Clicked="@SavePreferences">Save Preferences</Button>
             </Field>
@@ -209,7 +216,7 @@
 
 <div><br /><br /><br /><br /><br /></div>
 
-@code{
+                @code{
     //bool IntroPaneVisible = true;
     //bool FilePaneVisible = false;
     //bool MainPaneVisible = false;
@@ -236,6 +243,7 @@
     private List<string> titleLetters = new List<string> { "logo/mqlogoM.png", "logo/mqlogoy.png", "logo/mqlogos.png", "logo/mqlogot.png", "logo/mqlogoi.png", "logo/mqlogoc.png", "logo/mqlogoQ.png", "logo/mqlogou.png", "logo/mqlogoe.png", "logo/mqlogos2.png", "logo/mqlogot2.png" };
     private bool updateFlagString = true;
     private string tempFlagString;
+    private string windowPalette = "#ff0000";
 
     private string yamlPreset = "";
     private string yamlMessage = "";
@@ -353,10 +361,10 @@
         {
             romMessage = ex.Message;
             #if DEBUG
-                await ErrorDump(ex.Message);
+    await ErrorDump(ex.Message);
             #endif
         }
-    
+
         generatedRom = true;
     }
 
@@ -572,6 +580,7 @@
         }
 
         LoadPreferences();
+        SetWindowPalette(preferences.WindowPalette);
     }
 
     public void SavePreferences()
@@ -600,12 +609,25 @@
 
         foreach(var pref in prefList)
         {
-            if(pref.PropertyType == typeof(bool))
+            if (pref.PropertyType == typeof(bool))
             {
-                pref.SetValue(preferences, localStorage.GetItem<bool>(pref.Name));
+                bool? value = localStorage.GetItem<bool?>(pref.Name);
+                if (value != null)
+                { 
+                    pref.SetValue(preferences, value);
+                }
             }
-            else if(pref.PropertyType == typeof(string))
-            { 
+            else if (pref.PropertyType == typeof(ushort))
+            {
+                ushort? value = localStorage.GetItem<ushort?>(pref.Name);
+                if (value != null)
+                {
+                    pref.SetValue(preferences, value);    
+                }
+                
+            }
+            else if (pref.PropertyType == typeof(string))
+            {
                 string pathvalue = localStorage.GetItem<string>(pref.Name);
 
                 pref.SetValue(preferences, pathvalue ?? "");
@@ -755,5 +777,37 @@
         }
 
         return Task.CompletedTask;
+    }
+
+    private void WindowPaletteChange(string palette)
+    {
+        int red = Convert.ToInt32(palette.Substring(1, 2), 16);
+        int green = Convert.ToInt32(palette.Substring(3, 2), 16);
+        int blue = Convert.ToInt32(palette.Substring(5, 2), 16);
+
+        int gamered = red / 8;
+        int gamegreen = green / 8;
+        int gameblue = blue / 8;
+
+        ushort paletteValue = (ushort)(gamered + (gamegreen * 32) + (gameblue * 32 * 32));
+        preferences.WindowPalette = paletteValue;
+
+        red = gamered * 8;
+        green = gamegreen * 8;
+        blue = gameblue * 8;
+
+        windowPalette = $"#{red:X2}{green:X2}{blue:X2}";
+        StateHasChanged();
+    }
+
+    private void SetWindowPalette(ushort palette)
+    {
+
+        int red = (palette % 32) * 8;
+        int green = ((palette % (32 * 32))/32) * 8;
+        int blue = (palette / (32 * 32)) * 8;
+
+        windowPalette = $"#{red:X2}{green:X2}{blue:X2}";
+        StateHasChanged();
     }
 }
