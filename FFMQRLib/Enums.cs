@@ -366,7 +366,7 @@ namespace FFMQLib
 		RiverCoin = 0x0D,
 		SunCoin = 0x0E,
 		SkyCoin = 0x0F,
-		Potion = 0x10,
+		CurePotion = 0x10,
 		HealPotion = 0x11,
 		Seed = 0x12,
 		Refresher = 0x13,

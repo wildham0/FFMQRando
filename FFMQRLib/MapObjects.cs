@@ -21,7 +21,7 @@ namespace FFMQLib
 
 			ChestList.Add((0x04, _pointerCollectionPairs[0x16], 0x05));
 			
-			List<Items> boxItems = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
+			List<Items> boxItems = new() { Items.CurePotion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
 
 			var test = itemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.Chest).ToList();
 
