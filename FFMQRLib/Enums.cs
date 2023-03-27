@@ -225,6 +225,10 @@ namespace FFMQLib
 		Pazuzu5F,
 		Pazuzu6F,
 
+		StoneGolem,
+		TwinheadWyvern,
+		Zuh,
+		
 		Barred,
 	}
 	public enum TreasureType : int
