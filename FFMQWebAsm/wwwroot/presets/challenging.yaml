@@ -9,9 +9,6 @@ Final Fantasy Mystic Quest:
   chests_shuffle:
     Prioritize: 0
     Include: 1
-  boxes_shuffle:
-    Include: 1
-    Exclude: 0
   shuffle_boxes_content:
     true: 1
     false: 0
