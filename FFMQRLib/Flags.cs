@@ -16,7 +16,6 @@ namespace FFMQLib
     {
         public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.All;
         public ItemShuffleChests ChestsShuffle { get; set; } = ItemShuffleChests.Prioritize;
-        public ItemShuffleBoxes BoxesShuffle { get; set; } = ItemShuffleBoxes.Exclude;
         public bool ShuffleBoxesContent { get; set; } = false;
         public ItemShuffleNPCsBattlefields NpcsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
         public ItemShuffleNPCsBattlefields BattlefieldsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
@@ -110,6 +109,7 @@ namespace FFMQLib
 
         public void FlagSanityCheck()
         {
+            /*
             // Throw an error if the settings don't offer enough LocationIds.
             if ((NpcsShuffle == ItemShuffleNPCsBattlefields.Exclude || BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Exclude) && BoxesShuffle == ItemShuffleBoxes.Exclude)
             {
@@ -120,7 +120,7 @@ namespace FFMQLib
             if (SkyCoinMode == SkyCoinModes.ShatteredSkyCoin && BoxesShuffle == ItemShuffleBoxes.Exclude)
             {
                 throw new Exception("Selected flags don't allow enough locations to place all Sky Coin Fragments. Set Brown Boxes to Include.");
-            }
+            }*/
         }
         public string GenerateYaml(string name)
         {

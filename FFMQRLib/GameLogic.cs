@@ -494,10 +494,7 @@ namespace FFMQLib
 				GameObjects.Where(x => x.Type == GameObjectType.Battlefield).ToList().ForEach(x => x.Exclude = true);
 			}
 
-			if (flags.BoxesShuffle == ItemShuffleBoxes.Exclude)
-			{
-				GameObjects.Where(x => x.Type == GameObjectType.Box).ToList().ForEach(x => x.Exclude = true);
-			}
+			GameObjects.Where(x => x.Type == GameObjectType.Box).ToList().ForEach(x => x.Exclude = false);
 
 			// Exclude Hero Statue room's chests
 			GameObjects.Where(x => x.Type == GameObjectType.Chest && x.ObjectId >= 0xF2 && x.ObjectId <= 0xF5).ToList().ForEach(x => x.Exclude = true);
