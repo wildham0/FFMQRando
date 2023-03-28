@@ -265,6 +265,7 @@ namespace FFMQLib
 				if (location.Type == GameObjectType.Chest || location.Type == GameObjectType.Box)
 				{
 					location.Type = GameObjectType.Box;
+					location.Reset = true;
 				}
 			}
 
@@ -286,6 +287,7 @@ namespace FFMQLib
 				if (box.Type == GameObjectType.Chest || box.Type == GameObjectType.Box)
 				{
 					box.Type = GameObjectType.Box;
+					box.Reset = true;
 				}
 			}
 

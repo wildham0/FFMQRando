@@ -421,6 +421,7 @@ namespace FFMQLib
 		BombRefill = 0xDD,
 		ProjectileRefill = 0xDE,
 		APItem = 0xF0,
+		APItemFiller = 0xF1,
 		None = 0xFF,
 	}
 

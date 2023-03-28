@@ -201,12 +201,10 @@ namespace FFMQLib
 					quantity = 25;
 				}
 
-
-				if (location.Type == GameObjectType.Chest)
+				if (!location.Reset)
 				{
 					GameFlags.CustomFlagToHex(lutResetBox, location.ObjectId, true);
 				}
-
 				
 				PutInBank(0x11, 0x9100 + location.ObjectId, new byte[] { quantity });
             }
@@ -231,9 +229,6 @@ namespace FFMQLib
 
 			var maskLocations = itemsPlacement.ItemsLocations.Where(x => x.Content == Items.Mask).ToList();
             var mirrorLocations = itemsPlacement.ItemsLocations.Where(x => x.Content == Items.MagicMirror).ToList();
-
-
-
 
             if (maskLocations.Any() && itemsPlacement.ItemsLocations.Find(x => x.Content == Items.Mask).Location == LocationIds.Volcano)
 			{

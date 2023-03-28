@@ -80,6 +80,7 @@ namespace FFMQLib
             List<Items> finalConsumables = rom.GetFromBank(0x01, 0x80F2, 0x04).ToBytes().Select(x => (Items)x).ToList();
 
             List<Items> consumables = new() { Items.CurePotion, Items.HealPotion, Items.Refresher, Items.Seed };
+            List<Items> nonKIs = consumables.Concat(new List<Items>() { Items.BombRefill, Items.ProjectileRefill }).ToList();
 
             ItemsLocations = new(initialGameObjects.Select(x => new GameObject(x)));
             StartingItems = apconfigs.StartingItems.ToList();
@@ -87,9 +88,16 @@ namespace FFMQLib
             foreach (var placedObject in apconfigs.ItemPlacement)
             { 
                 var currentObject = ItemsLocations.Find(x => x.ObjectId == placedObject.ObjectId && x.Type == placedObject.Type);
-                currentObject.Content = placedObject.Content;
+                currentObject.Content = (placedObject.Content == Items.APItemFiller) ? Items.APItem : placedObject.Content;
                 currentObject.IsPlaced = true;
-                currentObject.Type = placedObject.Type;
+                if (placedObject.Type == GameObjectType.Chest || placedObject.Type == GameObjectType.Box)
+                {
+                    currentObject.Type = nonKIs.Append(Items.APItemFiller).Contains(placedObject.Content) ? GameObjectType.Box : GameObjectType.Chest;
+                    if (nonKIs.Contains(placedObject.Content))
+                    {
+                        currentObject.Reset = true;
+                    }
+                }
             }
 
             var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.Battlefield || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20))).ToList();
@@ -101,6 +109,7 @@ namespace FFMQLib
                 if (location.Type == GameObjectType.Chest || location.Type == GameObjectType.Box)
                 {
                     location.Type = GameObjectType.Box;
+                    location.Reset = true;
                 }
             }
 
@@ -122,6 +131,7 @@ namespace FFMQLib
                 if (box.Type == GameObjectType.Chest || box.Type == GameObjectType.Box)
                 {
                     box.Type = GameObjectType.Box;
+                    box.Reset = true;
                 }
             }
 

@@ -68,6 +68,7 @@ namespace FFMQLib
 		public bool Exclude { get; set; }
 		public List<List<AccessReqs>> AccessRequirements { get; set; }
 		public bool Accessible { get; set; }
+		public bool Reset { get; set; }
 		public GameObject()
 		{
 			Location = LocationIds.None;
@@ -80,6 +81,7 @@ namespace FFMQLib
 			Exclude = false;
 			AccessRequirements = new();
 			Accessible = false;
+			Reset = false;
 		}
 
 		public GameObject(GameObjectData data)
@@ -98,7 +100,8 @@ namespace FFMQLib
 			Exclude = false;
 			AccessRequirements = new();
 			Accessible = false;
-		}
+            Reset = false;
+        }
 		public GameObject(GameObjectData data, Location location, List<List<AccessReqs>> roomAccess)
 		{
 			Location = location.LocationId;
@@ -114,8 +117,9 @@ namespace FFMQLib
 			Prioritize = false;
 			Exclude = false;
 			Accessible = false;
+            Reset = false;
 
-			AccessRequirements = new();
+            AccessRequirements = new();
 
 			foreach (var access in roomAccess)
 			{
@@ -138,7 +142,8 @@ namespace FFMQLib
 			Exclude = gameobject.Exclude;
 			AccessRequirements = gameobject.AccessRequirements.ToList();
 			Accessible = gameobject.Accessible;
-		}
+            Reset = gameobject.Reset;
+        }
 	}
 
 	public class RoomLink
