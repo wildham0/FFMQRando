@@ -40,7 +40,7 @@ namespace FFMQLib
 		[Description("Expert")]
 		Expert,
 	}
-	public class ItemsPlacement
+	public partial class ItemsPlacement
 	{
 		public List<Items> StartingItems { get; set; }
 		public List<GameObject> ItemsLocations { get; }

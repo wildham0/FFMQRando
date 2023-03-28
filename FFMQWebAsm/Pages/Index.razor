@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Forms
 @using System.IO;
+@using System.IO.Compression;
 @using System;
 @using System.Web
 @using System.Net.Http
@@ -105,7 +106,7 @@
 <Container class="sectionBox">
     <div class="box-title text-secondary">
         Items
-        <Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations.<br /><br />When some locations aren't prioritized (either included or excluded), Quest Items may land in brown boxes." Inline Multiline Placement="TooltipPlacement.Right">
+        <Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations.<br /><br />When some locations aren't prioritized (either included or excluded), Quest Items may land in brown boxes, in which case these locations will show up as Chests." Inline Multiline Placement="TooltipPlacement.Right">
             <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small style="font-size: 0.600em"/> 
         </Tooltip>       
     </div> 
@@ -235,6 +236,7 @@
     private string showSeed;
     private Flags flags = new();
     private Preferences preferences = new();
+    private ApConfigs apconfigs = new();
     private bool generatedRom = false;
     private string seedMessage = "";
     private string romMessage = "";
@@ -335,7 +337,15 @@
 
         try
         {
-            newRom.Randomize(seed, flags, preferences);
+            if (apconfigs.ApEnabled)
+            {
+                newRom.GenerateFromApConfig(apconfigs, flags, flags.GetSeed(), preferences);
+            }
+            else
+            {
+                newRom.Randomize(seed, flags, preferences);
+            }
+
 
             romMessage = "ROM file generated successfully.";
 
@@ -479,16 +489,60 @@
         }
     }
 
-    private async void OnPresetAction((StreamReader name, bool usepreset, bool loadfromfile) action)
+    private async void OnPresetAction((Stream file, string name, bool usepreset, bool loadfromfile) action)
     {
         if (!action.usepreset && !action.loadfromfile)
         {
             usePreset = false;
             StateHasChanged();
         }
-        else 
+        else if (action.name.Contains("apconfig"))
         {
-            await LoadYamlFromStreamReader(action.name);
+
+            MemoryStream memZip = new();
+
+            await action.file.CopyToAsync(memZip);
+
+            using (ZipArchive configContainer = new ZipArchive(memZip))
+            {
+                foreach (var file in configContainer.Entries)
+                {
+                    if (file.Name == "itemplacement.yaml")
+                    {
+                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
+                        {
+                            apconfigs.ItemPlacementYaml = await streamReader.ReadToEndAsync();
+                        }
+                    }
+                    else if (file.Name == "startingitems.yaml")
+                    {
+                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
+                        {
+                            apconfigs.StartingItemsYaml = await streamReader.ReadToEndAsync();
+                        }
+                    }
+                    else if (file.Name == "flagset.yaml")
+                    {
+
+
+                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
+                        {
+                            await LoadYamlFromStreamReader(streamReader);
+                        }
+                        
+                    }
+
+                }
+            }
+            
+            apconfigs.ApEnabled = true;
+
+            usePreset = action.usepreset;
+            StateHasChanged();
+        }
+        else
+        {
+            await LoadYamlFromStreamReader(new StreamReader(action.file, Encoding.UTF8));
             usePreset = action.usepreset;
             StateHasChanged();
         }

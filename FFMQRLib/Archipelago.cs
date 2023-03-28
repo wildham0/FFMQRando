@@ -3,12 +3,271 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using RomUtilities;
+using System.IO;
+using System.Reflection;
+using YamlDotNet.RepresentationModel;
+using YamlDotNet.Serialization.NamingConventions;
+using YamlDotNet.Serialization;
+using System.Security.Cryptography;
 
 namespace FFMQLib
 {
-	public partial class FFMQRom : SnesRom
+
+    public class ApObject : GameObjectData
+    { 
+        public Items Content { get; set; }
+        public string PlayerName { get; set; }
+        public int PlayerId { get; set; }
+        public string ItemName { get; set; }
+
+        public ApObject()
+        {
+            Content = Items.None;
+            PlayerName = "";
+            PlayerId = 0;
+            ItemName = "";
+            ObjectId = 0;
+            Type = GameObjectType.Dummy;
+        }
+    }
+    
+    public class ApConfigs
+    { 
+        public string ItemPlacementYaml { get; set; }
+        public string StartingItemsYaml { get; set; }
+        public List<ApObject> ItemPlacement { get; set; }
+        public List<Items> StartingItems { get; set; }
+        public bool ApEnabled { get; set; }
+
+        public ApConfigs()
+        {
+            ItemPlacementYaml = "";
+            StartingItemsYaml = "";
+            ItemPlacement = new();
+            StartingItems = new();
+            ApEnabled = false;
+        }
+        public void ProcessItemPlacement()
+        {
+            var deserializer = new DeserializerBuilder()
+                .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                .Build();
+
+            try
+            {
+                ItemPlacement = deserializer.Deserialize<List<ApObject>>(ItemPlacementYaml);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            try
+            {
+                StartingItems = deserializer.Deserialize<List<Items>>(StartingItemsYaml);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+    }
+    public partial class ItemsPlacement
+    {
+        public ItemsPlacement(Flags flags, ApConfigs apconfigs, List<GameObject> initialGameObjects, FFMQRom rom, MT19337 rng)
+        {
+            List<Items> consumableList = rom.GetFromBank(0x01, 0x801E, 0xDD).ToBytes().Select(x => (Items)x).ToList();
+            List<Items> finalConsumables = rom.GetFromBank(0x01, 0x80F2, 0x04).ToBytes().Select(x => (Items)x).ToList();
+
+            List<Items> consumables = new() { Items.CurePotion, Items.HealPotion, Items.Refresher, Items.Seed };
+
+            ItemsLocations = new(initialGameObjects.Select(x => new GameObject(x)));
+            StartingItems = apconfigs.StartingItems.ToList();
+
+            foreach (var placedObject in apconfigs.ItemPlacement)
+            { 
+                var currentObject = ItemsLocations.Find(x => x.ObjectId == placedObject.ObjectId && x.Type == placedObject.Type);
+                currentObject.Content = placedObject.Content;
+                currentObject.IsPlaced = true;
+                currentObject.Type = placedObject.Type;
+            }
+
+            var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.Battlefield || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20))).ToList();
+
+            foreach (var location in unfilledLocations)
+            {
+                location.Content = rng.PickFrom(consumables);
+                location.IsPlaced = true;
+                if (location.Type == GameObjectType.Chest || location.Type == GameObjectType.Box)
+                {
+                    location.Type = GameObjectType.Box;
+                }
+            }
+
+            // Place consumables
+            var consumableBox = ItemsLocations.Where(x => !x.IsPlaced && (x.Type == GameObjectType.Box || x.Type == GameObjectType.Chest) && (x.ObjectId < 0xF2 || x.ObjectId > 0xF5)).ToList();
+
+            foreach (var box in consumableBox)
+            {
+                if (flags.ShuffleBoxesContent)
+                {
+                    box.Content = rng.TakeFrom(consumableList);
+                }
+                else
+                {
+                    box.Content = consumableList[box.ObjectId - 0x1E];
+                }
+
+                box.IsPlaced = true;
+                if (box.Type == GameObjectType.Chest || box.Type == GameObjectType.Box)
+                {
+                    box.Type = GameObjectType.Box;
+                }
+            }
+
+            // Add the final chests so we can update their properties
+            List<GameObject> finalChests = ItemsLocations.Where(x => x.Type == GameObjectType.Chest && x.ObjectId >= 0xF2 && x.ObjectId <= 0xF5).ToList();
+
+            for (int i = 0; i < finalChests.Count; i++)
+            {
+                finalChests[i].Content = finalConsumables[i];
+                finalChests[i].IsPlaced = true;
+            }
+        }
+    }
+
+    public partial class FFMQRom : SnesRom
 	{
-		public void ArchipelagoSupport()
+        public void GenerateFromApConfig(ApConfigs apconfigs, Flags flags, Blob seed, Preferences preferences)
+        {
+            MT19337 rng;
+            MT19337 sillyrng;
+            using (SHA256 hasher = SHA256.Create())
+            {
+                Blob hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
+                rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
+                sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
+            }
+
+            EnemyAttackLinks = new(this);
+            Attacks = new(this);
+            enemiesStats = new(this);
+            GameMaps = new(this);
+            MapObjects = new(this);
+            Credits credits = new(this);
+            GameFlags = new(this);
+            TalkScripts = new(this);
+            TileScripts = new(this);
+            Battlefields = new(this);
+            MapChanges = new(this);
+            Overworld = new(this);
+            Teleporters = new(this);
+            MapSpriteSets = new(this);
+            GameLogic = new();
+            EntrancesData = new(this);
+            TitleScreen titleScreen = new(this);
+
+            // General modifications
+            ExpandRom();
+            FastMovement();
+            DefaultSettings();
+            RemoveClouds();
+            RemoveStrobing();
+            SmallFixes();
+            BugFixes();
+            NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
+            CompanionRoutines();
+            DummyRoom();
+            PazuzuFixedFloorRng(rng);
+            KeyItemWindow();
+            ArchipelagoSupport();
+
+            // AP Configs
+            apconfigs.ProcessItemPlacement();
+
+            // Maps Changes
+            GameMaps.RandomGiantTreeMessage(rng);
+            GameMaps.LessObnoxiousMaps(flags.TweakedDungeons, MapObjects, rng);
+
+            // Enemies
+            MapObjects.SetEnemiesDensity(flags.EnemiesDensity, rng);
+            MapObjects.ShuffleEnemiesPosition(flags.ShuffleEnemiesPosition, GameMaps, rng);
+            EnemyAttackLinks.ShuffleAttacks(flags.EnemizerAttacks, flags.BossesScalingUpper, rng);
+            enemiesStats.ScaleEnemies(flags, rng);
+
+            // Overworld
+            Overworld.OpenNodes(flags);
+            Battlefields.SetBattlesQty(flags.BattlesQuantity, rng);
+            Battlefields.SetBattelfieldRewards(flags.ShuffleBattlefieldRewards, apconfigs.ItemPlacement, rng);
+
+            // Locations & Logic
+            GameLogic.CrestShuffle(flags.CrestShuffle && !apconfigs.ApEnabled, rng);
+            //GameLogic.FloorShuffle(flags.MapShuffling, rng);
+            //Overworld.ShuffleOverworld(flags, GameLogic, Battlefields, rng);
+
+            Overworld.UpdateOverworld(flags, Battlefields);
+
+            GameLogic.CrawlRooms(flags, Overworld, Battlefields);
+
+            EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this, rng);
+            EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
+
+            // Items
+            ItemsPlacement itemsPlacement = new(flags, apconfigs, GameLogic.GameObjects, this, rng);
+
+            SetStartingWeapons(itemsPlacement);
+            MapObjects.UpdateChests(itemsPlacement);
+            UpdateScripts(flags, itemsPlacement, Overworld.StartingLocation, rng);
+            ChestsHacks(flags, itemsPlacement);
+            Battlefields.PlaceItems(itemsPlacement);
+
+            // Doom Castle
+            SetDoomCastleMode(flags.DoomCastleMode);
+            DoomCastleShortcut(flags.DoomCastleShortcut);
+
+            // Various
+            SetLevelingCurve(flags.LevelingCurve);
+            ProgressiveGears(flags.ProgressiveGear);
+            SkyCoinMode(flags, rng);
+            ExitHack(Overworld.StartingLocation);
+            ProgressiveFormation(flags.ProgressiveFormations, Overworld, rng);
+            credits.Update();
+
+            // Preferences
+            Msu1SupportRandom(preferences.RandomMusic, sillyrng);
+            RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
+            WindowPalette(preferences.WindowPalette);
+
+            // Write everything back			
+            itemsPlacement.WriteChests(this);
+            credits.Write(this);
+            EnemyAttackLinks.Write(this);
+            Attacks.Write(this);
+            enemiesStats.Write(this);
+            GameMaps.Write(this);
+            MapChanges.Write(this);
+            Teleporters.Write(this);
+            TileScripts.Write(this);
+            TalkScripts.Write(this);
+            GameFlags.Write(this);
+            EntrancesData.Write(this);
+            Battlefields.Write(this);
+            Overworld.Write(this);
+            MapObjects.Write(this);
+            MapSpriteSets.Write(this);
+            titleScreen.Write(this, Metadata.Version, seed, flags);
+
+
+            // Spoilers
+            spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
+            spoilers = flags.EnableSpoilers;
+
+            // Remove header if any
+            this.Header = Array.Empty<byte>();
+
+        }
+        
+        public void ArchipelagoSupport()
 		{
 			ItemFetcher();
             APItem();
@@ -43,7 +302,7 @@ namespace FFMQLib
 
             // Set item name
             PutInBank(0x03, 0xB50B, Blob.FromHex("07D080150A13B5"));
-            PutInBank(0x15, 0x80D0, Blob.FromHex("0bf08d83054d0c054320c10c00053df08015"));
+            PutInBank(0x15, 0x80D0, Blob.FromHex("0bf0dd80054d0c054320c10c00053df08015"));
             PutInBank(0x15, 0x80F0, Blob.FromHex("03039aa9ffa2c7b8c0030303")); // AP Item
 
             // New sprite
@@ -61,8 +320,8 @@ namespace FFMQLib
             PutInBank(0x00, 0x850f, Blob.FromHex("eaeaea")); // don't clear the b part of x register
             PutInBank(0x15, 0x8500, Blob.FromHex("08e230a988aef400286b"));
             PutInBank(0x15, 0x8510, Blob.FromHex("08e230a998aef700286b"));
-
-
         }
+
+
     }
 }

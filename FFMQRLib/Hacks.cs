@@ -229,12 +229,18 @@ namespace FFMQLib
 			string mirrorBranch = "ff";
 			string skyCoinBranch = "ff";
 
-			if (itemsPlacement.ItemsLocations.Find(x => x.Content == Items.Mask).Location == LocationIds.Volcano)
+			var maskLocations = itemsPlacement.ItemsLocations.Where(x => x.Content == Items.Mask).ToList();
+            var mirrorLocations = itemsPlacement.ItemsLocations.Where(x => x.Content == Items.MagicMirror).ToList();
+
+
+
+
+            if (maskLocations.Any() && itemsPlacement.ItemsLocations.Find(x => x.Content == Items.Mask).Location == LocationIds.Volcano)
 			{
 				maskBranch = "05";
 			}
 
-			if (itemsPlacement.ItemsLocations.Find(x => x.Content == Items.MagicMirror).Location == LocationIds.IcePyramid)
+			if (mirrorLocations.Any() && itemsPlacement.ItemsLocations.Find(x => x.Content == Items.MagicMirror).Location == LocationIds.IcePyramid)
 			{
 				mirrorBranch = "06";
 			}

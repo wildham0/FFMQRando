@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+    <TypeScriptModuleKind>system</TypeScriptModuleKind>
   </PropertyGroup>
 
   <ItemGroup>
