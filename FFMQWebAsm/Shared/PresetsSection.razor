@@ -61,7 +61,7 @@
                         <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small />
                         </Tooltip>
                         </FieldLabel>
-                        <FileEdit Filter=".apconfig" AutoReset="false" Changed="@LoadApConfigFile"></FileEdit>
+                        <FileEdit Filter=".apmq" AutoReset="false" Changed="@LoadApConfigFile"></FileEdit>
                         <FieldHelp>@yamlMessage</FieldHelp>
                         </Field>
             }
@@ -141,7 +141,7 @@
             Console.WriteLine("Load");
             yamlName = e.Files.First().Name;
             Console.WriteLine(yamlName);
-            SetPresetAction.Invoke((e.Files.First().OpenReadStream(), e.Files.First().Name, true, true));
+            SetPresetAction.Invoke((e.Files.First().OpenReadStream(), presetSelection, true, true));
             Console.WriteLine("Invoked");
             
         }

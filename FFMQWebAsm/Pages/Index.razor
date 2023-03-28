@@ -491,6 +491,7 @@
 
     private async void OnPresetAction((Stream file, string name, bool usepreset, bool loadfromfile) action)
     {
+        Console.WriteLine(action.name);
         if (!action.usepreset && !action.loadfromfile)
         {
             usePreset = false;

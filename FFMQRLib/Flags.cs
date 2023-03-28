@@ -215,7 +215,7 @@ namespace FFMQLib
                     }
                     else
                     {
-                        throw new Exception("Yaml Error: No weighted options for:" + ((YamlScalarNode)entry.Key).Value);
+                        Console.WriteLine("Yaml Error: No weighted options for:" + ((YamlScalarNode)entry.Key).Value);
                     }
                 }
                 else if (entry.Value.NodeType == YamlNodeType.Scalar)
