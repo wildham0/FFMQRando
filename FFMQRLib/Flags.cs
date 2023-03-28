@@ -47,6 +47,7 @@ namespace FFMQLib
         private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;
         private byte[] apSeed;
         private string name;
+        private string romname;
 
         public string GenerateFlagString()
         {
@@ -163,6 +164,7 @@ namespace FFMQLib
                 new KeyValuePair<YamlNode, YamlNode>(new YamlScalarNode("game"), new YamlScalarNode("Final Fantasy Mystic Quest")),
                 new KeyValuePair<YamlNode, YamlNode>(new YamlScalarNode("name"), new YamlScalarNode(name)),
                 new KeyValuePair<YamlNode, YamlNode>(new YamlScalarNode("seed"), new YamlScalarNode("00000000")),
+                new KeyValuePair<YamlNode, YamlNode>(new YamlScalarNode("romname"), new YamlScalarNode("FF MYSTIC QUEST")),
             });
 
             string finalYaml = serializer.Serialize(new YamlDocument(root).RootNode);
@@ -238,15 +240,23 @@ namespace FFMQLib
 
             var mapping2 = (YamlScalarNode)((YamlMappingNode)yaml.Documents[0].RootNode).Children["name"];
             var seedmapping = (YamlScalarNode)((YamlMappingNode)yaml.Documents[0].RootNode).Children["seed"];
+            var romnamemapping = (YamlScalarNode)((YamlMappingNode)yaml.Documents[0].RootNode).Children["romname"];
             name = ((YamlScalarNode)mapping2.Value).Value;
             apSeed = Blob.FromHex(((YamlScalarNode)seedmapping.Value).Value);
-
+            romname = ((YamlScalarNode)romnamemapping.Value).Value;
             return ((YamlScalarNode)mapping2.Value).Value;
         }
 
         public string GetName()
         {
             return name;
+        }
+        public byte[] GetRomName()
+        {
+            byte[] convertedRomName = new byte[0x15];
+            Encoding.UTF8.GetBytes(romname).Take(0x15).ToArray().CopyTo(convertedRomName, 0);
+
+            return convertedRomName;
         }
         public byte[] GetSeed()
         {

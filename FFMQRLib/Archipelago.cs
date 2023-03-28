@@ -272,9 +272,10 @@ namespace FFMQLib
             spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
             spoilers = flags.EnableSpoilers;
 
+            PutInBank(0x00, 0xFFC0, flags.GetRomName());
+
             // Remove header if any
             this.Header = Array.Empty<byte>();
-
         }
         
         public void ArchipelagoSupport()
