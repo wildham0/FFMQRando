@@ -81,7 +81,7 @@
     [Parameter]
     public string Value { get; set; }
 
-    [Parameter] public Action<(Stream file, string name, bool usepreset, bool loadfromfile)> SetPresetAction { get; set; }
+    [Parameter] public Action<(Stream file, string filename, string action, bool usepreset, bool loadfromfile)> SetPresetAction { get; set; }
 
     [Parameter] public Action<string> SetExportFile { get; set; }
 
@@ -98,12 +98,12 @@
         presetSelection = e.Value.ToString();
         if (presetSelection == "custom" || presetSelection == "import" || presetSelection == "export" || presetSelection == "apconfig")
         {
-            SetPresetAction.Invoke((null, "", false, false));
+            SetPresetAction.Invoke((null, "", "", false, false));
         }
         else
         {
             yamlName = e.Value.ToString();
-            SetPresetAction.Invoke((await LoadYamlFromFile(e.Value.ToString()), e.Value.ToString(), true, false));
+            SetPresetAction.Invoke((await LoadYamlFromFile(e.Value.ToString()), "", e.Value.ToString(), true, false));
         }
     }
 
@@ -116,7 +116,7 @@
     {
         try
         {
-            SetPresetAction.Invoke((e.Files.First().OpenReadStream(), e.Files.First().Name.Split('.')[0], true, true));
+            SetPresetAction.Invoke((e.Files.First().OpenReadStream(), e.Files.First().Name.Split('.')[0], presetSelection, true, true));
             yamlName = e.Files.First().Name.Split('.')[0];
         }
         catch (Exception ex)
@@ -130,7 +130,7 @@
         try
         {
             yamlName = e.Files.First().Name;
-            SetPresetAction.Invoke((e.Files.First().OpenReadStream(), presetSelection, true, true));
+            SetPresetAction.Invoke((e.Files.First().OpenReadStream(), e.Files.First().Name.Split('.')[0], presetSelection, true, true));
         }
         catch (Exception ex)
         {

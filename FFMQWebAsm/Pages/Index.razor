@@ -253,6 +253,7 @@
     private bool sandboxMode = false;
     private bool betaStatus = false;
     private bool archipelagoEnabled = false;
+    private string apFilename = "";
 
     private Blob seed = new byte[4];
     private string showSeed;
@@ -372,7 +373,15 @@
             romMessage = "ROM file generated successfully.";
 
             var fs = newRom.DataStream();
-            var fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".sfc";
+            string fileName;
+            if (apconfigs.ApEnabled)
+            {
+                fileName = apFilename + ".sfc";
+            }
+            else
+            { 
+                fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".sfc";
+            }
 
             using var streamRef = new DotNetStreamReference(stream: fs);
 
@@ -511,7 +520,7 @@
         }
     }
 
-    private async void OnPresetAction((Stream file, string name, bool usepreset, bool loadfromfile) action)
+    private async void OnPresetAction((Stream file, string filename, string action, bool usepreset, bool loadfromfile) action)
     {
         if (!action.usepreset && !action.loadfromfile)
         {
@@ -519,12 +528,12 @@
             archipelagoEnabled = false;
             StateHasChanged();
         }
-        else if (action.name.Contains("apconfig"))
+        else if (action.action.Contains("apconfig"))
         {
             MemoryStream memZip = new();
 
             await action.file.CopyToAsync(memZip);
-
+            apFilename = action.filename;
             using (ZipArchive configContainer = new ZipArchive(memZip))
             {
                 foreach (var file in configContainer.Entries)
