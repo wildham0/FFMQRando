@@ -95,25 +95,16 @@
 
     async Task OnChange(ChangeEventArgs e)
     {
-
         presetSelection = e.Value.ToString();
-        if (presetSelection == "custom")
+        if (presetSelection == "custom" || presetSelection == "import" || presetSelection == "export" || presetSelection == "apconfig")
         {
             SetPresetAction.Invoke((null, "", false, false));
         }
-        else if (presetSelection == "import" || presetSelection == "export" || presetSelection == "apconfig")
-        {
-            //StateHasChanged();
-        }
         else
         {
-            //StreamReader streamreader = await LoadYamlFromFile(e.Value.ToString());
-            //StreamReader streamreader = streamtask;
             yamlName = e.Value.ToString();
             SetPresetAction.Invoke((await LoadYamlFromFile(e.Value.ToString()), e.Value.ToString(), true, false));
         }
-        //Value = (TItem)Enum.Parse(typeof(TItem), e.Value.ToString());
-        //ValueChanged.InvokeAsync(Value);
     }
 
     void ExportFile()
@@ -138,12 +129,8 @@
     {
         try
         {
-            Console.WriteLine("Load");
             yamlName = e.Files.First().Name;
-            Console.WriteLine(yamlName);
             SetPresetAction.Invoke((e.Files.First().OpenReadStream(), presetSelection, true, true));
-            Console.WriteLine("Invoked");
-            
         }
         catch (Exception ex)
         {

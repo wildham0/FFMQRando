@@ -72,12 +72,26 @@
             <Fields class="dropFlag">
                 <Field>
                     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Seed</FieldLabel> 
-                    <TextEdit Placeholder="Seed" Text="@showSeed" FocusOut="@SeedOnLoseFocus" KeyUp="@SeedOnKeyUp" TextChanged="@SeedOnChanged"/>
+                    @if (archipelagoEnabled)
+                    { 
+                        <TextEdit Disabled Placeholder="Seed" Text="@showSeed" />
+                    }
+                    else
+                    {
+                        <TextEdit Placeholder="Seed" Text="@showSeed" FocusOut="@SeedOnLoseFocus" KeyUp="@SeedOnKeyUp" TextChanged="@SeedOnChanged"/>
+                    }
                     <FieldHelp>@seedMessage</FieldHelp>
                 </Field>
                 <Field>
                     <FieldLabel Visibility="Visibility.Invisible">None</FieldLabel>
-                    <Button Color="Color.Primary" Clicked="@RollSeed" class="field-button romBtn">Roll Seed</Button>
+                    @if (archipelagoEnabled)
+                    {
+                        <Button Disabled Color="Color.Primary" class="field-button romBtn">Roll Seed</Button>
+                    }
+                    else
+                    {
+                        <Button Color="Color.Primary" Clicked="@RollSeed" class="field-button romBtn">Roll Seed</Button>
+                    }
                 </Field>
             </Fields>
         </Container>
@@ -85,7 +99,14 @@
             <Fields class="dropFlag">
                 <Field>
                     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Flag String</FieldLabel> 
-                    <TextEdit Placeholder="Flag string" Text="@flagString" FocusOut="@FlagsOnLoseFocus" KeyUp="@FlagsOnKeyUp" TextChanged="@FlagsOnChanged"/>
+                    @if (archipelagoEnabled)
+                    {
+                        <TextEdit Disabled Placeholder="Flag string" Text="@flagString" />
+                    }
+                    else
+                    {
+                        <TextEdit Placeholder="Flag string" Text="@flagString" FocusOut="@FlagsOnLoseFocus" KeyUp="@FlagsOnKeyUp" TextChanged="@FlagsOnChanged"/>
+                    }
                     <FieldHelp>@flagsMessage</FieldHelp>
                 </Field>
             </Fields>
@@ -231,6 +252,7 @@
     private int titleHeight = 80;
     private bool sandboxMode = false;
     private bool betaStatus = false;
+    private bool archipelagoEnabled = false;
 
     private Blob seed = new byte[4];
     private string showSeed;
@@ -339,7 +361,7 @@
         {
             if (apconfigs.ApEnabled)
             {
-                newRom.GenerateFromApConfig(apconfigs, flags, flags.GetSeed(), preferences);
+                newRom.GenerateFromApConfig(apconfigs, flags, preferences);
             }
             else
             {
@@ -491,15 +513,14 @@
 
     private async void OnPresetAction((Stream file, string name, bool usepreset, bool loadfromfile) action)
     {
-        Console.WriteLine(action.name);
         if (!action.usepreset && !action.loadfromfile)
         {
             usePreset = false;
+            archipelagoEnabled = false;
             StateHasChanged();
         }
         else if (action.name.Contains("apconfig"))
         {
-
             MemoryStream memZip = new();
 
             await action.file.CopyToAsync(memZip);
@@ -530,21 +551,32 @@
                         {
                             await LoadYamlFromStreamReader(streamReader);
                         }
-                        
+                    }
+                    else if (file.Name == "setup.yaml")
+                    {
+                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
+                        {
+                            apconfigs.SetupYaml = await streamReader.ReadToEndAsync();
+                        }
                     }
 
                 }
             }
-            
-            apconfigs.ApEnabled = true;
 
+            apconfigs.ProcessYaml();
+            archipelagoEnabled = true;
+            SetSeed(apconfigs.Seed);
             usePreset = action.usepreset;
+
+            flagsMessage = "Archipelago Config File loaded successfully.";
+
             StateHasChanged();
         }
         else
         {
             await LoadYamlFromStreamReader(new StreamReader(action.file, Encoding.UTF8));
             usePreset = action.usepreset;
+            archipelagoEnabled = false;
             StateHasChanged();
         }
     }

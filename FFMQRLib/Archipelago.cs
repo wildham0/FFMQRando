@@ -10,6 +10,7 @@ using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
 using System.Security.Cryptography;
 
+
 namespace FFMQLib
 {
 
@@ -35,19 +36,30 @@ namespace FFMQLib
     { 
         public string ItemPlacementYaml { get; set; }
         public string StartingItemsYaml { get; set; }
+        public string SetupYaml { get; set; }
         public List<ApObject> ItemPlacement { get; set; }
         public List<Items> StartingItems { get; set; }
         public bool ApEnabled { get; set; }
+        public string Seed;
+        public string Name;
+        public string Romname;
+        public string Version;
 
         public ApConfigs()
         {
             ItemPlacementYaml = "";
             StartingItemsYaml = "";
+            SetupYaml = "";
             ItemPlacement = new();
             StartingItems = new();
             ApEnabled = false;
+            Seed = "";
+            Name = "";
+            Romname = "";
+            Version = "";
+
         }
-        public void ProcessItemPlacement()
+        public void ProcessYaml()
         {
             var deserializer = new DeserializerBuilder()
                 .WithNamingConvention(UnderscoredNamingConvention.Instance)
@@ -70,6 +82,36 @@ namespace FFMQLib
             {
                 Console.WriteLine(ex.ToString());
             }
+
+            try
+            {
+                var configsData = deserializer.Deserialize<ApConfigs>(SetupYaml);
+                CopySetup(configsData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            ApEnabled = true;
+        }
+        public void CopySetup(ApConfigs inputConfigs)
+        {
+            Seed = inputConfigs.Seed;
+            Name = inputConfigs.Name;
+            Romname = inputConfigs.Romname;
+            Version = inputConfigs.Version;
+        }
+        public byte[] GetRomName()
+        {
+            byte[] convertedRomName = new byte[0x15];
+            Encoding.UTF8.GetBytes(Romname).Take(0x15).ToArray().CopyTo(convertedRomName, 0);
+
+            return convertedRomName;
+        }
+        public byte[] GetSeed()
+        {
+            return Blob.FromHex(Seed);
         }
     }
     public partial class ItemsPlacement
@@ -148,13 +190,13 @@ namespace FFMQLib
 
     public partial class FFMQRom : SnesRom
 	{
-        public void GenerateFromApConfig(ApConfigs apconfigs, Flags flags, Blob seed, Preferences preferences)
+        public void GenerateFromApConfig(ApConfigs apconfigs, Flags flags, Preferences preferences)
         {
             MT19337 rng;
             MT19337 sillyrng;
             using (SHA256 hasher = SHA256.Create())
             {
-                Blob hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
+                Blob hash = hasher.ComputeHash(apconfigs.GetSeed() + flags.EncodedFlagString());
                 rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
                 sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
             }
@@ -193,7 +235,7 @@ namespace FFMQLib
             ArchipelagoSupport();
 
             // AP Configs
-            apconfigs.ProcessItemPlacement();
+            //apconfigs.ProcessItems();
 
             // Maps Changes
             GameMaps.RandomGiantTreeMessage(rng);
@@ -265,14 +307,14 @@ namespace FFMQLib
             Overworld.Write(this);
             MapObjects.Write(this);
             MapSpriteSets.Write(this);
-            titleScreen.Write(this, Metadata.Version, seed, flags);
+            titleScreen.Write(this, Metadata.Version, apconfigs.GetSeed(), flags);
 
 
             // Spoilers
-            spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
+            spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), apconfigs.Seed);
             spoilers = flags.EnableSpoilers;
 
-            PutInBank(0x00, 0xFFC0, flags.GetRomName());
+            PutInBank(0x00, 0xFFC0, apconfigs.GetRomName());
 
             // Remove header if any
             this.Header = Array.Empty<byte>();
