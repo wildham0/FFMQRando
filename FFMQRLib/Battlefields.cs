@@ -82,11 +82,6 @@ namespace FFMQLib
 		}
         public void SetBattelfieldRewards(bool enable, List<ApObject> itemsplacement, MT19337 rng)
         {
-            if (!enable)
-            {
-                return;
-            }
-
             BattlefieldsWithItem.Clear();
 
             var battlefieldPlacement = itemsplacement.Where(x => x.Type == GameObjectType.Battlefield).Select(x => (int)(x.ObjectId - 1)).OrderByDescending(x => x).ToList();
@@ -99,9 +94,12 @@ namespace FFMQLib
 				_rewards.RemoveAt(battlefield);
             }
             
-			_rewards.Shuffle(rng);
-
-            battlefieldPlaced = battlefieldPlaced.OrderBy(x => x.Item1).ToList();
+			if (enable)
+            {
+                _rewards.Shuffle(rng);
+            }
+            
+			battlefieldPlaced = battlefieldPlaced.OrderBy(x => x.Item1).ToList();
 
             foreach (var battlefield in battlefieldPlaced)
             {
