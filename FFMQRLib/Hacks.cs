@@ -176,7 +176,7 @@ namespace FFMQLib
 
 			// Newer routine to set item quantity, supersed previous (to remove)
 			PutInBank(0x00, 0xDACC, Blob.FromHex("22509011ea"));
-            PutInBank(0x11, 0x9050, Blob.FromHex("e220ad910ec96ad012ad5f01c9f2900bc9f6b007a9188d66018026ad9e00c910900cc914900fc9dd9004c9f0900e9c6601a900800ea9028d66018005a9098d6601a9808d65016b"));
+            PutInBank(0x11, 0x9050, Blob.FromHex("e220ad910ec96ad012ad5f01c9f2900bc9f6b007a9188d66018026ad9e00c910900cc914900fc9dd9004c9f0900e9c6601a9808012a9028d66018005a9098d6601a9800c65016b1c65016b"));
 
             // Generate lut of boxes & chests quantity
             byte[] lutResetBox = new byte[0x20];
