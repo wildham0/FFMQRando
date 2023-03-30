@@ -17,14 +17,14 @@ namespace FFMQLib
     public class ApObject : GameObjectData
     { 
         public Items Content { get; set; }
-        public string PlayerName { get; set; }
+        public string Player { get; set; }
         public int PlayerId { get; set; }
         public string ItemName { get; set; }
 
         public ApObject()
         {
             Content = Items.None;
-            PlayerName = "";
+            Player = "";
             PlayerId = 0;
             ItemName = "";
             ObjectId = 0;
@@ -128,8 +128,13 @@ namespace FFMQLib
             StartingItems = apconfigs.StartingItems.ToList();
 
             foreach (var placedObject in apconfigs.ItemPlacement)
-            { 
+            {
                 var currentObject = ItemsLocations.Find(x => x.ObjectId == placedObject.ObjectId && x.Type == placedObject.Type);
+                if (currentObject == null)
+                {
+                    Console.WriteLine("AP generation: Non matching object at :" + placedObject.ObjectId + " - " + placedObject.Type);
+                    continue;
+                }
                 currentObject.Content = (placedObject.Content == Items.APItemFiller) ? Items.APItem : placedObject.Content;
                 currentObject.IsPlaced = true;
                 if (placedObject.Type == GameObjectType.Chest || placedObject.Type == GameObjectType.Box)
