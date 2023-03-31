@@ -52,7 +52,7 @@ namespace FFMQLib
 				PutInBank(0x0C, 0xD0E1, new byte[] { (byte)Items.Bomb });
 			}
 
-            PutInBank(0x0C, 0xD4CD, new byte[] { (byte)itemsPlacement.StartingItems.Count });
+            //PutInBank(0x0C, 0xD4CD, new byte[] { (byte)itemsPlacement.StartingItems.Count });
         }
 	}
 }

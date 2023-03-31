@@ -366,8 +366,9 @@ namespace FFMQLib
 			logicLinks.AddRange(entrancesPairs.Select(e => new LogicLink(roomLinks.Find(l => l.l.Entrance == e[1]).Id, roomLinks.Find(l => l.l.Entrance == e[1]).l, roomLinks.Find(l => l.l.Entrance == e[0]).l)).ToList());
 
 			// Find rooms that have requirements in other rooms to populate forbidden destinations
-			var roomTriggers = Rooms.SelectMany(r => r.GameObjects.Where(o => o.Type == GameObjectType.Trigger).Select(o => (r.Id, o.OnTrigger)).ToList()).ToList();
-			var roomsReq = Rooms.SelectMany(r => r.Links.Where(l => l.Access.Any()).Select(l => (r.Id, l)).ToList()).ToList();
+			List<int> doomCastleRooms = new() { 195, 196, 197, 198, 199, 200 };
+			var roomTriggers = Rooms.Where(r => !doomCastleRooms.Contains(r.Id)).SelectMany(r => r.GameObjects.Where(o => o.Type == GameObjectType.Trigger).Select(o => (r.Id, o.OnTrigger)).ToList()).ToList();
+			var roomsReq = Rooms.Where(r => !doomCastleRooms.Contains(r.Id)).SelectMany(r => r.Links.Where(l => l.Access.Any()).Select(l => (r.Id, l)).ToList()).ToList();
 			
 			List<(int entrance, int room)> forbiddenDestinations = new();
 			
