@@ -332,10 +332,11 @@ namespace FFMQLib
         }
 		public void ItemFetcher()
 		{
-			PutInBank(0x01, 0x82A9, Blob.FromHex("22008015eaea"));
-            PutInBank(0x15, 0x8000, Blob.FromHex("eef7199cf81908e220add00ff00fa9018db019a9508dee19a9088def19286b"));
+			PutInBank(0x01, 0x82A9, Blob.FromHex("2200801520b3e920f28222108015ea"));
+            PutInBank(0x15, 0x8000, Blob.FromHex("eef7199cf8196b"));
+            PutInBank(0x15, 0x8010, Blob.FromHex("adb019f0016b08e220add00ff013a9018db019a9508dee19a9088def1928a9016b28a9006b"));
 
-			TileScripts.AddScript(0x50, new ScriptBuilder(new List<string>
+            TileScripts.AddScript(0x50, new ScriptBuilder(new List<string>
 			{
 				"0FD00F",
 				"057F",
