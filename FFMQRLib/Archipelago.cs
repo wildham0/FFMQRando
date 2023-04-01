@@ -360,7 +360,7 @@ namespace FFMQLib
 
             // Set item name
             PutInBank(0x03, 0xB50B, Blob.FromHex("07D080150A13B5"));
-            PutInBank(0x15, 0x80D0, Blob.FromHex("0bf0dd80054d0c054320c10c00053df08015"));
+            PutInBank(0x15, 0x80D0, Blob.FromHex("0bf0dd80054d0c054320c10c00053df0801500"));
             PutInBank(0x15, 0x80F0, Blob.FromHex("03039aa9ffa2c7b8c0030303")); // AP Item
 
             // New sprite

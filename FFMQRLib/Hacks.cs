@@ -138,13 +138,12 @@ namespace FFMQLib
 
 			// Fix vendor text to sell books & seals
 			var fullbookscript = new ScriptBuilder(new List<string>{
-					"054D0C",			// Get item names
-					"054320C10C",
+                    "07D08015",         // Get item names, as well as AP
 					"05EA0C",
 					"0F0015",			// Load item ID
-					"05041F[10]",
-					"050614[10]",
-					"05041B[09]",
+					"05041F[09]",
+					"050614[09]",
+					"05041B[08]",
 					TextToHex(" Book"),
 					"00",
 					TextToHex(" Seal"),
@@ -248,8 +247,15 @@ namespace FFMQLib
 			// see 11_9200_ChestHacks.asm
 			PutInBank(0x11, 0x9200, Blob.FromHex($"C9{maskBranch}F013C9{mirrorBranch}F020C9{skyCoinBranch}F02D0BF4A60E2B224E97002B6B0BF4D0002BA992224E97002BAD9E0080E40BF4D0002BA992224E97002BAD9E0080D3EE930E6B"));
 			PutInBank(0x00, 0xDB82, Blob.FromHex("22009211EAEAEAEAEAEA"));
-		}
-		public void NonSpoilerDemoplay(bool shortenedLoop)
+
+			// Item action selector (w AP support)
+            PutInBank(0x00, 0xDB42, Blob.FromHex("5c008f11"));
+            PutInBank(0x11, 0x8F00, Blob.FromHex("c910b0045c82db00c914b0045c70db00c920b0045c8edb00c92fb0045c9cdb00c9ddb0045cbedb00c9deb0045c58db00c9dfb0045c64db005cd6db00"));
+
+			// Don't check quantity on item F0+ when opening chests
+            PutInBank(0x00, 0xDA68, Blob.FromHex("c9f0b0"));
+        }
+        public void NonSpoilerDemoplay(bool shortenedLoop)
 		{
 			// Don't cycle through the 3 demoplays, just do the first one
 			PutInBank(0x00, 0x8184, Blob.FromHex("eaeaeaeaeaeaeaeaeaeaeaeaeaa900"));

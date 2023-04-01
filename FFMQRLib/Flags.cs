@@ -225,7 +225,15 @@ namespace FFMQLib
                 .WithNamingConvention(UnderscoredNamingConvention.Instance)  // see height_in_inches in sample yml 
                 .Build();
 
-            var result = deserializer.Deserialize<Flags>(newyaml);
+            Flags result = new();
+            try
+            {
+                result = deserializer.Deserialize<Flags>(newyaml);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
             var yamlFlags = result.GetType().GetProperties().ToList();
 
             foreach (var flag in yamlFlags)
