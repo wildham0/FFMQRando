@@ -189,7 +189,7 @@
 - name: Doom Castle - Aero Room
   id: 2
   game_objects:
-  - name: "Doom Castle B2 - Sun Coin Chest"
+  - name: "Doom Castle B2 - Sun Door Chest"
     object_id: 0x00
     type: "Chest"
     access: []
@@ -301,7 +301,7 @@
 - name: Focus Tower 2F - Sand Coin Passage
   id: 10
   game_objects:
-  - name: "Focus Tower 2F - Sand Coin Chest"
+  - name: "Focus Tower 2F - Sand Door Chest"
     object_id: 0x03
     type: "Chest"
     access: []
