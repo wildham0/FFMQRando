@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.Web;
 using System;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -16,7 +17,6 @@ namespace FFMQLib
     {
         public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.All;
         public ItemShuffleChests ChestsShuffle { get; set; } = ItemShuffleChests.Prioritize;
-        public ItemShuffleBoxes BoxesShuffle { get; set; } = ItemShuffleBoxes.Exclude;
         public bool ShuffleBoxesContent { get; set; } = false;
         public ItemShuffleNPCsBattlefields NpcsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
         public ItemShuffleNPCsBattlefields BattlefieldsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
@@ -110,6 +110,7 @@ namespace FFMQLib
 
         public void FlagSanityCheck()
         {
+            /*
             // Throw an error if the settings don't offer enough LocationIds.
             if ((NpcsShuffle == ItemShuffleNPCsBattlefields.Exclude || BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Exclude) && BoxesShuffle == ItemShuffleBoxes.Exclude)
             {
@@ -120,7 +121,7 @@ namespace FFMQLib
             if (SkyCoinMode == SkyCoinModes.ShatteredSkyCoin && BoxesShuffle == ItemShuffleBoxes.Exclude)
             {
                 throw new Exception("Selected flags don't allow enough locations to place all Sky Coin Fragments. Set Brown Boxes to Include.");
-            }
+            }*/
         }
         public string GenerateYaml(string name)
         {
@@ -211,7 +212,7 @@ namespace FFMQLib
                     }
                     else
                     {
-                        throw new Exception("Yaml Error: No weighted options for:" + ((YamlScalarNode)entry.Key).Value);
+                        Console.WriteLine("Yaml Error: No weighted options for:" + ((YamlScalarNode)entry.Key).Value);
                     }
                 }
                 else if (entry.Value.NodeType == YamlNodeType.Scalar)
@@ -224,7 +225,15 @@ namespace FFMQLib
                 .WithNamingConvention(UnderscoredNamingConvention.Instance)  // see height_in_inches in sample yml 
                 .Build();
 
-            var result = deserializer.Deserialize<Flags>(newyaml);
+            Flags result = new();
+            try
+            {
+                result = deserializer.Deserialize<Flags>(newyaml);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
             var yamlFlags = result.GetType().GetProperties().ToList();
 
             foreach (var flag in yamlFlags)
@@ -241,6 +250,7 @@ namespace FFMQLib
     {
         public bool RandomBenjaminPalette { get; set; } = false;
         public bool RandomMusic { get; set; } = false;
+        public ushort WindowPalette { get; set; } = 0x5140;
         public bool RememberRom { get; set; } = false;
         public string RomPath { get; set; } = "";
     }

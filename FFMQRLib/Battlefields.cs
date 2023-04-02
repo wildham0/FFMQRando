@@ -80,7 +80,34 @@ namespace FFMQLib
 				}
 			}
 		}
-		public BattlefieldRewardType GetRewardType(LocationIds targetBattlefield)
+        public void SetBattelfieldRewards(bool enable, List<ApObject> itemsplacement, MT19337 rng)
+        {
+            BattlefieldsWithItem.Clear();
+
+            var battlefieldPlacement = itemsplacement.Where(x => x.Type == GameObjectType.Battlefield).Select(x => (int)(x.ObjectId - 1)).OrderByDescending(x => x).ToList();
+
+			List<(int, Blob)> battlefieldPlaced = new();
+
+			foreach (var battlefield in battlefieldPlacement)
+			{
+                battlefieldPlaced.Add((battlefield, _rewards[battlefield]));
+				_rewards.RemoveAt(battlefield);
+            }
+            
+			if (enable)
+            {
+                _rewards.Shuffle(rng);
+            }
+            
+			battlefieldPlaced = battlefieldPlaced.OrderBy(x => x.Item1).ToList();
+
+            foreach (var battlefield in battlefieldPlaced)
+            {
+                _rewards.Insert(battlefield.Item1, battlefield.Item2);
+                BattlefieldsWithItem.Add((LocationIds)(battlefield.Item1 + 1));
+            }
+        }
+        public BattlefieldRewardType GetRewardType(LocationIds targetBattlefield)
 		{
 			return (BattlefieldRewardType)(_rewards[(int)(targetBattlefield - 1)][1] & 0b1100_0000);
 		}

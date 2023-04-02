@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Forms
 @using System.IO;
+@using System.IO.Compression;
 @using System;
 @using System.Web
 @using System.Net.Http
@@ -71,12 +72,26 @@
             <Fields class="dropFlag">
                 <Field>
                     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Seed</FieldLabel> 
-                    <TextEdit Placeholder="Seed" Text="@showSeed" FocusOut="@SeedOnLoseFocus" KeyUp="@SeedOnKeyUp" TextChanged="@SeedOnChanged"/>
+                    @if (archipelagoEnabled)
+                    { 
+                        <TextEdit Disabled Placeholder="Seed" Text="@showSeed" />
+                    }
+                    else
+                    {
+                        <TextEdit Placeholder="Seed" Text="@showSeed" FocusOut="@SeedOnLoseFocus" KeyUp="@SeedOnKeyUp" TextChanged="@SeedOnChanged"/>
+                    }
                     <FieldHelp>@seedMessage</FieldHelp>
                 </Field>
                 <Field>
                     <FieldLabel Visibility="Visibility.Invisible">None</FieldLabel>
-                    <Button Color="Color.Primary" Clicked="@RollSeed" class="field-button romBtn">Roll Seed</Button>
+                    @if (archipelagoEnabled)
+                    {
+                        <Button Disabled Color="Color.Primary" class="field-button romBtn">Roll Seed</Button>
+                    }
+                    else
+                    {
+                        <Button Color="Color.Primary" Clicked="@RollSeed" class="field-button romBtn">Roll Seed</Button>
+                    }
                 </Field>
             </Fields>
         </Container>
@@ -84,7 +99,14 @@
             <Fields class="dropFlag">
                 <Field>
                     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Flag String</FieldLabel> 
-                    <TextEdit Placeholder="Flag string" Text="@flagString" FocusOut="@FlagsOnLoseFocus" KeyUp="@FlagsOnKeyUp" TextChanged="@FlagsOnChanged"/>
+                    @if (archipelagoEnabled)
+                    {
+                        <TextEdit Disabled Placeholder="Flag string" Text="@flagString" />
+                    }
+                    else
+                    {
+                        <TextEdit Placeholder="Flag string" Text="@flagString" FocusOut="@FlagsOnLoseFocus" KeyUp="@FlagsOnKeyUp" TextChanged="@FlagsOnChanged"/>
+                    }
                     <FieldHelp>@flagsMessage</FieldHelp>
                 </Field>
             </Fields>
@@ -105,7 +127,7 @@
 <Container class="sectionBox">
     <div class="box-title text-secondary">
         Items
-        <Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations." Inline Multiline Placement="TooltipPlacement.Right">
+        <Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations.<br /><br />When some locations aren't prioritized (either included or excluded), Quest Items may land in brown boxes, in which case these locations will show up as Chests." Inline Multiline Placement="TooltipPlacement.Right">
             <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small style="font-size: 0.600em"/> 
         </Tooltip>       
     </div> 
@@ -116,7 +138,6 @@
             <EnumFlag UsePreset=usePreset Name="Original Chests" @bind-Value="flags.ChestsShuffle" Tooltip="Original Chests are all the red chests locations in the original game, except the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave, which count as NPCs.<br /><br />If a chest doesn't contain a Quest Item, it will show up as a brown box." />
             <EnumFlag UsePreset=usePreset Name="NPCs" @bind-Value="flags.NpcsShuffle" Tooltip="NPCs are all the NPC locations in the original game, as well as the new Reuben item in Mine, the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave." />
             <EnumFlag UsePreset=usePreset Name="Battlefields" @bind-Value="flags.BattlefieldsShuffle" Tooltip="Battlefields are all the battlefields that gave a Quest Item in the original game; if Shuffle Battlefields Rewards is enabled, the locations will change, but the same number of battlefields will offer an item." />
-            <EnumFlag UsePreset=usePreset Name="Brown Boxes" @bind-Value="flags.BoxesShuffle" Tooltip="Brown Boxes are all the boxes that contained a consumable in the original game.<br /><br />If a brown box is selected to contain a Quest Item, it will show up as a red chest." />
         </Container>
         <Container Class="flagColumn">
             <EnumFlag UsePreset=usePreset Name="Sky Coin Mode" @bind-Value="flags.SkyCoinMode" Tooltip="Configure how the Sky Coin is acquired.<br /><br />Standard: The Sky Coin will be found in a chest.<br /><br />Start With: The Sky Coin will be in your inventory at the start of the game.<br /><br />Save the Crystals: The Sky Coin will be acquired once you save all 4 crystals.<br /><br />Shattered: The Sky Coin is split in 40 fragments; you can enter Doom Castle once the required amount is found." />
@@ -194,6 +215,13 @@
         <Container Class="flagColumn">
             <BoolFlag UsePreset=false Name="Randomize Benjamin's Palette" @bind-Value="preferences.RandomBenjaminPalette" Tooltip="Randomly select Benjamin's palette, giving him a brand new look!" />
             <BoolFlag UsePreset=false Name="Randomize Music" @bind-Value="preferences.RandomMusic" Tooltip="Shuffle the music tracks." />
+            <Field>
+                <Text TextColor="TextColor.Secondary" class="fw-bold">Default Window Palette</Text>
+                <Tooltip Text="Set the Window starting palette.<br/><br/>Default blue is RGB 0, 80, 160 (#0050A0)." Inline Multiline Placement="TooltipPlacement.Right">
+                    <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small />
+                </Tooltip>
+                <ColorEdit Color="@windowPalette" ColorChanged="@WindowPaletteChange" />
+            </Field>
             <Field class="text-secondary dropFlag romBtn">
                 <Button Color="Color.Primary" Clicked="@SavePreferences">Save Preferences</Button>
             </Field>
@@ -209,7 +237,7 @@
 
 <div><br /><br /><br /><br /><br /></div>
 
-@code{
+                @code{
     //bool IntroPaneVisible = true;
     //bool FilePaneVisible = false;
     //bool MainPaneVisible = false;
@@ -224,11 +252,14 @@
     private int titleHeight = 80;
     private bool sandboxMode = false;
     private bool betaStatus = false;
+    private bool archipelagoEnabled = false;
+    private string apFilename = "";
 
     private Blob seed = new byte[4];
     private string showSeed;
     private Flags flags = new();
     private Preferences preferences = new();
+    private ApConfigs apconfigs = new();
     private bool generatedRom = false;
     private string seedMessage = "";
     private string romMessage = "";
@@ -236,6 +267,7 @@
     private List<string> titleLetters = new List<string> { "logo/mqlogoM.png", "logo/mqlogoy.png", "logo/mqlogos.png", "logo/mqlogot.png", "logo/mqlogoi.png", "logo/mqlogoc.png", "logo/mqlogoQ.png", "logo/mqlogou.png", "logo/mqlogoe.png", "logo/mqlogos2.png", "logo/mqlogot2.png" };
     private bool updateFlagString = true;
     private string tempFlagString;
+    private string windowPalette = "#0050A0";
 
     private string yamlPreset = "";
     private string yamlMessage = "";
@@ -328,12 +360,28 @@
 
         try
         {
-            newRom.Randomize(seed, flags, preferences);
+            if (apconfigs.ApEnabled)
+            {
+                newRom.GenerateFromApConfig(apconfigs, flags, preferences);
+            }
+            else
+            {
+                newRom.Randomize(seed, flags, preferences);
+            }
+
 
             romMessage = "ROM file generated successfully.";
 
             var fs = newRom.DataStream();
-            var fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".sfc";
+            string fileName;
+            if (apconfigs.ApEnabled)
+            {
+                fileName = apFilename + ".sfc";
+            }
+            else
+            { 
+                fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".sfc";
+            }
 
             using var streamRef = new DotNetStreamReference(stream: fs);
 
@@ -353,10 +401,10 @@
         {
             romMessage = ex.Message;
             #if DEBUG
-                await ErrorDump(ex.Message);
+    await ErrorDump(ex.Message);
             #endif
         }
-    
+
         generatedRom = true;
     }
 
@@ -472,17 +520,72 @@
         }
     }
 
-    private async void OnPresetAction((StreamReader name, bool usepreset, bool loadfromfile) action)
+    private async void OnPresetAction((Stream file, string filename, string action, bool usepreset, bool loadfromfile) action)
     {
         if (!action.usepreset && !action.loadfromfile)
         {
             usePreset = false;
+            archipelagoEnabled = false;
             StateHasChanged();
         }
-        else 
+        else if (action.action.Contains("apconfig"))
         {
-            await LoadYamlFromStreamReader(action.name);
+            MemoryStream memZip = new();
+
+            await action.file.CopyToAsync(memZip);
+            apFilename = action.filename;
+            using (ZipArchive configContainer = new ZipArchive(memZip))
+            {
+                foreach (var file in configContainer.Entries)
+                {
+                    if (file.Name == "itemplacement.yaml")
+                    {
+                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
+                        {
+                            apconfigs.ItemPlacementYaml = await streamReader.ReadToEndAsync();
+                        }
+                    }
+                    else if (file.Name == "startingitems.yaml")
+                    {
+                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
+                        {
+                            apconfigs.StartingItemsYaml = await streamReader.ReadToEndAsync();
+                        }
+                    }
+                    else if (file.Name == "flagset.yaml")
+                    {
+
+
+                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
+                        {
+                            await LoadYamlFromStreamReader(streamReader);
+                        }
+                    }
+                    else if (file.Name == "setup.yaml")
+                    {
+                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
+                        {
+                            apconfigs.SetupYaml = await streamReader.ReadToEndAsync();
+                        }
+                    }
+
+                }
+            }
+
+            apconfigs.ProcessYaml();
+            archipelagoEnabled = true;
+            SetSeed(apconfigs.Seed);
             usePreset = action.usepreset;
+
+            flagsMessage = "Archipelago Config File loaded successfully.";
+
+            StateHasChanged();
+        }
+        else
+        {
+            await LoadYamlFromStreamReader(new StreamReader(action.file, Encoding.UTF8));
+            usePreset = action.usepreset;
+            archipelagoEnabled = false;
             StateHasChanged();
         }
     }
@@ -572,6 +675,7 @@
         }
 
         LoadPreferences();
+        SetWindowPalette(preferences.WindowPalette);
     }
 
     public void SavePreferences()
@@ -600,12 +704,25 @@
 
         foreach(var pref in prefList)
         {
-            if(pref.PropertyType == typeof(bool))
+            if (pref.PropertyType == typeof(bool))
             {
-                pref.SetValue(preferences, localStorage.GetItem<bool>(pref.Name));
+                bool? value = localStorage.GetItem<bool?>(pref.Name);
+                if (value != null)
+                { 
+                    pref.SetValue(preferences, value);
+                }
             }
-            else if(pref.PropertyType == typeof(string))
-            { 
+            else if (pref.PropertyType == typeof(ushort))
+            {
+                ushort? value = localStorage.GetItem<ushort?>(pref.Name);
+                if (value != null)
+                {
+                    pref.SetValue(preferences, value);    
+                }
+                
+            }
+            else if (pref.PropertyType == typeof(string))
+            {
                 string pathvalue = localStorage.GetItem<string>(pref.Name);
 
                 pref.SetValue(preferences, pathvalue ?? "");
@@ -755,5 +872,37 @@
         }
 
         return Task.CompletedTask;
+    }
+
+    private void WindowPaletteChange(string palette)
+    {
+        int red = Convert.ToInt32(palette.Substring(1, 2), 16);
+        int green = Convert.ToInt32(palette.Substring(3, 2), 16);
+        int blue = Convert.ToInt32(palette.Substring(5, 2), 16);
+
+        int gamered = red / 8;
+        int gamegreen = green / 8;
+        int gameblue = blue / 8;
+
+        ushort paletteValue = (ushort)(gamered + (gamegreen * 32) + (gameblue * 32 * 32));
+        preferences.WindowPalette = paletteValue;
+
+        red = gamered * 8;
+        green = gamegreen * 8;
+        blue = gameblue * 8;
+
+        windowPalette = $"#{red:X2}{green:X2}{blue:X2}";
+        StateHasChanged();
+    }
+
+    private void SetWindowPalette(ushort palette)
+    {
+
+        int red = (palette % 32) * 8;
+        int green = ((palette % (32 * 32))/32) * 8;
+        int blue = (palette / (32 * 32)) * 8;
+
+        windowPalette = $"#{red:X2}{green:X2}{blue:X2}";
+        StateHasChanged();
     }
 }

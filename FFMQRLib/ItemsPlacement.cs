@@ -40,7 +40,7 @@ namespace FFMQLib
 		[Description("Expert")]
 		Expert,
 	}
-	public class ItemsPlacement
+	public partial class ItemsPlacement
 	{
 		public List<Items> StartingItems { get; set; }
 		public List<GameObject> ItemsLocations { get; }
@@ -254,7 +254,7 @@ namespace FFMQLib
 			}
 
 			// Fill excluded and unfilled locations
-			List<Items> consumables = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed };
+			List<Items> consumables = new() { Items.CurePotion, Items.HealPotion, Items.Refresher, Items.Seed };
 			
 			var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.Battlefield || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20))).ToList();
 
@@ -265,6 +265,7 @@ namespace FFMQLib
 				if (location.Type == GameObjectType.Chest || location.Type == GameObjectType.Box)
 				{
 					location.Type = GameObjectType.Box;
+					location.Reset = true;
 				}
 			}
 
@@ -286,6 +287,7 @@ namespace FFMQLib
 				if (box.Type == GameObjectType.Chest || box.Type == GameObjectType.Box)
 				{
 					box.Type = GameObjectType.Box;
+					box.Reset = true;
 				}
 			}
 
@@ -338,7 +340,7 @@ namespace FFMQLib
 		}
 		public string GenerateSpoilers(FFMQRom rom, string version, string hash, string flags, string seed)
 		{
-			List<Items> invalidItems = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
+			List<Items> invalidItems = new() { Items.CurePotion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
 			List<GameObjectType> validType = new() { GameObjectType.Battlefield, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
 
 			string spoilers = "";

@@ -9,6 +9,44 @@ SetFlag = $00974E
   NOP
   NOP
 
+ .ORG $9050
+ItemQuantityRoutine:
+  sep #$20
+  lda $015f
+  cmp #$F2
+  bcc normal_box 
+  cmp #$F6
+  bcs normal_box
+  lda #$18
+  sta $0166
+  bra finalize
+normal_box:  
+  lda $9e
+  cmp #$10
+  bcc key_item
+  cmp #$14
+  bcc consumable
+  cmp #$dd
+  bcc key_item
+  cmp #$f0
+  bcc projectile
+key_item:
+  stz $0166
+  lda #$00
+  bra finalize_nocount
+consumable:
+  lda #$02
+  sta $0166
+  bra finalize
+projectile:
+  lda $#09
+  sta $0166
+finalize:
+  lda #$80
+finalize_nocount:
+  sta $0165  
+  rtl
+
  .ORG $9200
 
 KeyItemRoutine

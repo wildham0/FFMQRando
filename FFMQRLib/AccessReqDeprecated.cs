@@ -522,10 +522,11 @@ namespace FFMQLib
 				properties.Where(x => x.Type == TreasureType.Battlefield).ToList().ForEach(x => x.Exclude = true);
 			}
 
+			/*
 			if (flags.BoxesShuffle == ItemShuffleBoxes.Exclude)
 			{
 				properties.Where(x => x.Type == TreasureType.Box).ToList().ForEach(x => x.Exclude = true);
-			}
+			}*/
 
 			// Exclude dummy locations
 			properties.Where(x => x.Type == TreasureType.Dummy).ToList().ForEach(x => x.Exclude = true);

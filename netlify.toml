@@ -1,8 +1,6 @@
 [build]
   publish = "./publishoutput/wwwroot"
 
-  command = "dotnet build FFMQWebAsm --configuration Release && dotnet publish FFMQWebAsm -c Release --no-build -o publishoutput"
-
 [[redirects]]
   from = "https://dev.ffmqrando.net/"
   to = "https://scintillating-tiramisu-75521b.netlify.app/"

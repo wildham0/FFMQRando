@@ -10,15 +10,15 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.3.59";
+		public static string Version = "1.4.12";
 	}
 	public partial class FFMQRom : SnesRom
 	{
 		public ObjectList MapObjects;
 		public MapChanges MapChanges;
 		public GameFlags GameFlags;
-		public GameScriptManager TileScripts;
-		public GameScriptManager TalkScripts;
+		public TileScriptsManager TileScripts;
+		public TalkScriptsManager TalkScripts;
 		public Battlefields Battlefields;
 		public Overworld Overworld;
 		public GameMaps GameMaps;
@@ -163,8 +163,8 @@ namespace FFMQLib
 			MapObjects = new(this);
 			Credits credits = new(this);
 			GameFlags = new(this);
-			TalkScripts = new(this, RomOffsets.TalkScriptsPointers, RomOffsets.TalkScriptPointerQty, RomOffsets.TalkScriptOffset, RomOffsets.TalkScriptEndOffset);
-			TileScripts = new(this, RomOffsets.TileScriptsPointers, RomOffsets.TileScriptPointerQty, RomOffsets.TileScriptOffset, RomOffsets.TileScriptEndOffset);
+			TalkScripts = new(this);
+			TileScripts = new(this);
 			Battlefields = new(this);
 			MapChanges = new(this);
 			Overworld = new(this);
@@ -187,6 +187,7 @@ namespace FFMQLib
 			DummyRoom();
 			PazuzuFixedFloorRng(rng);
 			KeyItemWindow();
+			ArchipelagoSupport();
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
@@ -239,9 +240,10 @@ namespace FFMQLib
 			// Preferences
 			Msu1SupportRandom(preferences.RandomMusic, sillyrng);
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
+			WindowPalette(preferences.WindowPalette);
 
-			// Write everything back			
-			itemsPlacement.WriteChests(this);
+            // Write everything back			
+            itemsPlacement.WriteChests(this);
 			credits.Write(this);
 			EnemyAttackLinks.Write(this);
 			Attacks.Write(this);

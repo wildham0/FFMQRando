@@ -225,6 +225,10 @@ namespace FFMQLib
 		Pazuzu5F,
 		Pazuzu6F,
 
+		StoneGolem,
+		TwinheadWyvern,
+		Zuh,
+		
 		Barred,
 	}
 	public enum TreasureType : int
@@ -366,7 +370,7 @@ namespace FFMQLib
 		RiverCoin = 0x0D,
 		SunCoin = 0x0E,
 		SkyCoin = 0x0F,
-		Potion = 0x10,
+		CurePotion = 0x10,
 		HealPotion = 0x11,
 		Seed = 0x12,
 		Refresher = 0x13,
@@ -416,6 +420,8 @@ namespace FFMQLib
 		CupidLock = 0x3F,
 		BombRefill = 0xDD,
 		ProjectileRefill = 0xDE,
+		APItem = 0xF0,
+		APItemFiller = 0xF1,
 		None = 0xFF,
 	}
 
