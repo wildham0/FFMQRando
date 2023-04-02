@@ -72,26 +72,12 @@
             <Fields class="dropFlag">
                 <Field>
                     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Seed</FieldLabel> 
-                    @if (archipelagoEnabled)
-                    { 
-                        <TextEdit Disabled Placeholder="Seed" Text="@showSeed" />
-                    }
-                    else
-                    {
                         <TextEdit Placeholder="Seed" Text="@showSeed" FocusOut="@SeedOnLoseFocus" KeyUp="@SeedOnKeyUp" TextChanged="@SeedOnChanged"/>
-                    }
                     <FieldHelp>@seedMessage</FieldHelp>
                 </Field>
                 <Field>
                     <FieldLabel Visibility="Visibility.Invisible">None</FieldLabel>
-                    @if (archipelagoEnabled)
-                    {
-                        <Button Disabled Color="Color.Primary" class="field-button romBtn">Roll Seed</Button>
-                    }
-                    else
-                    {
                         <Button Color="Color.Primary" Clicked="@RollSeed" class="field-button romBtn">Roll Seed</Button>
-                    }
                 </Field>
             </Fields>
         </Container>
@@ -99,14 +85,7 @@
             <Fields class="dropFlag">
                 <Field>
                     <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Flag String</FieldLabel> 
-                    @if (archipelagoEnabled)
-                    {
-                        <TextEdit Disabled Placeholder="Flag string" Text="@flagString" />
-                    }
-                    else
-                    {
                         <TextEdit Placeholder="Flag string" Text="@flagString" FocusOut="@FlagsOnLoseFocus" KeyUp="@FlagsOnKeyUp" TextChanged="@FlagsOnChanged"/>
-                    }
                     <FieldHelp>@flagsMessage</FieldHelp>
                 </Field>
             </Fields>
@@ -208,28 +187,7 @@
 
 <div><br /></div>
 
-<Container class="sectionBox">
-    <div class="box-title text-secondary">Preferences</div> 
-    <div class="text-secondary">Preferences doesn't affect the randomization and can be enabled/disabled without any impact on gameplay.</div>
-    <Container Class="flagBox">
-        <Container Class="flagColumn">
-            <BoolFlag UsePreset=false Name="Randomize Benjamin's Palette" @bind-Value="preferences.RandomBenjaminPalette" Tooltip="Randomly select Benjamin's palette, giving him a brand new look!" />
-            <BoolFlag UsePreset=false Name="Randomize Music" @bind-Value="preferences.RandomMusic" Tooltip="Shuffle the music tracks." />
-            <Field>
-                <Text TextColor="TextColor.Secondary" class="fw-bold">Default Window Palette</Text>
-                <Tooltip Text="Set the Window starting palette.<br/><br/>Default blue is RGB 0, 80, 160 (#0050A0)." Inline Multiline Placement="TooltipPlacement.Right">
-                    <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small />
-                </Tooltip>
-                <ColorEdit Color="@windowPalette" ColorChanged="@WindowPaletteChange" />
-            </Field>
-            <Field class="text-secondary dropFlag romBtn">
-                <Button Color="Color.Primary" Clicked="@SavePreferences">Save Preferences</Button>
-            </Field>
-        </Container>
-        <Container Class="flagColumn">
-        </Container>
-    </Container>
-</Container>
+<PreferencesSection preferences="@preferences" />
 
 <div id="infoSection"><br /></div>
 
@@ -237,7 +195,7 @@
 
 <div><br /><br /><br /><br /><br /></div>
 
-                @code{
+@code{
     //bool IntroPaneVisible = true;
     //bool FilePaneVisible = false;
     //bool MainPaneVisible = false;
@@ -252,14 +210,11 @@
     private int titleHeight = 80;
     private bool sandboxMode = false;
     private bool betaStatus = false;
-    private bool archipelagoEnabled = false;
-    private string apFilename = "";
 
     private Blob seed = new byte[4];
     private string showSeed;
     private Flags flags = new();
     private Preferences preferences = new();
-    private ApConfigs apconfigs = new();
     private bool generatedRom = false;
     private string seedMessage = "";
     private string romMessage = "";
@@ -267,11 +222,11 @@
     private List<string> titleLetters = new List<string> { "logo/mqlogoM.png", "logo/mqlogoy.png", "logo/mqlogos.png", "logo/mqlogot.png", "logo/mqlogoi.png", "logo/mqlogoc.png", "logo/mqlogoQ.png", "logo/mqlogou.png", "logo/mqlogoe.png", "logo/mqlogos2.png", "logo/mqlogot2.png" };
     private bool updateFlagString = true;
     private string tempFlagString;
-    private string windowPalette = "#0050A0";
 
     private string yamlPreset = "";
     private string yamlMessage = "";
     private string yamlName = "default";
+    private string savedRom = "";
 
     [Parameter]
     public string flagString
@@ -360,28 +315,12 @@
 
         try
         {
-            if (apconfigs.ApEnabled)
-            {
-                newRom.GenerateFromApConfig(apconfigs, flags, preferences);
-            }
-            else
-            {
-                newRom.Randomize(seed, flags, preferences);
-            }
-
+            newRom.Randomize(seed, flags, preferences);
 
             romMessage = "ROM file generated successfully.";
 
             var fs = newRom.DataStream();
-            string fileName;
-            if (apconfigs.ApEnabled)
-            {
-                fileName = apFilename + ".sfc";
-            }
-            else
-            { 
-                fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".sfc";
-            }
+            string fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".sfc";
 
             using var streamRef = new DotNetStreamReference(stream: fs);
 
@@ -400,9 +339,6 @@
         catch (Exception ex)
         {
             romMessage = ex.Message;
-            #if DEBUG
-    await ErrorDump(ex.Message);
-            #endif
         }
 
         generatedRom = true;
@@ -417,7 +353,6 @@
 
         await JS.InvokeVoidAsync("downloadFileFromStream", fileNameSpoilers, streamRefSpoilers);        
     }
-
 
     private async Task LoadFiles(FileChangedEventArgs e)
     {
@@ -439,7 +374,7 @@
                 isLoadingRom = false;
                 romLoaded = true;
                 newRom.BackupOriginalData();
-                SavePreferences();
+                SaveRom();
             }
         }
         catch (Exception ex)
@@ -451,10 +386,59 @@
     private void UnloadRom()
     {
         romLoaded = false;
-        preferences.RomPath = "";
+        savedRom = "";
         romMessage = "";
         newRom = new();
-        SavePreferences();
+        SaveRom();
+    }
+
+    private void SaveRom()
+    {
+        if (!newRom.IsEmpty())
+        {
+            newRom.RestoreOriginalData();
+            savedRom = Convert.ToBase64String(newRom.DataReadOnly);
+        }
+        else
+        {
+            savedRom = "";
+        }
+
+        localStorage.SetItem("SavedRom", savedRom);
+    }
+
+    public void LoadRom()
+    { 
+        if (savedRom != "")
+        {
+            newRom.Load(Convert.FromBase64String(savedRom));
+            romMessage = "Loading...";
+            isLoadingRom = true;
+            StateHasChanged();
+
+            try
+            {
+                if (!newRom.Validate())
+                {
+                    romMessage = "Invalid ROM file.";
+                    isLoadingRom = false;
+                    romLoaded = false;
+                    return;
+                }
+                else
+                {
+                    romMessage = "ROM file loaded from memory succesfully.";
+                    isLoadingRom = false;
+                    romLoaded = true;
+                    newRom.BackupOriginalData();
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
     }
 
     private async Task LoadYamlFromUpload(FileChangedEventArgs e)
@@ -525,71 +509,15 @@
         if (!action.usepreset && !action.loadfromfile)
         {
             usePreset = false;
-            archipelagoEnabled = false;
-            StateHasChanged();
-        }
-        else if (action.action.Contains("apconfig"))
-        {
-            MemoryStream memZip = new();
-
-            await action.file.CopyToAsync(memZip);
-            apFilename = action.filename;
-            using (ZipArchive configContainer = new ZipArchive(memZip))
-            {
-                foreach (var file in configContainer.Entries)
-                {
-                    if (file.Name == "itemplacement.yaml")
-                    {
-                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
-                        {
-                            apconfigs.ItemPlacementYaml = await streamReader.ReadToEndAsync();
-                        }
-                    }
-                    else if (file.Name == "startingitems.yaml")
-                    {
-                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
-                        {
-                            apconfigs.StartingItemsYaml = await streamReader.ReadToEndAsync();
-                        }
-                    }
-                    else if (file.Name == "flagset.yaml")
-                    {
-
-
-                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
-                        {
-                            await LoadYamlFromStreamReader(streamReader);
-                        }
-                    }
-                    else if (file.Name == "setup.yaml")
-                    {
-                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
-                        {
-                            apconfigs.SetupYaml = await streamReader.ReadToEndAsync();
-                        }
-                    }
-
-                }
-            }
-
-            apconfigs.ProcessYaml();
-            archipelagoEnabled = true;
-            SetSeed(apconfigs.Seed);
-            usePreset = action.usepreset;
-
-            flagsMessage = "Archipelago Config File loaded successfully.";
-
             StateHasChanged();
         }
         else
         {
             await LoadYamlFromStreamReader(new StreamReader(action.file, Encoding.UTF8));
             usePreset = action.usepreset;
-            archipelagoEnabled = false;
             StateHasChanged();
         }
     }
-
 
     private void RollSeed()
     {
@@ -674,91 +602,10 @@
             flagsMessage = "Using default flags (SGL2022).";
         }
 
-        LoadPreferences();
-        SetWindowPalette(preferences.WindowPalette);
-    }
 
-    public void SavePreferences()
-    {
-        if (!newRom.IsEmpty())
-        {
-            newRom.RestoreOriginalData();
-            preferences.RomPath = Convert.ToBase64String(newRom.DataReadOnly);
-        }
-        else
-        {
-            preferences.RomPath = "";
-        }
-
-        var prefList = preferences.GetType().GetProperties().ToList();
-
-        foreach(var pref in prefList)
-        {
-            localStorage.SetItem(pref.Name, pref.GetValue(preferences, null));
-        }
-    }
-
-    public void LoadPreferences()
-    {
-        var prefList = preferences.GetType().GetProperties().ToList();
-
-        foreach(var pref in prefList)
-        {
-            if (pref.PropertyType == typeof(bool))
-            {
-                bool? value = localStorage.GetItem<bool?>(pref.Name);
-                if (value != null)
-                { 
-                    pref.SetValue(preferences, value);
-                }
-            }
-            else if (pref.PropertyType == typeof(ushort))
-            {
-                ushort? value = localStorage.GetItem<ushort?>(pref.Name);
-                if (value != null)
-                {
-                    pref.SetValue(preferences, value);    
-                }
-                
-            }
-            else if (pref.PropertyType == typeof(string))
-            {
-                string pathvalue = localStorage.GetItem<string>(pref.Name);
-
-                pref.SetValue(preferences, pathvalue ?? "");
-            }
-        }
-
-        if (preferences.RomPath != "")
-        {
-            newRom.Load(Convert.FromBase64String(preferences.RomPath));
-            romMessage = "Loading...";
-            isLoadingRom = true;
-            StateHasChanged();
-
-            try
-            {
-                if (!newRom.Validate())
-                {
-                    romMessage = "Invalid ROM file.";
-                    isLoadingRom = false;
-                    romLoaded = false;
-                    return;
-                }
-                else
-                {
-                    romMessage = "ROM file loaded from memory succesfully.";
-                    isLoadingRom = false;
-                    romLoaded = true;
-                    newRom.BackupOriginalData();
-                    StateHasChanged();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
+        localStorage.RemoveItem("RomPath");
+        savedRom = localStorage.GetItem<string>("SavedRom") ?? "";
+        LoadRom();
     }
 
     // Seed Field Functions
@@ -824,13 +671,6 @@
         }
     }
 
-
-
-    private async Task CopyTextToClipboard()
-    {
-        await JS.InvokeVoidAsync("copyClipboard");
-    }
-
     // Flag Field Functions
     Task FlagsOnChanged( string value )
     {
@@ -872,37 +712,5 @@
         }
 
         return Task.CompletedTask;
-    }
-
-    private void WindowPaletteChange(string palette)
-    {
-        int red = Convert.ToInt32(palette.Substring(1, 2), 16);
-        int green = Convert.ToInt32(palette.Substring(3, 2), 16);
-        int blue = Convert.ToInt32(palette.Substring(5, 2), 16);
-
-        int gamered = red / 8;
-        int gamegreen = green / 8;
-        int gameblue = blue / 8;
-
-        ushort paletteValue = (ushort)(gamered + (gamegreen * 32) + (gameblue * 32 * 32));
-        preferences.WindowPalette = paletteValue;
-
-        red = gamered * 8;
-        green = gamegreen * 8;
-        blue = gameblue * 8;
-
-        windowPalette = $"#{red:X2}{green:X2}{blue:X2}";
-        StateHasChanged();
-    }
-
-    private void SetWindowPalette(ushort palette)
-    {
-
-        int red = (palette % 32) * 8;
-        int green = ((palette % (32 * 32))/32) * 8;
-        int blue = (palette / (32 * 32)) * 8;
-
-        windowPalette = $"#{red:X2}{green:X2}{blue:X2}";
-        StateHasChanged();
     }
 }
