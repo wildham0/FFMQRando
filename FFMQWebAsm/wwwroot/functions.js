@@ -1,4 +1,7 @@
-﻿async function downloadFileFromStream(fileName, contentStreamReference) {
+﻿//const localforage = require("./localforage.min");
+//import localforage from 'localforage.min';
+
+async function downloadFileFromStream(fileName, contentStreamReference) {
     const arrayBuffer = await contentStreamReference.arrayBuffer();
     const blob = new Blob([arrayBuffer]);
 
@@ -19,4 +22,15 @@ function triggerFileDownload(fileName, url) {
 
     anchorElement.click();
     anchorElement.remove();
+}
+
+async function loadSavedRom() {
+    localforage.config();
+    value = await localforage.getItem('SaveRom');
+    return value;
+}
+
+async function saveSavedRom(romToSave) {
+    localforage.config();
+    localforage.setItem('SaveRom', romToSave).then(function (value) { return true; }).catch(function (err) { return false; });
 }
