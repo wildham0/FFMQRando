@@ -251,8 +251,6 @@ namespace FFMQLib
         public bool RandomBenjaminPalette { get; set; } = false;
         public bool RandomMusic { get; set; } = false;
         public ushort WindowPalette { get; set; } = 0x5140;
-        public bool RememberRom { get; set; } = false;
-        public string RomPath { get; set; } = "";
     }
 
 }

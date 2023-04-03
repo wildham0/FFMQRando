@@ -370,7 +370,7 @@ namespace FFMQLib
 			{ Items.Mask, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.Mask:X2}") },
 			{ Items.MagicMirror, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.MagicMirror:X2}") },
 			{ Items.ThunderRock, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.ThunderRock:X2}") },
-			{ Items.CaptainCap, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.CaptainCap:X2}") },
+			{ Items.CaptainsCap, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.CaptainsCap:X2}") },
 			{ Items.LibraCrest, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.LibraCrest:X2}") },
 			{ Items.GeminiCrest, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.GeminiCrest:X2}") },
 			{ Items.MobiusCrest, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.MobiusCrest:X2}") },
@@ -424,7 +424,7 @@ namespace FFMQLib
 			{ Items.EtherShield, ($"{(int)FlagPositions.Armors:X4}", $"{(int)ArmorFlags.EtherShield:X2}") },
 			{ Items.Charm, ($"{(int)FlagPositions.Armors:X4}", $"{(int)ArmorFlags.Charm:X2}") },
 			{ Items.MagicRing, ($"{(int)FlagPositions.Armors:X4}", $"{(int)ArmorFlags.MagicRing:X2}") },
-			{ Items.CupidLock, ($"{(int)FlagPositions.Armors:X4}", $"{(int)ArmorFlags.CupidLock:X2}") },
+			{ Items.CupidLocket, ($"{(int)FlagPositions.Armors:X4}", $"{(int)ArmorFlags.CupidLocket:X2}") },
 
 		};
 		public class ScriptCommands {

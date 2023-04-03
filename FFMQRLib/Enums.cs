@@ -316,7 +316,7 @@ namespace FFMQLib
 		EtherShield = 0x0D,
 		Charm = 0x0E,
 		MagicRing = 0x0F,
-		CupidLock = 0x10,
+		CupidLocket = 0x10,
 	}
 	public enum SpellFlags : byte
 	{
@@ -343,7 +343,7 @@ namespace FFMQLib
 		Mask = 0x05,
 		MagicMirror = 0x06,
 		ThunderRock = 0x07,
-		CaptainCap = 0x08,
+		CaptainsCap = 0x08,
 		LibraCrest = 0x09,
 		GeminiCrest = 0x0A,
 		MobiusCrest = 0x0B,
@@ -362,7 +362,7 @@ namespace FFMQLib
 		Mask = 0x05,
 		MagicMirror = 0x06,
 		ThunderRock = 0x07,
-		CaptainCap = 0x08,
+		CaptainsCap = 0x08,
 		LibraCrest = 0x09,
 		GeminiCrest = 0x0A,
 		MobiusCrest = 0x0B,
@@ -417,7 +417,7 @@ namespace FFMQLib
 		EtherShield = 0x3C,
 		Charm = 0x3D,
 		MagicRing = 0x3E,
-		CupidLock = 0x3F,
+		CupidLocket = 0x3F,
 		BombRefill = 0xDD,
 		ProjectileRefill = 0xDE,
 		APItem = 0xF0,

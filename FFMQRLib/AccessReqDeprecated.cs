@@ -586,7 +586,7 @@ namespace FFMQLib
 			properties[11].Content = Items.MegaGrenade;
 			properties[12].Content = Items.DragonClaw;
 			properties[13].Content = Items.ThunderRock;
-			properties[14].Content = Items.CaptainCap;
+			properties[14].Content = Items.CaptainsCap;
 
 			return properties;
 		}
@@ -806,7 +806,7 @@ namespace FFMQLib
 			{ Items.VenusKey, new List<AccessReqs> { AccessReqs.VenusKey } },
 			{ Items.MultiKey, new List<AccessReqs> { AccessReqs.MultiKey } },
 			{ Items.ThunderRock, new List<AccessReqs> { AccessReqs.ThunderRock } },
-			{ Items.CaptainCap, new List<AccessReqs> { AccessReqs.CaptainCap } },
+			{ Items.CaptainsCap, new List<AccessReqs> { AccessReqs.CaptainCap } },
 			{ Items.LibraCrest, new List<AccessReqs> { AccessReqs.LibraCrest } },
 			{ Items.GeminiCrest, new List<AccessReqs> { AccessReqs.GeminiCrest } },
 			{ Items.MobiusCrest, new List<AccessReqs> { AccessReqs.MobiusCrest } },

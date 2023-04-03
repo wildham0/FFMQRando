@@ -27,3 +27,16 @@ h3 {
     border-bottom-width: medium;
 }
 
+.ap-icon {
+    background: url('icons/white-apicon.png');
+    background-size: contain;
+    height: 16px;
+    width: 16px;
+    display: block;
+}
+
+.sidebar-link:hover .ap-icon {
+    background: url('icons/black-apicon.png');
+    background-size: contain;
+}
+
