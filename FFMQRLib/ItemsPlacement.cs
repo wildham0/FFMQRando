@@ -511,7 +511,7 @@ namespace FFMQLib
 				Items.VenusKey, // NPC
 				Items.MultiKey, // NPC
 				Items.ThunderRock, // NPC
-				Items.CaptainCap, // NPC
+				Items.CaptainsCap, // NPC
 				Items.DragonClaw, // NPC
 				Items.MegaGrenade, //NPC
 				Items.Elixir, // NPC
@@ -550,7 +550,7 @@ namespace FFMQLib
 				Items.AegisShield,
 				Items.Charm, //Battlefield
 				Items.MagicRing, //Battlefield
-				Items.CupidLock // NPC
+				Items.CupidLocket // NPC
 			};
 
 			Items startingWeapon = Items.SteelSword;
