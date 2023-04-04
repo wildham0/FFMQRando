@@ -245,7 +245,7 @@ namespace FFMQLib
 			}
 
 			// see 11_9200_ChestHacks.asm
-			PutInBank(0x11, 0x9200, Blob.FromHex($"C9{maskBranch}F013C9{mirrorBranch}F020C9{skyCoinBranch}F02D0BF4A60E2B224E97002B6B0BF4D0002BA992224E97002BAD9E0080E40BF4D0002BA992224E97002BAD9E0080D3EE930E6B"));
+			PutInBank(0x11, 0x9200, Blob.FromHex("c905f013c906f02cc90ff0450bf4a60e2b224e97002b6bad880ec929d0eead910ef0e90bf4d0002ba992224e97002bad9e0080d8ad880ec921d0d1ad910ef0cc0bf4d0002ba992224e97002bad9e0080bbee930e80b66b"));
 			PutInBank(0x00, 0xDB82, Blob.FromHex("22009211EAEAEAEAEAEA"));
 
 			// Item action selector (w AP support)
@@ -366,7 +366,7 @@ namespace FFMQLib
 			PutInBank(0x11, 0x89C0, Blob.FromHex("08c230ae610ef005ae600e8003aeb11028e0ff6b"));
 			PutInBank(0x11, 0x89E0, Blob.FromHex("22c08911dabf0098040a0a8df700c210686b"));
 		}
-		public void BugFixes()
+			public void BugFixes()
 		{
 			// Fix vendor buy 0 bug
 			PutInBank(0x00, 0xB75B, Blob.FromHex("D0")); // Instead of BPL, BNE to skip 0
