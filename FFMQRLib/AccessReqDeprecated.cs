@@ -403,7 +403,7 @@ namespace FFMQLib
 
 				for (int i = 0; i < battlefieldsLocation.Count(); i++)
 				{
-					battlefieldsLocation[i].Location = battlefields.BattlefieldsWithItem[i];
+					//battlefieldsLocation[i].Location = battlefields.BattlefieldsWithItem[i];
 				}
 			}
 			

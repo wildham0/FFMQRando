@@ -355,7 +355,7 @@ namespace FFMQLib
 
 					foreach (var gamedata in room.GameObjects)
 					{
-						var bflocation = overworld.Locations.Find(l => l.LocationId == battlefields.BattlefieldsWithItem[battlefieldCount]);
+						var bflocation = overworld.Locations.Find(l => l.LocationId == battlefields.BattlefieldsWithItems()[battlefieldCount]);
 
 						List<List<AccessReqs>> finalAccess = new();
 						var locReq = subRegionsAccess.Where(x => x.Item1 == overworld.Locations.Find(l => l.LocationId == bflocation.LocationId).SubRegion).Select(x => x.Item2).ToList();
