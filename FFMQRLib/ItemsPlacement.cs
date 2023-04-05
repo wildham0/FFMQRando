@@ -563,7 +563,7 @@ namespace FFMQLib
 			StartingItems.Add(startingWeapon);
 
 			// SkyCoin
-			if (flags.SkyCoinMode == SkyCoinModes.StartWith)
+			if (flags.SkyCoinMode == SkyCoinModes.StartWith || flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
 			{
 				StartingItems.Add(Items.SkyCoin);
 				ProgressionSkyCoin.Remove(Items.SkyCoin);

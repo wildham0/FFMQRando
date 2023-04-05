@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.4.13";
+		public static string Version = "1.4.14";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -219,8 +219,8 @@ namespace FFMQLib
 			// Items
 			ItemsPlacement itemsPlacement = new(flags, GameLogic.GameObjects, this, rng);
 
-			SetStartingWeapons(itemsPlacement);
-			MapObjects.UpdateChests(itemsPlacement);
+			SetStartingItems(itemsPlacement);
+            MapObjects.UpdateChests(itemsPlacement);
 			UpdateScripts(flags, itemsPlacement, Overworld.StartingLocation, rng);
 			ChestsHacks(flags, itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);

@@ -272,7 +272,7 @@ namespace FFMQLib
             // Items
             ItemsPlacement itemsPlacement = new(flags, apconfigs, GameLogic.GameObjects, this, rng);
 
-            SetStartingWeapons(itemsPlacement);
+            SetStartingItems(itemsPlacement);
             MapObjects.UpdateChests(itemsPlacement);
             UpdateScripts(flags, itemsPlacement, Overworld.StartingLocation, rng);
             ChestsHacks(flags, itemsPlacement);
