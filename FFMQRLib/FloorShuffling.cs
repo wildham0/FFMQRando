@@ -195,12 +195,15 @@ namespace FFMQLib
     {
 		private List<List<int>> entrancesPairs;
 		private List<(int roomid, RoomLink link)> newLinkToProcess;
-		public List<((int, int) Teleporter, int Room)> CrestRoomLinks { get; set; }
-
 
 		public void CrestShuffle(bool shufflecrests, MT19337 rng)
 		{
-			List<CrestLink> crestList = new()
+            if (!shufflecrests)
+            {
+                return;
+            }
+
+            List<CrestLink> crestList = new()
 			{
 				new CrestLink((67, 8), (64, 8), true, 0), // (0x27, 1)
 				new CrestLink((68, 8), (65, 8), true, 0), // (0x28, 1)
@@ -225,19 +228,6 @@ namespace FFMQLib
 				new CrestLink((43, 8), (61, 8), false, 2), // Windia Mobius Old
 				new CrestLink((61, 8), (43, 8), true, 0),
 			};
-
-			CrestRoomLinks = new();
-
-			if (!shufflecrests)
-			{
-				foreach (var crest in crestList)
-				{
-					var crestRoom = Rooms.Find(x => x.Links.Where(l => l.Teleporter == crest.Origins).Any());
-					CrestRoomLinks.Add((crest.Entrance, crestRoom.Id));
-				}
-				
-				return;
-			}
 
 			List<Items> crestTiles = new()
 			{
@@ -333,9 +323,6 @@ namespace FFMQLib
 
 				newLinkToProcess.Add((crest1room.Id, new RoomLink(crest2room.Id, crest1link.Entrance, crest2.Origins, crest1link.Access.Except(AccessReferences.CrestsAccess).Concat(AccessReferences.ItemAccessReq[crest1.Crest]).ToList())));
 				newLinkToProcess.Add((crest2room.Id, new RoomLink(crest1room.Id, crest2link.Entrance, crest1.Origins, crest2link.Access.Except(AccessReferences.CrestsAccess).Concat(AccessReferences.ItemAccessReq[crest2.Crest]).ToList())));
-
-				CrestRoomLinks.Add((crest1link.Teleporter, crest2room.Id));
-				CrestRoomLinks.Add((crest2link.Teleporter, crest1room.Id));
 			}
 
 			foreach (var newlink in newLinkToProcess)

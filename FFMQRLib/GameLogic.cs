@@ -213,8 +213,30 @@ namespace FFMQLib
 		{
 			ReadRooms();
 		}
-	
-		public void ReadRooms()
+        public GameLogic(string aprooms)
+        {
+			if (aprooms == null || aprooms == "")
+			{
+				ReadRooms();
+            }
+            else
+			{
+                var deserializer = new DeserializerBuilder()
+                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                    .Build();
+
+                try
+                {
+                    Rooms = deserializer.Deserialize<List<Room>>(aprooms);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+        }
+
+        public void ReadRooms()
 		{
 
 			string yamlfile = "";

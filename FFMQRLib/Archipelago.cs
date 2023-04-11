@@ -37,6 +37,7 @@ namespace FFMQLib
         public string ItemPlacementYaml { get; set; }
         public string StartingItemsYaml { get; set; }
         public string SetupYaml { get; set; }
+        public string RoomsYaml { get; set; }
         public List<ApObject> ItemPlacement { get; set; }
         public List<Items> StartingItems { get; set; }
         public bool ApEnabled { get; set; }
@@ -50,6 +51,7 @@ namespace FFMQLib
             ItemPlacementYaml = "";
             StartingItemsYaml = "";
             SetupYaml = "";
+            RoomsYaml = "";
             ItemPlacement = new();
             StartingItems = new();
             ApEnabled = false;
@@ -220,7 +222,7 @@ namespace FFMQLib
             Overworld = new(this);
             Teleporters = new(this);
             MapSpriteSets = new(this);
-            GameLogic = new();
+            GameLogic = new(apconfigs.RoomsYaml);
             EntrancesData = new(this);
             TitleScreen titleScreen = new(this);
 
@@ -243,7 +245,7 @@ namespace FFMQLib
             Battlefields.SetBattelfieldRewards(flags.ShuffleBattlefieldRewards, apconfigs.ItemPlacement, rng);
 
             // Locations & Logic
-            GameLogic.CrestShuffle(flags.CrestShuffle && !apconfigs.ApEnabled, rng);
+            //GameLogic.CrestShuffle(flags.CrestShuffle && !apconfigs.ApEnabled, rng);
             //GameLogic.FloorShuffle(flags.MapShuffling, rng);
             //Overworld.ShuffleOverworld(flags, GameLogic, Battlefields, rng);
 
@@ -251,7 +253,7 @@ namespace FFMQLib
 
             GameLogic.CrawlRooms(flags, Overworld, Battlefields);
 
-            EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this, rng);
+            EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this);
             EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
 
             // Items

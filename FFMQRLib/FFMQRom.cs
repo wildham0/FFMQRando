@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.4.16";
+		public static string Version = "1.4.17";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -199,7 +199,7 @@ namespace FFMQLib
 
 			GameLogic.CrawlRooms(flags, Overworld, Battlefields);
 			
-			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this, rng);
+			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this);
 			EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
 			
 			// Items
