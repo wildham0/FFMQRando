@@ -104,7 +104,7 @@ namespace FFMQLib
 		}
 		public void PlaceItems(ItemsPlacement itemsPlacement)
 		{
-			var battlefieldsWithItem = itemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.Battlefield && x.Content != Items.None).ToList();
+			var battlefieldsWithItem = itemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.BattlefieldItem && x.Content != Items.None).ToList();
 
 			foreach (var battlefield in battlefieldsWithItem)
 			{
@@ -138,7 +138,7 @@ namespace FFMQLib
         public void SetBattelfieldRewards(bool enable, List<ApObject> itemsplacement, MT19337 rng)
         {
             List<LocationIds> battlefieldlocations = battlefields.Select(x => x.Location).ToList();
-            var battlefieldPlacement = itemsplacement.Where(x => x.Type == GameObjectType.Battlefield).Select(x => (LocationIds)x.ObjectId).OrderByDescending(x => x).ToList();
+            var battlefieldPlacement = itemsplacement.Where(x => x.Type == GameObjectType.BattlefieldItem).Select(x => (LocationIds)x.ObjectId).OrderByDescending(x => x).ToList();
 			battlefieldlocations = battlefieldlocations.Except(battlefieldPlacement).ToList();
 
 			var itemBattlefields = battlefields.Where(x => x.RewardType == BattlefieldRewardType.Item).ToList();
@@ -159,6 +159,10 @@ namespace FFMQLib
 		{
 			return battlefields.OrderBy(x => x.Location).Select(x => x.RewardType).ToList();
 		}
+        public List<Battlefield> ToList()
+        {
+            return battlefields;
+        }
         public List<LocationIds> BattlefieldsWithItems()
         {
             return battlefields.Where(x => x.RewardType == BattlefieldRewardType.Item).Select(x => x.Location).ToList();

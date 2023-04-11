@@ -18,7 +18,10 @@ namespace FFMQLib
 		Chest = 1,
 		Box,
 		NPC,
-		Battlefield,
+		//Battlefield,
+		BattlefieldItem,
+		BattlefieldXp,
+		BattlefieldGp,
 		Trigger,
 		Companion,
 		Dummy
@@ -351,22 +354,31 @@ namespace FFMQLib
 
 				if (room.Id == 0)
 				{
-					int battlefieldCount = 0;
 
-					foreach (var gamedata in room.GameObjects)
+					Dictionary<BattlefieldRewardType, GameObjectType> battlefieldTypeConverter = new() {
+						{ BattlefieldRewardType.Gold, GameObjectType.BattlefieldGp },
+						{ BattlefieldRewardType.Experience, GameObjectType.BattlefieldXp },
+						{ BattlefieldRewardType.Item, GameObjectType.BattlefieldItem },
+                    };
+
+					room.GameObjects.ForEach(x => x.Type = battlefieldTypeConverter[battlefields.ToList().Find(b => (int)b.Location == x.ObjectId).RewardType]);
+
+					var itemBattlefields = room.GameObjects.Where(x => x.Type == GameObjectType.BattlefieldItem).ToList();
+
+					foreach (var battlefield in itemBattlefields)
 					{
-						var bflocation = overworld.Locations.Find(l => l.LocationId == battlefields.BattlefieldsWithItems()[battlefieldCount]);
+                        var bflocation = overworld.Locations.Find(l => l.LocationId == (LocationIds)battlefield.ObjectId);
 
-						List<List<AccessReqs>> finalAccess = new();
-						var locReq = subRegionsAccess.Where(x => x.Item1 == overworld.Locations.Find(l => l.LocationId == bflocation.LocationId).SubRegion).Select(x => x.Item2).ToList();
-						foreach (var locAccess in locReq)
-						{
-							finalAccess.Add(locAccess);
-						}
+                        List<List<AccessReqs>> finalAccess = new();
+                        var locReq = subRegionsAccess.Where(x => x.Item1 == overworld.Locations.Find(l => l.LocationId == bflocation.LocationId).SubRegion).Select(x => x.Item2).ToList();
 
-						GameObjects.Add(new GameObject(gamedata, bflocation, finalAccess));
-						battlefieldCount++;
-					}
+                        foreach (var locAccess in locReq)
+                        {
+                            finalAccess.Add(locAccess);
+                        }
+
+                        GameObjects.Add(new GameObject(battlefield, bflocation, finalAccess));
+                    }
 				}
 				else
 				{
@@ -492,11 +504,11 @@ namespace FFMQLib
 
 			if (flags.BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Prioritize)
 			{
-				GameObjects.Where(x => x.Type == GameObjectType.Battlefield).ToList().ForEach(x => x.Prioritize = true);
+				GameObjects.Where(x => x.Type == GameObjectType.BattlefieldItem).ToList().ForEach(x => x.Prioritize = true);
 			}
 			else if (flags.BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Exclude)
 			{
-				GameObjects.Where(x => x.Type == GameObjectType.Battlefield).ToList().ForEach(x => x.Exclude = true);
+				GameObjects.Where(x => x.Type == GameObjectType.BattlefieldItem).ToList().ForEach(x => x.Exclude = true);
 			}
 
 			GameObjects.Where(x => x.Type == GameObjectType.Box).ToList().ForEach(x => x.Exclude = false);

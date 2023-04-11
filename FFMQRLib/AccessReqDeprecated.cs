@@ -577,7 +577,7 @@ namespace FFMQLib
 			properties[2].Content = Items.Bomb;
 			properties[3].Content = Items.Elixir;
 			properties[4].Content = Items.CatClaw;
-			properties[5].Content = Items.WakeWater;
+			properties[5].Content = Items.Wakewater;
 			properties[6].Content = Items.JumboBomb;
 			properties[7].Content = Items.VenusKey;
 			properties[8].Content = Items.VenusShield;
@@ -802,7 +802,7 @@ namespace FFMQLib
 		{
 			{ Items.Elixir, new List<AccessReqs> { AccessReqs.Elixir } },
 			{ Items.TreeWither, new List<AccessReqs> { AccessReqs.TreeWither } },
-			{ Items.WakeWater, new List<AccessReqs> { AccessReqs.WakeWater } },
+			{ Items.Wakewater, new List<AccessReqs> { AccessReqs.WakeWater } },
 			{ Items.VenusKey, new List<AccessReqs> { AccessReqs.VenusKey } },
 			{ Items.MultiKey, new List<AccessReqs> { AccessReqs.MultiKey } },
 			{ Items.ThunderRock, new List<AccessReqs> { AccessReqs.ThunderRock } },

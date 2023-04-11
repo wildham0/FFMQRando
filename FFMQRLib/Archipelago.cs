@@ -147,7 +147,7 @@ namespace FFMQLib
                 }
             }
 
-            var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.Battlefield || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20))).ToList();
+            var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.BattlefieldItem || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20))).ToList();
 
             foreach (var location in unfilledLocations)
             {
@@ -225,22 +225,7 @@ namespace FFMQLib
             TitleScreen titleScreen = new(this);
 
             // General modifications
-            ExpandRom();
-            FastMovement();
-            DefaultSettings();
-            RemoveClouds();
-            RemoveStrobing();
-            SmallFixes();
-            BugFixes();
-            NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
-            CompanionRoutines();
-            DummyRoom();
-            PazuzuFixedFloorRng(rng);
-            KeyItemWindow();
-            ArchipelagoSupport();
-
-            // AP Configs
-            //apconfigs.ProcessItems();
+            GeneralModifications(flags, rng);
 
             // Maps Changes
             GameMaps.RandomGiantTreeMessage(rng);

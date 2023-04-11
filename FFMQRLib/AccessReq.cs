@@ -188,7 +188,7 @@ namespace FFMQLib
 		{
 			{ Items.Elixir, new List<AccessReqs> { AccessReqs.Elixir } },
 			{ Items.TreeWither, new List<AccessReqs> { AccessReqs.TreeWither } },
-			{ Items.WakeWater, new List<AccessReqs> { AccessReqs.WakeWater } },
+			{ Items.Wakewater, new List<AccessReqs> { AccessReqs.WakeWater } },
 			{ Items.VenusKey, new List<AccessReqs> { AccessReqs.VenusKey } },
 			{ Items.MultiKey, new List<AccessReqs> { AccessReqs.MultiKey } },
 			{ Items.ThunderRock, new List<AccessReqs> { AccessReqs.ThunderRock } },

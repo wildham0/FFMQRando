@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.4.15";
+		public static string Version = "1.4.16";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -145,8 +145,6 @@ namespace FFMQLib
 		}
 		public void Randomize(Blob seed, Flags flags, Preferences preferences)
 		{
-			flags.FlagSanityCheck();
-
 			MT19337 rng;
 			MT19337 sillyrng;
 			using (SHA256 hasher = SHA256.Create())
@@ -175,22 +173,10 @@ namespace FFMQLib
 			TitleScreen titleScreen = new(this);
 
 			// General modifications
-			ExpandRom();
-			FastMovement();
-			DefaultSettings();
-			RemoveClouds();
-			RemoveStrobing();
-			SmallFixes();
-			BugFixes();
-			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
-			CompanionRoutines();
-			DummyRoom();
-			PazuzuFixedFloorRng(rng);
-			KeyItemWindow();
-			ArchipelagoSupport();
+			GeneralModifications(flags, rng);
 
-			// Maps Changes
-			GameMaps.RandomGiantTreeMessage(rng);
+            // Maps Changes
+            GameMaps.RandomGiantTreeMessage(rng);
 			GameMaps.LessObnoxiousMaps(flags.TweakedDungeons, MapObjects, rng);
 
 			// Enemies

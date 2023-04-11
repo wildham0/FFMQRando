@@ -72,7 +72,7 @@ namespace FFMQLib
 
 
 			List<RegionWeight> regionsWeight = new() { new RegionWeight(MapRegions.Foresta, 1), new RegionWeight(MapRegions.Aquaria, 1), new RegionWeight(MapRegions.Fireburg, 1), new RegionWeight(MapRegions.Windia, 1) };
-			List<GameObjectType> validTypes = new() { GameObjectType.Battlefield, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
+			List<GameObjectType> validTypes = new() { GameObjectType.BattlefieldItem, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
 
 			List<GameObject> initialItemlocations = initialGameObjects.ToList();
 
@@ -256,7 +256,7 @@ namespace FFMQLib
 			// Fill excluded and unfilled locations
 			List<Items> consumables = new() { Items.CurePotion, Items.HealPotion, Items.Refresher, Items.Seed };
 			
-			var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.Battlefield || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20))).ToList();
+			var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.BattlefieldItem || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20))).ToList();
 
 			foreach (var location in unfilledLocations)
 			{
@@ -341,7 +341,7 @@ namespace FFMQLib
 		public string GenerateSpoilers(FFMQRom rom, string version, string hash, string flags, string seed)
 		{
 			List<Items> invalidItems = new() { Items.CurePotion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
-			List<GameObjectType> validType = new() { GameObjectType.Battlefield, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
+			List<GameObjectType> validType = new() { GameObjectType.BattlefieldItem, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
 
 			string spoilers = "";
 
@@ -515,7 +515,7 @@ namespace FFMQLib
 				Items.DragonClaw, // NPC
 				Items.MegaGrenade, //NPC
 				Items.Elixir, // NPC
-				Items.WakeWater, // NPC
+				Items.Wakewater, // NPC
 				Items.LibraCrest,
 				Items.GeminiCrest,
 				Items.MobiusCrest
