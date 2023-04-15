@@ -515,7 +515,7 @@ namespace FFMQLib
 				locationsToUpdate.Add((loc1, loc2));
 			}
 		}
-		public void UpdateOverworld(Flags flags, Battlefields battlefields)
+		public void UpdateOverworld(Flags flags, GameLogic gamelogic, Battlefields battlefields)
 		{
 			
 			List<Location> newLocations = new();

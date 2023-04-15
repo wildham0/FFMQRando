@@ -352,8 +352,10 @@ namespace FFMQLib
 			var logicLinks = entrancesPairs.Select(e => new LogicLink(roomLinks.Find(l => l.l.Entrance == e[0]).Id, roomLinks.Find(l => l.l.Entrance == e[0]).l, roomLinks.Find(l => l.l.Entrance == e[1]).l)).ToList();
 			logicLinks.AddRange(entrancesPairs.Select(e => new LogicLink(roomLinks.Find(l => l.l.Entrance == e[1]).Id, roomLinks.Find(l => l.l.Entrance == e[1]).l, roomLinks.Find(l => l.l.Entrance == e[0]).l)).ToList());
 
-			// Find rooms that have requirements in other rooms to populate forbidden destinations
-			List<int> doomCastleRooms = new() { 195, 196, 197, 198, 199, 200 };
+			var seedLinksLocations = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).Where(l => l.Entrance >= 0).Select(l => (l.Entrance, l.Location)).ToList();
+
+            // Find rooms that have requirements in other rooms to populate forbidden destinations
+            List<int> doomCastleRooms = new() { 195, 196, 197, 198, 199, 200 };
 			var roomTriggers = Rooms.Where(r => !doomCastleRooms.Contains(r.Id)).SelectMany(r => r.GameObjects.Where(o => o.Type == GameObjectType.Trigger).Select(o => (r.Id, o.OnTrigger)).ToList()).ToList();
 			var roomsReq = Rooms.Where(r => !doomCastleRooms.Contains(r.Id)).SelectMany(r => r.Links.Where(l => l.Access.Any()).Select(l => (r.Id, l)).ToList()).ToList();
 			
@@ -422,9 +424,11 @@ namespace FFMQLib
 			int macShipMaxSize = 4;
 
 			// Shuffle our core locations
-			var seedRooms = Rooms.Find(x => x.Id == 0).Links.Select(l => l.TargetRoom).Except(new List<int> { 125 }).ToList();
-			var seedClusterRooms = clusterRooms.Where(x => x.Rooms.Intersect(seedRooms).Any()).ToList();
-			var seedClusterRoomsToShuffle = seedClusterRooms.Where(x => x.Links.Where(l => l.Current.TargetRoom == 0).Any()).ToList();
+			var seedRooms = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).Where(l => l.Entrance >= 0).Select(l => l.TargetRoom).Except(new List<int> { 125 }).ToList();
+			var subRegionRooms = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
+            // var seedRooms = Rooms.Find(x => x.Id == 0).Links.Select(l => l.TargetRoom).Except(new List<int> { 125 }).ToList();
+            var seedClusterRooms = clusterRooms.Where(x => x.Rooms.Intersect(seedRooms).Any()).ToList();
+			var seedClusterRoomsToShuffle = seedClusterRooms.Where(x => x.Links.Where(l => subRegionRooms.Contains(l.Current.TargetRoom)).Any()).ToList();
 			var seedClusterRoomsFixed = seedClusterRooms.Except(seedClusterRoomsToShuffle).ToList();
 			var seedClusterRoomsToShuffleProgress = seedClusterRoomsToShuffle.Where(x => x.Links.Count > 1).ToList();
 			var seedClusterRoomsToShuffleDeadends = seedClusterRoomsToShuffle.Where(x => x.Links.Count == 1).ToList();
@@ -449,10 +453,10 @@ namespace FFMQLib
 				LogicLink overworldLink;
 				LogicLink coreClusterRoomLink;
 
-				if (!room.Links.Where(l => l.Current.TargetRoom == 0).Any())
+				if (!room.Links.Where(l => subRegionRooms.Contains(l.Current.TargetRoom)).Any())
 				{
 					coreClusterRoom = rng.TakeFrom(validSeecClusterRoomsToSwitch);
-					overworldLink = clusterRooms.Find(x => x.Rooms.Contains(0)).Links.Find(x => x.Origin.Entrance == coreClusterRoom.Links.Find(x => x.Current.TargetRoom == 0).Current.Entrance);
+					overworldLink = clusterRooms.Find(x => x.Rooms.Intersect(subRegionRooms).Any()).Links.Find(x => x.Origin.Entrance == coreClusterRoom.Links.Find(x => subRegionRooms.Contains(x.Current.TargetRoom)).Current.Entrance);
 
 					var validLinks = room.Links.Where(x => !x.ForceDeadEnd && !x.EntranceOnly && !x.ForceLinkOrigin && !x.ForceLinkDestination).ToList();
 					coreClusterRoomLink = rng.PickFrom(validLinks);
@@ -461,14 +465,14 @@ namespace FFMQLib
 				else
 				{
 					coreClusterRoom = room;
-					overworldLink = clusterRooms.Find(x => x.Rooms.Contains(0)).Links.Find(x => x.Origin.Entrance == coreClusterRoom.Links.Find(x => x.Current.TargetRoom == 0).Current.Entrance);
+					overworldLink = clusterRooms.Find(x => x.Rooms.Intersect(subRegionRooms).Any()).Links.Find(x => x.Origin.Entrance == coreClusterRoom.Links.Find(x => subRegionRooms.Contains(x.Current.TargetRoom)).Current.Entrance);
 
-					coreClusterRoomLink = room.Links.Find(x => x.Current.TargetRoom == 0);
+					coreClusterRoomLink = room.Links.Find(x => subRegionRooms.Contains(x.Current.TargetRoom));
 					room.Links.Remove(coreClusterRoomLink);
 				}
 
 
-				ConnectLink(overworldLink, coreClusterRoomLink);
+				ConnectOverworldLink(seedLinksLocations.Find(x => x.Entrance == overworldLink.Current.Entrance).Location, overworldLink, coreClusterRoomLink);
 			}
 
 			coreClusterRooms = coreClusterRooms.Concat(seedClusterRoomsFixed).ToList();
@@ -668,8 +672,16 @@ namespace FFMQLib
 			newLinkToProcess.Add((link1.Room, new RoomLink(link2.Room, link1.Current.Entrance, link2.Origin.Teleporter, link1.Current.Access)));
 			newLinkToProcess.Add((link2.Room, new RoomLink(link1.Room, link2.Current.Entrance, link1.Origin.Teleporter, link2.Current.Access)));
 		}
+        private void ConnectOverworldLink(LocationIds location, LogicLink link1, LogicLink link2)
+        {
+            Rooms.Find(r => r.Id == link1.Room).Links.Remove(link1.Current);
+            Rooms.Find(r => r.Id == link2.Room).Links.Remove(link2.Current);
 
-		public void ReadPairs()
+            newLinkToProcess.Add((link1.Room, new RoomLink(link2.Room, link1.Current.Entrance, link2.Origin.Teleporter, location, link1.Current.Access)));
+            newLinkToProcess.Add((link2.Room, new RoomLink(link1.Room, link2.Current.Entrance, link1.Origin.Teleporter, link2.Current.Access)));
+        }
+
+        public void ReadPairs()
 		{
 			string yamlfile = "";
 			var assembly = Assembly.GetExecutingAssembly();
