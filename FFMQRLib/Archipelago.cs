@@ -321,18 +321,21 @@ namespace FFMQLib
 		{
 			PutInBank(0x01, 0x82A9, Blob.FromHex("2200801520b3e920f28222108015ea"));
             PutInBank(0x15, 0x8000, Blob.FromHex("eef7199cf8196b"));
-            PutInBank(0x15, 0x8010, Blob.FromHex("adb019f0016b08e220add00ff013a9018db019a9508dee19a9088def1928a9016b28a9006b"));
+            PutInBank(0x15, 0x8010, Blob.FromHex("adb019f0016b08e220aff01f70f013a9018db019a9508dee19a9088def1928a9016b28a9006b"));
 
             TileScripts.AddScript(0x50, new ScriptBuilder(new List<string>
 			{
-				"0FD00F",
+				"05EDF01F70",
 				"057F",
 				"115F01",
                 "0C600101",
                 "62",
                 "0588D10F",
-                "0CD00F00",
-                "05fd928c8417922bf205e1020c05050f05fc948c842c0021", // Mirror/Mask script
+                "05F1F01F700000",
+                "05fd92[11]",  // Mirror/Mask script
+                "17922bf205e1020c05050f",
+                "05fc94[11]",
+                "c0021",
 				"00"
             }));
         }
