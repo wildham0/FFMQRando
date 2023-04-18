@@ -58,10 +58,6 @@ namespace FFMQLib
 			}
 			else if (RewardType == BattlefieldRewardType.Experience)
 			{
-				var byte1 = (byte)(Value & 0x00FF);
-				var byte2a = ((Value & 0x7F00) / 0x100);
-                var byte2 = (byte)((byte)RewardType | byte2a);
-
                 return new byte[] { (byte)(Value & 0x00FF), (byte)((byte)RewardType | ((Value & 0x7F00) / 0x100)) };
 			}
 			else if (RewardType == BattlefieldRewardType.Gold)
