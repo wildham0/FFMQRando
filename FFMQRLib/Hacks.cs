@@ -298,7 +298,7 @@ namespace FFMQLib
 
             // Set when giving up
             PutInBank(0x11, 0x8B60, Blob.FromHex("0509006a8b050225a00309808B11050245a00300"));
-            PutInBank(0x11, 0x8B80, Blob.FromHex("08e230a9008f49377e286b"));
+            PutInBank(0x11, 0x8B80, Blob.FromHex("08e230a9008f49377e8ff01f70286b"));
             PutInBank(0x03, 0xA020, Blob.FromHex("0502608B11"));
         }
 
