@@ -58,11 +58,11 @@ namespace FFMQLib
 			}
 			else if (RewardType == BattlefieldRewardType.Experience)
 			{
-				return new byte[] { (byte)(Value & 0x00FF), (byte)((byte)RewardType & ((Value & 0x7F00) / 0x100)) };
+                return new byte[] { (byte)(Value & 0x00FF), (byte)((byte)RewardType | ((Value & 0x7F00) / 0x100)) };
 			}
 			else if (RewardType == BattlefieldRewardType.Gold)
 			{
-				return new byte[] { (byte)(Value & 0x00FF), (byte)((byte)RewardType & ((Value & 0x3F00) / 0x100)) };
+				return new byte[] { (byte)(Value & 0x00FF), (byte)((byte)RewardType | ((Value & 0x3F00) / 0x100)) };
 			}
 			else
 			{

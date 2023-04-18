@@ -284,7 +284,7 @@ namespace FFMQLib
         {
 			// Game state byte is at 0x7E3749, initialized at 0, then set to 1 after loading a save or starting a new game, set to 0 if giving up after a battle
 			// Initialize game state byte and rando validation "FFMQR", at 0x7E374A
-			PutInBank(0x11, 0x8B00, Blob.FromHex("08e230a9008f49377ec230a2308Ba04a37a90400547e1128a9008f67367e3a8f68367e6b"));
+			PutInBank(0x11, 0x8B00, Blob.FromHex("08e230a9008f49377e8ff01f70c230a2308Ba04a37a90400547e1128a9008f67367e3a8f68367e6b"));
             PutInBank(0x11, 0x8B30, Blob.FromHex("46464d5152")); // Validation code
             PutInBank(0x00, 0x8009, Blob.FromHex("22008B11eaeaeaeaeaeaea"));
 
@@ -298,7 +298,7 @@ namespace FFMQLib
 
             // Set when giving up
             PutInBank(0x11, 0x8B60, Blob.FromHex("0509006a8b050225a00309808B11050245a00300"));
-            PutInBank(0x11, 0x8B80, Blob.FromHex("08e230a9008f49377e286b"));
+            PutInBank(0x11, 0x8B80, Blob.FromHex("08e230a9008f49377e8ff01f70286b"));
             PutInBank(0x03, 0xA020, Blob.FromHex("0502608B11"));
         }
 
