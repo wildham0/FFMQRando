@@ -50,6 +50,7 @@ finalize_nocount:
  .ORG $9200
 
 KeyItemRoutine
+  PHA
   CMP #$05
   BEQ Mask
   CMP #$06
@@ -57,6 +58,7 @@ KeyItemRoutine
   CMP #$0F
   BEQ SkyFragments
 NormalGiveItem:
+  PLA
   PHD
   PEA #$0EA6
   PLD

@@ -244,7 +244,7 @@ namespace FFMQLib
             var mirrorLocations = itemsPlacement.ItemsLocations.Where(x => x.Content == Items.MagicMirror).ToList();
 
 			// see 11_9200_ChestHacks.asm
-			PutInBank(0x11, 0x9200, Blob.FromHex("c905f013c906f02cc90ff0450bf4a60e2b224e97002b6bad880ec929d0eead910ef0e90bf4d0002ba992224e97002bad9e0080d8ad880ec921d0d1ad910ef0cc0bf4d0002ba992224e97002bad9e0080bbee930e80b66b"));
+			PutInBank(0x11, 0x9200, Blob.FromHex("48c905f014c906f02dc90ff046680bf4a60e2b224e97002b6bad880ec929d0edad910ef0e80bf4d0002ba992224e97002bad9e0080d7ad880ec921d0d0ad910ef0cb0bf4d0002ba992224e97002bad9e0080baee930e80b56b"));
 			PutInBank(0x00, 0xDB82, Blob.FromHex("22009211EAEAEAEAEAEA"));
 
 			// Item action selector (w AP support)
