@@ -37,7 +37,7 @@ namespace FFMQLib
 
 		public async Task<bool> ValidateRom()
 		{
-			using (MD5 hasher = MD5.Create())
+			using (SHA256 hasher = SHA256.Create())
 			{
 				byte[] dataToHash = new byte[0x80000];
 				Array.Copy(Data, dataToHash, 0x80000);
@@ -61,7 +61,7 @@ namespace FFMQLib
 
 				Blob hash = await Task.Run(() => hasher.ComputeHash(dataToHash));
 
-				Console.WriteLine(BitConverter.ToString(hash).Replace("-", ""));
+				// Console.WriteLine(BitConverter.ToString(hash).Replace("-", ""));
 				// if (hash == Blob.FromHex("F71817F55FEBD32FD1DCE617A326A77B6B062DD0D4058ECD289F64AF1B7A1D05")) unadultered hash
 
 				if (hash == Blob.FromHex("92F625478568B1BE262E3F9D62347977CE7EE345E9FF353B4778E8560E16C7CA"))
@@ -76,7 +76,7 @@ namespace FFMQLib
 		}
         public override bool Validate()
         {
-            using (MD5 hasher = MD5.Create())
+            using (SHA256 hasher = SHA256.Create())
             {
                 byte[] dataToHash = new byte[0x80000];
                 Array.Copy(Data, dataToHash, 0x80000);
@@ -100,7 +100,7 @@ namespace FFMQLib
 
                 Blob hash = hasher.ComputeHash(dataToHash);
 
-                Console.WriteLine(BitConverter.ToString(hash).Replace("-", ""));
+                //Console.WriteLine(BitConverter.ToString(hash).Replace("-", ""));
                 // if (hash == Blob.FromHex("F71817F55FEBD32FD1DCE617A326A77B6B062DD0D4058ECD289F64AF1B7A1D05")) unadultered SHA256 hash
 
                 if (hash == Blob.FromHex("92F625478568B1BE262E3F9D62347977CE7EE345E9FF353B4778E8560E16C7CA"))
@@ -124,7 +124,11 @@ namespace FFMQLib
 				return false;
 			}
 		}
-		public Stream DataStream()
+        public void Clear()
+        {
+			Data = null;
+        }
+        public Stream DataStream()
 		{
 			return new MemoryStream(Data);
 		}

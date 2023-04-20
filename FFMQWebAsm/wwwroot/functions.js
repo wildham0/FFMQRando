@@ -26,11 +26,34 @@ function triggerFileDownload(fileName, url) {
 
 async function loadSavedRom() {
     localforage.config();
-    value = await localforage.getItem('SaveRom');
+    value = await localforage.getItem('SavedRom');
     return value;
 }
 
 async function saveSavedRom(romToSave) {
     localforage.config();
-    localforage.setItem('SaveRom', romToSave).then(function (value) { return true; }).catch(function (err) { return false; });
+    localforage.setItem('SavedRom', romToSave).then(function (value) { return true; }).catch(function (err) { return false; });
+}
+
+function hideLoadingBox() {
+    // Get element with the specified ID name
+    var idValue = document.getElementById("loadingbox");
+    // Get element with the specified Class name
+    idValue.style.setProperty("display", "none");
+}
+
+function hideBody() {
+    document.getElementsByClassName("content")[0].style.display = "none";
+}
+
+function showBody() {
+    document.getElementsByClassName("content")[0].style.display = "initial";
+}
+
+function randomLoadingIcon() {
+    var paths = [
+        "mqlogoc.png",
+        "mqlogoe.png",
+    ]
+    document.getElementById('loadingimg').value = "loading/" + paths[Math.floor(Math.random() * paths.length)];
 }

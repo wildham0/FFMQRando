@@ -40,3 +40,25 @@ h3 {
     background-size: contain;
 }
 
+.loading-box {
+    margin: 10% 25% 10% 25%;
+    width: 50%;
+    height: 200px;
+    padding: 1em;
+    background-color: rgba(27,42,81, 0.9);
+    display: block;
+    border: 5px solid white;
+    border-radius: 15px;
+    align-content: center;
+    position: fixed;
+    top: 0px;
+    z-index: 1500;
+    color: rgba(255, 255, 255);
+    text-align: center;
+    vertical-align: middle
+}
+
+body {
+    background: linear-gradient(rgba(27,42,81,1), rgba(85,109,171,1)) no-repeat center fixed;
+    background-size: cover;
+}
