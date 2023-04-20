@@ -14,7 +14,7 @@
 @using Microsoft.AspNetCore.Components
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
-@inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject HttpClient Http
 
 
@@ -26,16 +26,18 @@
     }
 </style>
 
+@if(loadingDone)
+{
 <div class="@(sandboxMode ? "center-logo-sandbox" : "center-logo")">
-    @if (sandboxMode)
-    {
-        <img height=@titleHeight src="logo/logosandbox_hebinx.gif" />
-    }
-    else
-    {
-        <img height=@titleHeight src="@titleLetters[0]" /><img height=@titleHeight src="@titleLetters[1]" /><img height=@titleHeight src="@titleLetters[2]" /><img height=@titleHeight src="@titleLetters[3]" /><img height=@titleHeight src="@titleLetters[4]" /><img height=@titleHeight src="@titleLetters[5]" /><img height=@titleHeight src="logo/mqlogo_.png" /><img height=@titleHeight src="@titleLetters[6]" /><img height=@titleHeight src="@titleLetters[7]" /><img height=@titleHeight src="@titleLetters[8]" /><img height=@titleHeight src="@titleLetters[9]" /><img height=@titleHeight src="@titleLetters[10]" />
-    }
-</div>
+        @if (sandboxMode)
+        {
+            <img height=@titleHeight src="logo/logosandbox_hebinx.gif" />
+        }
+        else
+        {
+            <img height=@titleHeight src="@titleLetters[0]" /><img height=@titleHeight src="@titleLetters[1]" /><img height=@titleHeight src="@titleLetters[2]" /><img height=@titleHeight src="@titleLetters[3]" /><img height=@titleHeight src="@titleLetters[4]" /><img height=@titleHeight src="@titleLetters[5]" /><img height=@titleHeight src="logo/mqlogo_.png" /><img height=@titleHeight src="@titleLetters[6]" /><img height=@titleHeight src="@titleLetters[7]" /><img height=@titleHeight src="@titleLetters[8]" /><img height=@titleHeight src="@titleLetters[9]" /><img height=@titleHeight src="@titleLetters[10]" />
+        }
+    </div>
 <h1 class="text-secondary text-center" style="font-size: 1em">A FFMQ Randomizer<br />@("v" + @FFMQLib.Metadata.Version + (@betaStatus ? "-beta" : "") + (@sandboxMode ? " Sandbox" : ""))</h1>
 
 
@@ -44,30 +46,15 @@
 <PresetsSection Name="Presets" SetPresetAction="@OnPresetAction" SetExportFile="@OnExportYaml"/>
 
 <div><br /></div>
-
-<Container class="sectionBox">
+}
+<Container class="sectionBox" Style=@(loadingDone ? "" : "display: none")>
     <div class="box-title text-secondary">
         Generation       
     </div> 
 
     <Container Class="flagBox">
         <Container Class="flagColumn">
-        @if(!romLoaded)
-        {
-            <Field class="romFlag">
-                <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel> 
-                <FileEdit Filter=".sfc" AutoReset="false" Changed="@LoadFiles"></FileEdit>
-                <FieldHelp>@romMessage</FieldHelp>
-            </Field>
-        }
-        else
-        {
-            <Field class="romFlag">
-                <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel> 
-                <Button Color="Color.Primary" Loading="@isGenerating" Clicked="@OnGenerate" Disabled="@isLoadingRom" class="romBtn">Generate</Button>
-                <FieldHelp>@romMessage</FieldHelp>
-            </Field>
-        }
+            <GenerateButton Flags="flags" Seed="seed" ApConfigs="apConfigs" Preferences="preferences" Beta="@GetBetaStatus()" IsLoadFromMemoryDone="@LoadFromMemoryDone" />
 
             <Fields class="dropFlag">
                 <Field>
@@ -89,29 +76,28 @@
                     <FieldHelp>@flagsMessage</FieldHelp>
                 </Field>
             </Fields>
-
-        @if(romLoaded)
-        {
-            <a href="" @onclick="@UnloadRom" @onclick:preventDefault>Use a different ROM file</a>
-        }
         </Container>
     </Container>
 </Container>
+@if (loadingDone)
+{
 
+    <div id="optionsSection"><br /></div>
+    <h2 class="text-secondary">Customization</h2>
+    <div><br /></div>
 
-<div id="optionsSection"><br /></div>
-<h2 class="text-secondary">Customization</h2>
-<div><br /></div>
+    <Container class="sectionBox">
+        <div class="box-title text-secondary">
+            Items
+            <Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations.<br /><br />When some locations aren't prioritized (either included or excluded), Quest Items may land in brown boxes, in which case these locations will show up as Chests." 
+        Inline
 
-<Container class="sectionBox">
-    <div class="box-title text-secondary">
-        Items
-        <Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations.<br /><br />When some locations aren't prioritized (either included or excluded), Quest Items may land in brown boxes, in which case these locations will show up as Chests." Inline Multiline Placement="TooltipPlacement.Right">
+        Multiline Placement="TooltipPlacement.Right">
             <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small style="font-size: 0.600em"/> 
-        </Tooltip>       
-    </div> 
+            </Tooltip>       
+        </div> 
 
-    <Container Class="flagBox">
+        <Container Class="flagBox">
         <Container Class="flagColumn">
             <EnumFlag UsePreset=usePreset Name="Logic" @bind-Value="flags.LogicOptions" Tooltip="Placement logic sets the rules that will be applied when placing items.<br /><br />Friendly: Required Items to clear a dungeon will never be placed in that dungeon to avoid the need to revisit it. Also, the Magic Mirror and the Mask will always be available before Ice Pyramid and Volcano, respectively. Note: If Dungeons are shuffled, Friendly logic will only ensure the availability of the Mirror and the Mask.<br /><br />Standard: Items are randomly placed and logic merely verifies that they're all accessible. As for Region access, only the Coins are considered.<br /><br />Expert: Same as Standard, but Items Placement logic also includes other routes than Coins: the Crests Teleporters, the Fireburg-Aquaria Lava bridge and the Sealed Temple Exit trick." />
             <EnumFlag UsePreset=usePreset Name="Original Chests" @bind-Value="flags.ChestsShuffle" Tooltip="Original Chests are all the red chests locations in the original game, except the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave, which count as NPCs.<br /><br />If a chest doesn't contain a Quest Item, it will show up as a brown box." />
@@ -121,10 +107,10 @@
         <Container Class="flagColumn">
             <EnumFlag UsePreset=usePreset Name="Sky Coin Mode" @bind-Value="flags.SkyCoinMode" Tooltip="Configure how the Sky Coin is acquired.<br /><br />Standard: The Sky Coin will be found in a chest.<br /><br />Start With: The Sky Coin will be in your inventory at the start of the game.<br /><br />Save the Crystals: The Sky Coin will be acquired once you save all 4 crystals.<br /><br />Shattered: The Sky Coin is split in 40 fragments; you can enter Doom Castle once the required amount is found." />
             @if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
-            { 
-                <EnumFlag UsePreset=usePreset Name="Sky Fragments Quantity" @bind-Value="flags.SkyCoinFragmentsQty" Tooltip="Set the number of Sky Coin Fragments required to enter Doom Castle.<br /><br />Random select one of the 3 previous options at random." />
-            }
-            <BoolFlag UsePreset=usePreset Name="Shuffle Brown Boxes' Content" @bind-Value="flags.ShuffleBoxesContent" Tooltip="If enabled, the content of brown boxes will be shuffled amongst themselves." />
+                {
+                    <EnumFlag UsePreset=usePreset Name="Sky Fragments Quantity" @bind-Value="flags.SkyCoinFragmentsQty" Tooltip="Set the number of Sky Coin Fragments required to enter Doom Castle.<br /><br />Random select one of the 3 previous options at random." />
+                }
+                <BoolFlag UsePreset=usePreset Name="Shuffle Brown Boxes' Content" @bind-Value="flags.ShuffleBoxesContent" Tooltip="If enabled, the content of brown boxes will be shuffled amongst themselves." />
             <BoolFlag UsePreset=usePreset Name="Random Starting Weapon" @bind-Value="flags.RandomStartingWeapon" Tooltip="Replace the usual starting weapon with the Steel Sword, the Axe, the Cat Claw or the Bomb." />
             <BoolFlag UsePreset=usePreset Name="Progressive Gear" @bind-Value="flags.ProgressiveGear" Tooltip="Pieces of gear are always acquired from weakest to strongest in a set.<br/><br/>Eg. you'll always received the Steel Sword first, then the Knight Sword and finally Excalibur, irrespective of the order the chests are opened." />
         </Container>
@@ -194,30 +180,22 @@
 <Information />
 
 <div><br /><br /><br /><br /><br /></div>
-
+}
 @code{
-    //bool IntroPaneVisible = true;
-    //bool FilePaneVisible = false;
-    //bool MainPaneVisible = false;
-    //bool ExtPaneVisible = false;
-
-    private FFMQRom newRom = new();
     private long maxFileSize = 0x80200;
-    private bool isLoadingRom = false;
-    private bool isGenerating = false;
-    private bool romLoaded = false;
+    private bool loadingDone = false;
     private bool usePreset = false;
     private int titleHeight = 80;
     private bool sandboxMode = false;
     private bool betaStatus = false;
 
+
     private Blob seed = new byte[4];
     private string showSeed;
     private Flags flags = new();
     private Preferences preferences = new();
-    private bool generatedRom = false;
+    private ApConfigs apConfigs = new();
     private string seedMessage = "";
-    private string romMessage = "";
     private string flagsMessage = "";
     private List<string> titleLetters = new List<string> { "logo/mqlogoM.png", "logo/mqlogoy.png", "logo/mqlogos.png", "logo/mqlogot.png", "logo/mqlogoi.png", "logo/mqlogoc.png", "logo/mqlogoQ.png", "logo/mqlogou.png", "logo/mqlogoe.png", "logo/mqlogos2.png", "logo/mqlogot2.png" };
     private bool updateFlagString = true;
@@ -226,10 +204,10 @@
     private string yamlPreset = "";
     private string yamlMessage = "";
     private string yamlName = "default";
-    private string savedRom = "";
 
-    [Parameter]
-    public string flagString
+    private byte[] savedRom = new byte[0];
+
+    private string flagString
     {
         get
         {
@@ -277,168 +255,6 @@
         }    
 
         return false;
-    }
-
-    private async Task OnGenerate()
-    {
-        isGenerating = true;
-        StateHasChanged();
-        await Task.Delay(1);
-        await Generate();
-        isGenerating = false;
-    }
-
-    private async Task Generate()
-    {
-        if (newRom.IsEmpty())
-        {
-            romMessage = "No file.";
-            return;
-        }
-
-        if (generatedRom)
-        {
-            newRom.RestoreOriginalData();
-            generatedRom = false;
-        }
-
-        if (!newRom.Validate())
-        {
-            romMessage = "Invalid ROM file.";
-            return;
-        }
-
-        if (GetBetaStatus())
-        {
-            newRom.beta = true;
-        }
-
-        try
-        {
-            newRom.Randomize(seed, flags, preferences);
-
-            romMessage = "ROM file generated successfully.";
-
-            var fs = newRom.DataStream();
-            string fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".sfc";
-
-            using var streamRef = new DotNetStreamReference(stream: fs);
-
-            await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
-
-            if (flags.EnableSpoilers)
-            {
-                var fsSpoilers = newRom.SpoilerStream();
-                var fileNameSpoilers = "FFMQR_Spoilers_" + FFMQLib.Metadata.Version + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".txt";
-
-                using var streamRefSpoilers = new DotNetStreamReference(stream: fsSpoilers);
-
-                await JS.InvokeVoidAsync("downloadFileFromStream", fileNameSpoilers, streamRefSpoilers);
-            }
-        }
-        catch (Exception ex)
-        {
-            romMessage = ex.Message;
-        }
-
-        generatedRom = true;
-    }
-
-    private async Task ErrorDump(string dump)
-    {
-        var errorDump = new MemoryStream(Encoding.UTF8.GetBytes(romMessage));
-        var fileNameSpoilers = "FFMQR_Error_" + FFMQLib.Metadata.Version + "_" + seed.ToHex() + "_" + flags.GenerateFlagString() + ".txt";
-
-        using var streamRefSpoilers = new DotNetStreamReference(stream: errorDump);
-
-        await JS.InvokeVoidAsync("downloadFileFromStream", fileNameSpoilers, streamRefSpoilers);        
-    }
-
-    private async Task LoadFiles(FileChangedEventArgs e)
-    {
-        romMessage = "Loading...";
-        isLoadingRom = true;
-        StateHasChanged();
-        try
-        {
-            await newRom.LoadAsync(e.Files.First().OpenReadStream(maxFileSize));
-            if (!newRom.Validate())
-            {
-                romMessage = "Invalid ROM file.";
-                isLoadingRom = false;
-                return;
-            }
-            else
-            {
-                romMessage = "ROM file loaded succesfully.";
-                isLoadingRom = false;
-                romLoaded = true;
-                newRom.BackupOriginalData();
-                SaveRom();
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
-    }
-
-    private void UnloadRom()
-    {
-        romLoaded = false;
-        savedRom = "";
-        romMessage = "";
-        newRom = new();
-        SaveRom();
-    }
-
-    private void SaveRom()
-    {
-        if (!newRom.IsEmpty())
-        {
-            newRom.RestoreOriginalData();
-            savedRom = Convert.ToBase64String(newRom.DataReadOnly);
-        }
-        else
-        {
-            savedRom = "";
-        }
-
-        localStorage.SetItem("SavedRom", savedRom);
-    }
-
-    public void LoadRom()
-    { 
-        if (savedRom != "")
-        {
-            newRom.Load(Convert.FromBase64String(savedRom));
-            romMessage = "Loading...";
-            isLoadingRom = true;
-            StateHasChanged();
-
-            try
-            {
-                if (!newRom.Validate())
-                {
-                    romMessage = "Invalid ROM file.";
-                    isLoadingRom = false;
-                    romLoaded = false;
-                    return;
-                }
-                else
-                {
-                    romMessage = "ROM file loaded from memory succesfully.";
-                    isLoadingRom = false;
-                    romLoaded = true;
-                    newRom.BackupOriginalData();
-                    StateHasChanged();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
     }
 
     private async Task LoadYamlFromUpload(FileChangedEventArgs e)
@@ -567,7 +383,7 @@
         }
     }
 
-    protected override async void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         sandboxMode = GetSandboxStatus();
         betaStatus = GetBetaStatus();
@@ -601,11 +417,6 @@
             StateHasChanged();
             flagsMessage = "Using default flags (SGL2022).";
         }
-
-
-        localStorage.RemoveItem("RomPath");
-        savedRom = localStorage.GetItem<string>("SavedRom") ?? "";
-        LoadRom();
     }
 
     // Seed Field Functions
@@ -712,5 +523,12 @@
         }
 
         return Task.CompletedTask;
+    }
+
+    void LoadFromMemoryDone(bool result)
+    {
+        loadingDone = true;
+        JS.InvokeVoidAsync("hideLoadingBox");
+        StateHasChanged();
     }
 }

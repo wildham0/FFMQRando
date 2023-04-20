@@ -45,6 +45,7 @@ namespace FFMQLib
         public string Name;
         public string Romname;
         public string Version;
+        public string FileName;
 
         public ApConfigs()
         {
@@ -59,7 +60,7 @@ namespace FFMQLib
             Name = "";
             Romname = "";
             Version = "";
-
+            FileName = "";
         }
         public void ProcessYaml()
         {
@@ -103,6 +104,7 @@ namespace FFMQLib
             Name = inputConfigs.Name;
             Romname = inputConfigs.Romname;
             Version = inputConfigs.Version;
+            FileName = inputConfigs.FileName;
         }
         public byte[] GetRomName()
         {

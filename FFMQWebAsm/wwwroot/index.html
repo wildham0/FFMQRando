@@ -21,8 +21,28 @@
     <link href="_content/Blazorise.Sidebar/blazorise.sidebar.css" rel="stylesheet" />
 </head>
 
+
 <body>
     <div id="app">Loading...</div>
+
+    <div id="loadingbox" class="loading-box fw-bold">
+        Loading...
+        <br />
+        <img alt="Loading..." id="loadingimg" style="border: 30px solid transparent"/>
+    </div>
+    <script type="text/javascript">
+        var paths = [
+            "benjamin.gif",
+            "cloudman.gif",
+            "drummer.gif",
+            "guitarist.gif",
+            "kaeli.gif",
+            "phoebe.gif",
+            "reuben.gif",
+            "tristam.gif",
+        ]
+        document.getElementById('loadingimg').setAttribute("src", "loading/" + paths[Math.floor(Math.random() * paths.length)]);
+    </script>
 
 
     <div id="blazor-error-ui">
@@ -31,6 +51,8 @@
         <a class="dismiss">🗙</a>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
+    <script src="localforage.js"></script>
+    <script>console.log('localforage is: ', localforage);</script>
     <script src="functions.js"></script>
     <script src="sw-registrator.js"></script>
 
