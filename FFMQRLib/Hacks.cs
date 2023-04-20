@@ -8,6 +8,24 @@ namespace FFMQLib
 {
 	public partial class FFMQRom : SnesRom
 	{
+		public void GeneralModifications(Flags flags, MT19337 rng)
+		{
+            ExpandRom();
+            FastMovement();
+            DefaultSettings();
+            RemoveClouds();
+            RemoveStrobing();
+            SmallFixes();
+            BugFixes();
+            CompanionRoutines();
+            DummyRoom();
+            KeyItemWindow();
+            GameStateIndicator();
+            ArchipelagoSupport();
+            NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
+            PazuzuFixedFloorRng(rng);
+        }
+		
 		public void FastMovement()
 		{
 			// walking
@@ -221,31 +239,12 @@ namespace FFMQLib
 			// Insert lut of resetable boxes, 0x20 bytes
 			PutInBank(0x11, 0x8FC0, lutResetBox);
 
-			// Put the Mirror/Mask effect with the give item routine instead, just outright cancel if they're outside their respective dungeons
-			string maskBranch = "ff";
-			string mirrorBranch = "ff";
-			string skyCoinBranch = "ff";
-
+			// Put the Mirror/Mask effect with the give item routine instead
 			var maskLocations = itemsPlacement.ItemsLocations.Where(x => x.Content == Items.Mask).ToList();
             var mirrorLocations = itemsPlacement.ItemsLocations.Where(x => x.Content == Items.MagicMirror).ToList();
 
-            if (maskLocations.Any() && itemsPlacement.ItemsLocations.Find(x => x.Content == Items.Mask).Location == LocationIds.Volcano)
-			{
-				maskBranch = "05";
-			}
-
-			if (mirrorLocations.Any() && itemsPlacement.ItemsLocations.Find(x => x.Content == Items.MagicMirror).Location == LocationIds.IcePyramid)
-			{
-				mirrorBranch = "06";
-			}
-
-			if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
-			{
-				skyCoinBranch = "0F";
-			}
-
 			// see 11_9200_ChestHacks.asm
-			PutInBank(0x11, 0x9200, Blob.FromHex($"C9{maskBranch}F013C9{mirrorBranch}F020C9{skyCoinBranch}F02D0BF4A60E2B224E97002B6B0BF4D0002BA992224E97002BAD9E0080E40BF4D0002BA992224E97002BAD9E0080D3EE930E6B"));
+			PutInBank(0x11, 0x9200, Blob.FromHex("48c905f014c906f02dc90ff046680bf4a60e2b224e97002b6bad880ec929d0edad910ef0e80bf4d0002ba992224e97002bad9e0080d7ad880ec921d0d0ad910ef0cb0bf4d0002ba992224e97002bad9e0080baee930e80b56b"));
 			PutInBank(0x00, 0xDB82, Blob.FromHex("22009211EAEAEAEAEAEA"));
 
 			// Item action selector (w AP support)
@@ -281,7 +280,29 @@ namespace FFMQLib
 			PutInBank(0x0C, 0xA82E, Blob.FromHex(inputseries));
 			PutInBank(0x0C, 0xA8C0, Blob.FromHex("33"));
 		}
-		public void RestoreHillOfDestiny()
+        public void GameStateIndicator()
+        {
+			// Game state byte is at 0x7E3749, initialized at 0, then set to 1 after loading a save or starting a new game, set to 0 if giving up after a battle
+			// Initialize game state byte and rando validation "FFMQR", at 0x7E374A
+			PutInBank(0x11, 0x8B00, Blob.FromHex("08e230a9008f49377e8ff01f70c230a2308Ba04a37a90400547e1128a9008f67367e3a8f68367e6b"));
+            PutInBank(0x11, 0x8B30, Blob.FromHex("46464d5152")); // Validation code
+            PutInBank(0x00, 0x8009, Blob.FromHex("22008B11eaeaeaeaeaeaea"));
+
+            // Set when starting new game
+            PutInBank(0x11, 0x8B40, Blob.FromHex("08e230a9018f49377e285cb8c7006b"));
+            PutInBank(0x00, 0x815F, Blob.FromHex("22408B11"));
+
+            // Set when loading game or restarting a new game
+            PutInBank(0x11, 0x8B50, Blob.FromHex("08e230a9018f49377e282bab286b"));
+            PutInBank(0x00, 0xBD26, Blob.FromHex("5c508B11"));
+
+            // Set when giving up
+            PutInBank(0x11, 0x8B60, Blob.FromHex("0509006a8b050225a00309808B11050245a00300"));
+            PutInBank(0x11, 0x8B80, Blob.FromHex("08e230a9008f49377e8ff01f70286b"));
+            PutInBank(0x03, 0xA020, Blob.FromHex("0502608B11"));
+        }
+
+        public void RestoreHillOfDestiny()
 		{
 			// Maybe one day, tilesets is linked to bone dungeons'
 			//  this map is a mess
@@ -366,7 +387,7 @@ namespace FFMQLib
 			PutInBank(0x11, 0x89C0, Blob.FromHex("08c230ae610ef005ae600e8003aeb11028e0ff6b"));
 			PutInBank(0x11, 0x89E0, Blob.FromHex("22c08911dabf0098040a0a8df700c210686b"));
 		}
-		public void BugFixes()
+			public void BugFixes()
 		{
 			// Fix vendor buy 0 bug
 			PutInBank(0x00, 0xB75B, Blob.FromHex("D0")); // Instead of BPL, BNE to skip 0

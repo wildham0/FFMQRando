@@ -364,7 +364,7 @@ namespace FFMQLib
 		{
 			{ Items.Elixir, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.Elixir:X2}") },
 			{ Items.TreeWither, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.TreeWither:X2}") },
-			{ Items.WakeWater, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.WakeWater:X2}") },
+			{ Items.Wakewater, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.WakeWater:X2}") },
 			{ Items.VenusKey, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.VenusKey:X2}") },
 			{ Items.MultiKey, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.MultiKey:X2}") },
 			{ Items.Mask, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.Mask:X2}") },

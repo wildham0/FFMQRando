@@ -25,6 +25,53 @@ namespace FFMQLib
 		RandomLow,
 
 	}
+	public class Battlefield
+	{ 
+		public LocationIds Location { get; set; }
+		public BattlefieldRewardType RewardType { get; set; }
+		public ushort Value { get; set; }
+
+		public Battlefield(LocationIds location, byte[] rawvalues)
+		{
+			Location = location;
+			RewardType = (BattlefieldRewardType)(rawvalues[1] & 0xC0);
+
+			if (RewardType == BattlefieldRewardType.Item)
+			{
+				Value = rawvalues[0];
+			}
+			else if (RewardType == BattlefieldRewardType.Experience)
+			{
+				Value = (ushort)(rawvalues[0] + (0x100 * (rawvalues[1] & 0x7F)));
+			}
+			else if (RewardType == BattlefieldRewardType.Gold)
+			{
+                Value = (ushort)(rawvalues[0] + (0x100 * (rawvalues[1] & 0x3F)));
+            }
+		}
+
+		public byte[] GetBytes()
+		{
+			if (RewardType == BattlefieldRewardType.Item)
+			{
+				return new byte[] { (byte)(Value & 0x00FF), (byte)RewardType };
+			}
+			else if (RewardType == BattlefieldRewardType.Experience)
+			{
+                return new byte[] { (byte)(Value & 0x00FF), (byte)((byte)RewardType | ((Value & 0x7F00) / 0x100)) };
+			}
+			else if (RewardType == BattlefieldRewardType.Gold)
+			{
+				return new byte[] { (byte)(Value & 0x00FF), (byte)((byte)RewardType | ((Value & 0x3F00) / 0x100)) };
+			}
+			else
+			{
+				return new byte[] { 0x00, 0x00 };
+			}
+		}
+
+
+    }
 	public class Battlefields
 	{
 		private const int BattlefieldsRewardsBank = 0x07;
@@ -35,14 +82,17 @@ namespace FFMQLib
 		private List<byte> _battlesQty;
 		private List<Blob> _rewards;
 
-		public List<LocationIds> BattlefieldsWithItem;
+		//public List<LocationIds> BattlefieldsWithItem;
+		private List<Battlefield> battlefields;
 
 		public Battlefields(FFMQRom rom)
 		{
 			_battlesQty = rom.GetFromBank(0x0C, 0xD4D0, BattlefieldsQty).Chunk(1).Select(x => x[0]).ToList();
 			_rewards = rom.GetFromBank(BattlefieldsRewardsBank, BattlefieldsRewardsOffset, BattlefieldsQty * 2).Chunk(2);
+			battlefields = _rewards.Select((x, i) => new Battlefield((LocationIds)(i + 1), x)).ToList();
 
-			BattlefieldsWithItem = new();
+			/*
+            BattlefieldsWithItem = new();
 
 			for (int i = 0; i < _battlesQty.Count; i++)
 			{
@@ -50,15 +100,15 @@ namespace FFMQLib
 				{
 					BattlefieldsWithItem.Add((LocationIds)(i + 1));
 				}
-			}
+			}*/
 		}
 		public void PlaceItems(ItemsPlacement itemsPlacement)
 		{
-			var battlefieldsWithItem = itemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.Battlefield && x.Content != Items.None).ToList();
+			var battlefieldsWithItem = itemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.BattlefieldItem && x.Content != Items.None).ToList();
 
 			foreach (var battlefield in battlefieldsWithItem)
 			{
-				_rewards[(int)(battlefield.Location - 1)][0] = (byte)battlefield.Content;
+				battlefields.Find(x => x.Location == battlefield.Location).Value = (ushort)battlefield.Content;
 			}
 		}
 		public void ShuffleBattelfieldRewards(bool enable, Overworld overworld, MT19337 rng)
@@ -67,8 +117,13 @@ namespace FFMQLib
 			{
 				return;
 			}
-			
-			_rewards.Shuffle(rng);
+
+			List<LocationIds> battlefieldlocations = battlefields.Select(x => x.Location).ToList();
+
+			battlefields.ForEach(x => x.Location = rng.TakeFrom(battlefieldlocations));
+
+			/*
+            _rewards.Shuffle(rng);
 
 			BattlefieldsWithItem.Clear();
 
@@ -78,34 +133,23 @@ namespace FFMQLib
 				{
 					BattlefieldsWithItem.Add((LocationIds)(i + 1));
 				}
-			}
+			}*/
 		}
         public void SetBattelfieldRewards(bool enable, List<ApObject> itemsplacement, MT19337 rng)
         {
-            BattlefieldsWithItem.Clear();
+            List<LocationIds> battlefieldlocations = battlefields.Select(x => x.Location).ToList();
+            var battlefieldPlacement = itemsplacement.Where(x => x.Type == GameObjectType.BattlefieldItem).Select(x => (LocationIds)x.ObjectId).OrderByDescending(x => x).ToList();
+			battlefieldlocations = battlefieldlocations.Except(battlefieldPlacement).ToList();
 
-            var battlefieldPlacement = itemsplacement.Where(x => x.Type == GameObjectType.Battlefield).Select(x => (int)(x.ObjectId - 1)).OrderByDescending(x => x).ToList();
+			var itemBattlefields = battlefields.Where(x => x.RewardType == BattlefieldRewardType.Item).ToList();
+            var nonItemBattlefields = battlefields.Where(x => x.RewardType != BattlefieldRewardType.Item).ToList();
 
-			List<(int, Blob)> battlefieldPlaced = new();
+			itemBattlefields.ForEach(x => x.Location = rng.TakeFrom(battlefieldPlacement));
 
-			foreach (var battlefield in battlefieldPlacement)
-			{
-                battlefieldPlaced.Add((battlefield, _rewards[battlefield]));
-				_rewards.RemoveAt(battlefield);
-            }
-            
 			if (enable)
-            {
-                _rewards.Shuffle(rng);
-            }
-            
-			battlefieldPlaced = battlefieldPlaced.OrderBy(x => x.Item1).ToList();
-
-            foreach (var battlefield in battlefieldPlaced)
-            {
-                _rewards.Insert(battlefield.Item1, battlefield.Item2);
-                BattlefieldsWithItem.Add((LocationIds)(battlefield.Item1 + 1));
-            }
+			{
+				nonItemBattlefields.ForEach(x => x.Location = rng.TakeFrom(battlefieldlocations));
+			}
         }
         public BattlefieldRewardType GetRewardType(LocationIds targetBattlefield)
 		{
@@ -113,9 +157,17 @@ namespace FFMQLib
 		}
 		public List<BattlefieldRewardType> GetAllRewardType()
 		{
-			return _rewards.Select(x => (BattlefieldRewardType)(x[1] & 0b1100_0000)).ToList();
+			return battlefields.OrderBy(x => x.Location).Select(x => x.RewardType).ToList();
 		}
-		public void SetBattlesQty(BattlesQty battlesqty, MT19337 rng)
+        public List<Battlefield> ToList()
+        {
+            return battlefields;
+        }
+        public List<LocationIds> BattlefieldsWithItems()
+        {
+            return battlefields.Where(x => x.RewardType == BattlefieldRewardType.Item).Select(x => x.Location).ToList();
+        }
+        public void SetBattlesQty(BattlesQty battlesqty, MT19337 rng)
 		{
 			int battleQty = 10;
 			bool randomQty = false;
@@ -140,7 +192,7 @@ namespace FFMQLib
 		public void Write(FFMQRom rom)
 		{
 			rom.PutInBank(0x0C, 0xD4D0, _battlesQty.ToArray());
-			rom.PutInBank(BattlefieldsRewardsBank, BattlefieldsRewardsOffset, _rewards.SelectMany(x => x.ToBytes()).ToArray());
+			rom.PutInBank(BattlefieldsRewardsBank, BattlefieldsRewardsOffset, battlefields.OrderBy(x => x.Location).SelectMany(x => x.GetBytes()).ToArray());
 		}
 	
 	}

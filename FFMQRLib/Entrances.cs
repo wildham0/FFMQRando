@@ -183,7 +183,7 @@ namespace FFMQLib
 				}
 			}
 		}
-		public void UpdateCrests(Flags flags, GameScriptManager tileScripts, GameMaps gameMaps, GameLogic logic, List<Teleporter> teleportersLong, FFMQRom rom, MT19337 rng)
+		public void UpdateCrests(Flags flags, GameScriptManager tileScripts, GameMaps gameMaps, GameLogic logic, List<Teleporter> teleportersLong, FFMQRom rom)
 		{
 			bool keepWintryTemple = (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Dungeons) && !flags.CrestShuffle;
 
@@ -244,7 +244,7 @@ namespace FFMQLib
 				var entranceToUpdate = Entrances.Where(x => x.Id == crest.Entrance).ToList();
 				var updatedLink = flatLinkList.Find(x => x.Entrance == crest.Entrance);
 				var currentLocation = logic.Rooms.Find(x => x.Links.Select(l => l.Entrance).Contains(crest.Entrance)).Location;
-				var targetLocation = logic.Rooms.Find(x => x.Id == logic.CrestRoomLinks.Find(x => x.Teleporter == crest.Script).Room).Location;
+				var targetLocation = logic.Rooms.Find(x => x.Id == updatedLink.TargetRoom).Location;
 				var access = crestAccess.Intersect(updatedLink.Access).ToList().First();
 				var crestItem = crestItemAccess.Find(c => c.Item2 == access).Item1;
 				var newTeleporter = crestsList.Find(x => x.Script == updatedLink.Teleporter).TargetTeleporter;

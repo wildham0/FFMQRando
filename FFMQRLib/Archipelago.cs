@@ -37,6 +37,7 @@ namespace FFMQLib
         public string ItemPlacementYaml { get; set; }
         public string StartingItemsYaml { get; set; }
         public string SetupYaml { get; set; }
+        public string RoomsYaml { get; set; }
         public List<ApObject> ItemPlacement { get; set; }
         public List<Items> StartingItems { get; set; }
         public bool ApEnabled { get; set; }
@@ -51,6 +52,7 @@ namespace FFMQLib
             ItemPlacementYaml = "";
             StartingItemsYaml = "";
             SetupYaml = "";
+            RoomsYaml = "";
             ItemPlacement = new();
             StartingItems = new();
             ApEnabled = false;
@@ -149,7 +151,7 @@ namespace FFMQLib
                 }
             }
 
-            var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.Battlefield || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20))).ToList();
+            var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.BattlefieldItem || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20))).ToList();
 
             foreach (var location in unfilledLocations)
             {
@@ -222,27 +224,12 @@ namespace FFMQLib
             Overworld = new(this);
             Teleporters = new(this);
             MapSpriteSets = new(this);
-            GameLogic = new();
+            GameLogic = new(apconfigs.RoomsYaml);
             EntrancesData = new(this);
             TitleScreen titleScreen = new(this);
 
             // General modifications
-            ExpandRom();
-            FastMovement();
-            DefaultSettings();
-            RemoveClouds();
-            RemoveStrobing();
-            SmallFixes();
-            BugFixes();
-            NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
-            CompanionRoutines();
-            DummyRoom();
-            PazuzuFixedFloorRng(rng);
-            KeyItemWindow();
-            ArchipelagoSupport();
-
-            // AP Configs
-            //apconfigs.ProcessItems();
+            GeneralModifications(flags, rng);
 
             // Maps Changes
             GameMaps.RandomGiantTreeMessage(rng);
@@ -260,7 +247,7 @@ namespace FFMQLib
             Battlefields.SetBattelfieldRewards(flags.ShuffleBattlefieldRewards, apconfigs.ItemPlacement, rng);
 
             // Locations & Logic
-            GameLogic.CrestShuffle(flags.CrestShuffle && !apconfigs.ApEnabled, rng);
+            //GameLogic.CrestShuffle(flags.CrestShuffle && !apconfigs.ApEnabled, rng);
             //GameLogic.FloorShuffle(flags.MapShuffling, rng);
             //Overworld.ShuffleOverworld(flags, GameLogic, Battlefields, rng);
 
@@ -268,13 +255,13 @@ namespace FFMQLib
 
             GameLogic.CrawlRooms(flags, Overworld, Battlefields);
 
-            EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this, rng);
+            EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this);
             EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
 
             // Items
             ItemsPlacement itemsPlacement = new(flags, apconfigs, GameLogic.GameObjects, this, rng);
 
-            SetStartingWeapons(itemsPlacement);
+            SetStartingItems(itemsPlacement);
             MapObjects.UpdateChests(itemsPlacement);
             UpdateScripts(flags, itemsPlacement, Overworld.StartingLocation, rng);
             ChestsHacks(flags, itemsPlacement);
@@ -336,17 +323,21 @@ namespace FFMQLib
 		{
 			PutInBank(0x01, 0x82A9, Blob.FromHex("2200801520b3e920f28222108015ea"));
             PutInBank(0x15, 0x8000, Blob.FromHex("eef7199cf8196b"));
-            PutInBank(0x15, 0x8010, Blob.FromHex("adb019f0016b08e220add00ff013a9018db019a9508dee19a9088def1928a9016b28a9006b"));
+            PutInBank(0x15, 0x8010, Blob.FromHex("adb019f0016b08e220aff01f70f013a9018db019a9508dee19a9088def1928a9016b28a9006b"));
 
             TileScripts.AddScript(0x50, new ScriptBuilder(new List<string>
 			{
-				"0FD00F",
+				"05EDF01F70",
 				"057F",
 				"115F01",
                 "0C600101",
                 "62",
                 "0588D10F",
-                "0CD00F00",
+                "05F1F01F700000",
+                "05fd92[11]",  // Mirror/Mask script
+                "17922bf205e1020c05050f",
+                "05fc94[11]",
+                "2c0021",
 				"00"
             }));
         }

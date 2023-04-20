@@ -43,7 +43,7 @@ namespace FFMQLib
 			else if (flags.SkyCoinMode == SkyCoinModes.StartWith)
 			{
 				// Start With SkyCoin
-				PutInBank(0x0C, 0xD3A3, Blob.FromHex("01"));
+				//PutInBank(0x0C, 0xD3A3, Blob.FromHex("01"));
 			}
 			else if (flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals)
 			{
@@ -102,7 +102,7 @@ namespace FFMQLib
 				PutInBank(0x12, 0xC100, Blob.FromHex("0b0f0ac1115e00058a00115e00058a0f930e052007ef970305210f5f0100"));
 
 				// Start With SkyCoin
-				PutInBank(0x0C, 0xD3A3, Blob.FromHex("01"));
+				//PutInBank(0x0C, 0xD3A3, Blob.FromHex("01"));
 
 				TalkScripts.AddScript(0x06,
 					new ScriptBuilder(new List<string> {

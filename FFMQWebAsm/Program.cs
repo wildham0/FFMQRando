@@ -39,7 +39,7 @@ namespace FFMQWebAsm
             builder.Services.AddSingleton<FFMQRom>();
 
             builder.RootComponents.Add<App>("#app");
-
+            
             builder.Services.AddBlazoredLocalStorage();
 
             var host = builder.Build();

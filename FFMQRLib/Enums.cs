@@ -356,7 +356,7 @@ namespace FFMQLib
 	{
 		Elixir = 0x00,
 		TreeWither = 0x01,
-		WakeWater = 0x02,
+		Wakewater = 0x02,
 		VenusKey = 0x03,
 		MultiKey = 0x04,
 		Mask = 0x05,

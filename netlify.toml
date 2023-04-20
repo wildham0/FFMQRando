@@ -11,3 +11,7 @@
   to = "https://scintillating-tiramisu-75521b.netlify.app/:splat"
   status = 200
   force = true
+[[redirects]]
+  from = "/Archipelago"
+  to = "/index.html"
+  status = 200

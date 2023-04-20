@@ -201,6 +201,13 @@
                             apconfigs.SetupYaml = await streamReader.ReadToEndAsync();
                         }
                     }
+                    else if (file.Name == "rooms.yaml")
+                    {
+                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
+                        {
+                            apconfigs.RoomsYaml = await streamReader.ReadToEndAsync();
+                        }
+                    }
 
                 }
             }

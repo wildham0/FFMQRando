@@ -50,13 +50,15 @@ finalize_nocount:
  .ORG $9200
 
 KeyItemRoutine
-  CMP #$05 ; NOP these parts instead
+  PHA
+  CMP #$05
   BEQ Mask
   CMP #$06
   BEQ Mirror
   CMP #$0F
   BEQ SkyFragments
 NormalGiveItem:
+  PLA
   PHD
   PEA #$0EA6
   PLD
@@ -64,6 +66,11 @@ NormalGiveItem:
   PLD
   RTL
 Mask:
+  LDA $0E88                    ; Check if we're in volcano
+  CMP #$29
+  BNE NormalGiveItem
+  LDA $0E91
+  BEQ NormalGiveItem
   PHD 
   PEA #$00D0
   PLD
@@ -77,6 +84,11 @@ Mask:
   LDA $009E
   BRA NormalGiveItem
 Mirror:
+  LDA $0E88                     ; Check if we're in Ice Pyramid
+  CMP #$21
+  BNE NormalGiveItem
+  LDA $0E91
+  BEQ NormalGiveItem
   PHD 
   PEA #$00D0
   PLD
@@ -87,4 +99,4 @@ Mirror:
   BRA NormalGiveItem
 SkyFragments:
   INC $0E93
-  RTL
+  BRA NormalGiveItem

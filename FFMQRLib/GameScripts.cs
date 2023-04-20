@@ -244,7 +244,7 @@ namespace FFMQLib
 					"1A000A37FF", // Locked...
 					$"2E{(int)NewGameFlagsList.VenusChestUnopened:X2}[06]",
 					"08788600",
-					"2A2827082C80FBFFFF", // need some adjusting
+					"2A2827062C80FBFFFF", // need some adjusting
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.VenusChest]:X2}0062",
 					$"2B{(int)NewGameFlagsList.VenusChestUnopened:X2}",
 					"00"
