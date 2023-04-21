@@ -104,7 +104,6 @@ namespace FFMQLib
             Name = inputConfigs.Name;
             Romname = inputConfigs.Romname;
             Version = inputConfigs.Version;
-            FileName = inputConfigs.FileName;
         }
         public byte[] GetRomName()
         {
