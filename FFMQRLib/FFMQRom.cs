@@ -195,7 +195,7 @@ namespace FFMQLib
 			GameLogic.FloorShuffle(flags.MapShuffling, rng);
 			Overworld.ShuffleOverworld(flags, GameLogic, Battlefields, rng);
 
-			Overworld.UpdateOverworld(flags, Battlefields);
+			Overworld.UpdateOverworld(flags, GameLogic, Battlefields);
 
 			GameLogic.CrawlRooms(flags, Overworld, Battlefields);
 			
