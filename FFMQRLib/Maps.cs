@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using RomUtilities;
+using System.Diagnostics;
 using static System.Math;
 
 namespace FFMQLib
@@ -635,15 +636,15 @@ namespace FFMQLib
                 return Seek(offset + 1, currentposition, searchOffset);
             }
         }
-        public (int, int) SeekInitialization(List<int> validPositions, int offset, int currentposition)
+        public (int, int) SeekInitialization(int offset, int currentposition)
         {
-            // List<int> validPositions = Enumerable.Range(0, 0x100).ToList();
-
             (int, int) bestResult = (0, 0);
 
-            foreach (var position in validPositions)
+			int maxPosition = Math.Min(0x100, currentposition);
+
+            for(int i = 0; i < maxPosition; i++)
             {
-                var result = Seek(offset, currentposition, position);
+                var result = Seek(offset, currentposition, i);
                 if (result.Item2 >= 0x11)
                 {
                     bestResult = result;
@@ -659,8 +660,6 @@ namespace FFMQLib
         }
         public void CompressMap()
 		{
-			List<int> validPositionsTemplate = Enumerable.Range(0, 0x100).ToList();
-
 			int currentposition = 1;
 
 			List<ZipAction> ActionsList = new();
@@ -712,18 +711,7 @@ namespace FFMQLib
 					break;
 				}
 
-				List<int> validPositions;
-
-				if (currentposition > 0x100)
-				{
-					validPositions = new(validPositionsTemplate);
-				}
-				else
-				{
-					validPositions = new(validPositionsTemplate.Where(x => x < currentposition));
-				}
-
-				(int, int) result = SeekInitialization(validPositions, 0, currentposition);
+				(int, int) result = SeekInitialization(0, currentposition);
 
 				if (result.Item2 > 2)
 				{
