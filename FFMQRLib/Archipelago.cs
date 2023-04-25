@@ -317,6 +317,7 @@ namespace FFMQLib
 		{
 			ItemFetcher();
             APItem();
+            NoCantCarry();
         }
 		public void ItemFetcher()
 		{
@@ -371,6 +372,11 @@ namespace FFMQLib
             PutInBank(0x00, 0x850f, Blob.FromHex("eaeaea")); // don't clear the b part of x register
             PutInBank(0x15, 0x8500, Blob.FromHex("08e230a988aef400286b"));
             PutInBank(0x15, 0x8510, Blob.FromHex("08e230a998aef700286b"));
+        }
+
+        public void NoCantCarry()
+        {
+            PutInBank(0x00, 0xDB31, Blob.FromHex("80")); // Always branch when opening a chest, even if quantity is 99
         }
 
 
