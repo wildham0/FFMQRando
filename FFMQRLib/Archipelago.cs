@@ -334,9 +334,9 @@ namespace FFMQLib
                 "0C600101",
                 "62",
                 "09508515",
-                "05fd92[11]",  // Mirror/Mask script
+                "05fd92[10]",  // Mirror/Mask script
                 "17922bf205e1020c05050f",
-                "05fc94[11]",
+                "05fc94[10]",
                 "2c0021",
 				"00"
             }));
