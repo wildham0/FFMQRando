@@ -11,7 +11,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.4.21";
+		public static string Version = "1.4.22";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -267,9 +267,9 @@ namespace FFMQLib
 			ProgressiveFormation(flags.ProgressiveFormations, Overworld, rng);
 			credits.Update();
 
-			// Preferences
-			Msu1SupportRandom(preferences.RandomMusic, sillyrng);
-			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
+            // Preferences			
+            RandomizeTracks(preferences.RandomMusic, sillyrng);
+            RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			WindowPalette(preferences.WindowPalette);
 
             // Write everything back			

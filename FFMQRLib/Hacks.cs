@@ -24,6 +24,7 @@ namespace FFMQLib
             ArchipelagoSupport();
             NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
             PazuzuFixedFloorRng(rng);
+            Msu1Support();
         }
 		
 		public void FastMovement()
@@ -429,10 +430,8 @@ namespace FFMQLib
 			PutInBank(0x00, 0xB8C0, Blob.FromHex("EAEA"));
 			PutInBank(0x00, 0xB852, Blob.FromHex("EAEA"));
 		}
-		public void Msu1SupportRandom(bool randomizesong, MT19337 rng)
+		public void Msu1Support()
 		{
-			var rngback = rng;
-			
 			// see 10_8000_MSUSupport.asm
 			PutInBank(0x0D, 0x8186, Blob.FromHex("5C008010EAEA"));
 			PutInBank(0x0D, 0x81F4, Blob.FromHex("22768010"));
@@ -442,32 +441,37 @@ namespace FFMQLib
 			string loadrandomtrack = "EAEAEA";
 			string saverandomtrack = "EAEAEA";
 
-			if (randomizesong)
-			{
-				loadrandomtrack = "20F080";
-				saverandomtrack = "200281";
-
-				List<byte> tracks = Enumerable.Range(0, 0x1A).Select(x => (byte)x).ToList();
-				List<byte> goodordertracks = Enumerable.Range(0, 0x1B).Select(x => (byte)x).ToList();
-				tracks.Remove(0x00);
-				tracks.Remove(0x04);
-				tracks.Remove(0x15);
-
-				tracks.Shuffle(rng);
-				tracks.Insert(0x00, 0x00);
-				tracks.Insert(0x04, 0x04);
-				tracks.Insert(0x15, 0x15);
-				tracks.Add(0x1A);
-				List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
-
-				PutInBank(0x10, 0x8120, completetracks.OrderBy(x => x.Item1).Select(x => x.Item2).ToArray());
-				PutInBank(0x10, 0x8140, completetracks.OrderBy(x => x.Item2).Select(x => x.Item1).ToArray());
-			}
-
-			rng = rngback;
-			rng.Next();
-
 			PutInBank(0x10, 0x8000, Blob.FromHex($"{loadrandomtrack}A501C505D0045C8A810D20C2809044AFF0FF7FC501D00664015C8A810D9C0620A5018FF0FF7F8D04209C0520A9012C002070F9AD00202908D01DA9FF8D0620A501C915D004A9018005201081A9038D072064015CED810DA9008FF0FF7F5CED810D8D4021C9F0D0079C07205CD9850D5CED850DA6064820C2809009AD00202908D002686BAFF0FF7FF00D68A501201081A9008FF0FF7F6B682012816BA501D01620C280900FAFF0FF7FF0099C41219C024285056BA5018D412185058D02426BAD0220C953D025AD0320C92DD01EAD0420C94DD017AD0520C953D010AD0620C955D009AD0720C931D00238601860DA08E230A501AABF208110291F850128FA60DA08E230AABF408110291F28FA60A501{saverandomtrack}850960"));
 		}
-	}
+        public void RandomizeTracks(bool randomizesong, MT19337 rng)
+        {
+            var rngback = rng;
+
+            if (randomizesong)
+            {
+                List<byte> tracks = Enumerable.Range(0, 0x1A).Select(x => (byte)x).ToList();
+                List<byte> goodordertracks = Enumerable.Range(0, 0x1B).Select(x => (byte)x).ToList();
+                tracks.Remove(0x00);
+                tracks.Remove(0x04);
+                tracks.Remove(0x15);
+
+                tracks.Shuffle(rng);
+                tracks.Insert(0x00, 0x00);
+                tracks.Insert(0x04, 0x04);
+                tracks.Insert(0x15, 0x15);
+                tracks.Add(0x1A);
+                List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
+
+                PutInBank(0x10, 0x8240, completetracks.OrderBy(x => x.Item1).Select(x => x.Item2).ToArray());
+                PutInBank(0x00, 0x928A, Blob.FromHex("22008210eaeaeaea")); // normal track loading routine
+                PutInBank(0x10, 0x8200, Blob.FromHex("aabf4082108d0106a6018e02066b"));
+                PutInBank(0x02, 0xDAC3, Blob.FromHex("22108210ea")); // battle track loading routine
+                PutInBank(0x10, 0x8210, Blob.FromHex("08e230aabf4082108d0b05a908286b"));
+                //PutInBank(0x10, 0x8140, completetracks.OrderBy(x => x.Item2).Select(x => x.Item1).ToArray());
+            }
+
+            rng = rngback;
+            rng.Next();
+        }
+    }
 }

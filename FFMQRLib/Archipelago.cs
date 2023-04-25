@@ -279,7 +279,7 @@ namespace FFMQLib
             credits.Update();
 
             // Preferences
-            Msu1SupportRandom(preferences.RandomMusic, sillyrng);
+            RandomizeTracks(preferences.RandomMusic, sillyrng);
             RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
             WindowPalette(preferences.WindowPalette);
 
