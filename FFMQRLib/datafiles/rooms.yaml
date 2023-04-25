@@ -1682,7 +1682,7 @@
 - name: Fireburg Vendor House
   id: 80
   game_objects:
-  - name: "Fireburg Vendor Girl"
+  - name: "Fireburg - Vendor"
     object_id: 11
     type: "NPC"
     access: []
