@@ -291,9 +291,11 @@ namespace FFMQLib
 			MapSpriteSets.Write(this);
 			titleScreen.Write(this, Metadata.Version, seed, flags);
 
+            SpriteReader test = new SpriteReader();
+			test.Encode(this);
 
-			// Spoilers
-			spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
+            // Spoilers
+            spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
 			spoilers = flags.EnableSpoilers;
 			
 			// Remove header if any
