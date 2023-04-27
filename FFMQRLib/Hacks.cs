@@ -295,7 +295,7 @@ namespace FFMQLib
 
             // Set when loading game or restarting a new game
             PutInBank(0x11, 0x8B90, Blob.FromHex("08c230add10f8ff11f70e230a9018f49377e282bab286b"));
-            PutInBank(0x00, 0xBD26, Blob.FromHex("5c508B11"));
+            PutInBank(0x00, 0xBD26, Blob.FromHex("5c908B11"));
 
             // Set when giving up
             PutInBank(0x11, 0x8B60, Blob.FromHex("0509006a8b050225a00309808B11050245a00300"));
