@@ -304,7 +304,7 @@ namespace FFMQLib
 
 
             // Spoilers
-            spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), apconfigs.Seed);
+            spoilersText = itemsPlacement.GenerateSpoilers(flags, titleScreen.versionText, titleScreen.hashText, apconfigs.Seed);
             spoilers = flags.EnableSpoilers;
 
             PutInBank(0x00, 0xFFC0, apconfigs.GetRomName());

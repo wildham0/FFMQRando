@@ -293,8 +293,8 @@ namespace FFMQLib
 
 
 			// Spoilers
-			spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
-			spoilers = flags.EnableSpoilers;
+			spoilersText = itemsPlacement.GenerateSpoilers(flags, titleScreen.versionText, titleScreen.hashText, seed.ToHex());
+            spoilers = flags.EnableSpoilers;
 			
 			// Remove header if any
 			this.Header = Array.Empty<byte>();
