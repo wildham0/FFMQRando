@@ -8,6 +8,7 @@
 - name: Subregion Foresta
   id: 220
   type: "Subregion"
+  region: "Foresta"
   game_objects: []
   links:
   - target_room: 262
@@ -35,6 +36,7 @@
 - name: Subregion Aquaria
   id: 221
   type: "Subregion"
+  region: "Aquaria"
   game_objects: []
   links:
   - target_room: 267
@@ -72,6 +74,7 @@
 - name: Subregion Life Temple
   id: 222
   type: "Subregion"
+  region: "LifeTemple"
   game_objects: []
   links:
   - target_room: 271
@@ -79,6 +82,7 @@
 - name: Subregion Frozen Fields
   id: 223
   type: "Subregion"
+  region: "AquariaFrozenField"
   game_objects: []
   links:
   - target_room: 275
@@ -96,6 +100,7 @@
 - name: Subregion Fireburg
   id: 224
   type: "Subregion"
+  region: "Fireburg"
   game_objects: []
   links:
   - target_room: 277
@@ -133,6 +138,7 @@
 - name: Subregion Volcano Battlefield
   id: 225
   type: "Subregion"
+  region: "VolcanoBattlefield"
   game_objects: []
   links:
   - target_room: 258
@@ -144,6 +150,7 @@
 - name: Subregion Windia
   id: 226
   type: "Subregion"
+  region: "Windia"
   game_objects: []
   links:
   - target_room: 283
@@ -179,6 +186,7 @@
 - name: Subregion Spencer's Cave
   id: 227
   type: "Subregion"
+  region: "SpencerCave"
   game_objects: []
   links:
   - target_room: 274
@@ -188,6 +196,7 @@
 - name: Subregion Ship Dock
   id: 228
   type: "Subregion"
+  region: "ShipDock"
   game_objects: []
   links:
   - target_room: 292
@@ -197,6 +206,7 @@
 - name: Subregion Mac's Ship
   id: 229
   type: "Subregion"
+  region: "MacShip"
   game_objects: []
   links:
   - target_room: 295
@@ -208,6 +218,7 @@
 - name: Subregion Light Temple
   id: 230
   type: "Subregion"
+  region: "LightTemple"
   game_objects: []
   links:
   - target_room: 294
@@ -215,6 +226,7 @@
 - name: Subregion Doom Castle
   id: 231
   type: "Subregion"
+  region: "DoomCastle"
   game_objects: []
   links:
   - target_room: 293
@@ -226,30 +238,31 @@
 - name: Level Forest
   id: 262
   type: "Location"
+  location: "LevelForest"
   game_objects: []
   links:
   - target_room: 220 # To Foresta Subregion
     access: []
   - target_room: 15  # Level Forest
     entrance: 445
-    location: "LevelForest"
     teleporter: [0x2E, 8]
     access: [] 
 - name: Foresta
   id: 263
   type: "Location"
+  location: "Foresta"
   game_objects: []
   links:
   - target_room: 220 # To Foresta Subregion
     access: []
   - target_room: 16  # Foresta
     entrance: 446
-    location: "Foresta"
     teleporter: [0x02, 1]
     access: []
 - name: Foresta South Battlefield
   id: 241
   type: "Location"
+  location: "ForestaSouthBattlefield"
   game_objects:
   - name: "Foresta South Battlefield"
     object_id: 0x01
@@ -261,18 +274,19 @@
 - name: Sand Temple
   id: 264
   type: "Location"
+  location: "SandTemple"
   game_objects: []
   links:
   - target_room: 220 # To Foresta Subregion
     access: []
   - target_room: 24  # Sand Temple
     entrance: 447
-    location: "SandTemple"
     teleporter: [0x03, 1]
     access: []
 - name: Foresta West Battlefield
   id: 242
   type: "Location"
+  location: "ForestaWestBattlefield"
   game_objects:
   - name: "Foresta West Battlefield"
     object_id: 0x02
@@ -284,6 +298,7 @@
 - name: Foresta East Battlefield
   id: 243
   type: "Location"
+  location: "ForestaEastBattlefield"
   game_objects:
   - name: "Foresta East Battlefield"
     object_id: 0x03
@@ -295,30 +310,31 @@
 - name: Bone Dungeon
   id: 265
   type: "Location"
+  location: "BoneDungeon"
   game_objects: []
   links:
   - target_room: 220 # To Foresta Subregion
     access: []
   - target_room: 25  # Bone Dungeon
     entrance: 448
-    location: "BoneDungeon"
     teleporter: [0x04, 1]
     access: []
 - name: Focus Tower Foresta
   id: 266
   type: "Location"
+  location: "FocusTowerForesta"
   game_objects: []
   links:
   - target_room: 220 # To Foresta Subregion
     access: []
   - target_room: 3   # Focus Tower Foresta
     entrance: 449
-    location: "FocusTowerForesta"
     teleporter: [0x05, 1]
     access: []
 - name: Focus Tower Aquaria
   id: 267
   type: "Location"
+  location: "FocusTowerAquaria"
   game_objects: []
   links:
   - target_room: 221 # To Aquaria Subregion
@@ -330,6 +346,7 @@
 - name: South of Libra Temple Battlefield
   id: 244
   type: "Location"
+  location: "AquariaBattlefield01"
   game_objects:
   - name: "South of Libra Temple Battlefield"
     object_id: 0x04
@@ -341,6 +358,7 @@
 - name: Libra Temple
   id: 268
   type: "Location"
+  location: "LibraTemple"
   game_objects: []
   links:
   - target_room: 221 # To Aquaria Subregion
@@ -352,6 +370,7 @@
 - name: East of Libra Temple Battlefield
   id: 245
   type: "Location"
+  location: "AquariaBattlefield02"
   game_objects:
   - name: "East of Libra Temple Battlefield"
     object_id: 0x05
@@ -363,6 +382,7 @@
 - name: South of Aquaria Battlefield
   id: 246
   type: "Location"
+  location: "AquariaBattlefield03"
   game_objects:
   - name: "South of Aquaria Battlefield"
     object_id: 0x06
@@ -374,6 +394,7 @@
 - name: Aquaria
   id: 269
   type: "Location"
+  location: "Aquaria"
   game_objects: []
   links:
   - target_room: 221 # To Aquaria Subregion
@@ -385,6 +406,7 @@
 - name: South of Wintry Cave Battlefield
   id: 247
   type: "Location"
+  location: "WintryBattlefield01"
   game_objects:
   - name: "South of Wintry Cave Battlefield"
     object_id: 0x07
@@ -396,6 +418,7 @@
 - name: Wintry Cave
   id: 270
   type: "Location"
+  location: "WintryCave"
   game_objects: []
   links:
   - target_room: 221 # To Aquaria Subregion
@@ -407,6 +430,7 @@
 - name: West of Wintry Cave Battlefield
   id: 248
   type: "Location"
+  location: "WintryBattlefield02"
   game_objects:
   - name: "West of Wintry Cave Battlefield"
     object_id: 0x08
@@ -418,6 +442,7 @@
 - name: Fall Basin
   id: 272
   type: "Location"
+  location: "FallsBasin"
   game_objects: []
   links:
   - target_room: 221 # To Aquaria Subregion
@@ -429,6 +454,7 @@
 - name: Ice Pyramid Battlefield
   id: 249
   type: "Location"
+  location: "PyramidBattlefield01"
   game_objects:
   - name: "Ice Pyramid Battlefield"
     object_id: 0x09
@@ -440,6 +466,7 @@
 - name: Ice Pyramid
   id: 273
   type: "Location"
+  location: "IcePyramid"
   game_objects: []
   links:
   - target_room: 221 # To Aquaria Subregion
@@ -451,6 +478,7 @@
 - name: Life Temple
   id: 271
   type: "Location"
+  location: "LifeTemple"
   game_objects: []
   links:
   - target_room: 222 # To Life Temple Subregion
@@ -462,6 +490,7 @@
 - name: North of Libra Temple Battlefield
   id: 250
   type: "Location"
+  location: "LibraBattlefield01"
   game_objects:
   - name: "North of Libra Temple Battlefield"
     object_id: 0x0A
@@ -473,6 +502,7 @@
 - name: Aquaria Frozen Field Battlefield
   id: 251
   type: "Location"
+  location: "LibraBattlefield02"
   game_objects:
   - name: "Aquaria Frozen Field Battlefield"
     object_id: 0x0B
@@ -484,6 +514,7 @@
 - name: Wintry Temple
   id: 275
   type: "Location"
+  location: "WintryTemple"
   game_objects: []
   links:
   - target_room: 223 # To Frozen Field
@@ -495,6 +526,7 @@
 - name: Focus Tower Frozen Field
   id: 276
   type: "Location"
+  location: "FocusTowerFrozen"
   game_objects: []
   links:
   - target_room: 223 # To Frozen Field
@@ -506,6 +538,7 @@
 - name: Focus Tower Fireburg
   id: 277
   type: "Location"
+  location: "FocusTowerFireburg"
   game_objects: []
   links:
   - target_room: 224 # To Fireburg Subregion
@@ -517,6 +550,7 @@
 - name: Path to Fireburg Southern Battlefield
   id: 252
   type: "Location"
+  location: "FireburgBattlefield01"
   game_objects:
   - name: "Path to Fireburg Southern Battlefield"
     object_id: 0x0C
@@ -528,6 +562,7 @@
 - name: Path to Fireburg Central Battlefield
   id: 253
   type: "Location"
+  location: "FireburgBattlefield02"
   game_objects:
   - name: "Path to Fireburg Central Battlefield"
     object_id: 0x0D
@@ -539,6 +574,7 @@
 - name: Path to Fireburg Northern Battlefield
   id: 254
   type: "Location"
+  location: "FireburgBattlefield03"
   game_objects:
   - name: "Path to Fireburg Northern Battlefield"
     object_id: 0x0E
@@ -550,6 +586,7 @@
 - name: Fireburg
   id: 278
   type: "Location"
+  location: "Fireburg"
   game_objects: []
   links:
   - target_room: 224 # To Fireburg Subregion
@@ -561,6 +598,7 @@
 - name: Sealed Temple Battlefield
   id: 255
   type: "Location"
+  location: "MineBattlefield01"
   game_objects:
   - name: "Sealed Temple Battlefield"
     object_id: 0x0F
@@ -572,6 +610,7 @@
 - name: Mine Battlefield
   id: 256
   type: "Location"
+  location: "MineBattlefield02"
   game_objects:
   - name: "Mine Battlefield"
     object_id: 0x10
@@ -583,6 +622,7 @@
 - name: Mine
   id: 279
   type: "Location"
+  location: "Mine"
   game_objects: []
   links:
   - target_room: 224 # To Fireburg Subregion
@@ -594,6 +634,7 @@
 - name: Sealed Temple
   id: 280
   type: "Location"
+  location: "SealedTemple"
   game_objects: []
   links:
   - target_room: 224 # To Fireburg Subregion
@@ -605,6 +646,7 @@
 - name: Mine Battlefield
   id: 257
   type: "Location"
+  location: "MineBattlefield03"
   game_objects:
   - name: "Boulder Battlefield"
     object_id: 0x11
@@ -616,6 +658,7 @@
 - name: Volcano
   id: 281
   type: "Location"
+  location: "Volcano"
   game_objects: []
   links:
   - target_room: 224 # To Fireburg Subregion
@@ -627,6 +670,7 @@
 - name: Lava Dome
   id: 282
   type: "Location"
+  location: "LavaDome"
   game_objects: []
   links:
   - target_room: 224 # To Fireburg Subregion
@@ -638,6 +682,7 @@
 - name: Volcano Battlefield
   id: 258
   type: "Location"
+  location: "VolcanoBattlefield01"
   game_objects:
   - name: "Volcano Battlefield"
     object_id: 0x12
@@ -649,6 +694,7 @@
 - name: Focus Tower Windia
   id: 283
   type: "Location"
+  location: "FocusTowerWindia"
   game_objects: []
   links:
   - target_room: 226 # To Windia Subregion
@@ -660,6 +706,7 @@
 - name: Rope Bridge
   id: 284
   type: "Location"
+  location: "RopeBridge"
   game_objects: []
   links:
   - target_room: 226 # To Windia Subregion
@@ -671,6 +718,7 @@
 - name: Alive Forest
   id: 285
   type: "Location"
+  location: "AliveForest"
   game_objects: []
   links:
   - target_room: 226 # To Windia Subregion
@@ -682,6 +730,7 @@
 - name: Giant Tree
   id: 286
   type: "Location"
+  location: "GiantTree"
   game_objects: []
   links:
   - target_room: 226 # To Windia Subregion
@@ -693,6 +742,7 @@
 - name: Kaidge Temple
   id: 287
   type: "Location"
+  location: "KaidgeTemple"
   game_objects: []
   links:
   - target_room: 226 # To Windia Subregion
@@ -704,6 +754,7 @@
 - name: Kaidge Temple Battlefield
   id: 259
   type: "Location"
+  location: "WindiaBattlefield01"
   game_objects:
   - name: "Kaidge Temple Battlefield"
     object_id: 0x13
@@ -712,9 +763,10 @@
   links:
   - target_room: 226 # To Windia Subregion
     access: []
-- name: Kaidge Temple Battlefield
+- name: South of Windia Battlefield
   id: 260
   type: "Location"
+  location: "WindiaBattlefield02"
   game_objects:
   - name: "South of Windia Battlefield"
     object_id: 0x14
@@ -726,6 +778,7 @@
 - name: Windia
   id: 288
   type: "Location"
+  location: "Windia"
   game_objects: []
   links:
   - target_room: 226 # To Windia Subregion
@@ -737,6 +790,7 @@
 - name: Windhole Temple
   id: 289
   type: "Location"
+  location: "WindholeTemple"
   game_objects: []
   links:
   - target_room: 226 # To Windia Subregion
@@ -748,6 +802,7 @@
 - name: Mount Gale
   id: 290
   type: "Location"
+  location: "MountGale"
   game_objects: []
   links:
   - target_room: 226 # To Windia Subregion
@@ -759,6 +814,7 @@
 - name: Pazuzu Tower
   id: 291
   type: "Location"
+  location: "PazuzusTower"
   game_objects: []
   links:
   - target_room: 226 # To Windia Subregion
@@ -770,6 +826,7 @@
 - name: Ship Dock
   id: 292
   type: "Location"
+  location: "ShipDock"
   game_objects: []
   links:
   - target_room: 228 # To Ship Dock Subregion
@@ -781,6 +838,7 @@
 - name: Spencer's Place
   id: 274
   type: "Location"
+  location: "SpencersPlace"
   game_objects: []
   links:
   - target_room: 227 # To Spencer Subregion
@@ -792,6 +850,7 @@
 - name: Mac's Ship
   id: 295
   type: "Location"
+  location: "MacsShip"
   game_objects: []
   links:
   - target_room: 229 # To Mac Ship Subregion
@@ -803,6 +862,7 @@
 - name: Light Temple
   id: 294
   type: "Location"
+  location: "LightTemple"
   game_objects: []
   links:
   - target_room: 230 # To Light Temple Subregion
@@ -814,6 +874,7 @@
 - name: Doom Castle
   id: 293
   type: "Location"
+  location: "DoomCastle"
   game_objects: []
   links:
   - target_room: 231 # To Doom Castle Subregion
@@ -825,6 +886,7 @@
 - name: Mac Ship Doom
   id: 296
   type: "Location"
+  location: "MacsShipDoom"
   game_objects: []
   links:
   - target_room: 231 # To Doom Castle Subregion
