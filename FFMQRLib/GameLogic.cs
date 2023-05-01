@@ -83,8 +83,6 @@ namespace FFMQLib
     }
 	public class GameObject : GameObjectData
 	{
-		//public GameObjectData Data { get; set; }
-		//public LocationIds Location { get; set; }
 		public MapRegions Region { get; set; }
 		public SubRegions SubRegion { get; set; }
 		public Items Content { get; set; }
