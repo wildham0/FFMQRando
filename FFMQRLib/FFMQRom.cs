@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 
 namespace FFMQLib
@@ -34,7 +35,7 @@ namespace FFMQLib
 		public bool spoilers = false;
 		public string spoilersText;
 
-		public override bool Validate()
+		public async Task<bool> ValidateRom()
 		{
 			using (SHA256 hasher = SHA256.Create())
 			{
@@ -58,9 +59,9 @@ namespace FFMQLib
 					dataToHash[i] = 0;
 				}
 
-				Blob hash = hasher.ComputeHash(dataToHash);
+				Blob hash = await Task.Run(() => hasher.ComputeHash(dataToHash));
 
-				//Console.WriteLine(BitConverter.ToString(hash).Replace("-", ""));
+				// Console.WriteLine(BitConverter.ToString(hash).Replace("-", ""));
 				// if (hash == Blob.FromHex("F71817F55FEBD32FD1DCE617A326A77B6B062DD0D4058ECD289F64AF1B7A1D05")) unadultered hash
 
 				if (hash == Blob.FromHex("92F625478568B1BE262E3F9D62347977CE7EE345E9FF353B4778E8560E16C7CA"))
@@ -73,7 +74,46 @@ namespace FFMQLib
 				}
 			}
 		}
-		public bool IsEmpty()
+        public override bool Validate()
+        {
+            using (SHA256 hasher = SHA256.Create())
+            {
+                byte[] dataToHash = new byte[0x80000];
+                Array.Copy(Data, dataToHash, 0x80000);
+
+                // zero out benjamin's sprites
+                for (int i = 0x21A20; i < (0x24A20 + 0x180 * 1); i++)
+                {
+                    dataToHash[i] = 0;
+                }
+
+                for (int i = 0x24A20; i < (0x24A20 + 0x180 * 5); i++)
+                {
+                    dataToHash[i] = 0;
+                }
+
+                // benjamin's palette
+                for (int i = 0x3D826; i < (0x3D826 + 0x0E); i++)
+                {
+                    dataToHash[i] = 0;
+                }
+
+                Blob hash = hasher.ComputeHash(dataToHash);
+
+                //Console.WriteLine(BitConverter.ToString(hash).Replace("-", ""));
+                // if (hash == Blob.FromHex("F71817F55FEBD32FD1DCE617A326A77B6B062DD0D4058ECD289F64AF1B7A1D05")) unadultered SHA256 hash
+
+                if (hash == Blob.FromHex("92F625478568B1BE262E3F9D62347977CE7EE345E9FF353B4778E8560E16C7CA"))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        public bool IsEmpty()
 		{
 			if (Data == null)
 			{
@@ -84,7 +124,11 @@ namespace FFMQLib
 				return false;
 			}
 		}
-		public Stream DataStream()
+        public void Clear()
+        {
+			Data = null;
+        }
+        public Stream DataStream()
 		{
 			return new MemoryStream(Data);
 		}
@@ -223,9 +267,9 @@ namespace FFMQLib
 			ProgressiveFormation(flags.ProgressiveFormations, Overworld, rng);
 			credits.Update();
 
-			// Preferences
-			Msu1SupportRandom(preferences.RandomMusic, sillyrng);
-			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
+            // Preferences			
+            RandomizeTracks(preferences.RandomMusic, sillyrng);
+            RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			WindowPalette(preferences.WindowPalette);
 
             // Write everything back			
@@ -249,8 +293,8 @@ namespace FFMQLib
 
 
 			// Spoilers
-			spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), seed.ToHex());
-			spoilers = flags.EnableSpoilers;
+			spoilersText = itemsPlacement.GenerateSpoilers(flags, titleScreen.versionText, titleScreen.hashText, seed.ToHex());
+            spoilers = flags.EnableSpoilers;
 			
 			// Remove header if any
 			this.Header = Array.Empty<byte>();

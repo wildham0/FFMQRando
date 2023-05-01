@@ -24,6 +24,7 @@ namespace FFMQLib
             ArchipelagoSupport();
             NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
             PazuzuFixedFloorRng(rng);
+            Msu1Support();
         }
 		
 		public void FastMovement()
@@ -244,7 +245,7 @@ namespace FFMQLib
             var mirrorLocations = itemsPlacement.ItemsLocations.Where(x => x.Content == Items.MagicMirror).ToList();
 
 			// see 11_9200_ChestHacks.asm
-			PutInBank(0x11, 0x9200, Blob.FromHex("c905f013c906f02cc90ff0450bf4a60e2b224e97002b6bad880ec929d0eead910ef0e90bf4d0002ba992224e97002bad9e0080d8ad880ec921d0d1ad910ef0cc0bf4d0002ba992224e97002bad9e0080bbee930e80b66b"));
+			PutInBank(0x11, 0x9200, Blob.FromHex("48c905f014c906f02dc90ff046680bf4a60e2b224e97002b6bad880ec929d0edad910ef0e80bf4d0002ba992224e97002bad9e0080d7ad880ec921d0d0ad910ef0cb0bf4d0002ba992224e97002bad9e0080baee930e80b56b"));
 			PutInBank(0x00, 0xDB82, Blob.FromHex("22009211EAEAEAEAEAEA"));
 
 			// Item action selector (w AP support)
@@ -284,7 +285,7 @@ namespace FFMQLib
         {
 			// Game state byte is at 0x7E3749, initialized at 0, then set to 1 after loading a save or starting a new game, set to 0 if giving up after a battle
 			// Initialize game state byte and rando validation "FFMQR", at 0x7E374A
-			PutInBank(0x11, 0x8B00, Blob.FromHex("08e230a9008f49377ec230a2308Ba04a37a90400547e1128a9008f67367e3a8f68367e6b"));
+			PutInBank(0x11, 0x8B00, Blob.FromHex("08e230a9008f49377e8ff01f708ff11f708ff21f70c230a2308ba04a37a90400547e1128a9008f67367e3a8f68367e6b"));
             PutInBank(0x11, 0x8B30, Blob.FromHex("46464d5152")); // Validation code
             PutInBank(0x00, 0x8009, Blob.FromHex("22008B11eaeaeaeaeaeaea"));
 
@@ -293,12 +294,12 @@ namespace FFMQLib
             PutInBank(0x00, 0x815F, Blob.FromHex("22408B11"));
 
             // Set when loading game or restarting a new game
-            PutInBank(0x11, 0x8B50, Blob.FromHex("08e230a9018f49377e282bab286b"));
-            PutInBank(0x00, 0xBD26, Blob.FromHex("5c508B11"));
+            PutInBank(0x11, 0x8B90, Blob.FromHex("08e230af49377ed011c230add10f8ff11f70e230a9018f49377e282bab286b"));
+            PutInBank(0x00, 0xBD26, Blob.FromHex("5c908B11"));
 
             // Set when giving up
             PutInBank(0x11, 0x8B60, Blob.FromHex("0509006a8b050225a00309808B11050245a00300"));
-            PutInBank(0x11, 0x8B80, Blob.FromHex("08e230a9008f49377e286b"));
+            PutInBank(0x11, 0x8B80, Blob.FromHex("08e230a9008f49377e8ff01f70286b"));
             PutInBank(0x03, 0xA020, Blob.FromHex("0502608B11"));
         }
 
@@ -429,10 +430,8 @@ namespace FFMQLib
 			PutInBank(0x00, 0xB8C0, Blob.FromHex("EAEA"));
 			PutInBank(0x00, 0xB852, Blob.FromHex("EAEA"));
 		}
-		public void Msu1SupportRandom(bool randomizesong, MT19337 rng)
+		public void Msu1Support()
 		{
-			var rngback = rng;
-			
 			// see 10_8000_MSUSupport.asm
 			PutInBank(0x0D, 0x8186, Blob.FromHex("5C008010EAEA"));
 			PutInBank(0x0D, 0x81F4, Blob.FromHex("22768010"));
@@ -442,32 +441,37 @@ namespace FFMQLib
 			string loadrandomtrack = "EAEAEA";
 			string saverandomtrack = "EAEAEA";
 
-			if (randomizesong)
-			{
-				loadrandomtrack = "20F080";
-				saverandomtrack = "200281";
-
-				List<byte> tracks = Enumerable.Range(0, 0x1A).Select(x => (byte)x).ToList();
-				List<byte> goodordertracks = Enumerable.Range(0, 0x1B).Select(x => (byte)x).ToList();
-				tracks.Remove(0x00);
-				tracks.Remove(0x04);
-				tracks.Remove(0x15);
-
-				tracks.Shuffle(rng);
-				tracks.Insert(0x00, 0x00);
-				tracks.Insert(0x04, 0x04);
-				tracks.Insert(0x15, 0x15);
-				tracks.Add(0x1A);
-				List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
-
-				PutInBank(0x10, 0x8120, completetracks.OrderBy(x => x.Item1).Select(x => x.Item2).ToArray());
-				PutInBank(0x10, 0x8140, completetracks.OrderBy(x => x.Item2).Select(x => x.Item1).ToArray());
-			}
-
-			rng = rngback;
-			rng.Next();
-
 			PutInBank(0x10, 0x8000, Blob.FromHex($"{loadrandomtrack}A501C505D0045C8A810D20C2809044AFF0FF7FC501D00664015C8A810D9C0620A5018FF0FF7F8D04209C0520A9012C002070F9AD00202908D01DA9FF8D0620A501C915D004A9018005201081A9038D072064015CED810DA9008FF0FF7F5CED810D8D4021C9F0D0079C07205CD9850D5CED850DA6064820C2809009AD00202908D002686BAFF0FF7FF00D68A501201081A9008FF0FF7F6B682012816BA501D01620C280900FAFF0FF7FF0099C41219C024285056BA5018D412185058D02426BAD0220C953D025AD0320C92DD01EAD0420C94DD017AD0520C953D010AD0620C955D009AD0720C931D00238601860DA08E230A501AABF208110291F850128FA60DA08E230AABF408110291F28FA60A501{saverandomtrack}850960"));
 		}
-	}
+        public void RandomizeTracks(bool randomizesong, MT19337 rng)
+        {
+            var rngback = rng;
+
+            if (randomizesong)
+            {
+                List<byte> tracks = Enumerable.Range(0, 0x1A).Select(x => (byte)x).ToList();
+                List<byte> goodordertracks = Enumerable.Range(0, 0x1B).Select(x => (byte)x).ToList();
+                tracks.Remove(0x00);
+                tracks.Remove(0x04);
+                tracks.Remove(0x15);
+
+                tracks.Shuffle(rng);
+                tracks.Insert(0x00, 0x00);
+                tracks.Insert(0x04, 0x04);
+                tracks.Insert(0x15, 0x15);
+                tracks.Add(0x1A);
+                List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
+
+                PutInBank(0x10, 0x8240, completetracks.OrderBy(x => x.Item1).Select(x => x.Item2).ToArray());
+                PutInBank(0x00, 0x928A, Blob.FromHex("22008210eaeaeaea")); // normal track loading routine
+                PutInBank(0x10, 0x8200, Blob.FromHex("aabf4082108d0106a6018e02066b"));
+                PutInBank(0x02, 0xDAC3, Blob.FromHex("22108210ea")); // battle track loading routine
+                PutInBank(0x10, 0x8210, Blob.FromHex("08e230aabf4082108d0b05a908286b"));
+                //PutInBank(0x10, 0x8140, completetracks.OrderBy(x => x.Item2).Select(x => x.Item1).ToArray());
+            }
+
+            rng = rngback;
+            rng.Next();
+        }
+    }
 }

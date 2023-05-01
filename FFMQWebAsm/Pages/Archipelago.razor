@@ -26,16 +26,18 @@
     }
 </style>
 
-<div class="@(sandboxMode ? "center-logo-sandbox" : "center-logo")">
-    @if (sandboxMode)
-    {
-        <img height=@titleHeight src="logo/logosandbox_hebinx.gif" />
-    }
-    else
-    {
-        <img height=@titleHeight src="@titleLetters[0]" /><img height=@titleHeight src="@titleLetters[1]" /><img height=@titleHeight src="@titleLetters[2]" /><img height=@titleHeight src="@titleLetters[3]" /><img height=@titleHeight src="@titleLetters[4]" /><img height=@titleHeight src="@titleLetters[5]" /><img height=@titleHeight src="logo/mqlogo_.png" /><img height=@titleHeight src="@titleLetters[6]" /><img height=@titleHeight src="@titleLetters[7]" /><img height=@titleHeight src="@titleLetters[8]" /><img height=@titleHeight src="@titleLetters[9]" /><img height=@titleHeight src="@titleLetters[10]" />
-    }
-</div>
+@if (loadingDone)
+{
+    <div class="@(sandboxMode ? "center-logo-sandbox" : "center-logo")">
+        @if (sandboxMode)
+        {
+            <img height=@titleHeight src="logo/logosandbox_hebinx.gif" />
+        }
+        else
+        {
+            <img height=@titleHeight src="@titleLetters[0]" /><img height=@titleHeight src="@titleLetters[1]" /><img height=@titleHeight src="@titleLetters[2]" /><img height=@titleHeight src="@titleLetters[3]" /><img height=@titleHeight src="@titleLetters[4]" /><img height=@titleHeight src="@titleLetters[5]" /><img height=@titleHeight src="logo/mqlogo_.png" /><img height=@titleHeight src="@titleLetters[6]" /><img height=@titleHeight src="@titleLetters[7]" /><img height=@titleHeight src="@titleLetters[8]" /><img height=@titleHeight src="@titleLetters[9]" /><img height=@titleHeight src="@titleLetters[10]" />
+        }
+    </div>
 <h1 class="text-secondary text-center" style="font-size: 1em">A FFMQ Randomizer<br />@("v" + @FFMQLib.Metadata.Version + (@betaStatus ? "-beta" : "") + (@sandboxMode ? " Sandbox" : ""))</h1>
 
 <div><br /></div>
@@ -48,35 +50,15 @@
 </Container>
 
 <div><br /></div>
-
-<Container class="sectionBox">
+}
+<Container class="sectionBox" Style=@(loadingDone ? "" : "display: none")>
     <div class="box-title text-secondary">
         Generation       
     </div> 
 
     <Container Class="flagBox">
         <Container Class="flagColumn">
-        @if(!romLoaded)
-        {
-            <Field class="romFlag">
-                <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel> 
-                <FileEdit Filter=".sfc" AutoReset="false" Changed="@LoadFiles"></FileEdit>
-                <FieldHelp>@romMessage</FieldHelp>
-            </Field>
-        }
-        else
-        {
-            <Field class="romFlag">
-                <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel> 
-                <Button Color="Color.Primary" Loading="@isGenerating" Clicked="@OnGenerate" Disabled="@isLoadingRom" class="romBtn">Generate</Button>
-                <FieldHelp>@romMessage</FieldHelp>
-            </Field>
-        }
-
-        @if(romLoaded)
-        {
-            <a href="" @onclick="@UnloadRom" @onclick:preventDefault>Use a different ROM file</a>
-        }
+            <GenerateButton Flags="flags" ApConfigs="apconfigs" Seed="seed" Preferences="preferences" Beta="@GetBetaStatus()" IsLoadFromMemoryDone="@LoadFromMemoryDone" />
         </Container>
         <Container Class="flagColumn">
             <Field Class="dropFlag">
@@ -90,38 +72,31 @@
     </Container>
 </Container>
 
-<div><br /></div>
+@if (loadingDone)
+{
+    <div><br /></div>
 
 <PreferencesSection preferences="@preferences" />
 
 <div><br /><br /><br /><br /><br /></div>
+}
 
-                    @code{
-
-    private FFMQRom newRom = new();
+@code{
     private long maxFileSize = 0x80200;
-    private bool isLoadingRom = false;
-    private bool isGenerating = false;
-    private bool romLoaded = false;
-    private bool usePreset = false;
+    private bool loadingDone = false;
     private int titleHeight = 80;
     private bool sandboxMode = false;
     private bool betaStatus = false;
-    private string apFilename = "";
 
     private Flags flags = new();
     private Preferences preferences = new();
     private ApConfigs apconfigs = new();
-    private bool generatedRom = false;
-    private string seedMessage = "";
-    private string romMessage = "";
-    private string flagsMessage = "";
+    private Blob seed = new byte[4];
     private List<string> titleLetters = new List<string> { "logo/mqlogoM.png", "logo/mqlogoy.png", "logo/mqlogos.png", "logo/mqlogot.png", "logo/mqlogoi.png", "logo/mqlogoc.png", "logo/mqlogoQap.png", "logo/mqlogou.png", "logo/mqlogoe.png", "logo/mqlogos2.png", "logo/mqlogot2.png" };
 
     private string yamlPreset = "";
     private string yamlMessage = "";
     private string yamlName = "default";
-    private string savedRom = "";
 
     private bool GetBetaStatus()
     {
@@ -137,6 +112,7 @@
         return false;
     }
 
+
     private bool GetSandboxStatus()
     {
         var uri = new Uri(NavigationManager.Uri);
@@ -150,158 +126,6 @@
         }    
 
         return false;
-    }
-
-    private async Task OnGenerate()
-    {
-        isGenerating = true;
-        StateHasChanged();
-        await Task.Delay(1);
-        await Generate();
-        isGenerating = false;
-    }
-
-    private async Task Generate()
-    {
-        if (newRom.IsEmpty())
-        {
-            romMessage = "No file.";
-            return;
-        }
-
-        if (generatedRom)
-        {
-            newRom.RestoreOriginalData();
-            generatedRom = false;
-        }
-
-        if (!newRom.Validate())
-        {
-            romMessage = "Invalid ROM file.";
-            return;
-        }
-
-        if (GetBetaStatus())
-        {
-            newRom.beta = true;
-        }
-
-        try
-        {
-            newRom.GenerateFromApConfig(apconfigs, flags, preferences);
-
-            romMessage = "Archipelago ROM file generated successfully.";
-
-            var fs = newRom.DataStream();
-            string fileName = apFilename + ".sfc";
-
-            using var streamRef = new DotNetStreamReference(stream: fs);
-
-            await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
-
-            if (flags.EnableSpoilers)
-            {
-                var fsSpoilers = newRom.SpoilerStream();
-                var fileNameSpoilers = apFilename + "_Spoilers" + ".txt";
-
-                using var streamRefSpoilers = new DotNetStreamReference(stream: fsSpoilers);
-
-                await JS.InvokeVoidAsync("downloadFileFromStream", fileNameSpoilers, streamRefSpoilers);
-            }
-        }
-        catch (Exception ex)
-        {
-            romMessage = ex.Message;
-        }
-
-        generatedRom = true;
-    }
-
-    private async Task LoadFiles(FileChangedEventArgs e)
-    {
-        romMessage = "Loading...";
-        isLoadingRom = true;
-        StateHasChanged();
-        try
-        {
-            await newRom.LoadAsync(e.Files.First().OpenReadStream(maxFileSize));
-            if (!newRom.Validate())
-            {
-                romMessage = "Invalid ROM file.";
-                isLoadingRom = false;
-                return;
-            }
-            else
-            {
-                romMessage = "ROM file loaded succesfully.";
-                isLoadingRom = false;
-                romLoaded = true;
-                newRom.BackupOriginalData();
-                SaveRom();
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
-    }
-
-    private void UnloadRom()
-    {
-        romLoaded = false;
-        savedRom = "";
-        romMessage = "";
-        newRom = new();
-        SaveRom();
-    }
-
-    private void SaveRom()
-    {
-        if (!newRom.IsEmpty())
-        {
-            newRom.RestoreOriginalData();
-            savedRom = Convert.ToBase64String(newRom.DataReadOnly);
-        }
-        else
-        {
-            savedRom = "";
-        }
-
-        localStorage.SetItem("SavedRom", savedRom);
-    }
-
-    public void LoadRom()
-    { 
-        if (savedRom != "")
-        {
-            newRom.Load(Convert.FromBase64String(savedRom));
-            romMessage = "Loading...";
-            isLoadingRom = true;
-            StateHasChanged();
-
-            try
-            {
-                if (!newRom.Validate())
-                {
-                    romMessage = "Invalid ROM file.";
-                    isLoadingRom = false;
-                    romLoaded = false;
-                    return;
-                }
-                else
-                {
-                    romMessage = "ROM file loaded from memory succesfully.";
-                    isLoadingRom = false;
-                    romLoaded = true;
-                    newRom.BackupOriginalData();
-                    StateHasChanged();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
     }
 
     private async Task LoadYamlFromUpload(FileChangedEventArgs e)
@@ -329,7 +153,6 @@
             }
 
             yamlName = flags.ReadYaml(yamlPreset, apconfigs.GetSeed());
-            flagsMessage = "Preset loaded succesfully.";
         }
         catch (Exception ex)
         {
@@ -345,7 +168,7 @@
             MemoryStream memZip = new();
 
             await e.Files.First().WriteToStreamAsync(memZip);
-            apFilename = e.Files.First().Name.Split('.')[0];
+            apconfigs.FileName = e.Files.First().Name.Split('.')[0];
             using (ZipArchive configContainer = new ZipArchive(memZip))
             {
                 foreach (var file in configContainer.Entries)
@@ -366,8 +189,6 @@
                     }
                     else if (file.Name == "flagset.yaml")
                     {
-
-
                         using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
                         {
                             await LoadYamlFromStreamReader(streamReader);
@@ -404,7 +225,7 @@
 
     }
 
-    protected override async void OnInitialized()
+    protected override void OnInitialized()
     {
         sandboxMode = GetSandboxStatus();
         betaStatus = GetBetaStatus();
@@ -412,10 +233,13 @@
         {
             titleHeight = 240;
         }
+    }
 
-        localStorage.RemoveItem("RomPath");
-        savedRom = localStorage.GetItem<string>("SavedRom") ?? "";
-        LoadRom();
+    void LoadFromMemoryDone(bool result)
+    {
+        loadingDone = true;
+        JS.InvokeVoidAsync("hideLoadingBox");
+        StateHasChanged();
     }
 
 }

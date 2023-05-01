@@ -181,7 +181,7 @@ namespace FFMQLib
 		{
 			InternalWrite(rom);
 		}
-        public  void InternalWrite(FFMQRom rom)
+        public void InternalWrite(FFMQRom rom)
 		{
 			ushort offset = (ushort)(PointersPosition + (PointersQty * 2));
 			ushort expansionoffset = (ushort)(expansionOffset + ((expansionQty - PointersQty) * 2));

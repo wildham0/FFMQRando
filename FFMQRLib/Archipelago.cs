@@ -45,6 +45,7 @@ namespace FFMQLib
         public string Name;
         public string Romname;
         public string Version;
+        public string FileName;
 
         public ApConfigs()
         {
@@ -59,7 +60,7 @@ namespace FFMQLib
             Name = "";
             Romname = "";
             Version = "";
-
+            FileName = "";
         }
         public void ProcessYaml()
         {
@@ -278,7 +279,7 @@ namespace FFMQLib
             credits.Update();
 
             // Preferences
-            Msu1SupportRandom(preferences.RandomMusic, sillyrng);
+            RandomizeTracks(preferences.RandomMusic, sillyrng);
             RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
             WindowPalette(preferences.WindowPalette);
 
@@ -303,7 +304,7 @@ namespace FFMQLib
 
 
             // Spoilers
-            spoilersText = itemsPlacement.GenerateSpoilers(this, titleScreen.versionText, titleScreen.hashText, flags.GenerateFlagString(), apconfigs.Seed);
+            spoilersText = itemsPlacement.GenerateSpoilers(flags, titleScreen.versionText, titleScreen.hashText, apconfigs.Seed);
             spoilers = flags.EnableSpoilers;
 
             PutInBank(0x00, 0xFFC0, apconfigs.GetRomName());
@@ -316,23 +317,27 @@ namespace FFMQLib
 		{
 			ItemFetcher();
             APItem();
+            NoCantCarry();
         }
 		public void ItemFetcher()
 		{
 			PutInBank(0x01, 0x82A9, Blob.FromHex("2200801520b3e920f28222108015ea"));
             PutInBank(0x15, 0x8000, Blob.FromHex("eef7199cf8196b"));
-            PutInBank(0x15, 0x8010, Blob.FromHex("adb019f0016b08e220add00ff013a9018db019a9508dee19a9088def1928a9016b28a9006b"));
+            PutInBank(0x15, 0x8010, Blob.FromHex("adb019f0016b08e220aff01f70f013a9018db019a9508dee19a9088def1928a9016b28a9006b"));
+            PutInBank(0x15, 0x8550, Blob.FromHex("08c230aff11f708dd10fe230a9008ff01f70286b"));
 
             TileScripts.AddScript(0x50, new ScriptBuilder(new List<string>
 			{
-				"0FD00F",
+				"05EDF01F70",
 				"057F",
 				"115F01",
                 "0C600101",
                 "62",
-                "0588D10F",
-                "0CD00F00",
-                "05fd928c8417922bf205e1020c05050f05fc948c842c0021", // Mirror/Mask script
+                "09508515",
+                "05fd92[10]",  // Mirror/Mask script
+                "17922bf205e1020c05050f",
+                "05fc94[10]",
+                "2c0021",
 				"00"
             }));
         }
@@ -367,6 +372,11 @@ namespace FFMQLib
             PutInBank(0x00, 0x850f, Blob.FromHex("eaeaea")); // don't clear the b part of x register
             PutInBank(0x15, 0x8500, Blob.FromHex("08e230a988aef400286b"));
             PutInBank(0x15, 0x8510, Blob.FromHex("08e230a998aef700286b"));
+        }
+
+        public void NoCantCarry()
+        {
+            PutInBank(0x00, 0xDB31, Blob.FromHex("80")); // Always branch when opening a chest, even if quantity is 99
         }
 
 

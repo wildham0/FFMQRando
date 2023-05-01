@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using RomUtilities;
+using System.Diagnostics;
 using static System.Math;
 
 namespace FFMQLib
@@ -619,38 +620,46 @@ namespace FFMQLib
 				}
 			}
 		}
-		public (int, int) Seek(List<int> validPositions, int offset, int currentposition)
+		public (int, int) Seek(int offset, int currentposition, int searchOffset)
 		{
-			int bestCandidate = validPositions.First();
+            if (offset >= 0x11 || currentposition + offset >= _mapUncompressed.Count)
+            {
+                return (searchOffset, offset);
+            }
 
-			if (offset >= 0x11 || currentposition + offset >= _mapUncompressed.Count)
-			{
-				return (bestCandidate, offset);
-			}
+            if (_mapUncompressed[currentposition - searchOffset - 1 + offset] != _mapUncompressed[currentposition + offset])
+            {
+                return (searchOffset, offset);
+            }
+            else
+            {
+                return Seek(offset + 1, currentposition, searchOffset);
+            }
+        }
+        public (int, int) SeekInitialization(int offset, int currentposition)
+        {
+            (int, int) bestResult = (0, 0);
 
-			List<int> tempPositions = new(validPositions);
+			int maxPosition = Math.Min(0x100, currentposition);
 
-			foreach (int position in tempPositions)
-			{
-				if (_mapUncompressed[currentposition - position - 1 + offset] != _mapUncompressed[currentposition + offset])
-				{
-					validPositions.Remove(position);
-				}
-			}
+            for(int i = 0; i < maxPosition; i++)
+            {
+                var result = Seek(offset, currentposition, i);
+                if (result.Item2 >= 0x11)
+                {
+                    bestResult = result;
+                    break;
+                }
+                else if (result.Item2 > bestResult.Item2)
+                {
+                    bestResult = result;
+                }
+            }
 
-			if (validPositions.Any())
-			{
-				return Seek(validPositions, offset + 1, currentposition);
-			}
-			else
-			{
-				return (bestCandidate, offset);
-			}
-		}
-		public void CompressMap()
+            return bestResult;
+        }
+        public void CompressMap()
 		{
-			List<int> validPositionsTemplate = Enumerable.Range(0, 0x100).ToList();
-
 			int currentposition = 1;
 
 			List<ZipAction> ActionsList = new();
@@ -702,18 +711,7 @@ namespace FFMQLib
 					break;
 				}
 
-				List<int> validPositions;
-
-				if (currentposition > 0x100)
-				{
-					validPositions = new(validPositionsTemplate);
-				}
-				else
-				{
-					validPositions = new(validPositionsTemplate.Where(x => x < currentposition));
-				}
-
-				(int, int) result = Seek(validPositions, 0, currentposition);
+				(int, int) result = SeekInitialization(0, currentposition);
 
 				if (result.Item2 > 2)
 				{
