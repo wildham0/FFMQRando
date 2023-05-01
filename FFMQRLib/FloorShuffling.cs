@@ -352,7 +352,7 @@ namespace FFMQLib
 			var logicLinks = entrancesPairs.Select(e => new LogicLink(roomLinks.Find(l => l.l.Entrance == e[0]).Id, roomLinks.Find(l => l.l.Entrance == e[0]).l, roomLinks.Find(l => l.l.Entrance == e[1]).l)).ToList();
 			logicLinks.AddRange(entrancesPairs.Select(e => new LogicLink(roomLinks.Find(l => l.l.Entrance == e[1]).Id, roomLinks.Find(l => l.l.Entrance == e[1]).l, roomLinks.Find(l => l.l.Entrance == e[0]).l)).ToList());
 
-			var seedLinksLocations = Rooms.Where(r => r.Type == RoomType.Location).SelectMany(r => r.Links.Where(l => l.Entrance >= 0).Select(l => (l.Entrance, r.Location))).ToList();
+			var seedLinksLocations = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links.Where(l => l.Entrance >= 0).Select(l => (l.Entrance, l.Location))).ToList();
 
             // Find rooms that have requirements in other rooms to populate forbidden destinations
             List<int> doomCastleRooms = new() { 195, 196, 197, 198, 199, 200 };
@@ -424,8 +424,8 @@ namespace FFMQLib
 			int macShipMaxSize = 4;
 
 			// Shuffle our core locations
-			var seedRooms = Rooms.Where(r => r.Type == RoomType.Location).SelectMany(r => r.Links).Where(l => l.Entrance >= 0).Select(l => l.TargetRoom).Except(new List<int> { 125 }).ToList();
-			var subRegionRooms = Rooms.Where(r => r.Type == RoomType.Location).Select(r => r.Id).ToList();
+			var seedRooms = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).Where(l => l.Entrance >= 0).Select(l => l.TargetRoom).Except(new List<int> { 125 }).ToList();
+			var subRegionRooms = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
             // var seedRooms = Rooms.Find(x => x.Id == 0).Links.Select(l => l.TargetRoom).Except(new List<int> { 125 }).ToList();
             var seedClusterRooms = clusterRooms.Where(x => x.Rooms.Intersect(seedRooms).Any()).ToList();
 			var seedClusterRoomsToShuffle = seedClusterRooms.Where(x => x.Links.Where(l => subRegionRooms.Contains(l.Current.TargetRoom)).Any()).ToList();

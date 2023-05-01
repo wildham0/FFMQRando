@@ -79,45 +79,12 @@ namespace FFMQLib
     {
         public LocationIds Origins { get; set; }
         public LocationIds Destination { get; set; }
-        public RoomLink Link { get; set; }
-        public GameObjectData Object { get; set; }
-        public MovableLocationType Type { get; set; }
-        public int RoomId { get => (int)Destination + 240; }
-        public MovableLocation()
-        {
-            Origins = LocationIds.None;
-            Destination = LocationIds.None;
-            Link = new();
-			Object = new();
-			Type = MovableLocationType.Battlefield;
-        }
-        public MovableLocation(LocationIds location, RoomLink link)
-        {
-            Origins = location;
-			Destination = location;
-            Link = new RoomLink(link);
-            Object = new();
-            Type = MovableLocationType.Dungeon;
-        }
-        public MovableLocation(LocationIds location, GameObjectData gameobject)
-        {
-            Origins = location;
-            Destination = location;
-            Link = new();
-            Object = new GameObjectData(gameobject);
-            Type = MovableLocationType.Battlefield;
-        }
-    }
-    public class MovableLocation2
-    {
-        public LocationIds Origins { get; set; }
-        public LocationIds Destination { get; set; }
 		public SubRegions Region { get; set; }
         public RoomLink Link { get; set; }
         public GameObjectData Object { get; set; }
         public MovableLocationType Type { get; set; }
         public int Room { get; set; }
-        public MovableLocation2()
+        public MovableLocation()
         {
             Origins = LocationIds.None;
             Destination = LocationIds.None;
@@ -125,7 +92,7 @@ namespace FFMQLib
             Object = new();
             Type = MovableLocationType.Battlefield;
         }
-        public MovableLocation2(SubRegions region, LocationIds location, int room, RoomLink link)
+        public MovableLocation(SubRegions region, LocationIds location, int room, RoomLink link)
         {
             Origins = location;
             Destination = location;
@@ -142,7 +109,7 @@ namespace FFMQLib
             Room = room;
             Type = MovableLocationType.Dungeon;
         }
-        public MovableLocation2(SubRegions region, LocationIds location, int room, GameObjectData objectdata)
+        public MovableLocation(SubRegions region, LocationIds location, int room, GameObjectData objectdata)
         {
             Origins = location;
             Destination = location;
@@ -159,8 +126,6 @@ namespace FFMQLib
 
 		private List<byte> ShipWestSteps = new();
 		private List<byte> ShipEastSteps = new();
-
-		private List<(LocationIds, LocationIds)> locationsToUpdate;
 
 		private const int OWMovementBank = 0x07;
 		private const int OWMovementArrows = 0xEE84;
@@ -185,7 +150,6 @@ namespace FFMQLib
 			var exitCoords = rom.GetFromBank(OWExitCoordBank, OWExitCoordOffset, (OwNodesQty + 1) * 2).Chunk(2);
 
 			Locations = new();
-			locationsToUpdate = new();
 			foreach (var arrow in movementArrows)
 			{
 				Locations.Add(new Location(arrow));
@@ -450,19 +414,15 @@ namespace FFMQLib
 				return;
 			}
 
-			//const int LocationRoomOffset = 240;
-			List<MovableLocation2> movableLocations = new();
-			var locationRooms = gamelogic.Rooms.Where(r => r.Type == RoomType.Location).ToList();
+			List<MovableLocation> movableLocations = new();
             var regionRooms = gamelogic.Rooms.Where(r => r.Type == RoomType.Subregion).ToList();
 
             foreach (var room in regionRooms)
 			{
-				movableLocations.AddRange(room.GameObjects.Select(o => new MovableLocation2(room.Region, o.Location, 0, o)));
-                movableLocations.AddRange(room.Links.Where(l => l.Entrance >= 0).Select(l => new MovableLocation2(room.Region, l.Location, l.TargetRoom, l)));
-                //movableLocations.AddRange(room.Links.Where(l => l.Entrance >= 0).Select(l => new MovableLocation2(room.Region, l.Location, l.TargetRoom, gamelogic.Rooms.Find(r => r.Id == l.TargetRoom).Links.Find(l => l.TargetRoom == room.Id))));
+				movableLocations.AddRange(room.GameObjects.Select(o => new MovableLocation(room.Region, o.Location, 0, o)));
+                movableLocations.AddRange(room.Links.Where(l => l.Entrance >= 0).Select(l => new MovableLocation(room.Region, l.Location, l.TargetRoom, l)));
             }
 
-            //var regionLocationPairs = movableLocations.Select(x => (x.Origins, x.Region)).ToDictionary(x => x.Origins, );
             var regionLocationPairs = movableLocations.ToDictionary(x => x.Origins, x => x.Region);
 
             var safeGoldBattlefield = (LocationIds)(battlefields.GetAllRewardType().Select((x, i) => (i, x)).ToList().Find(x => x.x == BattlefieldRewardType.Gold).i + 1);
@@ -473,7 +433,6 @@ namespace FFMQLib
 			shuffleLocations.RemoveAll(x => fixedLocations.Contains(x));
 			destinationLocations.RemoveAll(x => fixedLocations.Contains(x));
 
-            locationsToUpdate.AddRange(fixedLocations.Select(x => (x, x)).ToList());
 			List<LocationIds> placedLocations = fixedLocations.ToList();
 			List<LocationIds> takenLocations = fixedLocations.ToList();
 			List<LocationIds> excludeFromStart = Enum.GetValues<LocationIds>().ToList().GetRange(9, 12);
@@ -532,9 +491,6 @@ namespace FFMQLib
 				region.BarredLocations.AddRange(gatingLocations.Where(x => commonaccess.Contains(x.Item2)).Select(x => x.Item1).Append(location));
 			}
 
-			// Now that logic is 
-
-
 			// Create the early locations, these are always placed in Foresta
 			List<LocationIds> earlyLocations = new() { companionLocation, safeGoldBattlefield };
 			earlyLocations.AddRange(guaranteedChestLocations);
@@ -551,7 +507,6 @@ namespace FFMQLib
 				loc2 = rng.PickFrom(forestaLocations);
 
 				movableLocations.Find(l => l.Origins == loc1).Destination = loc2;
-				//locationsToUpdate.Add((loc1, loc2));
 				placedLocations.Add(loc1);
 				takenLocations.Add(loc2);
 
@@ -568,7 +523,6 @@ namespace FFMQLib
 				loc1 = rng.PickFrom(startingLocations);
 				loc2 = rng.PickFrom(forestaLocations);
 
-                //locationsToUpdate.Add((loc1, loc2));
                 movableLocations.Find(l => l.Origins == loc1).Destination = loc2;
                 placedLocations.Add(loc1);
 				takenLocations.Add(loc2);
@@ -600,7 +554,6 @@ namespace FFMQLib
 						gatingLocationPlaced = true;
 					}
 
-					//locationsToUpdate.Add((loc1, loc2));
                     movableLocations.Find(l => l.Origins == loc1).Destination = loc2;
                     placedLocations.Add(loc1);
 					takenLocations.Add(loc2);
@@ -617,19 +570,18 @@ namespace FFMQLib
 				loc2 = rng.TakeFrom(destinationLocations);
 
                 movableLocations.Find(l => l.Origins == loc1).Destination = loc2;
-                //locationsToUpdate.Add((loc1, loc2));
 			}
 
-
+			// Clear rooms
 			foreach (var room in regionRooms)
 			{ 
 				room.GameObjects.Clear();
 				room.Links.RemoveAll(l => l.Entrance >= 0);
-			
 			}
+
+			// Place the new locations
             foreach (var location in movableLocations)
             {
-
 				if (location.Type == MovableLocationType.Battlefield)
 				{
 					var targetRegion = regionRooms.Find(x => x.Region == regionLocationPairs[location.Destination]);
@@ -651,16 +603,15 @@ namespace FFMQLib
                     }
                 }
             }
-
         }
 		public void UpdateOverworld(Flags flags, GameLogic gamelogic, Battlefields battlefields)
 		{
 			List<Location> newLocations = new();
 
-			var battlefieldLocations = gamelogic.Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(x => x.GameObjects).ToList();
+            var battlefieldLocations = gamelogic.Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(x => x.GameObjects).ToList();
             var dungeonLocations = gamelogic.Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(x => x.Links.Where(x => x.Entrance >= 0)).ToList();
 
-			foreach (var battlefield in battlefieldLocations)
+            foreach (var battlefield in battlefieldLocations)
 			{
                 newLocations.Add(new Location(Locations.Find(x => x.LocationId == battlefield.Location), Locations.Find(x => x.LocationId == battlefield.LocationSlot)));
             }
@@ -673,74 +624,23 @@ namespace FFMQLib
             newLocations.Add(new Location(Locations.Find(x => x.LocationId == LocationIds.HillOfDestiny)));
             newLocations.Add(new Location(Locations.Find(x => x.LocationId == LocationIds.None)));
 
-            /*
-            var locationRooms = gamelogic.Rooms.Where(r => r.Type == RoomType.Location).ToList();
+            List<(LocationIds, LocationIds)> nodesToUpdate = battlefieldLocations.Select(x => (x.Location, x.LocationSlot)).ToList();
+            nodesToUpdate.AddRange(dungeonLocations.Select(x => (x.Location, x.LocationSlot)).ToList());
+            nodesToUpdate.Add((LocationIds.None, LocationIds.None));
+            nodesToUpdate.Add((LocationIds.HillOfDestiny, LocationIds.HillOfDestiny));
 
-            foreach (var room in locationRooms)
-            {
-				LocationIds loc1;
-                LocationIds loc2;
-
-                if (room.GameObjects.Any())
-				{
-					loc1 = room.;
-					loc2 = (LocationIds)room.GameObjects.First().ObjectId;
-                }
-				else
-				{
-                    loc1 = room.Location;
-                    loc2 = AccessReferences.LocationsByEntrances.Find(x => x.Item2 == room.Links.Find(l => l.Entrance >= 0).Entrance).Item1;
-                }
-
-				//room.Location = loc2;
-                newLocations.Add(new Location(Locations.Find(x => x.LocationId == loc1), Locations.Find(x => x.LocationId == loc2)));
-            }
-			*/
             Locations = newLocations.OrderBy(x => x.LocationId).ToList();
 
             foreach (var node in Locations)
             {
                 for (int i = 0; i < node.Destinations.Count; i++)
                 {
-                    node.Destinations[i] = locationsToUpdate.Find(x => x.Item2 == node.Destinations[i]).Item1;
+                    node.Destinations[i] = nodesToUpdate.Find(x => x.Item2 == node.Destinations[i]).Item1;
                 }
             }
 
 			StartingLocation = Locations.Find(x => x.Position == (0x0E, 0x28)).LocationId;
 			UpdateBattlefieldsColor(flags, battlefields);
-		}
-		public void SwapLocations(LocationIds locA, LocationIds locB)
-		{
-			var tempNode = new Location(Locations[(int)locA]);
-
-			Locations[(int)locA].Destinations = Locations[(int)locB].Destinations.ToList();
-			Locations[(int)locA].Steps = Locations[(int)locB].Steps.ToList();
-			Locations[(int)locA].DirectionFlags = Locations[(int)locB].DirectionFlags.ToList();
-			Locations[(int)locA].Position = Locations[(int)locB].Position;
-			Locations[(int)locA].Region = Locations[(int)locB].Region;
-			Locations[(int)locA].SubRegion = Locations[(int)locB].SubRegion;
-
-			Locations[(int)locB].Destinations = tempNode.Destinations;
-			Locations[(int)locB].Steps = tempNode.Steps;
-			Locations[(int)locB].DirectionFlags = tempNode.DirectionFlags;
-			Locations[(int)locB].Position = tempNode.Position;
-			Locations[(int)locB].Region = tempNode.Region;
-			Locations[(int)locB].SubRegion = tempNode.SubRegion;
-
-			foreach (var node in Locations)
-			{
-				for(int i = 0; i < node.Destinations.Count; i++)
-				{
-					if (node.Destinations[i] == locA)
-					{
-						node.Destinations[i] = locB;
-					}
-					else if (node.Destinations[i] == locB)
-					{
-						node.Destinations[i] = locA;
-					}
-				}
-			}
 		}
 		public void UpdateOwObjects()
 		{

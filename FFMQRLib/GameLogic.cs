@@ -131,7 +131,7 @@ namespace FFMQLib
 		public GameObject(GameObjectData data, Location location, List<List<AccessReqs>> roomAccess)
 		{
 			Location = location.LocationId;
-			LocationSlot = location.LocationId;
+			//LocationSlot = location.LocationId;
 			ObjectId = data.ObjectId;
 			Type = data.Type;
 			OnTrigger = data.OnTrigger.ToList();
@@ -268,14 +268,8 @@ namespace FFMQLib
 	{
 		public List<Room> Rooms { get; set; }
 		public List<GameObject> GameObjects { get; set; }
-		private List<(int, LocationIds, List<AccessReqs>)> accessQueue;
-        private List<(int, (LocationIds, int), List<AccessReqs>)> accessQueue2;
-        private List<(SubRegions, List<AccessReqs>)> regionAccessQueue;
-        private List<(LocationIds, LocationIds, List<AccessReqs>)> bridgeQueue;
-		private List<(int, int, LocationIds)> locationQueue;
+        private List<(int, (LocationIds, int), List<AccessReqs>)> accessQueue;
 		private List<int> regionRoomIds;
-        private List<int> locationRoomIds;
-        private List<(LocationIds location, int entrance, int target)> locationRooms;
 
 		public GameLogic()
 		{
@@ -343,37 +337,15 @@ namespace FFMQLib
 
 		public void CrawlRooms(Flags flags, Overworld overworld, Battlefields battlefields)
 		{
-
 			var locationsByEntrances = AccessReferences.LocationsByEntrances;
 
 			// Initialization
 			accessQueue = new();
-			accessQueue2 = new();
-            bridgeQueue = new();
-			locationQueue = new();
-			regionAccessQueue = new();
-            regionRoomIds = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
-            locationRoomIds = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links.Where(l => l.Entrance >= 0)).Select(l => l.TargetRoom).ToList();
+			regionRoomIds = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
 
             var locationLinks = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).ToList();
-			/*
-            locationRooms = Rooms
-				.Where(r => r.Type == RoomType.Location)
-				.SelectMany(r => r.Links, (room, link) => new { room, link } )
-				.Where(x => x.link.Entrance != 469 && x.link.Entrance >=0)
-				.Select(x => (x.room.Location, x.link.Entrance, x.link.TargetRoom))
-				.ToList();*/
-			//List<(int, int)> seedRooms = Rooms.Find(x => x.Id == 0).Links.Where(x => x.Entrance != 469).Select(x => (x.Entrance, x.TargetRoom)).ToList();
 
-			// Process individual rooms access
-			/*
-            foreach (var room in locationRooms)
-			{
-				//var roomLocation = locationsByEntrances.Find(x => x.Item2 == room.Item1).Item1;
-				ProcessRoom(room.target, new List<int>(), new List<AccessReqs>(), (room.location, 0));
-			}*/
-
-			// Process regional access
+			// Process Logic Access
 			if (flags.LogicOptions != LogicOptions.Expert)
 			{
 				var volcanoBattlefieldRoom = Rooms.Find(x => x.Type == RoomType.Subregion && x.Region == SubRegions.VolcanoBattlefield);
@@ -390,20 +362,19 @@ namespace FFMQLib
 
 			var giantTreeLink = locationLinks.Find(l => l.Location == LocationIds.GiantTree);
             Rooms.Find(x => x.Type == RoomType.Subregion && x.Region == SubRegions.Windia).Links.Remove(giantTreeLink);
-            //var giantTreeRoom = Rooms.Find(x => x.Type == RoomType.Subregion && x.Location == LocationIds.GiantTree);
-			//giantTreeRoom.Links.Clear();
 
+			// Process Rooms
             ProcessRoom(0, new() { 0 }, new(), (LocationIds.None, 0));
 
 			GameObjects = new();
 
-            List<(int, (LocationIds, int), List<AccessReqs>)> accessToKeep2 = new();
+			// Clean Up Access
+            List<(int, (LocationIds, int), List<AccessReqs>)> accessToKeep = new();
 
             foreach (var room in Rooms)
 			{
-                var accessToCompare = accessQueue2.Where(x => x.Item1 == room.Id).OrderBy(x => x.Item3.Count).ToList();
+                var accessToCompare = accessQueue.Where(x => x.Item1 == room.Id).OrderBy(x => x.Item3.Count).ToList();
 				List<(int, (LocationIds, int), List<AccessReqs>)> accessToRemove = new();
-
 
                 while (accessToCompare.Any())
                 {
@@ -415,87 +386,49 @@ namespace FFMQLib
                         }
                     }
 
-                    accessToKeep2.Add(accessToCompare[0]);
+                    accessToKeep.Add(accessToCompare[0]);
                     accessToRemove.Add(accessToCompare[0]);
                     accessToCompare = accessToCompare.Except(accessToRemove).ToList();
                 }
             }
 			
-			accessQueue2 = accessToKeep2;
+			accessQueue = accessToKeep;
 
+			// Process Game Objects
 			foreach (var room in Rooms)
 			{
-				//var actualLocation = LocationIds.None;
-				if (room.Id == 0)
+				var targetaccess = accessQueue.Where(x => x.Item1 == room.Id).OrderBy(x => x.Item2.Item2).ToList();
+                if (!targetaccess.Any())
+                {
+                    throw new Exception("Game Logic: Unaccessible Location\n\n" + "Room: " + room.Id);
+                }
+
+                var lowestPriority = targetaccess.First().Item2.Item2;
+
+                if (flags.LogicOptions != LogicOptions.Expert)
+                {
+                    targetaccess = targetaccess.Where(x => x.Item2.Item2 == lowestPriority).ToList();
+                }
+
+                List<List<AccessReqs>> finalAccess = targetaccess.Select(x => x.Item3).ToList();
+
+                Location targetLocation = overworld.Locations.Find(x => x.LocationId == targetaccess.First().Item2.Item1);  
+
+                foreach (var gamedata in room.GameObjects)
 				{ 
-				
-				}
-				else if (regionRoomIds.Contains(room.Id))
-				{
-
-					Dictionary<BattlefieldRewardType, GameObjectType> battlefieldTypeConverter = new() {
-						{ BattlefieldRewardType.Gold, GameObjectType.BattlefieldGp },
-						{ BattlefieldRewardType.Experience, GameObjectType.BattlefieldXp },
-						{ BattlefieldRewardType.Item, GameObjectType.BattlefieldItem },
-					};
-
-					room.GameObjects.ForEach(x => x.Type = battlefieldTypeConverter[battlefields.ToList().Find(b => (int)b.Location == x.ObjectId).RewardType]);
-
-					var itemBattlefields = room.GameObjects.Where(x => x.Type == GameObjectType.BattlefieldItem).ToList();
-
-                    var targetaccess2 = accessQueue2.Where(x => x.Item1 == room.Id).OrderBy(x => x.Item2.Item2).ToList();
-                    List<List<AccessReqs>> finalAccess = targetaccess2.Select(x => x.Item3).ToList();
-
-                    foreach (var battlefield in itemBattlefields)
+					if (gamedata.Type == GameObjectType.BattlefieldXp || gamedata.Type == GameObjectType.BattlefieldGp)
 					{
-						
-						var bflocation = overworld.Locations.Find(l => l.LocationId == (LocationIds)battlefield.ObjectId);
-						/*
-						List<List<AccessReqs>> finalAccess = new();
-						var locReq = subRegionsAccess.Where(x => x.Item1 == overworld.Locations.Find(l => l.LocationId == bflocation.LocationId).SubRegion).Select(x => x.Item2).ToList();
-
-						foreach (var locAccess in locReq)
-						{
-							finalAccess.Add(locAccess);
-						}*/
-
-						GameObjects.Add(new GameObject(battlefield, bflocation, finalAccess));
+						continue;
 					}
-				}
-				else
-				{
-					/*
-					var locationList = locationQueue.Where(x => x.Item1 == room.Id).OrderBy(x => x.Item2).ToList();
-					if (!locationList.Any())
+					else if (gamedata.Type == GameObjectType.BattlefieldItem)
 					{
-						throw new Exception("Game Logic: Unaccessible Room Error\n\n" + "Room: " + room.Id + "\n\n" + GenerateDumpFile());
+						var bflocation = overworld.Locations.Find(l => l.LocationId == gamedata.Location);
+						GameObjects.Add(new GameObject(gamedata, bflocation, finalAccess));
 					}
-
-					actualLocation = locationList.First().Item3;
-					room.Location = actualLocation;
-					*/
-					//Location targetLocation = overworld.Locations.Find(x => x.LocationId == actualLocation);
-
-                    var targetaccess2 = accessQueue2.Where(x => x.Item1 == room.Id).OrderBy(x => x.Item2.Item2).ToList();
-                    if (!targetaccess2.Any())
-                    {
-                        throw new Exception("Game Logic: Unaccessible Location\n\n" + "Room: " + room.Id);
-                    }
-                    var lowestPriority = targetaccess2.First().Item2.Item2;
-
-                    if (flags.LogicOptions != LogicOptions.Expert)
-                    {
-                        targetaccess2 = targetaccess2.Where(x => x.Item2.Item2 == lowestPriority).ToList();
-                    }
-
-                    List<List<AccessReqs>> finalAccess = targetaccess2.Select(x => x.Item3).ToList();
-
-                    Location targetLocation = overworld.Locations.Find(x => x.LocationId == targetaccess2.First().Item2.Item1);  
-
-                    foreach (var gamedata in room.GameObjects)
+					else
 					{
 						GameObjects.Add(new GameObject(gamedata, targetLocation, finalAccess));
-					}
+                    }
 				}
 			}
 			
@@ -600,7 +533,7 @@ namespace FFMQLib
 		{ 
 			var targetroom = Rooms.Find(x => x.Id == roomid);
 			bool traverseCrest = false;
-            //var internalLinks = targetroom.Links.Where(l => !regionRoomIds.Contains(l.TargetRoom)).ToList();
+
 			LocationIds newLocation = locPriority.Item1;
 
             foreach (var children in targetroom.Links)
@@ -626,26 +559,8 @@ namespace FFMQLib
 				}
 			}
 
-			locationQueue.Add((roomid, locPriority.Item2, locPriority.Item1));
-			accessQueue.Add((roomid, locPriority.Item1, access));
-            accessQueue2.Add((roomid, locPriority, access));
+            accessQueue.Add((roomid, locPriority, access));
         }
-        private void ProcessSubregions(int roomid, List<int> origins, List<AccessReqs> access)
-        {
-            var targetroom = Rooms.Find(x => x.Id == roomid);
-			var surfaceLinks = targetroom.Links.Where(l => l.Entrance < 0 && regionRoomIds.Contains(l.TargetRoom)).ToList();
-
-            foreach (var children in surfaceLinks)
-            {
-                if (!origins.Contains(children.TargetRoom))
-                {
-                    ProcessSubregions(children.TargetRoom, origins.Concat(new List<int> { roomid }).ToList(), access.Concat(children.Access).ToList());
-                }
-            }
-
-            regionAccessQueue.Add(((SubRegions)(targetroom.Id - 220), access));
-        }
-
         public LocationIds FindTriggerLocation(AccessReqs trigger)
 		{
 			var initialRoom = Rooms.Find(x => x.GameObjects.Where(o => o.OnTrigger.Contains(trigger)).Any());

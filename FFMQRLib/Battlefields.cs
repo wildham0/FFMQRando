@@ -111,7 +111,7 @@ namespace FFMQLib
 				battlefields.Find(x => x.Location == battlefield.Location).Value = (ushort)battlefield.Content;
 			}
 		}
-		public void ShuffleBattelfieldRewards(bool enable, Overworld overworld, MT19337 rng)
+		public void ShuffleBattelfieldRewards(bool enable, GameLogic gamelogic, MT19337 rng)
 		{
 			if (!enable)
 			{
@@ -122,20 +122,9 @@ namespace FFMQLib
 
 			battlefields.ForEach(x => x.Location = rng.TakeFrom(battlefieldlocations));
 
-			/*
-            _rewards.Shuffle(rng);
-
-			BattlefieldsWithItem.Clear();
-
-			for (int i = 0; i < _battlesQty.Count; i++)
-			{
-				if ((BattlefieldRewardType)(_rewards[i][1] & 0b1100_0000) == BattlefieldRewardType.Item)
-				{
-					BattlefieldsWithItem.Add((LocationIds)(i + 1));
-				}
-			}*/
-		}
-        public void SetBattelfieldRewards(bool enable, List<ApObject> itemsplacement, MT19337 rng)
+			UpdateLogic(gamelogic);
+        }
+        public void SetBattelfieldRewards(bool enable, List<ApObject> itemsplacement, GameLogic gamelogic, MT19337 rng)
         {
             List<LocationIds> battlefieldlocations = battlefields.Select(x => x.Location).ToList();
             var battlefieldPlacement = itemsplacement.Where(x => x.Type == GameObjectType.BattlefieldItem).Select(x => (LocationIds)x.ObjectId).OrderByDescending(x => x).ToList();
@@ -150,6 +139,20 @@ namespace FFMQLib
 			{
 				nonItemBattlefields.ForEach(x => x.Location = rng.TakeFrom(battlefieldlocations));
 			}
+
+			UpdateLogic(gamelogic);
+        }
+		public void UpdateLogic(GameLogic gamelogic)
+		{
+            Dictionary<BattlefieldRewardType, GameObjectType> battlefieldTypeConverter = new() {
+                        { BattlefieldRewardType.Gold, GameObjectType.BattlefieldGp },
+                        { BattlefieldRewardType.Experience, GameObjectType.BattlefieldXp },
+                        { BattlefieldRewardType.Item, GameObjectType.BattlefieldItem },
+                    };
+
+            List<GameObjectType> battlefieldObjectTypes = new() { GameObjectType.BattlefieldGp, GameObjectType.BattlefieldXp, GameObjectType.BattlefieldItem };
+            var battlefieldsObject = gamelogic.Rooms.SelectMany(r => r.GameObjects.Where(o => battlefieldObjectTypes.Contains(o.Type))).ToList();
+            battlefieldsObject.ForEach(x => x.Type = battlefieldTypeConverter[battlefields.ToList().Find(b => (int)b.Location == x.ObjectId).RewardType]);
         }
         public BattlefieldRewardType GetRewardType(LocationIds targetBattlefield)
 		{
