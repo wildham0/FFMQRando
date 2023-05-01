@@ -55,7 +55,10 @@ namespace FFMQLib
 		public GameObjectType Type { get; set; }
 		public List<AccessReqs> OnTrigger { get; set; }
 		public List<AccessReqs> Access { get; set; }
-		public string Name { get; set; }
+		public LocationIds Location { get; set; }
+        public LocationIds LocationSlot { get; set; }
+
+        public string Name { get; set; }
 
 		public GameObjectData()
 		{
@@ -63,7 +66,9 @@ namespace FFMQLib
 			Type = GameObjectType.Dummy;
 			OnTrigger = new();
 			Access = new();
-			Name = "None";
+			Location = LocationIds.None;
+            LocationSlot = LocationIds.None;
+            Name = "None";
 		}
         public GameObjectData(GameObjectData copyFrom)
         {
@@ -71,13 +76,15 @@ namespace FFMQLib
             Type = copyFrom.Type;
             OnTrigger = copyFrom.OnTrigger.ToList();
             Access = copyFrom.Access.ToList();
+			Location = copyFrom.Location;
+			LocationSlot = copyFrom.LocationSlot;
             Name = copyFrom.Name;
         }
     }
 	public class GameObject : GameObjectData
 	{
 		//public GameObjectData Data { get; set; }
-		public LocationIds Location { get; set; }
+		//public LocationIds Location { get; set; }
 		public MapRegions Region { get; set; }
 		public SubRegions SubRegion { get; set; }
 		public Items Content { get; set; }
@@ -90,6 +97,7 @@ namespace FFMQLib
 		public GameObject()
 		{
 			Location = LocationIds.None;
+			LocationSlot = LocationIds.None;
 			//MapId = 0;
 			Region = MapRegions.Foresta;
 			SubRegion = SubRegions.Foresta;
@@ -123,6 +131,7 @@ namespace FFMQLib
 		public GameObject(GameObjectData data, Location location, List<List<AccessReqs>> roomAccess)
 		{
 			Location = location.LocationId;
+			LocationSlot = location.LocationId;
 			ObjectId = data.ObjectId;
 			Type = data.Type;
 			OnTrigger = data.OnTrigger.ToList();
@@ -147,6 +156,7 @@ namespace FFMQLib
 		public GameObject(GameObject gameobject)
 		{
 			Location = gameobject.Location;
+			LocationSlot = gameobject.LocationSlot;
 			ObjectId = gameobject.ObjectId;
 			Type = gameobject.Type;
 			OnTrigger = gameobject.OnTrigger.ToList();
@@ -172,6 +182,7 @@ namespace FFMQLib
 		public (int id, int type) Teleporter { get; set; }
 		public List<AccessReqs> Access { get; set; }
         public LocationIds Location { get; set; }
+        public LocationIds LocationSlot { get; set; }
         public List<int> teleporter {
 			get => new() { Teleporter.id, Teleporter.type };
 			set => Teleporter = (value[0], value[1]);
@@ -183,14 +194,16 @@ namespace FFMQLib
 			Access = new();
 			Teleporter = (0, 0);
 			Location = LocationIds.None;
+			LocationSlot = LocationIds.None;
 		}
         public RoomLink(int target, List<AccessReqs> access)
         {
-            TargetRoom = 0;
+            TargetRoom = target;
             Entrance = -1;
 			Access = access.ToList();
             Teleporter = (0, 0);
             Location = LocationIds.None;
+            LocationSlot = LocationIds.None;
         }
         public RoomLink(int target, int entrance, (int, int) _teleporter, List<AccessReqs> access)
 		{
@@ -199,6 +212,7 @@ namespace FFMQLib
 			Teleporter = _teleporter;
 			Access = access.ToList();
             Location = LocationIds.None;
+            LocationSlot = LocationIds.None;
         }
         public RoomLink(int target, int entrance, (int, int) _teleporter, LocationIds location, List<AccessReqs> access)
         {
@@ -207,6 +221,7 @@ namespace FFMQLib
             Teleporter = _teleporter;
 			Location = location;
             Access = access.ToList();
+            LocationSlot = location;
         }
         public RoomLink(RoomLink newlink)
         {
@@ -214,6 +229,7 @@ namespace FFMQLib
             Entrance = newlink.Entrance;
             Teleporter = newlink.Teleporter;
             Location = newlink.Location;
+			LocationSlot = newlink.LocationSlot;
             Access = newlink.Access.ToList();
         }
     }
@@ -336,14 +352,17 @@ namespace FFMQLib
             bridgeQueue = new();
 			locationQueue = new();
 			regionAccessQueue = new();
-            locationRoomIds = Rooms.Where(r => r.Type == RoomType.Location).Select(r => r.Id).ToList();
             regionRoomIds = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
+            locationRoomIds = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links.Where(l => l.Entrance >= 0)).Select(l => l.TargetRoom).ToList();
+
+            var locationLinks = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).ToList();
+			/*
             locationRooms = Rooms
 				.Where(r => r.Type == RoomType.Location)
 				.SelectMany(r => r.Links, (room, link) => new { room, link } )
 				.Where(x => x.link.Entrance != 469 && x.link.Entrance >=0)
 				.Select(x => (x.room.Location, x.link.Entrance, x.link.TargetRoom))
-				.ToList();
+				.ToList();*/
 			//List<(int, int)> seedRooms = Rooms.Find(x => x.Id == 0).Links.Where(x => x.Entrance != 469).Select(x => (x.Entrance, x.TargetRoom)).ToList();
 
 			// Process individual rooms access
@@ -369,8 +388,10 @@ namespace FFMQLib
                 exitTrickRoom.Links.Add(new RoomLink(74, new() { AccessReqs.ExitBook }));
             }
 
-            var giantTreeRoom = Rooms.Find(x => x.Type == RoomType.Location && x.Location == LocationIds.GiantTree);
-			giantTreeRoom.Links.Clear();
+			var giantTreeLink = locationLinks.Find(l => l.Location == LocationIds.GiantTree);
+            Rooms.Find(x => x.Type == RoomType.Subregion && x.Region == SubRegions.Windia).Links.Remove(giantTreeLink);
+            //var giantTreeRoom = Rooms.Find(x => x.Type == RoomType.Subregion && x.Location == LocationIds.GiantTree);
+			//giantTreeRoom.Links.Clear();
 
             ProcessRoom(0, new() { 0 }, new(), (LocationIds.None, 0));
 
@@ -404,12 +425,12 @@ namespace FFMQLib
 
 			foreach (var room in Rooms)
 			{
-				var actualLocation = LocationIds.None;
+				//var actualLocation = LocationIds.None;
 				if (room.Id == 0)
 				{ 
 				
 				}
-				else if (locationRoomIds.Contains(room.Id))
+				else if (regionRoomIds.Contains(room.Id))
 				{
 
 					Dictionary<BattlefieldRewardType, GameObjectType> battlefieldTypeConverter = new() {
@@ -443,6 +464,7 @@ namespace FFMQLib
 				}
 				else
 				{
+					/*
 					var locationList = locationQueue.Where(x => x.Item1 == room.Id).OrderBy(x => x.Item2).ToList();
 					if (!locationList.Any())
 					{
@@ -451,44 +473,27 @@ namespace FFMQLib
 
 					actualLocation = locationList.First().Item3;
 					room.Location = actualLocation;
+					*/
+					//Location targetLocation = overworld.Locations.Find(x => x.LocationId == actualLocation);
 
-					Location targetLocation = overworld.Locations.Find(x => x.LocationId == actualLocation);
+                    var targetaccess2 = accessQueue2.Where(x => x.Item1 == room.Id).OrderBy(x => x.Item2.Item2).ToList();
+                    if (!targetaccess2.Any())
+                    {
+                        throw new Exception("Game Logic: Unaccessible Location\n\n" + "Room: " + room.Id);
+                    }
+                    var lowestPriority = targetaccess2.First().Item2.Item2;
 
-					foreach (var gamedata in room.GameObjects)
+                    if (flags.LogicOptions != LogicOptions.Expert)
+                    {
+                        targetaccess2 = targetaccess2.Where(x => x.Item2.Item2 == lowestPriority).ToList();
+                    }
+
+                    List<List<AccessReqs>> finalAccess = targetaccess2.Select(x => x.Item3).ToList();
+
+                    Location targetLocation = overworld.Locations.Find(x => x.LocationId == targetaccess2.First().Item2.Item1);  
+
+                    foreach (var gamedata in room.GameObjects)
 					{
-                        var targetaccess2 = accessQueue2.Where(x => x.Item1 == room.Id).OrderBy(x => x.Item2.Item2).ToList();
-						if (!targetaccess2.Any())
-						{
-							throw new Exception("Game Logic: Unaccessible Location\n\n" + "Room: " + room.Id);
-                        }
-						var lowestPriority = targetaccess2.First().Item2.Item2;
-
-                        if (flags.LogicOptions != LogicOptions.Expert)
-						{
-							targetaccess2 = targetaccess2.Where(x => x.Item2.Item2 == lowestPriority).ToList();
-                        }
-						List<List<AccessReqs>> finalAccess = targetaccess2.Select(x => x.Item3).ToList();
-
-						/*
-						foreach (var access in targetaccess)
-						{
-
-							var tsubregion = overworld.Locations.Find(l => l.LocationId == access.Item2).SubRegion;
-							var tsubAccess = subRegionsAccess.Where(x => x.Item1 == tsubregion).ToList();
-							if (tsubAccess.Any())
-							{
-								var locReq = tsubAccess.Select(x => x.Item2).ToList();
-								foreach (var locAccess in locReq)
-								{
-									finalAccess.Add(locAccess.Concat(access.Item3).ToList());
-								}
-							}
-							else
-							{
-								throw new Exception("Game Logic: Unaccessible Location\n\n" + "Room: " + room.Id + "\n\n" + GenerateDumpFile());
-							}
-						}*/
-
 						GameObjects.Add(new GameObject(gamedata, targetLocation, finalAccess));
 					}
 				}
@@ -601,13 +606,16 @@ namespace FFMQLib
             foreach (var children in targetroom.Links)
             {
                 bool reachLocation = false;
-                if (locationRoomIds.Contains(children.TargetRoom))
-				{
-                    newLocation = Rooms.Find(x => x.Id == children.TargetRoom).Location;
-					reachLocation = true;
+                if (regionRoomIds.Contains(targetroom.Id))
+                {
+					if (children.Entrance >= 0)
+					{
+                        newLocation = children.Location;
+                        reachLocation = true;
+                    }
                 }
 
-				if (!origins.Contains(children.TargetRoom))
+                if (!origins.Contains(children.TargetRoom))
 				{
 					if (children.Access.Contains(AccessReqs.LibraCrest) || children.Access.Contains(AccessReqs.GeminiCrest) || children.Access.Contains(AccessReqs.MobiusCrest))
 					{
@@ -644,7 +652,7 @@ namespace FFMQLib
 			List<AccessReqs> crestsList = new() { AccessReqs.LibraCrest, AccessReqs.GeminiCrest, AccessReqs.MobiusCrest };
 			List<int> roomToProcess = new() { initialRoom.Id };
 			List<int> roomProcessed = new() { 0 };
-			List<int> regionRooms = Rooms.Where(r => r.Type == RoomType.Location).Select(r => r.Id).ToList();
+			List<int> regionRooms = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
 
             while (roomToProcess.Any())
 			{
@@ -655,7 +663,7 @@ namespace FFMQLib
 				{
 					if (regionRooms.Contains(link.TargetRoom))
 					{
-						return (LocationIds)(link.TargetRoom - 240);
+						return Rooms.Find(x => x.Id == currentRoom).Location;
 						//var owLink = Rooms.Where(r => r.Type == RoomType.Location).SelectMany(r => r.Links).ToList().Find(l => l.TargetRoom == currentRoom && l.Entrance != 469);
 						//return AccessReferences.LocationsByEntrances.Find(x => x.Item2 == owLink.Entrance).Item1;
 					}
@@ -677,10 +685,11 @@ namespace FFMQLib
 
 		public (LocationIds, int) CrawlForChestRating(LocationIds location)
         {
-			var initialRoom = Rooms.Where(r => r.Type == RoomType.Location).ToList().Find(r => r.Location == location).Links.Find(l => l.Entrance >= 0).TargetRoom;
+            var regionRooms = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
+            var initialRoom = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).ToList().Find(l => l.Location == location).TargetRoom;
 
-			List<int> chestsList = new();
-			List<int> visitedRooms = new() { ((int)location + 240) };
+            List<int> chestsList = new();
+			List<int> visitedRooms = regionRooms;
 
 			ProcessRoomForChests(0, initialRoom, chestsList, visitedRooms);
 
@@ -724,10 +733,11 @@ namespace FFMQLib
 
 		public (LocationIds, int) CrawlForCompanionRating(LocationIds location)
 		{
-            var initialRoom = Rooms.Where(r => r.Type == RoomType.Location).ToList().Find(r => r.Id == ((int)location + 240)).Links.Find(l => l.Entrance >= 0).TargetRoom;
+            var regionRooms = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
+            var initialRoom = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).ToList().Find(l => l.Location == location).TargetRoom;
 
             List<int> companionsList = new();
-			List<int> visitedRooms = new() { ((int)location + 240) };
+			List<int> visitedRooms = regionRooms;
 
 			ProcessRoomForCompanions(0, initialRoom, companionsList, visitedRooms);
 
@@ -771,10 +781,13 @@ namespace FFMQLib
 
 		public List<AccessReqs> CrawlForRequirements(LocationIds location)
 		{
-            var initialRoom = Rooms.Where(r => r.Type == RoomType.Location).ToList().Find(r => r.Id == ((int)location + 240)).Links.Find(l => l.Entrance >= 0).TargetRoom;
+
+			var regionRooms = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
+            var initialRoom = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).ToList().Find(l => l.Location == location).TargetRoom;
+            ///var initialRoom = Rooms.Where(r => r.Type == RoomType.Location).ToList().Find(r => r.Id == ((int)location + 240)).Links.Find(l => l.Entrance >= 0).TargetRoom;
 
             List<AccessReqs> accessList = Rooms.Find(x => x.Id == initialRoom).Links.SelectMany(x => x.Access).ToList();
-			List<int> visitedRooms = new() { ((int)location + 240) };
+			List<int> visitedRooms = regionRooms;
 
 			ProcessRoomForRequirements(0, initialRoom, accessList, visitedRooms);
 

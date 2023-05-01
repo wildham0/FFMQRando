@@ -9,55 +9,23 @@
   id: 220
   type: "Subregion"
   region: "Foresta"
-  game_objects:
-  - name: "Foresta South Battlefield"
-    object_id: 0x01
-    location: "ForestaSouthBattlefield"
-    location_slot: "ForestaSouthBattlefield"
-    type: "BattlefieldXp"
-    access: []
-  - name: "Foresta West Battlefield"
-    object_id: 0x02
-    location: "ForestaWestBattlefield"
-    location_slot: "ForestaWestBattlefield"
-    type: "BattlefieldItem"
-    access: []
-  - name: "Foresta East Battlefield"
-    object_id: 0x03
-    location: "ForestaEastBattlefield"
-    location_slot: "ForestaEastBattlefield"
-    type: "BattlefieldGp"
-    access: []
+  game_objects: []
   links:
-  - target_room: 15  # Level Forest
-    location: "LevelForest"
-    location_slot: "LevelForest"  
-    entrance: 445
-    teleporter: [0x2E, 8]
-    access: [] 
-  - target_room: 16  # Foresta
-    location: "Foresta"
-    location_slot: "Foresta"  
-    entrance: 446
-    teleporter: [0x02, 1]
+  - target_room: 262
     access: []
-  - target_room: 24  # Sand Temple
-    location: "SandTemple"
-    location_slot: "SandTemple"  
-    entrance: 447
-    teleporter: [0x03, 1]
+  - target_room: 263
     access: []
-  - target_room: 25  # Bone Dungeon
-    location: "BoneDungeon"
-    location_slot: "BoneDungeon"  
-    entrance: 448
-    teleporter: [0x04, 1]
+  - target_room: 241
     access: []
-  - target_room: 3   # Focus Tower Foresta
-    location: "FocusTowerForesta"
-    location_slot: "FocusTowerForesta"  
-    entrance: 449
-    teleporter: [0x05, 1]
+  - target_room: 264
+    access: []
+  - target_room: 242
+    access: []
+  - target_room: 243
+    access: []
+  - target_room: 265
+    access: []
+  - target_room: 266
     access: []
   - target_room: 221
     access: ["SandCoin"]
@@ -69,79 +37,31 @@
   id: 221
   type: "Subregion"
   region: "Aquaria"
-  game_objects:
-  - name: "South of Libra Temple Battlefield"
-    object_id: 0x04
-    location: "AquariaBattlefield01"
-    location_slot: "AquariaBattlefield01"  
-    type: "BattlefieldXp"
-    access: []
-  - name: "East of Libra Temple Battlefield"
-    object_id: 0x05
-    location: "AquariaBattlefield02"
-    location_slot: "AquariaBattlefield02"
-    type: "BattlefieldGp"
-    access: []
-  - name: "South of Aquaria Battlefield"
-    object_id: 0x06
-    location: "AquariaBattlefield03"
-    location_slot: "AquariaBattlefield03"  
-    type: "BattlefieldItem"
-    access: []
-  - name: "South of Wintry Cave Battlefield"
-    object_id: 0x07
-    location: "WintryBattlefield01"
-    location_slot: "WintryBattlefield01"  
-    type: "BattlefieldXp"
-    access: []
-  - name: "West of Wintry Cave Battlefield"
-    object_id: 0x08
-    location: "WintryBattlefield02"
-    location_slot: "WintryBattlefield02"
-    type: "BattlefieldGp"
-    access: []
-  - name: "Ice Pyramid Battlefield"
-    object_id: 0x09
-    location: "PyramidBattlefield01"
-    location_slot: "PyramidBattlefield01"
-    type: "BattlefieldXp"
-    access: []
+  game_objects: []
   links:
-  - target_room: 10  # Focus Tower Aquaria
-    location: "FocusTowerAquaria"
-    location_slot: "FocusTowerAquaria"
-    entrance: 450
-    teleporter: [0x13, 1]
+  - target_room: 267
     access: []
-  - target_room: 39  # Libra Temple
-    location: "LibraTemple"
-    location_slot: "LibraTemple"
-    entrance: 451
-    teleporter: [0x07, 1]
+  - target_room: 268
     access: []
-  - target_room: 40  # Aquaria
-    location: "Aquaria"
-    location_slot: "Aquaria"
-    entrance: 452
-    teleporter: [0x08, 8]
+  - target_room: 269
     access: []
-  - target_room: 45  # Wintry Cave
-    location: "WintryCave"
-    location_slot: "WintryCave"
-    entrance: 453
-    teleporter: [0x0A, 1]
+  - target_room: 270
     access: []
-  - target_room: 52  # Falls Basin
-    location: "FallsBasin"
-    location_slot: "FallsBasin"
-    entrance: 455
-    teleporter: [0x0C, 1]
+  - target_room: 272
     access: []
-  - target_room: 54  # Ice Pyramid
-    location: "IcePyramid"
-    location_slot: "IcePyramid"
-    entrance: 456
-    teleporter: [0x0D, 1] # Will be switched to a script
+  - target_room: 273
+    access: []
+  - target_room: 244
+    access: []
+  - target_room: 245
+    access: []
+  - target_room: 246
+    access: []
+  - target_room: 247
+    access: []
+  - target_room: 248
+    access: []
+  - target_room: 249
     access: []
   - target_room: 220
     access: ["SandCoin"]
@@ -157,41 +77,21 @@
   region: "LifeTemple"
   game_objects: []
   links:
-  - target_room: 51  # Life Temple
-    location: "LifeTemple"
-    location_slot: "LifeTemple"
-    entrance: 454
-    teleporter: [0x0B, 1]
+  - target_room: 271
     access: []
 - name: Subregion Frozen Fields
   id: 223
   type: "Subregion"
   region: "AquariaFrozenField"
-  game_objects: 
-  - name: "North of Libra Temple Battlefield"
-    object_id: 0x0A
-    location: "LibraBattlefield01"
-    location_slot: "LibraBattlefield01"
-    type: "BattlefieldItem"
-    access: []
-  - name: "Aquaria Frozen Field Battlefield"
-    object_id: 0x0B
-    location: "LibraBattlefield02"
-    location_slot: "LibraBattlefield02"
-    type: "BattlefieldXp"
-    access: []
+  game_objects: []
   links:
-  - target_room: 74  # Wintry Temple
-    location: "WintryTemple"
-    location_slot: "WintryTemple"
-    entrance: 458
-    teleporter: [0x10, 1]
+  - target_room: 275
     access: []
-  - target_room: 14  # Focus Tower Frozen Strip
-    location: "FocusTowerFrozen"
-    location_slot: "FocusTowerFrozen"
-    entrance: 459
-    teleporter: [0x11, 1]
+  - target_room: 276
+    access: []
+  - target_room: 250
+    access: []
+  - target_room: 251
     access: []
   - target_room: 221
     access: []
@@ -201,79 +101,31 @@
   id: 224
   type: "Subregion"
   region: "Fireburg"
-  game_objects:
-  - name: "Path to Fireburg Southern Battlefield"
-    object_id: 0x0C
-    location: "FireburgBattlefield01"
-    location_slot: "FireburgBattlefield01"
-    type: "BattlefieldGp"
-    access: []
-  - name: "Path to Fireburg Central Battlefield"
-    object_id: 0x0D
-    location: "FireburgBattlefield02"
-    location_slot: "FireburgBattlefield02"
-    type: "BattlefieldItem"
-    access: []
-  - name: "Path to Fireburg Northern Battlefield"
-    object_id: 0x0E
-    location: "FireburgBattlefield03"
-    location_slot: "FireburgBattlefield03"
-    type: "BattlefieldXp"
-    access: []
-  - name: "Sealed Temple Battlefield"
-    object_id: 0x0F
-    location: "MineBattlefield01"
-    location_slot: "MineBattlefield01"
-    type: "BattlefieldGp"
-    access: []
-  - name: "Mine Battlefield"
-    object_id: 0x10
-    location: "MineBattlefield02"
-    location_slot: "MineBattlefield02"
-    type: "BattlefieldItem"
-    access: []
-  - name: "Boulder Battlefield"
-    object_id: 0x11
-    location: "MineBattlefield03"
-    location_slot: "MineBattlefield03"
-    type: "BattlefieldXp"
-    access: []
+  game_objects: []
   links:
-  - target_room: 13  # Focus Tower Fireburg
-    location: "FocusTowerFireburg"
-    location_slot: "FocusTowerFireburg"
-    entrance: 460
-    teleporter: [0x12, 1]
+  - target_room: 277
     access: []
-  - target_room: 76  # Fireburg
-    location: "Fireburg"
-    location_slot: "Fireburg"
-    entrance: 461
-    teleporter: [0x14, 1]
+  - target_room: 278
     access: []
-  - target_room: 84  # Mine
-    location: "Mine"
-    location_slot: "Mine"
-    entrance: 462
-    teleporter: [0x15, 1]
+  - target_room: 279
     access: []
-  - target_room: 92  # Sealed Temple
-    location: "SealedTemple"
-    location_slot: "SealedTemple"
-    entrance: 463
-    teleporter: [0x16, 1]
+  - target_room: 280
     access: []
-  - target_room: 93  # Volcano
-    location: "Volcano"
-    location_slot: "Volcano"
-    entrance: 464
-    teleporter: [0x17, 1] # Also this one / 0x0F, 8
+  - target_room: 281
     access: []
-  - target_room: 100 # Lava Dome
-    location: "LavaDome"
-    location_slot: "LavaDome"
-    entrance: 465
-    teleporter: [0x18, 1]
+  - target_room: 282
+    access: []
+  - target_room: 252
+    access: []
+  - target_room: 253
+    access: []
+  - target_room: 254
+    access: []
+  - target_room: 255
+    access: []
+  - target_room: 256
+    access: []
+  - target_room: 257
     access: []
   - target_room: 220
     access: ["RiverCoin"]
@@ -287,14 +139,10 @@
   id: 225
   type: "Subregion"
   region: "VolcanoBattlefield"
-  game_objects:
-  - name: "Volcano Battlefield"
-    object_id: 0x12
-    location: "VolcanoBattlefield01"
-    location_slot: "VolcanoBattlefield01"
-    type: "BattlefieldXp"
-    access: []
+  game_objects: []
   links:
+  - target_room: 258
+    access: []
   - target_room: 224
     access: ["DualheadHydra"]
   - target_room: 223
@@ -303,73 +151,29 @@
   id: 226
   type: "Subregion"
   region: "Windia"
-  game_objects:
-  - name: "Kaidge Temple Battlefield"
-    object_id: 0x13
-    location: "WindiaBattlefield01"
-    location_slot: "WindiaBattlefield01"
-    type: "BattlefieldXp"
-    access: []
-  - name: "South of Windia Battlefield"
-    object_id: 0x14
-    location: "WindiaBattlefield02"
-    location_slot: "WindiaBattlefield02"
-    type: "BattlefieldXp"
-    access: []
+  game_objects: []
   links:
-  - target_room: 9   # Focus Tower Windia
-    location: "FocusTowerWindia"
-    location_slot: "FocusTowerWindia"
-    entrance: 466
-    teleporter: [0x06, 1]
+  - target_room: 283
     access: []
-  - target_room: 123 # Rope Bridge
-    location: "RopeBridge"
-    location_slot: "RopeBridge"
-    entrance: 467
-    teleporter: [0x19, 1]
+  - target_room: 284
     access: []
-  - target_room: 124 # Alive Forest
-    location: "AliveForest"
-    location_slot: "AliveForest"
-    entrance: 468
-    teleporter: [0x1A, 1]
+  - target_room: 285
     access: []
-  - target_room: 125 # Giant Tree
-    location: "GiantTree"
-    location_slot: "GiantTree"
-    entrance: 469
-    teleporter: [0x1B, 1]
-    access: ["Barred"]
-  - target_room: 152 # Kaidge Temple
-    location: "KaidgeTemple"
-    location_slot: "KaidgeTemple"
-    entrance: 470
-    teleporter: [0x1C, 1]
+  - target_room: 286
     access: []
-  - target_room: 156 # Windia
-    location: "Windia"
-    location_slot: "Windia"
-    entrance: 471
-    teleporter: [0x1D, 1]
+  - target_room: 287
     access: []
-  - target_room: 154 # Windhole Temple
-    location: "WindholeTemple"
-    location_slot: "WindholeTemple"
-    entrance: 472
-    teleporter: [0x1E, 1]
+  - target_room: 288
     access: []
-  - target_room: 155 # Mount Gale
-    location: "MountGale"
-    location_slot: "MountGale"
-    entrance: 473
-    teleporter: [0x1F, 1]
+  - target_room: 289
     access: []
-  - target_room: 166 # Pazuzu Tower
-    location: "PazuzusTower"
-    location_slot: "PazuzusTower"
-    entrance: 474
-    teleporter: [0x20, 1]
+  - target_room: 290
+    access: []
+  - target_room: 291
+    access: []
+  - target_room: 259
+    access: []
+  - target_room: 260
     access: []
   - target_room: 220
     access: ["SunCoin"]
@@ -385,11 +189,7 @@
   region: "SpencerCave"
   game_objects: []
   links:
-  - target_room: 73  # Spencer's Place
-    location: "SpencersPlace"
-    location_slot: "SpencersPlace"
-    entrance: 457
-    teleporter: [0x30, 8]
+  - target_room: 274
     access: []
   - target_room: 226
     access: ["RainbowBridge"]
@@ -399,11 +199,7 @@
   region: "ShipDock"
   game_objects: []
   links:
-  - target_room: 186 # Ship Dock
-    location: "ShipDock"
-    location_slot: "ShipDock"
-    entrance: 475
-    teleporter: [0x3E, 1]
+  - target_room: 292
     access: []
   - target_room: 229
     access: ["ShipLiberated", "ShipDockAccess"]
@@ -413,11 +209,7 @@
   region: "MacShip"
   game_objects: []
   links:
-  - target_room: 187 # Mac Ship
-    location: "MacsShip"
-    location_slot: "MacsShip"
-    entrance: 478
-    teleporter: [0x24, 1]
+  - target_room: 295
     access: []
   - target_room: 228
     access: ["ShipLiberated", "ShipDockAccess"]
@@ -429,11 +221,7 @@
   region: "LightTemple"
   game_objects: []
   links:
-  - target_room: 185 # Light Temple
-    location: "LightTemple"
-    location_slot: "LightTemple"
-    entrance: 477
-    teleporter: [0x23, 1]
+  - target_room: 294
     access: []
 - name: Subregion Doom Castle
   id: 231
@@ -441,20 +229,672 @@
   region: "DoomCastle"
   game_objects: []
   links:
+  - target_room: 293
+    access: []
+  - target_room: 296
+    access: []
+  - target_room: 229
+    access: ["ShipLoaned", "ShipDockAccess", "ShipSteeringWheel"]
+- name: Level Forest
+  id: 262
+  type: "Location"
+  location: "LevelForest"
+  game_objects: []
+  links:
+  - target_room: 220 # To Foresta Subregion
+    access: []
+  - target_room: 15  # Level Forest
+    entrance: 445
+    teleporter: [0x2E, 8]
+    access: [] 
+- name: Foresta
+  id: 263
+  type: "Location"
+  location: "Foresta"
+  game_objects: []
+  links:
+  - target_room: 220 # To Foresta Subregion
+    access: []
+  - target_room: 16  # Foresta
+    entrance: 446
+    teleporter: [0x02, 1]
+    access: []
+- name: Foresta South Battlefield
+  id: 241
+  type: "Location"
+  location: "ForestaSouthBattlefield"
+  game_objects:
+  - name: "Foresta South Battlefield"
+    object_id: 0x01
+    type: "BattlefieldXp"
+    access: []
+  links:
+  - target_room: 220 # To Foresta Subregion
+    access: []
+- name: Sand Temple
+  id: 264
+  type: "Location"
+  location: "SandTemple"
+  game_objects: []
+  links:
+  - target_room: 220 # To Foresta Subregion
+    access: []
+  - target_room: 24  # Sand Temple
+    entrance: 447
+    teleporter: [0x03, 1]
+    access: []
+- name: Foresta West Battlefield
+  id: 242
+  type: "Location"
+  location: "ForestaWestBattlefield"
+  game_objects:
+  - name: "Foresta West Battlefield"
+    object_id: 0x02
+    type: "BattlefieldItem"
+    access: []
+  links:
+  - target_room: 220 # To Foresta Subregion
+    access: []
+- name: Foresta East Battlefield
+  id: 243
+  type: "Location"
+  location: "ForestaEastBattlefield"
+  game_objects:
+  - name: "Foresta East Battlefield"
+    object_id: 0x03
+    type: "BattlefieldGp"
+    access: []
+  links:
+  - target_room: 220 # To Foresta Subregion
+    access: []
+- name: Bone Dungeon
+  id: 265
+  type: "Location"
+  location: "BoneDungeon"
+  game_objects: []
+  links:
+  - target_room: 220 # To Foresta Subregion
+    access: []
+  - target_room: 25  # Bone Dungeon
+    entrance: 448
+    teleporter: [0x04, 1]
+    access: []
+- name: Focus Tower Foresta
+  id: 266
+  type: "Location"
+  location: "FocusTowerForesta"
+  game_objects: []
+  links:
+  - target_room: 220 # To Foresta Subregion
+    access: []
+  - target_room: 3   # Focus Tower Foresta
+    entrance: 449
+    teleporter: [0x05, 1]
+    access: []
+- name: Focus Tower Aquaria
+  id: 267
+  type: "Location"
+  location: "FocusTowerAquaria"
+  game_objects: []
+  links:
+  - target_room: 221 # To Aquaria Subregion
+    access: []
+  - target_room: 10  # Focus Tower Aquaria
+    entrance: 450
+    teleporter: [0x13, 1]
+    access: []
+- name: South of Libra Temple Battlefield
+  id: 244
+  type: "Location"
+  location: "AquariaBattlefield01"
+  game_objects:
+  - name: "South of Libra Temple Battlefield"
+    object_id: 0x04
+    type: "BattlefieldXp"
+    access: []
+  links:
+  - target_room: 221 # To Aquaria Subregion
+    access: []
+- name: Libra Temple
+  id: 268
+  type: "Location"
+  location: "LibraTemple"
+  game_objects: []
+  links:
+  - target_room: 221 # To Aquaria Subregion
+    access: []
+  - target_room: 39  # Libra Temple
+    entrance: 451
+    teleporter: [0x07, 1]
+    access: []
+- name: East of Libra Temple Battlefield
+  id: 245
+  type: "Location"
+  location: "AquariaBattlefield02"
+  game_objects:
+  - name: "East of Libra Temple Battlefield"
+    object_id: 0x05
+    type: "BattlefieldGp"
+    access: []
+  links:
+  - target_room: 221 # To Aquaria Subregion
+    access: []
+- name: South of Aquaria Battlefield
+  id: 246
+  type: "Location"
+  location: "AquariaBattlefield03"
+  game_objects:
+  - name: "South of Aquaria Battlefield"
+    object_id: 0x06
+    type: "BattlefieldItem"
+    access: []
+  links:
+  - target_room: 221 # To Aquaria Subregion
+    access: []
+- name: Aquaria
+  id: 269
+  type: "Location"
+  location: "Aquaria"
+  game_objects: []
+  links:
+  - target_room: 221 # To Aquaria Subregion
+    access: []
+  - target_room: 40  # Aquaria
+    entrance: 452
+    teleporter: [0x08, 8]
+    access: []
+- name: South of Wintry Cave Battlefield
+  id: 247
+  type: "Location"
+  location: "WintryBattlefield01"
+  game_objects:
+  - name: "South of Wintry Cave Battlefield"
+    object_id: 0x07
+    type: "BattlefieldXp"
+    access: []
+  links:
+  - target_room: 221 # To Aquaria Subregion
+    access: []
+- name: Wintry Cave
+  id: 270
+  type: "Location"
+  location: "WintryCave"
+  game_objects: []
+  links:
+  - target_room: 221 # To Aquaria Subregion
+    access: []
+  - target_room: 45  # Wintry Cave
+    entrance: 453
+    teleporter: [0x0A, 1]
+    access: []
+- name: West of Wintry Cave Battlefield
+  id: 248
+  type: "Location"
+  location: "WintryBattlefield02"
+  game_objects:
+  - name: "West of Wintry Cave Battlefield"
+    object_id: 0x08
+    type: "BattlefieldGp"
+    access: []
+  links:
+  - target_room: 221 # To Aquaria Subregion
+    access: []
+- name: Fall Basin
+  id: 272
+  type: "Location"
+  location: "FallsBasin"
+  game_objects: []
+  links:
+  - target_room: 221 # To Aquaria Subregion
+    access: []
+  - target_room: 52  # Falls Basin
+    entrance: 455
+    teleporter: [0x0C, 1]
+    access: []
+- name: Ice Pyramid Battlefield
+  id: 249
+  type: "Location"
+  location: "PyramidBattlefield01"
+  game_objects:
+  - name: "Ice Pyramid Battlefield"
+    object_id: 0x09
+    type: "BattlefieldXp"
+    access: []
+  links:
+  - target_room: 221 # To Aquaria Subregion
+    access: []
+- name: Ice Pyramid
+  id: 273
+  type: "Location"
+  location: "IcePyramid"
+  game_objects: []
+  links:
+  - target_room: 221 # To Aquaria Subregion
+    access: []
+  - target_room: 54  # Ice Pyramid
+    entrance: 456
+    teleporter: [0x0D, 1] # Will be switched to a script
+    access: []
+- name: Life Temple
+  id: 271
+  type: "Location"
+  location: "LifeTemple"
+  game_objects: []
+  links:
+  - target_room: 222 # To Life Temple Subregion
+    access: []
+  - target_room: 51  # Life Temple
+    entrance: 454
+    teleporter: [0x0B, 1]
+    access: []
+- name: North of Libra Temple Battlefield
+  id: 250
+  type: "Location"
+  location: "LibraBattlefield01"
+  game_objects:
+  - name: "North of Libra Temple Battlefield"
+    object_id: 0x0A
+    type: "BattlefieldItem"
+    access: []
+  links:
+  - target_room: 223 # To Frozen Field
+    access: []
+- name: Aquaria Frozen Field Battlefield
+  id: 251
+  type: "Location"
+  location: "LibraBattlefield02"
+  game_objects:
+  - name: "Aquaria Frozen Field Battlefield"
+    object_id: 0x0B
+    type: "BattlefieldXp"
+    access: []
+  links:
+  - target_room: 223 # To Frozen Field
+    access: []
+- name: Wintry Temple
+  id: 275
+  type: "Location"
+  location: "WintryTemple"
+  game_objects: []
+  links:
+  - target_room: 223 # To Frozen Field
+    access: []
+  - target_room: 74  # Wintry Temple
+    entrance: 458
+    teleporter: [0x10, 1]
+    access: []
+- name: Focus Tower Frozen Field
+  id: 276
+  type: "Location"
+  location: "FocusTowerFrozen"
+  game_objects: []
+  links:
+  - target_room: 223 # To Frozen Field
+    access: []
+  - target_room: 14  # Focus Tower Frozen Strip
+    entrance: 459
+    teleporter: [0x11, 1]
+    access: []
+- name: Focus Tower Fireburg
+  id: 277
+  type: "Location"
+  location: "FocusTowerFireburg"
+  game_objects: []
+  links:
+  - target_room: 224 # To Fireburg Subregion
+    access: []
+  - target_room: 13  # Focus Tower Fireburg
+    entrance: 460
+    teleporter: [0x12, 1]
+    access: []
+- name: Path to Fireburg Southern Battlefield
+  id: 252
+  type: "Location"
+  location: "FireburgBattlefield01"
+  game_objects:
+  - name: "Path to Fireburg Southern Battlefield"
+    object_id: 0x0C
+    type: "BattlefieldGp"
+    access: []
+  links:
+  - target_room: 224 # To Fireburg Subregion
+    access: []
+- name: Path to Fireburg Central Battlefield
+  id: 253
+  type: "Location"
+  location: "FireburgBattlefield02"
+  game_objects:
+  - name: "Path to Fireburg Central Battlefield"
+    object_id: 0x0D
+    type: "BattlefieldItem"
+    access: []
+  links:
+  - target_room: 224 # To Fireburg Subregion
+    access: []
+- name: Path to Fireburg Northern Battlefield
+  id: 254
+  type: "Location"
+  location: "FireburgBattlefield03"
+  game_objects:
+  - name: "Path to Fireburg Northern Battlefield"
+    object_id: 0x0E
+    type: "BattlefieldXp"
+    access: []
+  links:
+  - target_room: 224 # To Fireburg Subregion
+    access: []
+- name: Fireburg
+  id: 278
+  type: "Location"
+  location: "Fireburg"
+  game_objects: []
+  links:
+  - target_room: 224 # To Fireburg Subregion
+    access: []
+  - target_room: 76  # Fireburg
+    entrance: 461
+    teleporter: [0x14, 1]
+    access: []
+- name: Sealed Temple Battlefield
+  id: 255
+  type: "Location"
+  location: "MineBattlefield01"
+  game_objects:
+  - name: "Sealed Temple Battlefield"
+    object_id: 0x0F
+    type: "BattlefieldGp"
+    access: []
+  links:
+  - target_room: 224 # To Fireburg Subregion
+    access: []
+- name: Mine Battlefield
+  id: 256
+  type: "Location"
+  location: "MineBattlefield02"
+  game_objects:
+  - name: "Mine Battlefield"
+    object_id: 0x10
+    type: "BattlefieldItem"
+    access: []
+  links:
+  - target_room: 224 # To Fireburg Subregion
+    access: []
+- name: Mine
+  id: 279
+  type: "Location"
+  location: "Mine"
+  game_objects: []
+  links:
+  - target_room: 224 # To Fireburg Subregion
+    access: []
+  - target_room: 84  # Mine
+    entrance: 462
+    teleporter: [0x15, 1]
+    access: []
+- name: Sealed Temple
+  id: 280
+  type: "Location"
+  location: "SealedTemple"
+  game_objects: []
+  links:
+  - target_room: 224 # To Fireburg Subregion
+    access: []
+  - target_room: 92  # Sealed Temple
+    entrance: 463
+    teleporter: [0x16, 1]
+    access: []
+- name: Mine Battlefield
+  id: 257
+  type: "Location"
+  location: "MineBattlefield03"
+  game_objects:
+  - name: "Boulder Battlefield"
+    object_id: 0x11
+    type: "BattlefieldXp"
+    access: []
+  links:
+  - target_room: 224 # To Fireburg Subregion
+    access: []
+- name: Volcano
+  id: 281
+  type: "Location"
+  location: "Volcano"
+  game_objects: []
+  links:
+  - target_room: 224 # To Fireburg Subregion
+    access: []
+  - target_room: 93  # Volcano
+    entrance: 464
+    teleporter: [0x17, 1] # Also this one / 0x0F, 8
+    access: []
+- name: Lava Dome
+  id: 282
+  type: "Location"
+  location: "LavaDome"
+  game_objects: []
+  links:
+  - target_room: 224 # To Fireburg Subregion
+    access: []
+  - target_room: 100 # Lava Dome
+    entrance: 465
+    teleporter: [0x18, 1]
+    access: []
+- name: Volcano Battlefield
+  id: 258
+  type: "Location"
+  location: "VolcanoBattlefield01"
+  game_objects:
+  - name: "Volcano Battlefield"
+    object_id: 0x12
+    type: "BattlefieldXp"
+    access: []
+  links:
+  - target_room: 225 # To Volcano Battlefield Subregion
+    access: []
+- name: Focus Tower Windia
+  id: 283
+  type: "Location"
+  location: "FocusTowerWindia"
+  game_objects: []
+  links:
+  - target_room: 226 # To Windia Subregion
+    access: []
+  - target_room: 9   # Focus Tower Windia
+    entrance: 466
+    teleporter: [0x06, 1]
+    access: []
+- name: Rope Bridge
+  id: 284
+  type: "Location"
+  location: "RopeBridge"
+  game_objects: []
+  links:
+  - target_room: 226 # To Windia Subregion
+    access: []
+  - target_room: 123 # Rope Bridge
+    entrance: 467
+    teleporter: [0x19, 1]
+    access: []
+- name: Alive Forest
+  id: 285
+  type: "Location"
+  location: "AliveForest"
+  game_objects: []
+  links:
+  - target_room: 226 # To Windia Subregion
+    access: []
+  - target_room: 124 # Alive Forest
+    entrance: 468
+    teleporter: [0x1A, 1]
+    access: []
+- name: Giant Tree
+  id: 286
+  type: "Location"
+  location: "GiantTree"
+  game_objects: []
+  links:
+  - target_room: 226 # To Windia Subregion
+    access: []
+  - target_room: 125 # Giant Tree
+    entrance: 469
+    teleporter: [0x1B, 1]
+    access: ["Barred"]
+- name: Kaidge Temple
+  id: 287
+  type: "Location"
+  location: "KaidgeTemple"
+  game_objects: []
+  links:
+  - target_room: 226 # To Windia Subregion
+    access: []
+  - target_room: 152 # Kaidge Temple
+    entrance: 470
+    teleporter: [0x1C, 1]
+    access: []
+- name: Kaidge Temple Battlefield
+  id: 259
+  type: "Location"
+  location: "WindiaBattlefield01"
+  game_objects:
+  - name: "Kaidge Temple Battlefield"
+    object_id: 0x13
+    type: "BattlefieldXp"
+    access: []
+  links:
+  - target_room: 226 # To Windia Subregion
+    access: []
+- name: South of Windia Battlefield
+  id: 260
+  type: "Location"
+  location: "WindiaBattlefield02"
+  game_objects:
+  - name: "South of Windia Battlefield"
+    object_id: 0x14
+    type: "BattlefieldXp"
+    access: []
+  links:
+  - target_room: 226 # To Windia Subregion
+    access: []
+- name: Windia
+  id: 288
+  type: "Location"
+  location: "Windia"
+  game_objects: []
+  links:
+  - target_room: 226 # To Windia Subregion
+    access: []
+  - target_room: 156 # Windia
+    entrance: 471
+    teleporter: [0x1D, 1]
+    access: []
+- name: Windhole Temple
+  id: 289
+  type: "Location"
+  location: "WindholeTemple"
+  game_objects: []
+  links:
+  - target_room: 226 # To Windia Subregion
+    access: []
+  - target_room: 154 # Windhole Temple
+    entrance: 472
+    teleporter: [0x1E, 1]
+    access: []
+- name: Mount Gale
+  id: 290
+  type: "Location"
+  location: "MountGale"
+  game_objects: []
+  links:
+  - target_room: 226 # To Windia Subregion
+    access: []
+  - target_room: 155 # Mount Gale
+    entrance: 473
+    teleporter: [0x1F, 1]
+    access: []
+- name: Pazuzu Tower
+  id: 291
+  type: "Location"
+  location: "PazuzusTower"
+  game_objects: []
+  links:
+  - target_room: 226 # To Windia Subregion
+    access: []
+  - target_room: 166 # Pazuzu Tower
+    entrance: 474
+    teleporter: [0x20, 1]
+    access: []
+- name: Ship Dock
+  id: 292
+  type: "Location"
+  location: "ShipDock"
+  game_objects: []
+  links:
+  - target_room: 228 # To Ship Dock Subregion
+    access: []
+  - target_room: 186 # Ship Dock
+    entrance: 475
+    teleporter: [0x3E, 1]
+    access: []
+- name: Spencer's Place
+  id: 274
+  type: "Location"
+  location: "SpencersPlace"
+  game_objects: []
+  links:
+  - target_room: 227 # To Spencer Subregion
+    access: []
+  - target_room: 73  # Spencer's Place
+    entrance: 457
+    teleporter: [0x30, 8]
+    access: []
+- name: Mac's Ship
+  id: 295
+  type: "Location"
+  location: "MacsShip"
+  game_objects: []
+  links:
+  - target_room: 229 # To Mac Ship Subregion
+    access: []
+  - target_room: 187 # Mac Ship
+    entrance: 478
+    teleporter: [0x24, 1]
+    access: []
+- name: Light Temple
+  id: 294
+  type: "Location"
+  location: "LightTemple"
+  game_objects: []
+  links:
+  - target_room: 230 # To Light Temple Subregion
+    access: []
+  - target_room: 185 # Light Temple
+    entrance: 477
+    teleporter: [0x23, 1]
+    access: []
+- name: Doom Castle
+  id: 293
+  type: "Location"
+  location: "DoomCastle"
+  game_objects: []
+  links:
+  - target_room: 231 # To Doom Castle Subregion
+    access: []
   - target_room: 1   # Doom Castle
-    location: "DoomCastle"
-    location_slot: "DoomCastle"
     entrance: 476
     teleporter: [0x21, 1]
     access: []
+- name: Mac Ship Doom
+  id: 296
+  type: "Location"
+  location: "MacsShipDoom"
+  game_objects: []
+  links:
+  - target_room: 231 # To Doom Castle Subregion
+    access: []
   - target_room: 187 # Mac Ship Doom
-    location: "MacsShipDoom"
-    location_slot: "MacsShipDoom"
     entrance: 479
     teleporter: [0x24, 1]
     access: ["Barred"]
-  - target_room: 229
-    access: ["ShipLoaned", "ShipDockAccess", "ShipSteeringWheel"]
 - name: Doom Castle - Sand Floor
   id: 1
   game_objects:
