@@ -13,7 +13,10 @@
         <Container Class="flagColumn">
             <BoolFlag UsePreset=false Name="Randomize Benjamin's Palette" @bind-Value="preferences.RandomBenjaminPalette" Tooltip="Randomly select Benjamin's palette, giving him a brand new look!" />
             <Field Class="dropFlag">
-                <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Preset Selection</FieldLabel>
+                <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Custom Player Sprite</FieldLabel>
+                <Tooltip Text="Select a custom sprite set to replace the main character.<br/><br/>Default/Benjamin will keep the rom original sprite or an hacked rom sprite.<br/><br/>Upload Custom Sprites allows you to upload your own spritesheet." Inline Multiline Placement="TooltipPlacement.Right">
+                    <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small />
+                </Tooltip>
                 <Dropdown TValue="string">
                     <DropdownToggle Class="btn-primary" Style="text-align: left">
                         @((MarkupString)spritesSelect[preferences.PlayerSprite])
