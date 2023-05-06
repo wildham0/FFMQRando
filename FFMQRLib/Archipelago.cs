@@ -283,6 +283,9 @@ namespace FFMQLib
             RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
             WindowPalette(preferences.WindowPalette);
 
+            SpriteReader spriteReader = new SpriteReader();
+            spriteReader.LoadCustomSprites(preferences, this);
+
             // Write everything back			
             itemsPlacement.WriteChests(this);
             credits.Write(this);

@@ -134,6 +134,11 @@ h2 {
     min-width: 200px;
 }
 
+.dropdown-toggle {
+    width: 100%;
+    text-align: left;
+}
+
 
 #blazor-error-ui {
     background: lightyellow;

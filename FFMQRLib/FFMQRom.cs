@@ -11,7 +11,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.4.25";
+		public static string Version = "1.4.26";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -271,6 +271,9 @@ namespace FFMQLib
             RandomizeTracks(preferences.RandomMusic, sillyrng);
             RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			WindowPalette(preferences.WindowPalette);
+			
+            SpriteReader spriteReader = new SpriteReader();
+            spriteReader.LoadCustomSprites(preferences, this);
 
             // Write everything back			
             itemsPlacement.WriteChests(this);
@@ -291,10 +294,9 @@ namespace FFMQLib
 			MapSpriteSets.Write(this);
 			titleScreen.Write(this, Metadata.Version, seed, flags);
 
-
 			// Spoilers
 			spoilersText = itemsPlacement.GenerateSpoilers(flags, titleScreen.versionText, titleScreen.hashText, seed.ToHex());
-            spoilers = flags.EnableSpoilers;
+      spoilers = flags.EnableSpoilers;
 			
 			// Remove header if any
 			this.Header = Array.Empty<byte>();
