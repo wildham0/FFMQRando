@@ -1,0 +1,7 @@
+﻿.benjamin-default-icon {
+    background: url('skin-icons/default-benjamin-icon.png');
+    background-size: contain;
+    height: 32px;
+    width: 32px;
+    display: block;
+}

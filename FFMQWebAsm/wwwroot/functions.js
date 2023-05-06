@@ -35,6 +35,17 @@ async function saveSavedRom(romToSave) {
     localforage.setItem('SavedRom', romToSave).then(function (value) { return true; }).catch(function (err) { return false; });
 }
 
+async function loadSavedSprites() {
+    localforage.config();
+    value = await localforage.getItem('SavedSprites');
+    return value;
+}
+
+async function saveSavedSprites(spritesToSave) {
+    localforage.config();
+    localforage.setItem('SavedSprites', spritesToSave).then(function (value) { return true; }).catch(function (err) { return false; });
+}
+
 function hideLoadingBox() {
     // Get element with the specified ID name
     var idValue = document.getElementById("loadingbox");

@@ -30,9 +30,6 @@ namespace FFMQLib
 
         public void Encode(FFMQRom rom)
         {
-
-            ReadData();
-
             dataOffset = data[infoDataOffset] + (data[infoDataOffset + 1] * 0x100) + (data[infoDataOffset + 2] * 0x100 * 0x100) + (data[infoDataOffset + 3] * 0x100 * 0x100 * 0x100);
             colorCount = data[infoColorsUsed] + (data[infoColorsUsed + 1] * 0x100) + (data[infoColorsUsed + 2] * 0x100 * 0x100) + (data[infoColorsUsed + 3] * 0x100 * 0x100 * 0x100);
 
@@ -62,66 +59,56 @@ namespace FFMQLib
                 }
             }
 
-            List<(int, int)> walkTiles = new() {
-                (0, 0),
-                (8, 0),
-                (0, 8),
-                (8, 8),
-                (0, 16),
-                (8, 16),
-                (0, 24),
-                (8, 24),
-                (0, 32),
-                (8, 32),
-                (0, 40),
-                (8, 40),
-                (0, 48),
-                (8, 48),
-                (0, 56),
-                (8, 56),
-            };
+            byte emptyPixel = pixelcolors.Find(p => p.Item2 == 0).Item1;
 
-            List<(int, int)> pushTiles = new() {
-                (16, 0),
-                (24, 0),
-                (16, 8),
-                (24, 8),
-                (16, 16),
-                (24, 16),
-                (16, 24),
-                (24, 24),
-                (16, 32),
-                (24, 32),
-                (16, 40),
-                (24, 40),
-                (16, 48),
-                (24, 48),
-                (16, 56),
-                (24, 56),
-            };
+            // Get Software Bop Down flag
+            byte softbopdownbyte = data[dataOffset + (2 * infoWidth) - 1];
+            bool softbopdownenabled = (softbopdownbyte != emptyPixel);
+
+            // Get Software Bop Up flag
+            byte softbopupbyte = data[dataOffset + (2 * infoWidth) - 2];
+            bool softbopupenabled = (softbopupbyte != emptyPixel);
 
 
-            List<byte[]> walkseriesEncoded = new();
-            foreach (var tile in walkTiles)
-            {
-                walkseriesEncoded.Add(EncodeTile(tile));
-            }
-
-            List<byte[]> pushseriesEncoded = new();
-            foreach (var tile in pushTiles)
-            {
-                pushseriesEncoded.Add(EncodeTile(tile));
-            }
+            // Encode Sprites
+            List<byte[]> walkseriesEncoded = EncodeSeries((0,0), 8);
+            List<byte[]> pushseriesEncoded = EncodeSeries((16, 0), 8);
+            List<byte[]> jumpseriesEncoded = EncodeSeries((32, 0), 6);
+            List<byte[]> victoryseriesEncoded = EncodeSeries((48, 0), 4);
+            List<byte[]> throwdeathEncoded = EncodeSeries((64, 0), 8);
+            List<byte[]> bombshrugEncoded = EncodeSeries((80, 0), 4);
+            byte[] shrughandEncoded = EncodeTile((96, 24));
+            List<byte[]> climbEncoded = EncodeSeries((80, 32), 3);
 
             rom.PutInBank(0x04, 0x9A20, walkseriesEncoded.SelectMany(x => x).ToArray());
             rom.PutInBank(0x04, 0xCA20, pushseriesEncoded.SelectMany(x => x).ToArray());
+            rom.PutInBank(0x04, 0xCBA0, jumpseriesEncoded.SelectMany(x => x).ToArray());
+            rom.PutInBank(0x04, 0xCD20, victoryseriesEncoded.SelectMany(x => x).ToArray());
+            rom.PutInBank(0x04, 0xCEA0, throwdeathEncoded.SelectMany(x => x).ToArray());
+            rom.PutInBank(0x04, 0xD020, bombshrugEncoded.SelectMany(x => x).ToArray());
+            rom.PutInBank(0x04, 0xD0E0, shrughandEncoded);
+            rom.PutInBank(0x04, 0xD110, climbEncoded.SelectMany(x => x).ToArray());
             rom.PutInBank(0x07, 0xD824, finalPalette.ToArray());
+
+            // Software Bop Hack
+            if (softbopdownenabled || softbopupenabled)
+            {
+                string bopdirection = "ff";
+                /*
+                if (softbopupenabled)
+                {
+                    bopdirection = "01";
+                }*/
+                
+                rom.PutInBank(0x01, 0x94B6, Blob.FromHex("22008511eaeaeaea"));
+                rom.PutInBank(0x11, 0x8500, Blob.FromHex($"ad26192904ea4a4a48ad8b0e2901f0096848f002a9{bopdirection}8d9919686b"));
+            }
         }
 
-        private void ReadData()
+        private void ReadSpriteSheet(string spritename)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("fighter.bmp"));
+            string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith(spritename));
             using (Stream imagefile = assembly.GetManifestResourceStream(filepath))
             {
                 using (BinaryReader reader = new BinaryReader(imagefile))
@@ -177,9 +164,6 @@ namespace FFMQLib
 
         private byte[] EncodeTile((int x, int y) tilePosition)
         {
-            List<byte> bitmask = new() { 0x80, 0x40, 0x20, 0x10, 0x08, 0x4, 0x02, 0x01 };
-            List<byte> palettemask = new() { 0x01, 0x02, 0x04 };
-
             byte[] encodedTile = new byte[0x18];
 
             for (int i = 0; i < 8; i++)
@@ -193,6 +177,38 @@ namespace FFMQLib
             }
 
             return encodedTile;
+        }
+
+        private List<byte[]> EncodeSeries((int x, int y) startTile, int height)
+        {
+            List<byte[]> encodedSeries = new();
+            
+            for (int i = 0; i < height; i++)
+            {
+                encodedSeries.Add(EncodeTile((startTile.x, startTile.y + (i * 8))));
+                encodedSeries.Add(EncodeTile((startTile.x + 8, startTile.y + (i * 8))));
+            }
+
+            return encodedSeries;
+        }
+
+        public void LoadCustomSprites(Preferences pref, FFMQRom rom)
+        {
+            if (pref.PlayerSprite == "default")
+            {
+                return;
+            }
+            else if (pref.PlayerSprite == "custom")
+            {
+                data = pref.CustomSprites;
+                Encode(rom);
+            }
+            else
+            {
+                ReadSpriteSheet(pref.PlayerSprite);
+                Encode(rom);
+            }
+        
         }
     }
 }
