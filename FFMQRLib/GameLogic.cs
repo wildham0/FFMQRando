@@ -506,7 +506,6 @@ namespace FFMQLib
 		private void ProcessRoom(int roomid, List<int> origins, List<AccessReqs> access, (LocationIds, int) locPriority)
 		{ 
 			var targetroom = Rooms.Find(x => x.Id == roomid);
-			bool traverseCrest = false;
 
 			foreach (var children in targetroom.Links)
 			{
@@ -520,13 +519,15 @@ namespace FFMQLib
 				}
 				else if (!origins.Contains(children.TargetRoom))
 				{
-					if (children.Access.Contains(AccessReqs.LibraCrest) || children.Access.Contains(AccessReqs.GeminiCrest) || children.Access.Contains(AccessReqs.MobiusCrest))
+					bool traverseCrest = false;
+
+                    if (children.Access.Contains(AccessReqs.LibraCrest) || children.Access.Contains(AccessReqs.GeminiCrest) || children.Access.Contains(AccessReqs.MobiusCrest))
 					{
 						traverseCrest = true;
 					}
 					
 					ProcessRoom(children.TargetRoom, origins.Concat(new List<int> { roomid }).ToList(), access.Concat(children.Access).ToList(), (locPriority.Item1, traverseCrest ? locPriority.Item2 + 1 : locPriority.Item2));
-				}
+                }
 			}
 
 			locationQueue.Add((roomid, locPriority.Item2, locPriority.Item1));
