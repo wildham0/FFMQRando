@@ -108,7 +108,7 @@ namespace FFMQLib
         private void ReadSpriteSheet(string spritename)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith(spritename));
+            string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith(spritename + ".bmp"));
             using (Stream imagefile = assembly.GetManifestResourceStream(filepath))
             {
                 using (BinaryReader reader = new BinaryReader(imagefile))
