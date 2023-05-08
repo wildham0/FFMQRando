@@ -176,6 +176,7 @@
             spritesheet = ms.ToArray();
 
             preferences.CustomSprites = spritesheet;
+            preferences.ValidateCustomSprites();
             spriteMessage = "Custom Sprites Loaded";
             SaveSprites();
         }

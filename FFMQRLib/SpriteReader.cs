@@ -36,6 +36,11 @@ namespace FFMQLib
             palette = new();
             pixelcolors = new();
 
+            if (colorCount == 0)
+            {
+                colorCount = 0x100;
+            }
+
             for (int i = 0; i< colorCount; i++)
             {
                 int lowerrange = infColortable + i * 4;
