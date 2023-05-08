@@ -25,52 +25,97 @@ namespace FFMQLib
 		RandomLow,
 
 	}
+
+
+
 	public class Battlefield
 	{ 
 		public LocationIds Location { get; set; }
-		public BattlefieldRewardType RewardType { get; set; }
+		public BattlefieldRewardType RewardType { get => GetRewardType(); }
 		public ushort Value { get; set; }
+		public Items Reward { get; set; }
 
-		public Battlefield(LocationIds location, byte[] rawvalues)
+        public static Dictionary<Items, ushort> BattlefieldRewardValues = new()
+        {
+			{ Items.Xp54, 0x0012 },
+            { Items.Xp99, 0x0021 },
+            { Items.Xp540, 0x00B4 },
+            { Items.Xp744, 0x00F8 },
+            { Items.Xp816, 0x0110 },
+            { Items.Xp1068, 0x0164 },
+            { Items.Xp1200, 0x0190 },
+            { Items.Xp2700, 0x0384 },
+            { Items.Xp2808, 0x03A8 },
+            { Items.Gp150, 0x0032 },
+            { Items.Gp300, 0x0064 },
+            { Items.Gp600, 0x00C8 },
+            { Items.Gp900, 0x012C },
+            { Items.Gp1200, 0x0190 },
+        };
+
+        public Battlefield(LocationIds location, byte[] rawvalues)
 		{
 			Location = location;
-			RewardType = (BattlefieldRewardType)(rawvalues[1] & 0xC0);
+			//RewardType = (BattlefieldRewardType)(rawvalues[1] & 0xC0);
+			byte rewardtype = (byte)(rawvalues[1] & 0xC0);
 
-			if (RewardType == BattlefieldRewardType.Item)
+
+            if (rewardtype == (byte)BattlefieldRewardType.Item)
 			{
 				Value = rawvalues[0];
-			}
-			else if (RewardType == BattlefieldRewardType.Experience)
+                Reward = (Items)Value;
+            }
+			else if (rewardtype == (byte)BattlefieldRewardType.Experience)
 			{
 				Value = (ushort)(rawvalues[0] + (0x100 * (rawvalues[1] & 0x7F)));
-			}
-			else if (RewardType == BattlefieldRewardType.Gold)
+                Reward = BattlefieldRewardValues.Where(x => x.Value == Value).First().Key;
+            }
+			else if (rewardtype == (byte)BattlefieldRewardType.Gold)
 			{
                 Value = (ushort)(rawvalues[0] + (0x100 * (rawvalues[1] & 0x3F)));
+                Reward = BattlefieldRewardValues.Where(x => x.Value == Value).First().Key;
             }
-		}
+        }
+		private BattlefieldRewardType GetRewardType()
+		{
+            if (Reward >= Items.Xp54 && Reward <= Items.Xp2808)
+            {
+				return BattlefieldRewardType.Experience;
+            }
+            else if (Reward >= Items.Gp150 && Reward <= Items.Gp1200)
+            {
+				return BattlefieldRewardType.Gold;
+            }
+            else
+            {
+				return BattlefieldRewardType.Item;
+            }
 
+        }
 		public byte[] GetBytes()
 		{
-			if (RewardType == BattlefieldRewardType.Item)
+			if (Reward >= Items.Xp54 && Reward <= Items.Xp2808)
 			{
-				return new byte[] { (byte)(Value & 0x00FF), (byte)RewardType };
+				return new byte[] {
+					(byte)(BattlefieldRewardValues[Reward] & 0x00FF),
+					(byte)((byte)BattlefieldRewardType.Experience | ((BattlefieldRewardValues[Reward] & 0x7F00) / 0x100))
+				};
 			}
-			else if (RewardType == BattlefieldRewardType.Experience)
+			else if (Reward >= Items.Gp150 && Reward <= Items.Gp1200)
 			{
-                return new byte[] { (byte)(Value & 0x00FF), (byte)((byte)RewardType | ((Value & 0x7F00) / 0x100)) };
-			}
-			else if (RewardType == BattlefieldRewardType.Gold)
-			{
-				return new byte[] { (byte)(Value & 0x00FF), (byte)((byte)RewardType | ((Value & 0x3F00) / 0x100)) };
+				return new byte[] {
+					(byte)(BattlefieldRewardValues[Reward] & 0x00FF),
+					(byte)((byte)BattlefieldRewardType.Gold | ((BattlefieldRewardValues[Reward] & 0x3F00) / 0x100))
+				};
 			}
 			else
 			{
-				return new byte[] { 0x00, 0x00 };
-			}
+                return new byte[] {
+					(byte)Reward,
+					(byte)BattlefieldRewardType.Item
+                };
+            }
 		}
-
-
     }
 	public class Battlefields
 	{
@@ -108,7 +153,7 @@ namespace FFMQLib
 
 			foreach (var battlefield in battlefieldsWithItem)
 			{
-				battlefields.Find(x => x.Location == battlefield.Location).Value = (ushort)battlefield.Content;
+				battlefields.Find(x => x.Location == battlefield.Location).Reward = battlefield.Content;
 			}
 		}
 		public void ShuffleBattelfieldRewards(bool enable, GameLogic gamelogic, MT19337 rng)
@@ -118,17 +163,24 @@ namespace FFMQLib
 				return;
 			}
 
-			List<LocationIds> battlefieldlocations = battlefields.Select(x => x.Location).ToList();
+			List<Items> battlefieldRewards = battlefields.Select(x => x.Reward).ToList();
+            //List<LocationIds> battlefieldlocations = battlefields.Select(x => x.Location).ToList();
 
-			battlefields.ForEach(x => x.Location = rng.TakeFrom(battlefieldlocations));
+			battlefields.ForEach(x => x.Reward = rng.TakeFrom(battlefieldRewards));
 
 			UpdateLogic(gamelogic);
         }
-        public void SetBattelfieldRewards(bool enable, List<ApObject> itemsplacement, GameLogic gamelogic, MT19337 rng)
+        public void SetBattelfieldRewards(List<ApObject> itemsplacement, GameLogic gamelogic)
         {
+
+
+
             List<LocationIds> battlefieldlocations = battlefields.Select(x => x.Location).ToList();
-            var battlefieldPlacement = itemsplacement.Where(x => x.Type == GameObjectType.BattlefieldItem).Select(x => (LocationIds)x.ObjectId).OrderByDescending(x => x).ToList();
-			battlefieldlocations = battlefieldlocations.Except(battlefieldPlacement).ToList();
+            var battlefieldPlacement = itemsplacement.Where(x => x.Type == GameObjectType.BattlefieldItem).ToList();
+			battlefields.ForEach(x => x.Reward = battlefieldPlacement.Find(b => b.Location == x.Location).Content);
+			/*
+
+            battlefieldlocations = battlefieldlocations.Except(battlefieldPlacement).ToList();
 
 			var itemBattlefields = battlefields.Where(x => x.RewardType == BattlefieldRewardType.Item).ToList();
             var nonItemBattlefields = battlefields.Where(x => x.RewardType != BattlefieldRewardType.Item).ToList();
@@ -138,7 +190,7 @@ namespace FFMQLib
 			if (enable)
 			{
 				nonItemBattlefields.ForEach(x => x.Location = rng.TakeFrom(battlefieldlocations));
-			}
+			}*/
 
 			UpdateLogic(gamelogic);
         }
