@@ -99,14 +99,27 @@ namespace FFMQLib
             if (softbopenabled)
             {
                 rom.PutInBank(0x01, 0x94B6, Blob.FromHex("22008511eaeaeaea"));
-                rom.PutInBank(0x11, 0x8500, Blob.FromHex($"ad26192904ea4a4a48ad8b0e2901f0096848f002a9ff8d9919686b"));
+                rom.PutInBank(0x11, 0x8500, Blob.FromHex("ad26192904ea4a4a48ad8b0e2901f0096848f002a9ff8d9919686b"));
             }
 
             // Full Horizontal Flip hack
             if (fullhorizontalflibenabled)
             {
-                rom.PutInBank(0x00, 0xF13C, Blob.FromHex("0d400c40"));
-                rom.PutInBank(0x00, 0xF164, Blob.FromHex("01400040"));
+
+                // Copy animation array
+                rom.PutInBank(0x11, 0x82F0, rom.GetFromBank(0x00, 0xF13C, 0x110));
+
+                rom.PutInBank(0x11, 0x82F0, Blob.FromHex("0d400c40"));
+                rom.PutInBank(0x11, 0x8318, Blob.FromHex("01400040"));
+
+                rom.PutInBank(0x01, 0x8D3E, Blob.FromHex("7ff08211"));
+                rom.PutInBank(0x01, 0x8D45, Blob.FromHex("bff18211"));
+                rom.PutInBank(0x01, 0x8D81, Blob.FromHex("7ff08211"));
+                rom.PutInBank(0x01, 0x8D88, Blob.FromHex("bff18211"));
+
+                // Horizontal flip in battle
+                rom.PutInBank(0x02, 0xF35B, Blob.FromHex("2220851160"));
+                rom.PutInBank(0x11, 0x8520, Blob.FromHex("8ad01eb9020c48b9060c99020c6899060cb9030c494099030cb9070c494099070cb90a0c48b90e0c990a0c68990e0cb90b0c4940990b0cb90f0c4940990f0c6b"));
             }
         }
 
