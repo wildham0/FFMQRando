@@ -66,13 +66,13 @@ namespace FFMQLib
 
             byte emptyPixel = pixelcolors.Find(p => p.Item2 == 0).Item1;
 
-            // Get Software Bop Down flag
-            byte softbopdownbyte = data[dataOffset + (2 * infoWidth) - 1];
-            bool softbopdownenabled = (softbopdownbyte != emptyPixel);
+            // Get Software Bop flag
+            byte softbopbyte = data[dataOffset + (2 * infoWidth) - 1];
+            bool softbopenabled = (softbopbyte != emptyPixel);
 
-            // Get Software Bop Up flag
-            byte softbopupbyte = data[dataOffset + (2 * infoWidth) - 2];
-            bool softbopupenabled = (softbopupbyte != emptyPixel);
+            // Get Full Horizontal Flip flag
+            byte fullhorizontalflipbyte = data[dataOffset + (2 * infoWidth) - 2];
+            bool fullhorizontalflibenabled = (fullhorizontalflipbyte != emptyPixel);
 
 
             // Encode Sprites
@@ -96,17 +96,17 @@ namespace FFMQLib
             rom.PutInBank(0x07, 0xD824, finalPalette.ToArray());
 
             // Software Bop Hack
-            if (softbopdownenabled || softbopupenabled)
+            if (softbopenabled)
             {
-                string bopdirection = "ff";
-                /*
-                if (softbopupenabled)
-                {
-                    bopdirection = "01";
-                }*/
-                
                 rom.PutInBank(0x01, 0x94B6, Blob.FromHex("22008511eaeaeaea"));
-                rom.PutInBank(0x11, 0x8500, Blob.FromHex($"ad26192904ea4a4a48ad8b0e2901f0096848f002a9{bopdirection}8d9919686b"));
+                rom.PutInBank(0x11, 0x8500, Blob.FromHex($"ad26192904ea4a4a48ad8b0e2901f0096848f002a9ff8d9919686b"));
+            }
+
+            // Full Horizontal Flip hack
+            if (fullhorizontalflibenabled)
+            {
+                rom.PutInBank(0x00, 0xF13C, Blob.FromHex("0d400c40"));
+                rom.PutInBank(0x00, 0xF164, Blob.FromHex("01400040"));
             }
         }
 
