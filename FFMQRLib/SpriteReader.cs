@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.ComponentModel;
 using System.Reflection;
 using System.Diagnostics;
@@ -105,7 +106,6 @@ namespace FFMQLib
             // Full Horizontal Flip hack
             if (fullhorizontalflibenabled)
             {
-
                 // Copy animation array
                 rom.PutInBank(0x11, 0x82F0, rom.GetFromBank(0x00, 0xF13C, 0x110));
 
@@ -120,18 +120,46 @@ namespace FFMQLib
                 // Horizontal flip in battle
                 rom.PutInBank(0x02, 0xF35B, Blob.FromHex("2220851160"));
                 rom.PutInBank(0x11, 0x8520, Blob.FromHex("8ad01eb9020c48b9060c99020c6899060cb9030c494099030cb9070c494099070cb90a0c48b90e0c990a0c68990e0cb90b0c4940990b0cb90f0c4940990f0c6b"));
+
+                // Status sprites fix in battle
+                rom.PutInBank(0x0B, 0xFFA0, Blob.FromHex("2270851120049360")); // reroute
+                rom.PutInBank(0x11, 0x8570, Blob.FromHex("8ad005a9308d430c6b")); // Force position initial
+                //rom.PutInBank(0x0B, 0x9029, Blob.FromHex("20A0FF")); // Poison???
+                //rom.PutInBank(0x0B, 0x90A4, Blob.FromHex("20A0FF")); // Walking
+                rom.PutInBank(0x0B, 0x9178, Blob.FromHex("20A0FF")); // ???
+                rom.PutInBank(0x0B, 0x9200, Blob.FromHex("20A0FF")); // Paralysis
+                rom.PutInBank(0x0B, 0x9297, Blob.FromHex("20A0FF")); // Stone
+                rom.PutInBank(0x0B, 0x92B3, Blob.FromHex("20A0FF")); // Death
+                rom.PutInBank(0x0B, 0x8F39, Blob.FromHex("20A0FF")); // Back to normal
             }
         }
 
         private void ReadSpriteSheet(string spritename)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith(spritename + ".bmp"));
-            using (Stream imagefile = assembly.GetManifestResourceStream(filepath))
+            string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("spritesheets.zip"));
+            using (Stream zipfile = assembly.GetManifestResourceStream(filepath))
             {
-                using (BinaryReader reader = new BinaryReader(imagefile))
+                using (ZipArchive spriteContainer = new ZipArchive(zipfile))
                 {
-                    data = reader.ReadBytes((int)imagefile.Length);
+                    if (spritename == "random")
+                    {
+                        Random rand = new Random(Guid.NewGuid().GetHashCode());
+                        int choosenSprite = rand.Next(1, (spriteContainer.Entries.Count - 1));
+
+                        using (BinaryReader reader = new BinaryReader(spriteContainer.Entries[choosenSprite].Open()))
+                        {
+                            data = reader.ReadBytes((int)spriteContainer.Entries[choosenSprite].Length);
+                        }
+                    }
+                    else
+                    {
+                        var entry = spriteContainer.GetEntry("spritesheets/" + spritename + ".bmp");
+                        using (BinaryReader reader = new BinaryReader(entry.Open()))
+                        {
+                            data = reader.ReadBytes((int)entry.Length);
+                        }
+                    }
                 }
             }
         }
