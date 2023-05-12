@@ -123,9 +123,10 @@ namespace FFMQLib
 
                 // Status sprites fix in battle
                 rom.PutInBank(0x0B, 0xFFA0, Blob.FromHex("2270851120049360")); // reroute
-                rom.PutInBank(0x11, 0x8570, Blob.FromHex("8ad005a9308d430c6b")); // Force position initial
-                //rom.PutInBank(0x0B, 0x9029, Blob.FromHex("20A0FF")); // Poison???
-                //rom.PutInBank(0x0B, 0x90A4, Blob.FromHex("20A0FF")); // Walking
+                rom.PutInBank(0x11, 0x8570, Blob.FromHex("8ad005a9308d430c6b")); // Force initial position
+                rom.PutInBank(0x0B, 0x8FFA, Blob.FromHex("20A0FF")); // Blind
+                rom.PutInBank(0x0B, 0x9029, Blob.FromHex("20A0FF")); // Poison?
+                rom.PutInBank(0x0B, 0x90A4, Blob.FromHex("20A0FF")); // Confusion
                 rom.PutInBank(0x0B, 0x9178, Blob.FromHex("20A0FF")); // ???
                 rom.PutInBank(0x0B, 0x9200, Blob.FromHex("20A0FF")); // Paralysis
                 rom.PutInBank(0x0B, 0x9297, Blob.FromHex("20A0FF")); // Stone

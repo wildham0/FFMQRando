@@ -112,7 +112,8 @@ namespace FFMQLib
 		FireburgSellerItemBought = 0xD1,
 		WindiaSellerItemBought = 0xD2,
 
-
+		// Tentative removed enemy flag
+		ShowEnemies = 0xF9,
 
 
 	}
