@@ -183,7 +183,7 @@ namespace FFMQLib
             {
 				byte quantity = 1;
 
-				if (location.Content >= Items.Potion && location.Content <= Items.Refresher)
+				if (location.Content >= Items.CurePotion && location.Content <= Items.Refresher)
 				{
 					quantity = 3;
 				}

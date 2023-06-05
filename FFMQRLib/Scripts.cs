@@ -280,7 +280,7 @@ namespace FFMQLib
 			{ Items.EtherShield, ($"{(int)FlagPositions.Armors:X4}", $"{(int)ArmorFlags.EtherShield:X2}") },
 			{ Items.Charm, ($"{(int)FlagPositions.Armors:X4}", $"{(int)ArmorFlags.Charm:X2}") },
 			{ Items.MagicRing, ($"{(int)FlagPositions.Armors:X4}", $"{(int)ArmorFlags.MagicRing:X2}") },
-			{ Items.CupidLock, ($"{(int)FlagPositions.Armors:X4}", $"{(int)ArmorFlags.CupidLock:X2}") },
+			{ Items.CupidLocket, ($"{(int)FlagPositions.Armors:X4}", $"{(int)ArmorFlags.CupidLock:X2}") },
 
 		};
 		public class ScriptCommands {

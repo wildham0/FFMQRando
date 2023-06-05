@@ -239,7 +239,7 @@ namespace FFMQLib
             // Preferences			
             RandomizeTracks(preferences.RandomMusic, sillyrng);
             RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
-			WindowPalette(preferences.WindowPalette);
+			//WindowPalette(preferences.WindowPalette);
 
 			// Write everything back			
 			itemsPlacement.WriteChests(this);

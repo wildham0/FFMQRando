@@ -408,7 +408,7 @@ namespace FFMQLib
 			//EntrancesLinks = result.EntrancesLinksList.Select(x => new EntrancesLink(x)).ToList();
 			yamlfile = "";
 		}
-
+		/*
 		public string GenerateYaml()
 		{
 			//List<Entrance> entrances = Entrances.SelectMany(x => x.Entrances.Select(e => new Entrance(x.AreaId, x.Name, e))).ToList();
@@ -421,7 +421,7 @@ namespace FFMQLib
 			var yaml = serializer.Serialize(entrances);
 
 			return yaml;
-		}
+		}*/
 	}
 }
 
