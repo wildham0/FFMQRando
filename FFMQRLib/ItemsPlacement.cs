@@ -336,16 +336,43 @@ namespace FFMQLib
 				}
 			}
 		}
-		public string GenerateSpoilers(FFMQRom rom, string version, string hash, string flags, string seed)
+		public string GenerateSpoilers(Flags flags, string version, string hash, string seed)
 		{
-			List<Items> invalidItems = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
-			List<GameObjectType> validType = new() { GameObjectType.Battlefield, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
+			List<Items> invalidItems = new() { Items.CurePotion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
+			List<GameObjectType> validType = new() { GameObjectType.BattlefieldItem, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
+			List<(Items, string)> progressiveItems = new()
+			{
+				(Items.SteelSword, "Progressive Sword"),
+                (Items.KnightSword, "Progressive Sword"),
+                (Items.Excalibur, "Progressive Sword"),
+                (Items.Axe, "Progressive Axe"),
+                (Items.BattleAxe, "Progressive Axe"),
+                (Items.GiantsAxe, "Progressive Axe"),
+                (Items.CatClaw, "Progressive Claw"),
+                (Items.CharmClaw, "Progressive Claw"),
+                (Items.DragonClaw, "Progressive Claw"),
+                (Items.Bomb, "Progressive Bomb"),
+                (Items.JumboBomb, "Progressive Bomb"),
+                (Items.MegaGrenade, "Progressive Bomb"),
+                (Items.SteelHelm, "Progressive Helmet"),
+                (Items.MoonHelm, "Progressive Helmet"),
+                (Items.ApolloHelm, "Progressive Helmet"),
+                (Items.SteelShield, "Progressive Shield"),
+                (Items.VenusShield, "Progressive Shield"),
+                (Items.AegisShield, "Progressive Shield"),
+                (Items.SteelArmor, "Progressive Armor"),
+                (Items.NobleArmor, "Progressive Armor"),
+                (Items.GaiasArmor, "Progressive Armor"),
+                (Items.Charm, "Progressive Accessory"),
+                (Items.MagicRing, "Progressive Accessory"),
+                (Items.CupidLocket, "Progressive Accessory"),
+            };
 
 			string spoilers = "";
 
 			spoilers += "--- Spoilers File --- \n";
 			spoilers += "FFMQR " + version + "\n";
-			spoilers += "Flags: " + flags + "\n";
+			spoilers += "Flags: " + flags.GenerateFlagString() + "\n";
 			spoilers += "Seed: " + seed + "\n";
 			spoilers += "Hash: " + hash + "\n";
 
@@ -367,25 +394,46 @@ namespace FFMQLib
 			spoilers += "Foresta\n";
 			foreach (var item in forestaKi)
 			{
-				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + item.Content + "\n";
+				string itemname = item.Content.ToString();
+				if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
+				{
+					itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
+                }
+				
+				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
 			}
 
 			spoilers += "\nAquaria\n";
 			foreach (var item in aquariaKi)
 			{
-				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + item.Content + "\n";
+                string itemname = item.Content.ToString();
+                if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
+                {
+                    itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
+                }
+                spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
 			}
 
 			spoilers += "\nFireburg\n";
 			foreach (var item in fireburgKi)
 			{
-				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + item.Content + "\n";
+                string itemname = item.Content.ToString();
+                if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
+                {
+                    itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
+                }
+                spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
 			}
 
 			spoilers += "\nWindia\n";
 			foreach (var item in windiaKi)
 			{
-				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + item.Content + "\n";
+                string itemname = item.Content.ToString();
+                if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
+                {
+                    itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
+                }
+                spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
 			}
 
 			return spoilers;

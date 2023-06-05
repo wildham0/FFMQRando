@@ -550,7 +550,7 @@ namespace FFMQLib
 
                 if (pattern.Opener < 0xFF)
                 {
-                    minimum = pattern.Opener;
+                    minimum = (pattern.Opener + 1);
                 }
 
                 int noOfAttacks = rng.Between(minimum, maximum);

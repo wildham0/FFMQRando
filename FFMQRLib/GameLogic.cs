@@ -285,7 +285,7 @@ namespace FFMQLib
 
 			subRegionsAccess = subRegionsAccess.Where(x => !x.Item2.Contains(AccessReqs.Barred)).ToList();
 
-			// Add Sealed Temple/Exit book trick
+			// Add Sealed Temple/Exit book trick logic
 			if (flags.LogicOptions == LogicOptions.Expert && flags.MapShuffling == MapShufflingMode.None && !flags.CrestShuffle)
 			{
 				List<AccessReqs> sealedTempleExit = new() { AccessReqs.RiverCoin, AccessReqs.ExitBook, AccessReqs.GeminiCrest };
@@ -402,9 +402,17 @@ namespace FFMQLib
 					}
 				}
 			}
-			
-			// Add Friendly logic extra requirements
-			if (flags.LogicOptions == LogicOptions.Friendly && (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Overworld))
+
+            // Add Sealed Temple/Exit book trick location fix
+            if (flags.LogicOptions == LogicOptions.Expert && flags.MapShuffling == MapShufflingMode.None && !flags.CrestShuffle)
+            {
+                var wintryInnerRoom = Rooms.Find(r => r.Id == 75);
+                var wintryOuterRoomLocation = Rooms.Find(r => r.Id == 74).Location;
+                wintryInnerRoom.Location = wintryOuterRoomLocation;
+            }
+
+            // Add Friendly logic extra requirements
+            if (flags.LogicOptions == LogicOptions.Friendly && (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Overworld))
 			{
 				foreach (var location in AccessReferences.FriendlyAccessReqs)
 				{
@@ -506,7 +514,6 @@ namespace FFMQLib
 		private void ProcessRoom(int roomid, List<int> origins, List<AccessReqs> access, (LocationIds, int) locPriority)
 		{ 
 			var targetroom = Rooms.Find(x => x.Id == roomid);
-			bool traverseCrest = false;
 
 			foreach (var children in targetroom.Links)
 			{
@@ -520,13 +527,15 @@ namespace FFMQLib
 				}
 				else if (!origins.Contains(children.TargetRoom))
 				{
-					if (children.Access.Contains(AccessReqs.LibraCrest) || children.Access.Contains(AccessReqs.GeminiCrest) || children.Access.Contains(AccessReqs.MobiusCrest))
+					bool traverseCrest = false;
+
+                    if (children.Access.Contains(AccessReqs.LibraCrest) || children.Access.Contains(AccessReqs.GeminiCrest) || children.Access.Contains(AccessReqs.MobiusCrest))
 					{
 						traverseCrest = true;
 					}
 					
 					ProcessRoom(children.TargetRoom, origins.Concat(new List<int> { roomid }).ToList(), access.Concat(children.Access).ToList(), (locPriority.Item1, traverseCrest ? locPriority.Item2 + 1 : locPriority.Item2));
-				}
+                }
 			}
 
 			locationQueue.Add((roomid, locPriority.Item2, locPriority.Item1));
