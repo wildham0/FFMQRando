@@ -315,7 +315,7 @@ namespace FFMQLib
 
 			subRegionsAccess = subRegionsAccess.Where(x => !x.Item2.Contains(AccessReqs.Barred)).ToList();
 
-			// Add Sealed Temple/Exit book trick
+			// Add Sealed Temple/Exit book trick logic
 			if (flags.LogicOptions == LogicOptions.Expert && flags.MapShuffling == MapShufflingMode.None && !flags.CrestShuffle)
 			{
 				List<AccessReqs> sealedTempleExit = new() { AccessReqs.RiverCoin, AccessReqs.ExitBook, AccessReqs.GeminiCrest };
@@ -441,9 +441,17 @@ namespace FFMQLib
 					}
 				}
 			}
-			
-			// Add Friendly logic extra requirements
-			if (flags.LogicOptions == LogicOptions.Friendly && (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Overworld))
+
+            // Add Sealed Temple/Exit book trick location fix
+            if (flags.LogicOptions == LogicOptions.Expert && flags.MapShuffling == MapShufflingMode.None && !flags.CrestShuffle)
+            {
+                var wintryInnerRoom = Rooms.Find(r => r.Id == 75);
+                var wintryOuterRoomLocation = Rooms.Find(r => r.Id == 74).Location;
+                wintryInnerRoom.Location = wintryOuterRoomLocation;
+            }
+
+            // Add Friendly logic extra requirements
+            if (flags.LogicOptions == LogicOptions.Friendly && (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Overworld))
 			{
 				foreach (var location in AccessReferences.FriendlyAccessReqs)
 				{
