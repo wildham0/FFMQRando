@@ -132,6 +132,11 @@ namespace FFMQLib
                 rom.PutInBank(0x0B, 0x9297, Blob.FromHex("20A0FF")); // Stone
                 rom.PutInBank(0x0B, 0x92B3, Blob.FromHex("20A0FF")); // Death
                 rom.PutInBank(0x0B, 0x8F39, Blob.FromHex("20A0FF")); // Back to normal
+
+                // Action animation fix
+                rom.PutInBank(0x11, 0x8580, Blob.FromHex("b50248b5069502689506b50349409503b50749409507b50a48b50e950a68950eb50b4940950bb50f4940950f6b"));
+                rom.PutInBank(0x02, 0xF387, Blob.FromHex("22808511eaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaea"));
+                rom.PutInBank(0x02, 0xF3D9, Blob.FromHex("22808511eaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaea"));
             }
         }
 
