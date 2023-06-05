@@ -254,7 +254,7 @@ namespace FFMQLib
 			}
 
 			// Fill excluded and unfilled locations
-			List<Items> consumables = new() { Items.Potion, Items.HealPotion, Items.Refresher, Items.Seed };
+			List<Items> consumables = new() { Items.CurePotion, Items.HealPotion, Items.Refresher, Items.Seed };
 			
 			var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.Battlefield || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20))).ToList();
 
@@ -339,7 +339,7 @@ namespace FFMQLib
 		public string GenerateSpoilers(Flags flags, string version, string hash, string seed)
 		{
 			List<Items> invalidItems = new() { Items.CurePotion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
-			List<GameObjectType> validType = new() { GameObjectType.BattlefieldItem, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
+			List<GameObjectType> validType = new() { GameObjectType.Battlefield, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
 			List<(Items, string)> progressiveItems = new()
 			{
 				(Items.SteelSword, "Progressive Sword"),
@@ -596,7 +596,7 @@ namespace FFMQLib
 				Items.AegisShield,
 				Items.Charm, //Battlefield
 				Items.MagicRing, //Battlefield
-				Items.CupidLock // NPC
+				Items.CupidLocket // NPC
 			};
 
 			Items startingWeapon = Items.SteelSword;

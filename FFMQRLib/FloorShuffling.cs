@@ -718,6 +718,8 @@ namespace FFMQLib
 		}
 		private string GenerateDumpFile()
 		{
+			return "";
+			/*
 			var serializer = new SerializerBuilder()
 				.WithNamingConvention(UnderscoredNamingConvention.Instance)
 				.WithEventEmitter(next => new FlowStyleIntegerSequences(next))
@@ -729,7 +731,7 @@ namespace FFMQLib
 				return yaml;
 			#else
 				return "";
-			#endif
+			#endif*/
 		}
 	}
 }
