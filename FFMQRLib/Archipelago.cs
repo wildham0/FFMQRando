@@ -9,7 +9,7 @@ using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
 using System.Security.Cryptography;
-
+using System.Threading;
 
 namespace FFMQLib
 {
@@ -315,7 +315,35 @@ namespace FFMQLib
             // Remove header if any
             this.Header = Array.Empty<byte>();
         }
-        
+
+        public string GenerateRooms(bool crestshuffle, int mapshuffling, string seed)
+        {
+            MT19337 rng = new MT19337((uint)Blob.FromHex(seed).ToUInts().Sum(x => x));
+            /*
+            using (SHA256 hasher = SHA256.Create())
+            {
+                Blob hash = hasher.ComputeHash((uint)seed);
+                rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
+                sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
+            }*/
+
+            // Battlefields = new(this);
+            //Overworld = new(this);
+            GameLogic = new();
+            //EntrancesData = new(this);
+
+            // Locations & Logic
+            GameLogic.CrestShuffle(crestshuffle, rng);
+            GameLogic.FloorShuffle((MapShufflingMode)mapshuffling, rng);
+            //Overworld.ShuffleOverworld(flags, GameLogic, Battlefields, rng);
+
+           // Overworld.UpdateOverworld(flags, Battlefields);
+
+            //GameLogic.CrawlRooms(flags, Overworld, Battlefields);
+
+            return GameLogic.OutputRooms();
+        }
+
         public void ArchipelagoSupport()
 		{
 			ItemFetcher();

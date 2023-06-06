@@ -238,7 +238,6 @@ namespace FFMQLib
 
         public void ReadRooms()
 		{
-
 			string yamlfile = "";
 			var assembly = Assembly.GetExecutingAssembly();
 			string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("rooms.yaml"));
@@ -272,8 +271,17 @@ namespace FFMQLib
 			Rooms = result;
 			yamlfile = "";
 		}
+        public string OutputRooms()
+        {
+            var serializer = new SerializerBuilder()
+                .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                .Build();
 
-		public void CrawlRooms(Flags flags, Overworld overworld, Battlefields battlefields)
+			var yaml = serializer.Serialize(Rooms);
+			return yaml;
+        }
+
+        public void CrawlRooms(Flags flags, Overworld overworld, Battlefields battlefields)
 		{
 
 			var locationsByEntrances = AccessReferences.LocationsByEntrances;
