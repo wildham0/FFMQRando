@@ -3,15 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FFMQRWebAPI
 {
-    public interface IFileService
-    {
-        Stream GetImagesStream();
-        byte[] GetImageAsByteArray();
-    
-    }
-
-    //[Route("api/[controller]")]
-
     /*
     public class GenerateRoomsController : ControllerBase
     {
