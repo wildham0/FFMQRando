@@ -318,7 +318,17 @@ namespace FFMQLib
 
         public string GenerateRooms(bool crestshuffle, int mapshuffling, string seed)
         {
-            MT19337 rng = new MT19337((uint)Blob.FromHex(seed).ToUInts().Sum(x => x));
+            seed = seed.PadLeft(8, '0').Substring(0,8);
+            
+            var blobseed = Blob.FromHex(seed);
+            MT19337 rng;
+
+            using (SHA256 hasher = SHA256.Create())
+            {
+                Blob hash = hasher.ComputeHash(blobseed);
+                rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
+            }
+
             /*
             using (SHA256 hasher = SHA256.Create())
             {

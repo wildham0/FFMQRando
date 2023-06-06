@@ -24,15 +24,15 @@ namespace FFMQRWebAPI.Controllers
         }*/
 
         [HttpGet(Name = "yaml-text/{s:string}")]
-        public IActionResult Get(string s)
+        public IActionResult Get(string s, int m, bool c)
         {
             FFMQRom rom = new FFMQRom();
-            var newrooms = rom.GenerateRooms(false, (int)MapShufflingMode.Dungeons, s);
+            var newrooms = rom.GenerateRooms(c, m, s);
             
             //var text = new List<string> { "Hello!", "Hello!", s };
             //var bytes = Encoding.ASCII.GetBytes(string.Join("\n", text));
             var bytes = Encoding.ASCII.GetBytes(newrooms);
-            return File(bytes, "text/plain", "test.yaml");
+            return File(bytes, "text/plain", "rooms.yaml");
         }
         /*
         public IActionResult Get()
