@@ -47,6 +47,12 @@ namespace FFMQLib
             ConstructOwObjects();
             CreateLocations(rom);
         }
+        public Overworld()
+        {
+            StartingLocation = LocationIds.LevelForest;
+
+            CreateLocations();
+        }
         public void ConstructOwObjects()
         {
             owObjects.Add(new OverworldObject((0, 0),

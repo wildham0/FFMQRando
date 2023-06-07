@@ -316,7 +316,7 @@ namespace FFMQLib
             this.Header = Array.Empty<byte>();
         }
 
-        public string GenerateRooms(bool crestshuffle, int mapshuffling, string seed)
+        public string GenerateRooms(bool crestshuffle, bool battlefieldshuffle, int mapshuffling, string seed)
         {
             seed = seed.PadLeft(8, '0').Substring(0,8);
             
@@ -329,27 +329,15 @@ namespace FFMQLib
                 rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
             }
 
-            /*
-            using (SHA256 hasher = SHA256.Create())
-            {
-                Blob hash = hasher.ComputeHash((uint)seed);
-                rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
-                sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
-            }*/
-
-            // Battlefields = new(this);
-            //Overworld = new(this);
+            Battlefields = new();
+            Overworld = new();
             GameLogic = new();
-            //EntrancesData = new(this);
 
             // Locations & Logic
+            Battlefields.ShuffleBattelfieldRewards(battlefieldshuffle, GameLogic, rng);
             GameLogic.CrestShuffle(crestshuffle, rng);
             GameLogic.FloorShuffle((MapShufflingMode)mapshuffling, rng);
-            //Overworld.ShuffleOverworld(flags, GameLogic, Battlefields, rng);
-
-           // Overworld.UpdateOverworld(flags, Battlefields);
-
-            //GameLogic.CrawlRooms(flags, Overworld, Battlefields);
+            Overworld.ShuffleOverworld((MapShufflingMode)mapshuffling, GameLogic, Battlefields, rng);
 
             return GameLogic.OutputRooms();
         }

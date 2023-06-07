@@ -195,7 +195,22 @@ namespace FFMQLib
 
 		AssignOwObjects();
 		}
-		private void AssignOwObjects()
+        private void CreateLocations()
+        {
+            Locations = new();
+			for(int i = 0; i < (OwNodesQty + 1); i++)
+            {
+                Locations.Add(new Location());
+            }
+
+            for (int i = 0; i < Locations.Count; i++)
+            {
+                Locations[i].LocationId = (LocationIds)i;
+            }
+
+            AssignOwObjects();
+        }
+        private void AssignOwObjects()
 		{
 			Locations[(int)LocationIds.ForestaSouthBattlefield].OwMapObjects = new List<OverworldMapObjects> { OverworldMapObjects.ForestaSouthBattlefield, OverworldMapObjects.ForestaSouthBattlefieldCleared };
 			Locations[(int)LocationIds.ForestaSouthBattlefield].TargetTeleporter = (115, 1);
@@ -405,9 +420,9 @@ namespace FFMQLib
 			Locations[(int)LocationIds.DoomCastle].Destinations[(int)NodeDirections.North] = LocationIds.FocusTowerForesta;
 			Locations[(int)LocationIds.DoomCastle].Steps[(int)NodeDirections.North] = new List<byte> { 0x86 };
 		}
-		public void ShuffleOverworld(Flags flags, GameLogic gamelogic, Battlefields battlefields, MT19337 rng)
+		public void ShuffleOverworld(MapShufflingMode mapshufflingmode, GameLogic gamelogic, Battlefields battlefields, MT19337 rng)
 		{
-			bool shuffleOverworld = flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Dungeons;
+			bool shuffleOverworld = mapshufflingmode != MapShufflingMode.None && mapshufflingmode != MapShufflingMode.Dungeons;
 			
 			if (!shuffleOverworld)
 			{
@@ -447,7 +462,7 @@ namespace FFMQLib
 			
 			companionsRating.Shuffle(rng);
 			companionsRating = companionsRating.Where(x => x.Item2 > 0).OrderByDescending(x => x.Item2).ToList();
-			LocationIds companionLocation = (flags.MapShuffling == MapShufflingMode.Everything) ? companionsRating.First().Item1 : rng.PickFrom(companionsRating).Item1;
+			LocationIds companionLocation = (mapshufflingmode == MapShufflingMode.Everything) ? companionsRating.First().Item1 : rng.PickFrom(companionsRating).Item1;
 
 			// Find most accessible locations for item placement
 			List<(LocationIds, int)> locationRating = new();
@@ -462,7 +477,7 @@ namespace FFMQLib
 			List<LocationIds> guaranteedChestLocations = new();
 
 			
-			guaranteedChestLocations = (flags.MapShuffling == MapShufflingMode.Overworld) ?
+			guaranteedChestLocations = (mapshufflingmode == MapShufflingMode.Overworld) ?
 				new() { rng.PickFrom(AccessReferences.StartingWeaponAccess) } :
 				locationRating.GetRange(0, 2).Select(x => x.Item1).ToList();
 
@@ -716,7 +731,21 @@ namespace FFMQLib
             Region = MapRegions.Foresta;
 			SubRegion = SubRegions.Foresta;
 		}
-		public Location(Location node)
+        public Location()
+        {
+            NodeName = 0x00;
+            DirectionFlags = new();
+            Steps = new();
+            Destinations = new();
+            OwMapObjects = new();
+            TargetTeleporter = (0, 0);
+            Position = (0, 0);
+            LocationId = LocationIds.None;
+            PreviousLocation = LocationId;
+            Region = MapRegions.Foresta;
+            SubRegion = SubRegions.Foresta;
+        }
+        public Location(Location node)
 		{
 			NodeName = node.NodeName;
 			DirectionFlags = node.DirectionFlags.ToList();

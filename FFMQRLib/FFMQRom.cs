@@ -237,7 +237,7 @@ namespace FFMQLib
 			// Locations & Logic
 			GameLogic.CrestShuffle(flags.CrestShuffle, rng);
 			GameLogic.FloorShuffle(flags.MapShuffling, rng);
-			Overworld.ShuffleOverworld(flags, GameLogic, Battlefields, rng);
+			Overworld.ShuffleOverworld(flags.MapShuffling, GameLogic, Battlefields, rng);
 
 			Overworld.UpdateOverworld(flags, GameLogic, Battlefields);
 

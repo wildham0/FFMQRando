@@ -76,7 +76,12 @@ namespace FFMQLib
                 Reward = BattlefieldRewardValues.Where(x => x.Value == Value).First().Key;
             }
         }
-		private BattlefieldRewardType GetRewardType()
+        public Battlefield(LocationIds location, Items reward)
+        {
+            Location = location;
+			Reward = reward;
+        }
+        private BattlefieldRewardType GetRewardType()
 		{
             if (Reward >= Items.Xp54 && Reward <= Items.Xp2808)
             {
@@ -147,7 +152,33 @@ namespace FFMQLib
 				}
 			}*/
 		}
-		public void PlaceItems(ItemsPlacement itemsPlacement)
+        public Battlefields()
+        {
+			battlefields = new()
+			{
+				new Battlefield(LocationIds.ForestaSouthBattlefield, Items.Xp54),
+				new Battlefield(LocationIds.ForestaWestBattlefield, Items.Charm),
+				new Battlefield(LocationIds.ForestaEastBattlefield, Items.Gp150),
+				new Battlefield(LocationIds.AquariaBattlefield01, Items.Xp99),
+				new Battlefield(LocationIds.AquariaBattlefield02, Items.Gp300),
+				new Battlefield(LocationIds.AquariaBattlefield03, Items.MagicRing),
+				new Battlefield(LocationIds.WintryBattlefield01, Items.Xp99),
+				new Battlefield(LocationIds.WintryBattlefield02, Items.Gp600),
+				new Battlefield(LocationIds.PyramidBattlefield01, Items.Xp540),
+				new Battlefield(LocationIds.LibraBattlefield01, Items.ExitBook),
+				new Battlefield(LocationIds.LibraBattlefield02, Items.Xp744),
+				new Battlefield(LocationIds.FireburgBattlefield01, Items.Gp900),
+				new Battlefield(LocationIds.FireburgBattlefield02, Items.GeminiCrest),
+				new Battlefield(LocationIds.FireburgBattlefield03, Items.Xp816),
+				new Battlefield(LocationIds.MineBattlefield01, Items.Gp1200),
+				new Battlefield(LocationIds.MineBattlefield02, Items.ThunderSeal),
+				new Battlefield(LocationIds.MineBattlefield03, Items.Xp1200),
+				new Battlefield(LocationIds.VolcanoBattlefield01, Items.Xp1068),
+				new Battlefield(LocationIds.WindiaBattlefield01, Items.Xp2808),
+				new Battlefield(LocationIds.WindiaBattlefield02, Items.Xp2700),
+			};
+        }
+        public void PlaceItems(ItemsPlacement itemsPlacement)
 		{
 			var battlefieldsWithItem = itemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.BattlefieldItem && x.Content != Items.None).ToList();
 
