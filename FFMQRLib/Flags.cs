@@ -251,6 +251,21 @@ namespace FFMQLib
         public bool RandomBenjaminPalette { get; set; } = false;
         public bool RandomMusic { get; set; } = false;
         public ushort WindowPalette { get; set; } = 0x5140;
+        public string PlayerSprite { get; set; } = "default";
+        public byte[] CustomSprites { get; set; } = new byte[0];
+
+        public void ValidateCustomSprites()
+        {
+            if (CustomSprites[0x00] != 0x42 || CustomSprites[0x01] != 0x4D)
+            {
+                throw new Exception("Not BMP image format.");
+            }
+
+            if (CustomSprites[0x1C] != 0x08)
+            {
+                throw new Exception("Wrong bitdepth. Bitdepth must be 8 bits.");
+            }
+        }
     }
 
 }

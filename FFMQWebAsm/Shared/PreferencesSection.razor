@@ -4,6 +4,7 @@
 @using System.Net.Http
 @using FFMQLib;
 @inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
+@inject IJSRuntime JS
 
 <Container class="sectionBox">
     <div class="box-title text-secondary">Preferences</div> 
@@ -11,6 +12,35 @@
     <Container Class="flagBox">
         <Container Class="flagColumn">
             <BoolFlag UsePreset=false Name="Randomize Benjamin's Palette" @bind-Value="preferences.RandomBenjaminPalette" Tooltip="Randomly select Benjamin's palette, giving him a brand new look!" />
+            <Field Class="dropFlag">
+                <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Custom Player Sprite</FieldLabel>
+                <Tooltip Text="Select a custom sprite set to replace the main character.<br/><br/>Default/Benjamin will keep the rom original sprite or an hacked rom sprite.<br/><br/>Upload Custom Sprites allows you to upload your own spritesheet." Inline Multiline Placement="TooltipPlacement.Right">
+                    <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small />
+                </Tooltip>
+                <Dropdown TValue="string">
+                    <DropdownToggle Class="btn-primary" Style="text-align: left">
+                        @((MarkupString)spritesSelect[preferences.PlayerSprite])
+                    </DropdownToggle>
+                    <DropdownMenu MaxMenuHeight="10">
+                        <DropdownItem Clicked="@(() => OnSpriteSelect("default"))">@((MarkupString)spritesSelect["default"])</DropdownItem>
+                            <DropdownItem Clicked="@(() => OnSpriteSelect("fighter"))">@((MarkupString)spritesSelect["fighter"])</DropdownItem>
+                            <DropdownItem Clicked="@(() => OnSpriteSelect("kain"))">@((MarkupString)spritesSelect["kain"])</DropdownItem>
+                            <DropdownItem Clicked="@(() => OnSpriteSelect("rydia"))">@((MarkupString)spritesSelect["rydia"])</DropdownItem>
+                            <DropdownItem Clicked="@(() => OnSpriteSelect("subrosian"))">@((MarkupString)spritesSelect["subrosian"])</DropdownItem>
+                            <DropdownItem Clicked="@(() => OnSpriteSelect("random"))">@((MarkupString)spritesSelect["random"])</DropdownItem>
+                        <DropdownItem Clicked="@(() => OnSpriteSelect("custom"))">@((MarkupString)spritesSelect["custom"])</DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
+            </Field>
+            
+                @if (preferences.PlayerSprite == "custom")
+            {
+                <Field class="romFlag">
+                    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Load</FieldLabel>
+                    <FileEdit Filter=".bmp" AutoReset="false" Changed="@LoadSpritesFromFile"></FileEdit>
+                    <FieldHelp>@spriteMessage</FieldHelp>
+                </Field>
+            }
             <BoolFlag UsePreset=false Name="Randomize Music" @bind-Value="preferences.RandomMusic" Tooltip="Shuffle the music tracks." />
             <Field>
                 <Text TextColor="TextColor.Secondary" class="fw-bold">Default Window Palette</Text>
@@ -34,6 +64,19 @@
     public Preferences preferences { get; set; }
 
     private string windowPalette = "#0050A0";
+
+    private Dictionary<string, string> spritesSelect = new() {
+         {"default", "<img src=\"skin-icons/default-benjamin-icon.png\" /> Default/Benjamin" },
+         {"fighter", "<img src=\"skin-icons/fighter-icon.png\" /> Fighter" },
+         {"kain", "<img src=\"skin-icons/kain-icon.png\" /> Kain" },
+         {"rydia", "<img src=\"skin-icons/rydia-icon.png\" /> Rydia" },
+         {"subrosian", "<img src=\"skin-icons/subrosian-icon.png\" /> Subrosian" },
+         {"random", "Random" },
+         {"custom", "Upload Custom Sprites" },
+    };
+
+    private string spriteSelection = "default";
+    private string spriteMessage = "";
 
     private void WindowPaletteChange(string palette)
     {
@@ -70,6 +113,7 @@
     protected override void OnInitialized()
     {
         LoadPreferences();
+        LoadSprites();
         SetWindowPalette(preferences.WindowPalette);
     }
 
@@ -109,10 +153,63 @@
             }
             else if (pref.PropertyType == typeof(string))
             {
-                string pathvalue = localStorage.GetItem<string>(pref.Name);
-
-                pref.SetValue(preferences, pathvalue ?? "");
+                string value = localStorage.GetItem<string>(pref.Name);
+                if (value != null && value != "")
+                {
+                    pref.SetValue(preferences, value);
+                }
             }
+        }
+    }
+
+    void OnSpriteSelect(string selection)
+    {
+        preferences.PlayerSprite = selection;
+        StateHasChanged();
+    }
+    private async Task LoadSpritesFromFile(FileChangedEventArgs e)
+    {
+        spriteMessage = "Loading...";
+        StateHasChanged();
+        try
+        {
+            byte[] spritesheet = new byte[0];
+            MemoryStream ms = new MemoryStream();
+            await e.Files.First().OpenReadStream().CopyToAsync(ms);
+            spritesheet = ms.ToArray();
+
+            preferences.CustomSprites = spritesheet;
+            preferences.ValidateCustomSprites();
+            spriteMessage = "Custom Sprites Loaded";
+            SaveSprites();
+        }
+        catch (Exception ex)
+        {
+            spriteMessage = ex.Message;
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private async void SaveSprites()
+    {
+        byte[] savedSprites = new byte[0];
+        if (preferences.CustomSprites.Length > 0)
+        {
+            savedSprites = preferences.CustomSprites;
+        }
+
+        await JS.InvokeVoidAsync("saveSavedSprites", savedSprites);
+    }
+
+    public async void LoadSprites()
+    {
+        byte[] savedSprites = await JS.InvokeAsync<byte[]>("loadSavedSprites");
+
+        if (savedSprites != null)
+        {
+            preferences.CustomSprites = savedSprites;
+            spriteMessage = "Saved Custom Sprites Loaded";
+            StateHasChanged();
         }
     }
 }

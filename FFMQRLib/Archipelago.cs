@@ -9,7 +9,7 @@ using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
 using System.Security.Cryptography;
-
+using System.Threading;
 
 namespace FFMQLib
 {
@@ -283,6 +283,9 @@ namespace FFMQLib
             RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
             WindowPalette(preferences.WindowPalette);
 
+            SpriteReader spriteReader = new SpriteReader();
+            spriteReader.LoadCustomSprites(preferences, this);
+
             // Write everything back			
             itemsPlacement.WriteChests(this);
             credits.Write(this);
@@ -312,7 +315,45 @@ namespace FFMQLib
             // Remove header if any
             this.Header = Array.Empty<byte>();
         }
-        
+
+        public string GenerateRooms(bool crestshuffle, int mapshuffling, string seed)
+        {
+            seed = seed.PadLeft(8, '0').Substring(0,8);
+            
+            var blobseed = Blob.FromHex(seed);
+            MT19337 rng;
+
+            using (SHA256 hasher = SHA256.Create())
+            {
+                Blob hash = hasher.ComputeHash(blobseed);
+                rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
+            }
+
+            /*
+            using (SHA256 hasher = SHA256.Create())
+            {
+                Blob hash = hasher.ComputeHash((uint)seed);
+                rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
+                sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
+            }*/
+
+            // Battlefields = new(this);
+            //Overworld = new(this);
+            GameLogic = new();
+            //EntrancesData = new(this);
+
+            // Locations & Logic
+            GameLogic.CrestShuffle(crestshuffle, rng);
+            GameLogic.FloorShuffle((MapShufflingMode)mapshuffling, rng);
+            //Overworld.ShuffleOverworld(flags, GameLogic, Battlefields, rng);
+
+           // Overworld.UpdateOverworld(flags, Battlefields);
+
+            //GameLogic.CrawlRooms(flags, Overworld, Battlefields);
+
+            return GameLogic.OutputRooms();
+        }
+
         public void ArchipelagoSupport()
 		{
 			ItemFetcher();
