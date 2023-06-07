@@ -243,14 +243,14 @@ namespace FFMQLib
             // Overworld
             Overworld.OpenNodes(flags);
             Battlefields.SetBattlesQty(flags.BattlesQuantity, rng);
-            Battlefields.SetBattelfieldRewards(flags.ShuffleBattlefieldRewards, apconfigs.ItemPlacement, rng);
+            Battlefields.SetBattelfieldRewards(apconfigs.ItemPlacement, GameLogic);
 
             // Locations & Logic
             //GameLogic.CrestShuffle(flags.CrestShuffle && !apconfigs.ApEnabled, rng);
             //GameLogic.FloorShuffle(flags.MapShuffling, rng);
             //Overworld.ShuffleOverworld(flags, GameLogic, Battlefields, rng);
 
-            Overworld.UpdateOverworld(flags, Battlefields);
+            Overworld.UpdateOverworld(flags, GameLogic, Battlefields);
 
             GameLogic.CrawlRooms(flags, Overworld, Battlefields);
 

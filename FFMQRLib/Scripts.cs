@@ -60,7 +60,7 @@ namespace FFMQLib
     public class GameScriptManager
 	{
 		private List<ScriptEntry> _scripts;
-        private List<(int, ScriptEntry)> _scripts2;
+        //private List<(int, ScriptEntry)> _scripts2;
         private Dictionary<int, ScriptBuilder> _newScripts;
 		private List<int> _enableMoveScripts;
 		private List<(int callid, int scriptid)> _callIds;
