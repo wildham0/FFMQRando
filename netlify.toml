@@ -1,2 +1,17 @@
 [build]
   publish = "./publishoutput/wwwroot"
+
+[[redirects]]
+  from = "https://dev.ffmqrando.net/"
+  to = "https://scintillating-tiramisu-75521b.netlify.app/"
+  status = 200
+  force = true
+[[redirects]]
+  from = "https://dev.ffmqrando.net/*"
+  to = "https://scintillating-tiramisu-75521b.netlify.app/:splat"
+  status = 200
+  force = true
+[[redirects]]
+  from = "/Archipelago"
+  to = "/index.html"
+  status = 200
