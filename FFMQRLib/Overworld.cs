@@ -6,21 +6,6 @@ using RomUtilities;
 
 namespace FFMQLib
 {
-
-    public class NodeObject
-    { 
-        public ushort LocationAction { get; set; }
-        public List<int> MapObjects { get; set; }
-        public int Id { get; set; }
-
-        public NodeObject(int id, ushort action, List<int> mapobjects)
-        {
-            Id = id;
-            LocationAction = action;
-            MapObjects = mapobjects.ToList();
-        }
-    }
-
     public partial class Overworld
     {
         public LocationIds StartingLocation { get; set; }
@@ -35,8 +20,6 @@ namespace FFMQLib
         private List<OverworldSprite> owSprites;
         public List<OverworldObject> owObjects { get; set; }
         //private List<NodeObject> nodesObjects;
-
-
         public Overworld(FFMQRom rom)
         {
             owSprites = rom.GetFromBank(OWObjectBank, OWObjectOffset, 5 * OWObjectQty).Chunk(5).Select(x => new OverworldSprite(x)).ToList();
@@ -312,7 +295,6 @@ namespace FFMQLib
             }
         }
     }
-
     public class OverworldSprite
     {
         private byte[] _data = new byte[5];
@@ -348,6 +330,19 @@ namespace FFMQLib
         public byte[] Data
         {
             get => _data;
+        }
+    }
+    public class NodeObject
+    {
+        public ushort LocationAction { get; set; }
+        public List<int> MapObjects { get; set; }
+        public int Id { get; set; }
+
+        public NodeObject(int id, ushort action, List<int> mapobjects)
+        {
+            Id = id;
+            LocationAction = action;
+            MapObjects = mapobjects.ToList();
         }
     }
 }

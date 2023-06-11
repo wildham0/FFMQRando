@@ -7,119 +7,6 @@ using System.ComponentModel;
 
 namespace FFMQLib
 {
-
-	public class GameFlags
-	{
-		private const int StartingGameFlags = 0x0653A4;
-		private byte[] _gameflags;
-		private List<(int, int)> BitPos = new List<(int,int)> { (0,0x80), (1,0x40), (2,0x20), (3,0x10), (4,0x08), (5,0x04), (6,0x02), (7,0x01) };
-
-		public GameFlags(FFMQRom rom)
-		{
-			_gameflags = rom.Get(StartingGameFlags, 0x20);
-
-		}
-		public void Write(FFMQRom rom)
-		{
-			rom.Put(StartingGameFlags, _gameflags);
-		}
-		public bool this[int flag]
-		{
-			get => HexToFlag(flag);
-			set => FlagToHex(flag, value);
-		}
-
-		private bool HexToFlag(int flag)
-		{
-			var targetbyte = flag / 8;
-			var targetbit = BitPos.Find(x => x.Item1 == (flag & 0x07)).Item2;
-
-			return (_gameflags[targetbyte] & targetbit) == targetbit;
-		}
-
-		private void FlagToHex(int flag, bool value)
-		{
-			CustomFlagToHex(_gameflags, flag, value);
-		}
-
-		public void CustomFlagToHex(byte[] flagarray, int flag, bool value)
-		{
-			var targetbyte = flag / 8;
-			var targetbit = (byte)BitPos.Find(x => x.Item1 == (flag & 0x07)).Item2;
-
-			if (value)
-			{
-				flagarray[targetbyte] |= targetbit;
-			}
-			else
-			{
-				flagarray[targetbyte] &= (byte)~targetbit;
-			}
-		}
-	}
-	public class SpecialRegion
-	{ 
-		public SubRegions SubRegion { get; set; }
-		public AccessReqs Access { get; set; }
-		public List<LocationIds> BarredLocations { get; set; }
-
-		public SpecialRegion(SubRegions subregion, AccessReqs access)
-		{
-			SubRegion = subregion;
-			Access = access;
-			BarredLocations = new();
-		}
-	}
-	public enum MovableLocationType
-	{ 
-		Battlefield = 0,
-		Dungeon
-	}
-    public class MovableLocation
-    {
-        public LocationIds Origins { get; set; }
-        public LocationIds Destination { get; set; }
-		public SubRegions Region { get; set; }
-        public RoomLink Link { get; set; }
-        public GameObjectData Object { get; set; }
-        public MovableLocationType Type { get; set; }
-        public int Room { get; set; }
-        public MovableLocation()
-        {
-            Origins = LocationIds.None;
-            Destination = LocationIds.None;
-            Link = new();
-            Object = new();
-            Type = MovableLocationType.Battlefield;
-        }
-        public MovableLocation(SubRegions region, LocationIds location, int room, RoomLink link)
-        {
-            Origins = location;
-            Destination = location;
-			Region = region;
-			if (link != null)
-			{
-				Link = new RoomLink(link);
-			}
-			else
-			{
-				Link = null;
-			}
-            Object = new();
-            Room = room;
-            Type = MovableLocationType.Dungeon;
-        }
-        public MovableLocation(SubRegions region, LocationIds location, int room, GameObjectData objectdata)
-        {
-            Origins = location;
-            Destination = location;
-            Region = region;
-            Object = new GameObjectData(objectdata);
-            Link = new();
-			Room = room;
-            Type = MovableLocationType.Battlefield;
-        }
-    }
     public partial class Overworld
 	{
 		public List<Location> Locations { get; set; }
@@ -139,8 +26,6 @@ namespace FFMQLib
 
 		private const int OWExitCoordBank = 0x07;
 		private const int OWExitCoordOffset = 0xF7C3;
-
-
 
 		private void CreateLocations(FFMQRom rom)
 		{
@@ -193,7 +78,7 @@ namespace FFMQLib
 				Locations[i].LocationId = (LocationIds)i;
 			}
 
-		AssignOwObjects();
+			AssignOwObjects();
 		}
         private void CreateLocations()
         {
@@ -804,4 +689,67 @@ namespace FFMQLib
 			return finalarray.ToArray();
 		}
 	}
+    public class SpecialRegion
+    {
+        public SubRegions SubRegion { get; set; }
+        public AccessReqs Access { get; set; }
+        public List<LocationIds> BarredLocations { get; set; }
+
+        public SpecialRegion(SubRegions subregion, AccessReqs access)
+        {
+            SubRegion = subregion;
+            Access = access;
+            BarredLocations = new();
+        }
+    }
+    public enum MovableLocationType
+    {
+        Battlefield = 0,
+        Dungeon
+    }
+    public class MovableLocation
+    {
+        public LocationIds Origins { get; set; }
+        public LocationIds Destination { get; set; }
+        public SubRegions Region { get; set; }
+        public RoomLink Link { get; set; }
+        public GameObjectData Object { get; set; }
+        public MovableLocationType Type { get; set; }
+        public int Room { get; set; }
+        public MovableLocation()
+        {
+            Origins = LocationIds.None;
+            Destination = LocationIds.None;
+            Link = new();
+            Object = new();
+            Type = MovableLocationType.Battlefield;
+        }
+        public MovableLocation(SubRegions region, LocationIds location, int room, RoomLink link)
+        {
+            Origins = location;
+            Destination = location;
+            Region = region;
+            if (link != null)
+            {
+                Link = new RoomLink(link);
+            }
+            else
+            {
+                Link = null;
+            }
+            Object = new();
+            Room = room;
+            Type = MovableLocationType.Dungeon;
+        }
+        public MovableLocation(SubRegions region, LocationIds location, int room, GameObjectData objectdata)
+        {
+            Origins = location;
+            Destination = location;
+            Region = region;
+            Object = new GameObjectData(objectdata);
+            Link = new();
+            Room = room;
+            Type = MovableLocationType.Battlefield;
+        }
+    }
 }
