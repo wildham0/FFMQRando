@@ -494,6 +494,7 @@ namespace FFMQLib
 					!x.Rooms.Intersect(originLink.ForbiddenDestinations).Any() &&
 					(originLink.ForceLinkOrigin ? !x.Links.Where(l => l.ForceLinkDestination).Any() : true) &&
 					(originLink.ForceDeadEnd ? (!x.Rooms.Intersect(crestRooms).Any() && (x.Links.Count % 2 == 0)) : true) &&
+					(originLink.ForceLinkOrigin ? !x.Links.Where(l => l.ForceDeadEnd).Any() : true) &&
 					(originRoom.Rooms.Contains(macShipDeck) ? !x.Rooms.Intersect(macShipBarredRooms).Any() : true)
 				).ToList();
 

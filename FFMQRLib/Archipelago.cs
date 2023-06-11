@@ -30,6 +30,17 @@ namespace FFMQLib
             ObjectId = 0;
             Type = GameObjectType.Dummy;
         }
+
+        public ApObject(Items content, LocationIds location)
+        {
+            Content = content;
+            Player = "";
+            PlayerId = 0;
+            ItemName = "";
+            ObjectId = 0;
+            Type = GameObjectType.Dummy;
+            Location = location;
+        }
     }
     
     public class ApConfigs
@@ -243,7 +254,7 @@ namespace FFMQLib
             // Overworld
             Overworld.OpenNodes(flags);
             Battlefields.SetBattlesQty(flags.BattlesQuantity, rng);
-            Battlefields.SetBattelfieldRewards(apconfigs.ItemPlacement, GameLogic);
+            Battlefields.SetBattelfieldRewards(flags.ShuffleBattlefieldRewards, apconfigs.ItemPlacement, GameLogic, rng);
 
             // Locations & Logic
             //GameLogic.CrestShuffle(flags.CrestShuffle && !apconfigs.ApEnabled, rng);

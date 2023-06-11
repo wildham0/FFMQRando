@@ -201,27 +201,54 @@ namespace FFMQLib
 
 			UpdateLogic(gamelogic);
         }
-        public void SetBattelfieldRewards(List<ApObject> itemsplacement, GameLogic gamelogic)
+        public void SetBattelfieldRewards(bool shuffleBattlefields, List<ApObject> itemsplacement, GameLogic gamelogic, MT19337 rng)
         {
-
-
+			var xpRewards = battlefields.Where(b => b.RewardType == BattlefieldRewardType.Experience).Select(b => b.Reward).ToList();
+            var gpRewards = battlefields.Where(b => b.RewardType == BattlefieldRewardType.Gold).Select(b => b.Reward).ToList();
 
             List<LocationIds> battlefieldlocations = battlefields.Select(x => x.Location).ToList();
-            var battlefieldPlacement = itemsplacement.Where(x => x.Type == GameObjectType.BattlefieldItem).ToList();
-			battlefields.ForEach(x => x.Reward = battlefieldPlacement.Find(b => b.Location == x.Location).Content);
-			/*
 
-            battlefieldlocations = battlefieldlocations.Except(battlefieldPlacement).ToList();
+            var battlefieldItems = itemsplacement.Where(x => x.Type == GameObjectType.BattlefieldItem).ToList();
+            var battlefieldXp = itemsplacement.Where(x => x.Type == GameObjectType.BattlefieldXp).ToList();
+            var battlefieldGp = itemsplacement.Where(x => x.Type == GameObjectType.BattlefieldGp).ToList();
 
-			var itemBattlefields = battlefields.Where(x => x.RewardType == BattlefieldRewardType.Item).ToList();
-            var nonItemBattlefields = battlefields.Where(x => x.RewardType != BattlefieldRewardType.Item).ToList();
-
-			itemBattlefields.ForEach(x => x.Location = rng.TakeFrom(battlefieldPlacement));
-
-			if (enable)
+			if (gpRewards.Count > battlefieldGp.Count)
 			{
-				nonItemBattlefields.ForEach(x => x.Location = rng.TakeFrom(battlefieldlocations));
-			}*/
+				if (shuffleBattlefields)
+				{
+					battlefieldGp = gamelogic.Rooms.SelectMany(r => r.GameObjects)
+						.Where(o => o.Type == GameObjectType.BattlefieldGp)
+						.Select(o => new ApObject(rng.TakeFrom(gpRewards), o.Location))
+						.ToList();
+				}
+				else
+				{ 
+					battlefieldGp = battlefields.Where(b => b.RewardType == BattlefieldRewardType.Gold)
+						.Select(b => new ApObject(b.Reward, b.Location))
+						.ToList();
+				}
+            }
+
+            if (xpRewards.Count > battlefieldXp.Count && shuffleBattlefields)
+            {
+                if (shuffleBattlefields)
+                {
+                    battlefieldXp = gamelogic.Rooms.SelectMany(r => r.GameObjects)
+						.Where(o => o.Type == GameObjectType.BattlefieldXp)
+						.Select(o => new ApObject(rng.TakeFrom(xpRewards), o.Location))
+						.ToList();
+                }
+                else
+                {
+                    battlefieldXp = battlefields.Where(b => b.RewardType == BattlefieldRewardType.Experience)
+                        .Select(b => new ApObject(b.Reward, b.Location))
+                        .ToList();
+                }
+            }
+
+            var allBattlefieldPlacements = battlefieldItems.Concat(battlefieldGp).Concat(battlefieldXp).ToList();
+
+            battlefields.ForEach(x => x.Reward = allBattlefieldPlacements.Find(b => b.Location == x.Location).Content);
 
 			UpdateLogic(gamelogic);
         }
