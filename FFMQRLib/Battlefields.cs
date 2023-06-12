@@ -35,7 +35,7 @@ namespace FFMQLib
 		public ushort Value { get; set; }
 		public Items Reward { get; set; }
 
-        public static Dictionary<Items, ushort> BattlefieldRewardValues = new()
+        public static Dictionary<Items, ushort> XpBattlefieldRewardValues = new()
         {
 			{ Items.Xp54, 0x0012 },
             { Items.Xp99, 0x0021 },
@@ -46,6 +46,9 @@ namespace FFMQLib
             { Items.Xp1200, 0x0190 },
             { Items.Xp2700, 0x0384 },
             { Items.Xp2808, 0x03A8 },
+        };
+        public static Dictionary<Items, ushort> GpBattlefieldRewardValues = new()
+        {
             { Items.Gp150, 0x0032 },
             { Items.Gp300, 0x0064 },
             { Items.Gp600, 0x00C8 },
@@ -68,12 +71,12 @@ namespace FFMQLib
 			else if (rewardtype == (byte)BattlefieldRewardType.Experience)
 			{
 				Value = (ushort)(rawvalues[0] + (0x100 * (rawvalues[1] & 0x7F)));
-                Reward = BattlefieldRewardValues.Where(x => x.Value == Value).First().Key;
+                Reward = XpBattlefieldRewardValues.Where(x => x.Value == Value).First().Key;
             }
 			else if (rewardtype == (byte)BattlefieldRewardType.Gold)
 			{
                 Value = (ushort)(rawvalues[0] + (0x100 * (rawvalues[1] & 0x3F)));
-                Reward = BattlefieldRewardValues.Where(x => x.Value == Value).First().Key;
+                Reward = GpBattlefieldRewardValues.Where(x => x.Value == Value).First().Key;
             }
         }
         public Battlefield(LocationIds location, Items reward)
@@ -102,15 +105,15 @@ namespace FFMQLib
 			if (Reward >= Items.Xp54 && Reward <= Items.Xp2808)
 			{
 				return new byte[] {
-					(byte)(BattlefieldRewardValues[Reward] & 0x00FF),
-					(byte)((byte)BattlefieldRewardType.Experience | ((BattlefieldRewardValues[Reward] & 0x7F00) / 0x100))
+					(byte)(XpBattlefieldRewardValues[Reward] & 0x00FF),
+					(byte)((byte)BattlefieldRewardType.Experience | ((XpBattlefieldRewardValues[Reward] & 0x7F00) / 0x100))
 				};
 			}
 			else if (Reward >= Items.Gp150 && Reward <= Items.Gp1200)
 			{
 				return new byte[] {
-					(byte)(BattlefieldRewardValues[Reward] & 0x00FF),
-					(byte)((byte)BattlefieldRewardType.Gold | ((BattlefieldRewardValues[Reward] & 0x3F00) / 0x100))
+					(byte)(GpBattlefieldRewardValues[Reward] & 0x00FF),
+					(byte)((byte)BattlefieldRewardType.Gold | ((GpBattlefieldRewardValues[Reward] & 0x3F00) / 0x100))
 				};
 			}
 			else
@@ -212,15 +215,22 @@ namespace FFMQLib
             var battlefieldXp = itemsplacement.Where(x => x.Type == GameObjectType.BattlefieldXp).ToList();
             var battlefieldGp = itemsplacement.Where(x => x.Type == GameObjectType.BattlefieldGp).ToList();
 
-			if (gpRewards.Count > battlefieldGp.Count)
+			battlefieldItems.ForEach(x => x.Location = (LocationIds)x.ObjectId);
+
+            if (gpRewards.Count > battlefieldGp.Count)
 			{
 				if (shuffleBattlefields)
 				{
+					/*
+					var step1 = gamelogic.Rooms.SelectMany(r => r.GameObjects).ToList();
+					var step2 = step1.Where(o => o.Type == GameObjectType.BattlefieldGp).ToList();
+					var step3 = step2.Select(o => new ApObject(rng.TakeFrom(gpRewards), o.Location)).ToList();
+                    */
 					battlefieldGp = gamelogic.Rooms.SelectMany(r => r.GameObjects)
 						.Where(o => o.Type == GameObjectType.BattlefieldGp)
 						.Select(o => new ApObject(rng.TakeFrom(gpRewards), o.Location))
 						.ToList();
-				}
+                }
 				else
 				{ 
 					battlefieldGp = battlefields.Where(b => b.RewardType == BattlefieldRewardType.Gold)
