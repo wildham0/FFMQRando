@@ -236,9 +236,9 @@ namespace FFMQLib
 				var validSkyCoinLocations = ItemsLocations.Where(x => validTypes.Contains(x.Type) && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false && x.Location != LocationIds.DoomCastle).ToList();
 
 				if(validSkyCoinLocations.Count < 40)
-                {
+				{
 					throw new Exception("Sky Coin Pieces error: not enough valid locations");
-                }
+				}
 
 				for (int i = 0; i < 40; i++)
 				{
@@ -300,7 +300,6 @@ namespace FFMQLib
 				finalChests[i].IsPlaced = true;
 			}
 		}
-
 		private void ProcessRequirements(List<AccessReqs> accessReqToProcess)
 		{
 			while (accessReqToProcess.Any())
@@ -345,30 +344,30 @@ namespace FFMQLib
 			List<(Items, string)> progressiveItems = new()
 			{
 				(Items.SteelSword, "Progressive Sword"),
-                (Items.KnightSword, "Progressive Sword"),
-                (Items.Excalibur, "Progressive Sword"),
-                (Items.Axe, "Progressive Axe"),
-                (Items.BattleAxe, "Progressive Axe"),
-                (Items.GiantsAxe, "Progressive Axe"),
-                (Items.CatClaw, "Progressive Claw"),
-                (Items.CharmClaw, "Progressive Claw"),
-                (Items.DragonClaw, "Progressive Claw"),
-                (Items.Bomb, "Progressive Bomb"),
-                (Items.JumboBomb, "Progressive Bomb"),
-                (Items.MegaGrenade, "Progressive Bomb"),
-                (Items.SteelHelm, "Progressive Helmet"),
-                (Items.MoonHelm, "Progressive Helmet"),
-                (Items.ApolloHelm, "Progressive Helmet"),
-                (Items.SteelShield, "Progressive Shield"),
-                (Items.VenusShield, "Progressive Shield"),
-                (Items.AegisShield, "Progressive Shield"),
-                (Items.SteelArmor, "Progressive Armor"),
-                (Items.NobleArmor, "Progressive Armor"),
-                (Items.GaiasArmor, "Progressive Armor"),
-                (Items.Charm, "Progressive Accessory"),
-                (Items.MagicRing, "Progressive Accessory"),
-                (Items.CupidLocket, "Progressive Accessory"),
-            };
+				(Items.KnightSword, "Progressive Sword"),
+				(Items.Excalibur, "Progressive Sword"),
+				(Items.Axe, "Progressive Axe"),
+				(Items.BattleAxe, "Progressive Axe"),
+				(Items.GiantsAxe, "Progressive Axe"),
+				(Items.CatClaw, "Progressive Claw"),
+				(Items.CharmClaw, "Progressive Claw"),
+				(Items.DragonClaw, "Progressive Claw"),
+				(Items.Bomb, "Progressive Bomb"),
+				(Items.JumboBomb, "Progressive Bomb"),
+				(Items.MegaGrenade, "Progressive Bomb"),
+				(Items.SteelHelm, "Progressive Helmet"),
+				(Items.MoonHelm, "Progressive Helmet"),
+				(Items.ApolloHelm, "Progressive Helmet"),
+				(Items.SteelShield, "Progressive Shield"),
+				(Items.VenusShield, "Progressive Shield"),
+				(Items.AegisShield, "Progressive Shield"),
+				(Items.SteelArmor, "Progressive Armor"),
+				(Items.NobleArmor, "Progressive Armor"),
+				(Items.GaiasArmor, "Progressive Armor"),
+				(Items.Charm, "Progressive Accessory"),
+				(Items.MagicRing, "Progressive Accessory"),
+				(Items.CupidLocket, "Progressive Accessory"),
+			};
 
 			string spoilers = "";
 
@@ -400,7 +399,7 @@ namespace FFMQLib
 				if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
 				{
 					itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
-                }
+				}
 				
 				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
 			}
@@ -408,34 +407,34 @@ namespace FFMQLib
 			spoilers += "\nAquaria\n";
 			foreach (var item in aquariaKi)
 			{
-                string itemname = item.Content.ToString();
-                if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
-                {
-                    itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
-                }
-                spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
+				string itemname = item.Content.ToString();
+				if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
+				{
+					itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
+				}
+				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
 			}
 
 			spoilers += "\nFireburg\n";
 			foreach (var item in fireburgKi)
 			{
-                string itemname = item.Content.ToString();
-                if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
-                {
-                    itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
-                }
-                spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
+				string itemname = item.Content.ToString();
+				if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
+				{
+					itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
+				}
+				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
 			}
 
 			spoilers += "\nWindia\n";
 			foreach (var item in windiaKi)
 			{
-                string itemname = item.Content.ToString();
-                if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
-                {
-                    itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
-                }
-                spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
+				string itemname = item.Content.ToString();
+				if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
+				{
+					itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
+				}
+				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
 			}
 
 			return spoilers;
@@ -534,7 +533,6 @@ namespace FFMQLib
 				throw new Exception("Logic error: Not supposed to be there");
 			}
 		}
-
 		public ItemsList(Flags flags, MT19337 rng)
 		{
 
@@ -699,5 +697,4 @@ namespace FFMQLib
 			Starting = StartingItems;
 		}
 	}
-
 }

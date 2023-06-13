@@ -419,7 +419,7 @@ namespace FFMQLib
 		Charm = 0x3D,
 		MagicRing = 0x3E,
 		CupidLocket = 0x3F,
-        Xp54 = 0x60,
+		Xp54 = 0x60,
 		Xp99 = 0x61,
 		Xp540 = 0x62,
 		Xp744 = 0x63,
@@ -433,7 +433,7 @@ namespace FFMQLib
 		Gp600 = 0x6B,
 		Gp900 = 0x6C,
 		Gp1200 = 0x6D,
-        BombRefill = 0xDD,
+		BombRefill = 0xDD,
 		ProjectileRefill = 0xDE,
 		APItem = 0xF0,
 		APItemFiller = 0xF1,
@@ -982,9 +982,5 @@ namespace FFMQLib
 		RainbowBridgeToPazuzu,
 		RainbowBridgeToSpencer,
 		FocusTower,
-	}
-	public partial class FFMQRom : SnesRom
-	{
-
 	}
 }

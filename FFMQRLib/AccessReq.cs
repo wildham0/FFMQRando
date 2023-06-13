@@ -143,47 +143,6 @@ namespace FFMQLib
 			(SubRegions.MacShip, LocationIds.MacsShip),
 			(SubRegions.MacShip, LocationIds.MacsShipDoom)
 		};
-		public static List<(SubRegions, List<List<AccessReqs>>)> SubRegionsAccess => new()
-		{
-			(SubRegions.Foresta, new List<List<AccessReqs>> { new List<AccessReqs> { } }),
-			(SubRegions.Aquaria, new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.SandCoin },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.SummerAquaria },
-			}),
-			(SubRegions.LifeTemple, new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.Barred },
-			}),
-			(SubRegions.AquariaFrozenField, new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.WakeWater, AccessReqs.SummerAquaria },
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra, AccessReqs.SummerAquaria },
-			}),
-			(SubRegions.Fireburg, new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.RiverCoin },
-				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.DualheadHydra, AccessReqs.SummerAquaria },
-			}),
-			(SubRegions.VolcanoBattlefield, new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.RiverCoin, AccessReqs.DualheadHydra },
-				new List<AccessReqs> { AccessReqs.SandCoin, AccessReqs.DualheadHydra, AccessReqs.SummerAquaria },
-			}),
-			(SubRegions.Windia, new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.SunCoin },
-			}),
-			(SubRegions.SpencerCave, new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.SunCoin, AccessReqs.RainbowBridge },
-			}),
-			(SubRegions.LightTemple, new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.Barred },
-			}),
-			(SubRegions.ShipDock, new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.Barred },
-			}),
-			(SubRegions.MacShip, new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.ShipDockAccess, AccessReqs.ShipLiberated },
-			}),
-			(SubRegions.DoomCastle, new List<List<AccessReqs>> {
-				new List<AccessReqs> { AccessReqs.ShipDockAccess, AccessReqs.ShipSteeringWheel, AccessReqs.ShipLoaned },
-			}),
-		};
 		public static Dictionary<Items, List<AccessReqs>> ItemAccessReq => new Dictionary<Items, List<AccessReqs>>
 		{
 			{ Items.Elixir, new List<AccessReqs> { AccessReqs.Elixir } },
