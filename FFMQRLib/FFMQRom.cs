@@ -236,7 +236,8 @@ namespace FFMQLib
 			ProgressiveFormation(flags.ProgressiveFormations, Overworld, rng);
 			credits.Update();
 
-            // Preferences			
+			// Preferences			
+			Msu1Support();
             RandomizeTracks(preferences.RandomMusic, sillyrng);
             RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			//WindowPalette(preferences.WindowPalette);
