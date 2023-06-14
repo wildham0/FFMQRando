@@ -64,7 +64,7 @@ namespace FFMQLib
 			TitleScreen titleScreen = new(this);
 
 			// General modifications
-			GeneralModifications(flags, rng);
+			GeneralModifications(flags, apconfigs.ApEnabled, rng);
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);

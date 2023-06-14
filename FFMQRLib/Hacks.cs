@@ -8,7 +8,7 @@ namespace FFMQLib
 {
 	public partial class FFMQRom : SnesRom
 	{
-		public void GeneralModifications(Flags flags, MT19337 rng)
+		public void GeneralModifications(Flags flags, bool apenabled, MT19337 rng)
 		{
 			ExpandRom();
 			FastMovement();
@@ -21,7 +21,7 @@ namespace FFMQLib
 			DummyRoom();
 			KeyItemWindow();
 			GameStateIndicator();
-			ArchipelagoSupport();
+			ArchipelagoSupport(apenabled);
 			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
 			PazuzuFixedFloorRng(rng);
 			Msu1Support();

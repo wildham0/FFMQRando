@@ -236,7 +236,7 @@ namespace FFMQLib
 			TitleScreen titleScreen = new(this);
 
 			// General modifications
-			GeneralModifications(flags, rng);
+			GeneralModifications(flags, true, rng);
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
@@ -346,11 +346,14 @@ namespace FFMQLib
 			return GameLogic.OutputRooms();
 		}
 
-		public void ArchipelagoSupport()
+		public void ArchipelagoSupport(bool apenabled)
 		{
 			ItemFetcher();
 			APItem();
-			NoCantCarry();
+			if (apenabled)
+			{
+				NoCantCarry();
+			}
 		}
 		public void ItemFetcher()
 		{
