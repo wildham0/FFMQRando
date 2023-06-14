@@ -173,7 +173,18 @@ namespace FFMQLib
 				battlefields.Find(x => x.Location == battlefield.Location).Reward = battlefield.Content;
 			}
 		}
-		public void ShuffleBattelfieldRewards(bool enable, GameLogic gamelogic, MT19337 rng)
+		public void ShuffleBattlefieldRewards(bool shuffleBattlefields, GameLogic gamelogic, ApConfigs apconfigs, MT19337 rng)
+		{
+			if (apconfigs.ApEnabled)
+			{
+				SetBattlefieldRewards(shuffleBattlefields, apconfigs.ItemPlacement, gamelogic, rng);
+			}
+			else
+			{
+				ShuffleRewards(shuffleBattlefields, gamelogic, rng);
+            }
+		}
+		public void ShuffleRewards(bool enable, GameLogic gamelogic, MT19337 rng)
 		{
 			if (!enable)
 			{
@@ -186,7 +197,7 @@ namespace FFMQLib
 
 			UpdateLogic(gamelogic);
 		}
-		public void SetBattelfieldRewards(bool shuffleBattlefields, List<ApObject> itemsplacement, GameLogic gamelogic, MT19337 rng)
+		public void SetBattlefieldRewards(bool shuffleBattlefields, List<ApObject> itemsplacement, GameLogic gamelogic, MT19337 rng)
 		{
 			var xpRewards = battlefields.Where(b => b.RewardType == BattlefieldRewardType.Experience).Select(b => b.Reward).ToList();
 			var gpRewards = battlefields.Where(b => b.RewardType == BattlefieldRewardType.Gold).Select(b => b.Reward).ToList();

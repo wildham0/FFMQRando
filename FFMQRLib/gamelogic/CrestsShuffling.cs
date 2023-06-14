@@ -23,9 +23,9 @@ namespace FFMQLib
 	}
 	public partial class GameLogic
     {
-		public void CrestShuffle(bool shufflecrests, MT19337 rng)
+		public void CrestShuffle(bool shufflecrests, bool apenabled, MT19337 rng)
 		{
-            if (!shufflecrests)
+            if (!shufflecrests || apenabled)
             {
                 return;
             }

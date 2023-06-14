@@ -123,14 +123,14 @@
 
             if (ApConfigs.ApEnabled)
             {
-                rom.GenerateFromApConfig(ApConfigs, Flags, Preferences);
+                rom.Randomize(Seed, Flags, Preferences, ApConfigs);
                 romMessage = "Archipelago ROM file generated successfully.";
                 fileName = ApConfigs.FileName + ".sfc";
                 fileNameSpoilers = ApConfigs.FileName + "_Spoilers" + ".txt";
             }
             else
             {
-                rom.Randomize(Seed, Flags, Preferences);
+                rom.Randomize(Seed, Flags, Preferences, ApConfigs);
 
                 romMessage = "ROM file generated successfully.";
                 fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".sfc";

@@ -43,7 +43,7 @@ namespace FFMQLib
 	public partial class ItemsPlacement
 	{
 		public List<Items> StartingItems { get; set; }
-		public List<GameObject> ItemsLocations { get; }
+		public List<GameObject> ItemsLocations { get; set;  }
 		
 		private const int TreasuresOffset = 0x8000;
 
@@ -58,7 +58,18 @@ namespace FFMQLib
 				Weight = _weight;
 			}
 		}
-		public ItemsPlacement(Flags flags, List<GameObject> initialGameObjects, FFMQRom rom, MT19337 rng)
+		public ItemsPlacement(Flags flags, List<GameObject> initialGameObjects, ApConfigs apconfigs, FFMQRom rom, MT19337 rng)
+		{
+			if (apconfigs.ApEnabled)
+			{
+                PlaceApItems(flags, apconfigs, initialGameObjects, rom, rng);
+            }
+			else
+			{
+				PlaceItems(flags, initialGameObjects, rom, rng);
+			}
+		}
+		public void PlaceItems(Flags flags, List<GameObject> initialGameObjects, FFMQRom rom, MT19337 rng)
 		{
 			bool badPlacement = true;
 			int counter = 0;

@@ -9,11 +9,11 @@ namespace FFMQLib
 {
 	public partial class Overworld
 	{
-		public void ShuffleOverworld(MapShufflingMode mapshufflingmode, GameLogic gamelogic, Battlefields battlefields, MT19337 rng)
+		public void ShuffleOverworld(MapShufflingMode mapshufflingmode, GameLogic gamelogic, Battlefields battlefields, bool apenabled, MT19337 rng)
 		{
 			bool shuffleOverworld = mapshufflingmode != MapShufflingMode.None && mapshufflingmode != MapShufflingMode.Dungeons;
 			
-			if (!shuffleOverworld)
+			if (!shuffleOverworld || apenabled)
 			{
 				return;
 			}

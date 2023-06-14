@@ -127,7 +127,7 @@ namespace FFMQLib
 	}
 	public partial class ItemsPlacement
 	{
-		public ItemsPlacement(Flags flags, ApConfigs apconfigs, List<GameObject> initialGameObjects, FFMQRom rom, MT19337 rng)
+		public void PlaceApItems(Flags flags, ApConfigs apconfigs, List<GameObject> initialGameObjects, FFMQRom rom, MT19337 rng)
 		{
 			List<Items> consumableList = rom.GetFromBank(0x01, 0x801E, 0xDD).ToBytes().Select(x => (Items)x).ToList();
 			List<Items> finalConsumables = rom.GetFromBank(0x01, 0x80F2, 0x04).ToBytes().Select(x => (Items)x).ToList();
@@ -231,7 +231,7 @@ namespace FFMQLib
 			Overworld = new(this);
 			Teleporters = new(this);
 			MapSpriteSets = new(this);
-			GameLogic = new(apconfigs.RoomsYaml);
+			GameLogic = new(apconfigs); //?
 			EntrancesData = new(this);
 			TitleScreen titleScreen = new(this);
 
@@ -251,7 +251,8 @@ namespace FFMQLib
 			// Overworld
 			Overworld.OpenNodes(flags);
 			Battlefields.SetBattlesQty(flags.BattlesQuantity, rng);
-			Battlefields.SetBattelfieldRewards(flags.ShuffleBattlefieldRewards, apconfigs.ItemPlacement, GameLogic, rng);
+			//Battlefields.SetBattelfieldRewards(flags.ShuffleBattlefieldRewards, apconfigs.ItemPlacement, GameLogic, rng); // ?
+			//...
 			Overworld.UpdateOverworld(flags, GameLogic, Battlefields);
 
 			// Logic
@@ -260,7 +261,7 @@ namespace FFMQLib
 			EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
 
 			// Items
-			ItemsPlacement itemsPlacement = new(flags, apconfigs, GameLogic.GameObjects, this, rng);
+			ItemsPlacement itemsPlacement = new(flags, GameLogic.GameObjects, apconfigs, this, rng); //?
 
 			SetStartingItems(itemsPlacement);
 			MapObjects.UpdateChests(itemsPlacement);
@@ -289,7 +290,7 @@ namespace FFMQLib
 			spriteReader.LoadCustomSprites(preferences, this);
 
 			// Write everything back			
-			itemsPlacement.WriteChests(this);
+			//itemsPlacement.WriteChests(this);
 			credits.Write(this);
 			EnemyAttackLinks.Write(this);
 			Attacks.Write(this);
@@ -309,10 +310,10 @@ namespace FFMQLib
 
 
 			// Spoilers
-			spoilersText = itemsPlacement.GenerateSpoilers(flags, titleScreen.versionText, titleScreen.hashText, apconfigs.Seed);
+			//spoilersText = itemsPlacement.GenerateSpoilers(flags, titleScreen.versionText, titleScreen.hashText, apconfigs.Seed);
 			spoilers = flags.EnableSpoilers;
 
-			PutInBank(0x00, 0xFFC0, apconfigs.GetRomName());
+			PutInBank(0x00, 0xFFC0, apconfigs.GetRomName()); //?
 
 			// Remove header if any
 			this.Header = Array.Empty<byte>();
@@ -320,8 +321,9 @@ namespace FFMQLib
 
 		public string GenerateRooms(bool crestshuffle, bool battlefieldshuffle, int mapshuffling, string seed)
 		{
+			ApConfigs apconfigs = new();
 			seed = seed.PadLeft(8, '0').Substring(0,8);
-			
+
 			var blobseed = Blob.FromHex(seed);
 			MT19337 rng;
 
@@ -336,10 +338,10 @@ namespace FFMQLib
 			GameLogic = new();
 
 			// Locations & Logic
-			Battlefields.ShuffleBattelfieldRewards(battlefieldshuffle, GameLogic, rng);
-			GameLogic.CrestShuffle(crestshuffle, rng);
-			GameLogic.FloorShuffle((MapShufflingMode)mapshuffling, rng);
-			Overworld.ShuffleOverworld((MapShufflingMode)mapshuffling, GameLogic, Battlefields, rng);
+			Battlefields.ShuffleBattlefieldRewards(battlefieldshuffle, GameLogic, apconfigs, rng);
+			GameLogic.CrestShuffle(crestshuffle, false, rng);
+			GameLogic.FloorShuffle((MapShufflingMode)mapshuffling, false, rng);
+			Overworld.ShuffleOverworld((MapShufflingMode)mapshuffling, GameLogic, Battlefields, false, rng);
 
 			return GameLogic.OutputRooms();
 		}

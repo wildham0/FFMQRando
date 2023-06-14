@@ -177,13 +177,13 @@ namespace FFMQLib
 		private List<List<int>> entrancesPairs;
 		private List<(int roomid, RoomLink link)> newLinkToProcess;
 
-		public void FloorShuffle(MapShufflingMode mapshuffling, MT19337 rng)
+		public void FloorShuffle(MapShufflingMode mapshuffling, bool apenabled, MT19337 rng)
 		{
 
 			bool shuffleFloors = mapshuffling == MapShufflingMode.Dungeons || mapshuffling == MapShufflingMode.OverworldDungeons || mapshuffling == MapShufflingMode.Everything;
 			bool includeTemplesTowns = mapshuffling == MapShufflingMode.Everything;
 
-			if (!shuffleFloors)
+			if (!shuffleFloors || apenabled)
 			{
 				return;
 			}

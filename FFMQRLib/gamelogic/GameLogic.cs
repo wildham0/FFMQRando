@@ -19,15 +19,25 @@ namespace FFMQLib
 		public List<Room> Rooms { get; set; }
 		public List<GameObject> GameObjects { get; set; }
 		private List<(int, (LocationIds, int), List<AccessReqs>, int)> accessQueue;
-        private List<(int, LocationIds)> locationQueue;
+		private List<(int, LocationIds)> locationQueue;
 		private int locationCount;
-        private List<int> regionRoomIds;
-
+		private List<int> regionRoomIds;
+		public GameLogic(ApConfigs apconfigs)
+		{
+			if (apconfigs.ApEnabled)
+			{
+				ReadFromAp(apconfigs.RoomsYaml);
+			}
+			else
+			{
+				ReadRooms();
+			}
+		}
 		public GameLogic()
 		{
 			ReadRooms();
 		}
-		public GameLogic(string aprooms)
+		private void ReadFromAp(string aprooms)
 		{
 			if (aprooms == null || aprooms == "")
 			{
@@ -175,7 +185,7 @@ namespace FFMQLib
 				Location targetLocation = overworld.Locations.Find(x => x.LocationId == targetaccess.First().Item2.Item1);
 				room.Location = locationQueue.Find(l => l.Item1 == targetaccess.First().Item4).Item2;
 
-                foreach (var gamedata in room.GameObjects)
+				foreach (var gamedata in room.GameObjects)
 				{ 
 					if (gamedata.Type == GameObjectType.BattlefieldXp || gamedata.Type == GameObjectType.BattlefieldGp)
 					{
@@ -314,61 +324,61 @@ namespace FFMQLib
 
 			accessQueue.Add((roomid, locPriority, access, 0));
 		}
-        private void ProcessRoom2(int roomid, List<int> origins, List<AccessReqs> access, (LocationIds, int) locPriority, (int, LocationIds) location)
-        {
-            var targetroom = Rooms.Find(x => x.Id == roomid);
+		private void ProcessRoom2(int roomid, List<int> origins, List<AccessReqs> access, (LocationIds, int) locPriority, (int, LocationIds) location)
+		{
+			var targetroom = Rooms.Find(x => x.Id == roomid);
 
 			(int, LocationIds) newLocation = location;
-            //LocationIds newLocation = location.Item1;
+			//LocationIds newLocation = location.Item1;
 
-            foreach (var children in targetroom.Links)
-            {
-                bool reachLocation = false;
-                if (regionRoomIds.Contains(targetroom.Id))
-                {
-                    if (children.Entrance >= 0)
-                    {
+			foreach (var children in targetroom.Links)
+			{
+				bool reachLocation = false;
+				if (regionRoomIds.Contains(targetroom.Id))
+				{
+					if (children.Entrance >= 0)
+					{
 						locationCount++;
 						locationQueue.Add((locationCount, children.Location));
 
 						newLocation = (locationCount, children.Location);
 
-                        reachLocation = true;
-                    }
-                }
+						reachLocation = true;
+					}
+				}
 
-                if (!origins.Contains(children.TargetRoom))
-                {
-                    if ((targetroom.Type != RoomType.Overworld && targetroom.Type != RoomType.Subregion) && regionRoomIds.Contains(children.TargetRoom) && locPriority.Item2 > 0)
-                    {
+				if (!origins.Contains(children.TargetRoom))
+				{
+					if ((targetroom.Type != RoomType.Overworld && targetroom.Type != RoomType.Subregion) && regionRoomIds.Contains(children.TargetRoom) && locPriority.Item2 > 0)
+					{
 						var location2 = Rooms.Find(x => x.Id == children.TargetRoom).Links.Find(l => l.TargetRoom == targetroom.Id).Location;
 
 						locationQueue.RemoveAll(l => l.Item1 == location.Item1);
-                        locationQueue.Add((location.Item1, location2));
-                        newLocation = (location.Item1, location2);
-                    }
+						locationQueue.Add((location.Item1, location2));
+						newLocation = (location.Item1, location2);
+					}
 
-                    bool traverseCrest = false;
+					bool traverseCrest = false;
 
-                    if (children.Access.Contains(AccessReqs.LibraCrest) || children.Access.Contains(AccessReqs.GeminiCrest) || children.Access.Contains(AccessReqs.MobiusCrest))
-                    {
-                        traverseCrest = true;
-                        locationCount++;
-                        locationQueue.Add((locationCount, location.Item2));
-                        newLocation = (locationCount, location.Item2);
-                        //newLocation = locationCount;
-                    }
-                    ProcessRoom2(children.TargetRoom,
+					if (children.Access.Contains(AccessReqs.LibraCrest) || children.Access.Contains(AccessReqs.GeminiCrest) || children.Access.Contains(AccessReqs.MobiusCrest))
+					{
+						traverseCrest = true;
+						locationCount++;
+						locationQueue.Add((locationCount, location.Item2));
+						newLocation = (locationCount, location.Item2);
+						//newLocation = locationCount;
+					}
+					ProcessRoom2(children.TargetRoom,
 						origins.Concat(new List<int> { roomid }).ToList(),
 						access.Concat(children.Access).ToList(),
-                        (reachLocation ? newLocation.Item2 : locPriority.Item1, traverseCrest ? locPriority.Item2 + 1 : locPriority.Item2),
-                        newLocation);
-                }
-            }
+						(reachLocation ? newLocation.Item2 : locPriority.Item1, traverseCrest ? locPriority.Item2 + 1 : locPriority.Item2),
+						newLocation);
+				}
+			}
 
-            accessQueue.Add((roomid, locPriority, access, location.Item1));
-        }
-        public LocationIds FindTriggerLocation(AccessReqs trigger)
+			accessQueue.Add((roomid, locPriority, access, location.Item1));
+		}
+		public LocationIds FindTriggerLocation(AccessReqs trigger)
 		{
 			var initialRoom = Rooms.Find(x => x.GameObjects.Where(o => o.OnTrigger.Contains(trigger)).Any());
 			List<AccessReqs> crestsList = new() { AccessReqs.LibraCrest, AccessReqs.GeminiCrest, AccessReqs.MobiusCrest };

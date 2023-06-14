@@ -29,17 +29,18 @@ namespace FFMQLib
 		public EnemiesStats enemiesStats;
 		public GameLogic GameLogic;
 		public EntrancesData EntrancesData;
+
 		private byte[] originalData;
 		public bool beta = false;
 		public bool spoilers = false;
 		public string spoilersText;
-		public void Randomize(Blob seed, Flags flags, Preferences preferences)
+		public void Randomize(Blob seed, Flags flags, Preferences preferences, ApConfigs apconfigs)
 		{
 			MT19337 rng;
 			MT19337 sillyrng;
 			using (SHA256 hasher = SHA256.Create())
 			{
-				Blob hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
+				Blob hash = hasher.ComputeHash((apconfigs.ApEnabled ? apconfigs.GetSeed() : seed) + flags.EncodedFlagString());
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 				sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
@@ -58,7 +59,7 @@ namespace FFMQLib
 			Overworld = new(this);
 			Teleporters = new(this);
 			MapSpriteSets = new(this);
-			GameLogic = new();
+			GameLogic = new(apconfigs);
 			EntrancesData = new(this);
 			TitleScreen titleScreen = new(this);
 
@@ -78,22 +79,21 @@ namespace FFMQLib
 			// Overworld
 			Overworld.OpenNodes(flags);
 			Battlefields.SetBattlesQty(flags.BattlesQuantity, rng);
-			Battlefields.ShuffleBattelfieldRewards(flags.ShuffleBattlefieldRewards, GameLogic, rng);
+			Battlefields.ShuffleBattlefieldRewards(flags.ShuffleBattlefieldRewards, GameLogic, apconfigs, rng);
 
-			// Locations & Logic
-			GameLogic.CrestShuffle(flags.CrestShuffle, rng);
-			GameLogic.FloorShuffle(flags.MapShuffling, rng);
-			Overworld.ShuffleOverworld(flags.MapShuffling, GameLogic, Battlefields, rng);
-
+			// Map Shuffling
+			GameLogic.CrestShuffle(flags.CrestShuffle, apconfigs.ApEnabled, rng);
+			GameLogic.FloorShuffle(flags.MapShuffling, apconfigs.ApEnabled, rng);
+			Overworld.ShuffleOverworld(flags.MapShuffling, GameLogic, Battlefields, apconfigs.ApEnabled, rng);
 			Overworld.UpdateOverworld(flags, GameLogic, Battlefields);
 
+			// Logic
 			GameLogic.CrawlRooms(flags, Overworld, Battlefields);
-			
 			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this);
 			EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
 			
 			// Items
-			ItemsPlacement itemsPlacement = new(flags, GameLogic.GameObjects, this, rng);
+			ItemsPlacement itemsPlacement = new(flags, GameLogic.GameObjects, apconfigs, this, rng);
 
 			SetStartingItems(itemsPlacement);
 			MapObjects.UpdateChests(itemsPlacement);
@@ -138,11 +138,16 @@ namespace FFMQLib
 			Overworld.Write(this);
 			MapObjects.Write(this);
 			MapSpriteSets.Write(this);
-			titleScreen.Write(this, Metadata.Version, seed, flags);
+			titleScreen.Write(this, Metadata.Version, apconfigs.ApEnabled ? apconfigs.GetSeed() : seed, flags);
 
 			// Spoilers
 			spoilersText = itemsPlacement.GenerateSpoilers(flags, titleScreen.versionText, titleScreen.hashText, seed.ToHex());
 			spoilers = flags.EnableSpoilers;
+
+			if (apconfigs.ApEnabled)
+			{
+				PutInBank(0x00, 0xFFC0, apconfigs.GetRomName());
+			}
 			
 			// Remove header if any
 			this.Header = Array.Empty<byte>();
