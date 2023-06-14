@@ -396,7 +396,12 @@ namespace FFMQLib
 			//  vertscanline x3 + $0f (or + $9a)
 			PutInBank(0x00, 0xB8C0, Blob.FromHex("EAEA"));
 			PutInBank(0x00, 0xB852, Blob.FromHex("EAEA"));
-		}
+
+			// Fix music instrument overflow
+			// If the instruments data is full ($620, $20 bytes), when loading a new track the instruments will overflow and crash the spc chip by loading garbage data; the fix force the instrument data to be flushed to make space
+			PutInBank(0x0D, 0x8340, Blob.FromHex("22708811b016eaeaeaeaeaeaea"));
+            PutInBank(0x11, 0x8870, Blob.FromHex("a20000c220b528f009e8e8e02000d0f5386b186b"));
+        }
 		public void Msu1Support()
 		{
 			// see 10_8000_MSUSupport.asm
