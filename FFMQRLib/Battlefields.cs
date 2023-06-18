@@ -227,7 +227,7 @@ namespace FFMQLib
 				}
 			}
 
-			if (xpRewards.Count > battlefieldXp.Count && shuffleBattlefields)
+			if (xpRewards.Count > battlefieldXp.Count)
 			{
 				if (shuffleBattlefields)
 				{
