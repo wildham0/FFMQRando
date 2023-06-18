@@ -8,24 +8,24 @@ namespace FFMQLib
 {
 	public partial class FFMQRom : SnesRom
 	{
-		public void GeneralModifications(Flags flags, MT19337 rng)
+		public void GeneralModifications(Flags flags, bool apenabled, MT19337 rng)
 		{
-            ExpandRom();
-            FastMovement();
-            DefaultSettings();
-            RemoveClouds();
-            RemoveStrobing();
-            SmallFixes();
-            BugFixes();
-            CompanionRoutines();
-            DummyRoom();
-            KeyItemWindow();
-            GameStateIndicator();
-            ArchipelagoSupport();
-            NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
-            PazuzuFixedFloorRng(rng);
-            Msu1Support();
-        }
+			ExpandRom();
+			FastMovement();
+			DefaultSettings();
+			RemoveClouds();
+			RemoveStrobing();
+			SmallFixes();
+			BugFixes();
+			CompanionRoutines();
+			DummyRoom();
+			KeyItemWindow();
+			GameStateIndicator();
+			ArchipelagoSupport(apenabled);
+			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
+			PazuzuFixedFloorRng(rng);
+			Msu1Support();
+		}
 		
 		public void FastMovement()
 		{
@@ -157,7 +157,7 @@ namespace FFMQLib
 
 			// Fix vendor text to sell books & seals
 			var fullbookscript = new ScriptBuilder(new List<string>{
-                    "07D08015",         // Get item names, as well as AP
+					"07D08015",         // Get item names, as well as AP
 					"05EA0C",
 					"0F0015",			// Load item ID
 					"05041F[09]",
@@ -194,15 +194,15 @@ namespace FFMQLib
 
 			// Newer routine to set item quantity, supersed previous (to remove)
 			PutInBank(0x00, 0xDACC, Blob.FromHex("22509011ea"));
-            PutInBank(0x11, 0x9050, Blob.FromHex("e220ad910ec96ad012ad5f01c9f2900bc9f6b007a9188d66018026ad9e00c910900cc914900fc9dd9004c9f0900e9c6601a9808012a9028d66018005a9098d6601a9800c65016b1c65016b"));
+			PutInBank(0x11, 0x9050, Blob.FromHex("e220ad910ec96ad012ad5f01c9f2900bc9f6b007a9188d66018026ad9e00c910900cc914900fc9dd9004c9f0900e9c6601a9808012a9028d66018005a9098d6601a9800c65016b1c65016b"));
 
-            // Generate lut of boxes & chests quantity
-            byte[] lutResetBox = new byte[0x20];
+			// Generate lut of boxes & chests quantity
+			byte[] lutResetBox = new byte[0x20];
 
 			var test2 = itemsPlacement.ItemsLocations.Where(x => x.ObjectId < 0x20).ToList();
 
 			foreach(var location in itemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.Chest || x.Type == GameObjectType.Box).ToList())
-            {
+			{
 				byte quantity = 1;
 
 				if (location.Content >= Items.CurePotion && location.Content <= Items.Refresher)
@@ -225,7 +225,7 @@ namespace FFMQLib
 				}
 				
 				PutInBank(0x11, 0x9100 + location.ObjectId, new byte[] { quantity });
-            }
+			}
 
 			// Part 1 of chest script, we gut the native quantity scripts
 			PutInBank(0x03, 0x86BF, Blob.FromHex("051d2e000205fc4d6a8714ff115f012dc80e058e6a870d65010001090090110543008001052c9e0014ff0a3287"));
@@ -242,20 +242,20 @@ namespace FFMQLib
 
 			// Put the Mirror/Mask effect with the give item routine instead
 			var maskLocations = itemsPlacement.ItemsLocations.Where(x => x.Content == Items.Mask).ToList();
-            var mirrorLocations = itemsPlacement.ItemsLocations.Where(x => x.Content == Items.MagicMirror).ToList();
+			var mirrorLocations = itemsPlacement.ItemsLocations.Where(x => x.Content == Items.MagicMirror).ToList();
 
 			// see 11_9200_ChestHacks.asm
 			PutInBank(0x11, 0x9200, Blob.FromHex("48c905f014c906f02dc90ff046680bf4a60e2b224e97002b6bad880ec929d0edad910ef0e80bf4d0002ba992224e97002bad9e0080d7ad880ec921d0d0ad910ef0cb0bf4d0002ba992224e97002bad9e0080baee930e80b56b"));
 			PutInBank(0x00, 0xDB82, Blob.FromHex("22009211EAEAEAEAEAEA"));
 
 			// Item action selector (w AP support)
-            PutInBank(0x00, 0xDB42, Blob.FromHex("5c008f11"));
-            PutInBank(0x11, 0x8F00, Blob.FromHex("c910b0045c82db00c914b0045c70db00c920b0045c8edb00c92fb0045c9cdb00c9ddb0045cbedb00c9deb0045c58db00c9dfb0045c64db005cd6db00"));
+			PutInBank(0x00, 0xDB42, Blob.FromHex("5c008f11"));
+			PutInBank(0x11, 0x8F00, Blob.FromHex("c910b0045c82db00c914b0045c70db00c920b0045c8edb00c92fb0045c9cdb00c9ddb0045cbedb00c9deb0045c58db00c9dfb0045c64db005cd6db00"));
 
 			// Don't check quantity on item F0+ when opening chests
-            PutInBank(0x00, 0xDA68, Blob.FromHex("c9f0b0"));
-        }
-        public void NonSpoilerDemoplay(bool shortenedLoop)
+			PutInBank(0x00, 0xDA68, Blob.FromHex("c9f0b0"));
+		}
+		public void NonSpoilerDemoplay(bool shortenedLoop)
 		{
 			// Don't cycle through the 3 demoplays, just do the first one
 			PutInBank(0x00, 0x8184, Blob.FromHex("eaeaeaeaeaeaeaeaeaeaeaeaeaa900"));
@@ -281,29 +281,29 @@ namespace FFMQLib
 			PutInBank(0x0C, 0xA82E, Blob.FromHex(inputseries));
 			PutInBank(0x0C, 0xA8C0, Blob.FromHex("33"));
 		}
-        public void GameStateIndicator()
-        {
+		public void GameStateIndicator()
+		{
 			// Game state byte is at 0x7E3749, initialized at 0, then set to 1 after loading a save or starting a new game, set to 0 if giving up after a battle
 			// Initialize game state byte and rando validation "FFMQR", at 0x7E374A
 			PutInBank(0x11, 0x8B00, Blob.FromHex("08e230a9008f49377e8ff01f708ff11f708ff21f70c230a2308ba04a37a90400547e1128a9008f67367e3a8f68367e6b"));
-            PutInBank(0x11, 0x8B30, Blob.FromHex("46464d5152")); // Validation code
-            PutInBank(0x00, 0x8009, Blob.FromHex("22008B11eaeaeaeaeaeaea"));
+			PutInBank(0x11, 0x8B30, Blob.FromHex("46464d5152")); // Validation code
+			PutInBank(0x00, 0x8009, Blob.FromHex("22008B11eaeaeaeaeaeaea"));
 
-            // Set when starting new game
-            PutInBank(0x11, 0x8B40, Blob.FromHex("08e230a9018f49377e285cb8c7006b"));
-            PutInBank(0x00, 0x815F, Blob.FromHex("22408B11"));
+			// Set when starting new game
+			PutInBank(0x11, 0x8B40, Blob.FromHex("08e230a9018f49377e285cb8c7006b"));
+			PutInBank(0x00, 0x815F, Blob.FromHex("22408B11"));
 
-            // Set when loading game or restarting a new game
-            PutInBank(0x11, 0x8B90, Blob.FromHex("08e230af49377ed011c230add10f8ff11f70e230a9018f49377e282bab286b"));
-            PutInBank(0x00, 0xBD26, Blob.FromHex("5c908B11"));
+			// Set when loading game or restarting a new game
+			PutInBank(0x11, 0x8B90, Blob.FromHex("08e230af49377ed011c230add10f8ff11f70e230a9018f49377e282bab286b"));
+			PutInBank(0x00, 0xBD26, Blob.FromHex("5c908B11"));
 
-            // Set when giving up
-            PutInBank(0x11, 0x8B60, Blob.FromHex("0509006a8b050225a00309808B11050245a00300"));
-            PutInBank(0x11, 0x8B80, Blob.FromHex("08e230a9008f49377e8ff01f70286b"));
-            PutInBank(0x03, 0xA020, Blob.FromHex("0502608B11"));
-        }
+			// Set when giving up
+			PutInBank(0x11, 0x8B60, Blob.FromHex("0509006a8b050225a00309808B11050245a00300"));
+			PutInBank(0x11, 0x8B80, Blob.FromHex("08e230a9008f49377e8ff01f70286b"));
+			PutInBank(0x03, 0xA020, Blob.FromHex("0502608B11"));
+		}
 
-        public void RestoreHillOfDestiny()
+		public void RestoreHillOfDestiny()
 		{
 			// Maybe one day, tilesets is linked to bone dungeons'
 			//  this map is a mess
@@ -448,35 +448,35 @@ namespace FFMQLib
 
 			PutInBank(0x10, 0x8000, Blob.FromHex($"{loadrandomtrack}A501C505D0045C8A810D20C2809044AFF0FF7FC501D00664015C8A810D9C0620A5018FF0FF7F8D04209C0520A9012C002070F9AD00202908D01DA9FF8D0620A501C915D004A9018005201081A9038D072064015CED810DA9008FF0FF7F5CED810D8D4021C9F0D0079C07205CD9850D5CED850DA6064820C2809009AD00202908D002686BAFF0FF7FF00D68A501201081A9008FF0FF7F6B682012816BA501D01620C280900FAFF0FF7FF0099C41219C024285056BA5018D412185058D02426BAD0220C953D025AD0320C92DD01EAD0420C94DD017AD0520C953D010AD0620C955D009AD0720C931D00238601860DA08E230A501AABF208110291F850128FA60DA08E230AABF408110291F28FA60A501{saverandomtrack}850960"));
 		}
-        public void RandomizeTracks(bool randomizesong, MT19337 rng)
-        {
-            var rngback = rng;
+		public void RandomizeTracks(bool randomizesong, MT19337 rng)
+		{
+			var rngback = rng;
 
-            if (randomizesong)
-            {
-                List<byte> tracks = Enumerable.Range(0, 0x1A).Select(x => (byte)x).ToList();
-                List<byte> goodordertracks = Enumerable.Range(0, 0x1B).Select(x => (byte)x).ToList();
-                tracks.Remove(0x00);
-                tracks.Remove(0x04);
-                tracks.Remove(0x15);
+			if (randomizesong)
+			{
+				List<byte> tracks = Enumerable.Range(0, 0x1A).Select(x => (byte)x).ToList();
+				List<byte> goodordertracks = Enumerable.Range(0, 0x1B).Select(x => (byte)x).ToList();
+				tracks.Remove(0x00);
+				tracks.Remove(0x04);
+				tracks.Remove(0x15);
 
-                tracks.Shuffle(rng);
-                tracks.Insert(0x00, 0x00);
-                tracks.Insert(0x04, 0x04);
-                tracks.Insert(0x15, 0x15);
-                tracks.Add(0x1A);
-                List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
+				tracks.Shuffle(rng);
+				tracks.Insert(0x00, 0x00);
+				tracks.Insert(0x04, 0x04);
+				tracks.Insert(0x15, 0x15);
+				tracks.Add(0x1A);
+				List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
 
-                PutInBank(0x10, 0x8240, completetracks.OrderBy(x => x.Item1).Select(x => x.Item2).ToArray());
-                PutInBank(0x00, 0x928A, Blob.FromHex("22008210eaeaeaea")); // normal track loading routine
-                PutInBank(0x10, 0x8200, Blob.FromHex("aabf4082108d0106a6018e02066b"));
-                PutInBank(0x02, 0xDAC3, Blob.FromHex("22108210ea")); // battle track loading routine
-                PutInBank(0x10, 0x8210, Blob.FromHex("08e230aabf4082108d0b05a908286b"));
-                //PutInBank(0x10, 0x8140, completetracks.OrderBy(x => x.Item2).Select(x => x.Item1).ToArray());
-            }
+				PutInBank(0x10, 0x8240, completetracks.OrderBy(x => x.Item1).Select(x => x.Item2).ToArray());
+				PutInBank(0x00, 0x928A, Blob.FromHex("22008210eaeaeaea")); // normal track loading routine
+				PutInBank(0x10, 0x8200, Blob.FromHex("aabf4082108d0106a6018e02066b"));
+				PutInBank(0x02, 0xDAC3, Blob.FromHex("22108210ea")); // battle track loading routine
+				PutInBank(0x10, 0x8210, Blob.FromHex("08e230aabf4082108d0b05a908286b"));
+				//PutInBank(0x10, 0x8140, completetracks.OrderBy(x => x.Item2).Select(x => x.Item1).ToArray());
+			}
 
-            rng = rngback;
-            rng.Next();
-        }
-    }
+			rng = rngback;
+			rng.Next();
+		}
+	}
 }

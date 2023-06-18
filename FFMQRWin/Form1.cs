@@ -116,9 +116,11 @@ namespace FFMQRWin
 
         private void button4_Click(object sender, EventArgs e)
         {
+            ApConfigs apconfigs = new();
+            
             newRom.RestoreOriginalData();
             
-            newRom.Randomize(seed, flags, preferences);
+            newRom.Randomize(seed, flags, preferences, apconfigs);
 
             var outputFile = File.Create(directoryPath + "FFMQR_" + seed.ToHex() + ".sfc");
 

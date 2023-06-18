@@ -33,12 +33,12 @@ namespace FFMQLib
 		public void SetStartingItems(ItemsPlacement itemsplacement)
 		{
 			byte[] itemsByte = new byte[] { 0x00, 0x00 };
-            byte[] weaponsByte = new byte[] { 0x00, 0x00, 0x00 };
-            byte[] armorsByte = new byte[] { 0x00, 0x00, 0x00 };
-            byte[] spellsByte = new byte[] { 0x00, 0x00 };
+			byte[] weaponsByte = new byte[] { 0x00, 0x00, 0x00 };
+			byte[] armorsByte = new byte[] { 0x00, 0x00, 0x00 };
+			byte[] spellsByte = new byte[] { 0x00, 0x00 };
 
 			byte startingWeapon = 0x00;
-            int startingWeaponLevel = -1;
+			int startingWeaponLevel = -1;
 
 			List<(Items item, int count)> consumables  = new() { (Items.CurePotion, 0), (Items.HealPotion, 0), (Items.Refresher, 0), (Items.Seed, 0) };
 
@@ -46,7 +46,7 @@ namespace FFMQLib
 			{
 				if (consumables.Select(x => x.item).Contains(item))
 				{
-                    consumables = consumables.Select(x => (x.item == item) ? (x.item, x.count + 1) : x).ToList();
+					consumables = consumables.Select(x => (x.item == item) ? (x.item, x.count + 1) : x).ToList();
 				}
 				else if (item <= Items.SkyCoin)
 				{
@@ -75,21 +75,21 @@ namespace FFMQLib
 					{
 						startingWeapon = (byte)item;
 					}
-                }
+				}
 				else if (item >= Items.SteelHelm && item <= Items.CupidLocket)
-                {
-                    int targetByte = ((int)(item - Items.SteelHelm) / 8);
-                    byte targetBit = (byte)(0x80 / (Math.Pow(2, (int)(item - Items.SteelHelm) % 8)));
+				{
+					int targetByte = ((int)(item - Items.SteelHelm) / 8);
+					byte targetBit = (byte)(0x80 / (Math.Pow(2, (int)(item - Items.SteelHelm) % 8)));
 
-                    armorsByte[targetByte] |= targetBit;
-                }
-            }
+					armorsByte[targetByte] |= targetBit;
+				}
+			}
 
-            PutInBank(0x0C, 0xD0E1, new byte[] { startingWeapon });
-            PutInBank(0x0C, 0xD0E2, weaponsByte);
-            PutInBank(0x0C, 0xD0E5, armorsByte);
-            PutInBank(0x0C, 0xD0E8, spellsByte);
-            PutInBank(0x0C, 0xD3A2, itemsByte);
+			PutInBank(0x0C, 0xD0E1, new byte[] { startingWeapon });
+			PutInBank(0x0C, 0xD0E2, weaponsByte);
+			PutInBank(0x0C, 0xD0E5, armorsByte);
+			PutInBank(0x0C, 0xD0E8, spellsByte);
+			PutInBank(0x0C, 0xD3A2, itemsByte);
 
 			int currentConsumableSlot = 0;
 
@@ -97,11 +97,11 @@ namespace FFMQLib
 			{
 				if (consumable.count > 0)
 				{
-                    PutInBank(0x0C, 0xD39A + (currentConsumableSlot * 2), new byte[] { (byte)consumable.item, (byte)consumable.count });
+					PutInBank(0x0C, 0xD39A + (currentConsumableSlot * 2), new byte[] { (byte)consumable.item, (byte)consumable.count });
 					currentConsumableSlot++;
-                }
+				}
 			}
-        }
+		}
 		public void SetStartingWeapons(ItemsPlacement itemsPlacement)
 		{
 			if (itemsPlacement.StartingItems.Contains(Items.SteelSword))
@@ -123,8 +123,6 @@ namespace FFMQLib
 				PutInBank(0x0C, 0xD0E2, Blob.FromHex("0040"));
 				PutInBank(0x0C, 0xD0E1, new byte[] { (byte)Items.Bomb });
 			}
-
-            //PutInBank(0x0C, 0xD4CD, new byte[] { (byte)itemsPlacement.StartingItems.Count });
-        }
+		}
 	}
 }

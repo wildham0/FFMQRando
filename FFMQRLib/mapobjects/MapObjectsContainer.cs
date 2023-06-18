@@ -42,9 +42,16 @@ namespace FFMQLib
 		private int NewAreaAttributesPointersBase = 0xB100;
 		private int NewAreaAttributesBank = 0x11;
 
+		private const int MapObjectsAttributesSize = 7;
+
+		private const int AreaAttributesPointers = 0x3AF3B;
+		private const int AreaAttributesPointersBase = 0x3B013;
+		private const int AreaAttributesPointersQty = 108;
+		private const int AreaAttributesPointersSize = 2;
+
 		public ObjectList(FFMQRom rom)
 		{
-			_attributepointers = rom.Get(RomOffsets.AreaAttributesPointers, RomOffsets.AreaAttributesPointersQty * 2).Chunk(2);
+			_attributepointers = rom.Get(AreaAttributesPointers, AreaAttributesPointersQty * 2).Chunk(2);
 
 			var previousPointer = _attributepointers[0].ToUShorts()[0];
 			var collectionCount = 0;
@@ -59,7 +66,7 @@ namespace FFMQLib
 
 				_pointerCollectionPairs.Add(collectionCount);
 
-				var address = RomOffsets.AreaAttributesPointersBase + _attributepointers[i].ToUShorts()[0];
+				var address = AreaAttributesPointersBase + _attributepointers[i].ToUShorts()[0];
 				_areaattributes.Add(rom.Get(address, 8));
 
 				address += 8;
@@ -69,7 +76,7 @@ namespace FFMQLib
 				while (rom[address] != 0xFF)
 				{
 					_collections.Last().Add(new MapObject(address, rom));
-					address += RomOffsets.MapObjectsAttributesSize;
+					address += MapObjectsAttributesSize;
 				}
 				collectionCount++;
 				previousPointer = _attributepointers[i].ToUShorts()[0];
@@ -122,7 +129,7 @@ namespace FFMQLib
 				for (int j = 0; j < _collections[i].Count; j++)
 				{
 					_collections[i][j].WriteAt(rom, NewAreaAttributesBank, NewAreaAttributesPointersBase + pointerOffset);
-					pointerOffset += RomOffsets.MapObjectsAttributesSize;
+					pointerOffset += MapObjectsAttributesSize;
 				}
 
 				rom.PutInBank(NewAreaAttributesBank, NewAreaAttributesPointersBase + pointerOffset, Blob.FromHex("FF"));
@@ -153,6 +160,7 @@ namespace FFMQLib
 	{
 		private List<byte> _array = new();
 		private int _address;
+		private const int MapObjectsAttributesSize = 7;
 
 		public MapObjectType Type { get; set; }
 		public byte Gameflag { get; set; }
@@ -179,7 +187,14 @@ namespace FFMQLib
 		public MapObject(int address, FFMQRom rom)
 		{
 			_address = address;
-			_array = rom.Get(address, RomOffsets.MapObjectsAttributesSize).ToBytes().ToList();
+			_array = rom.Get(address, MapObjectsAttributesSize).ToBytes().ToList();
+
+			UpdateValues();
+		}
+		public MapObject()
+		{
+			_address = 0;
+			_array = (new byte[7]).ToList();
 
 			UpdateValues();
 		}

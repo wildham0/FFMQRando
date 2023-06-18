@@ -144,7 +144,6 @@ namespace FFMQLib
 			Entrances = new();
 
 			ReadDataFile();
-			//ReadOwEntrances(rom);
 		}
 		private void ReadOwEntrances(FFMQRom rom)
 		{
@@ -405,10 +404,7 @@ namespace FFMQLib
 			}
 
 			Entrances = result;
-			//EntrancesLinks = result.EntrancesLinksList.Select(x => new EntrancesLink(x)).ToList();
-			yamlfile = "";
 		}
-
 		public string GenerateYaml()
 		{
 			//List<Entrance> entrances = Entrances.SelectMany(x => x.Entrances.Select(e => new Entrance(x.AreaId, x.Name, e))).ToList();

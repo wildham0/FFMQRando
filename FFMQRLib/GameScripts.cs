@@ -10,12 +10,13 @@ namespace FFMQLib
 	{
 		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, LocationIds startinglocation, MT19337 rng)
 		{
+			const int GameStartScript = 0x01f811;
+
 			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
 
 			/*** Overworld ***/
 			// GameStart - Skip Mountain collapse
-			Put(RomOffsets.GameStartScript, Blob.FromHex($"23222b7a2a0b2700200470002ab0532050{((byte)startinglocation):X2}29ffff00"));
-			//Put(RomOffsets.GameStartScript, Blob.FromHex("23222b7a2a0b2700200470002ab05320501629ffff00"));
+			Put(GameStartScript, Blob.FromHex($"23222b7a2a0b2700200470002ab0532050{((byte)startinglocation):X2}29ffff00"));
 
 			GameFlags[(int)GameFlagsList.ShowPazuzuBridge] = true;
 
@@ -634,9 +635,9 @@ namespace FFMQLib
 			/*** Spencer's Cave Post-Bomb ***/
 
 			// Reproduce spencer/tristam chest to avoid softlock
-			var spencerObject = new MapObject(0, this);
-			var tristamChestObject = new MapObject(0, this);
-			var boxObject = new MapObject(0, this);
+			var spencerObject = new MapObject();
+			var tristamChestObject = new MapObject();
+			var boxObject = new MapObject();
 
 			spencerObject.CopyFrom(MapObjects[0x02C][0x00]);
 			tristamChestObject.CopyFrom(MapObjects[0x02C][0x01]);
