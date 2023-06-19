@@ -231,9 +231,17 @@ namespace FFMQLib
 			
 		}
 
-		public void Update()
+		public void Update(string spritename)
         {
 			FFMQRom text = new();
+			string spriteContributor = "";
+			
+			var contributorsList = SpritesContributors.Where(s => s.Item1 == spritename).ToList();
+
+			if (contributorsList.Any())
+			{
+                spriteContributor = contributorsList.First().Item3 + " sprite by\n" + contributorsList.First().Item2 + "\n\n";
+            }
 
 			additionalCredits = text.TextToByte(
 				"FFMQ Randomizer\n\n" +
@@ -241,7 +249,8 @@ namespace FFMQLib
 				"wildham\n\n" +
 				"Contributors\n" +
 				"Oipo - Enemizer\n\n" +
-				"Playtesters\n" +
+                spriteContributor +
+                "Playtesters\n" +
 				"spellzapp\n" +
 				"caleb\n" +
 				"VampireKnight\n" +
@@ -261,6 +270,13 @@ namespace FFMQLib
 				"Original FFMQ Credits\n\n"
 				);
 		}
+
+		private static List<(string, string, string)> SpritesContributors = new()
+		{
+			// Keep sprite name to 10 or so characters
+			("subrosian", "Giga Otomia", "Subrosian"),
+            ("bartz", "Giga Otomia", "Bartz"),
+        };
 
 		public void Write(FFMQRom rom)
 		{ 

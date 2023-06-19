@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.4.37";
+		public static string Version = "1.4.38";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -26,7 +26,7 @@ namespace FFMQLib
 		public MapSprites MapSpriteSets;
 		public EnemyAttackLinks EnemyAttackLinks;
 		public Attacks Attacks;
-		public EnemiesStats enemiesStats;
+		public EnemiesStats EnemiesStats;
 		public GameLogic GameLogic;
 		public EntrancesData EntrancesData;
 
@@ -36,21 +36,22 @@ namespace FFMQLib
 		public string spoilersText;
 		public void Randomize(Blob seed, Flags flags, Preferences preferences, ApConfigs apconfigs)
 		{
+			seed = apconfigs.ApEnabled ? apconfigs.GetSeed() : seed;
+			
 			MT19337 rng;
 			MT19337 sillyrng;
 			using (SHA256 hasher = SHA256.Create())
 			{
-				Blob hash = hasher.ComputeHash((apconfigs.ApEnabled ? apconfigs.GetSeed() : seed) + flags.EncodedFlagString());
+				Blob hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 				sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
 
-			EnemyAttackLinks = new(this);
-			Attacks = new(this);
-			enemiesStats = new(this);
+            Attacks = new(this);
+            EnemyAttackLinks = new(this);
+			EnemiesStats = new(this);
 			GameMaps = new(this);
 			MapObjects = new(this);
-			Credits credits = new(this);
 			GameFlags = new(this);
 			TalkScripts = new(this);
 			TileScripts = new(this);
@@ -61,10 +62,13 @@ namespace FFMQLib
 			MapSpriteSets = new(this);
 			GameLogic = new(apconfigs);
 			EntrancesData = new(this);
-			TitleScreen titleScreen = new(this);
 
-			// General modifications
-			GeneralModifications(flags, apconfigs.ApEnabled, rng);
+            Credits credits = new(this);
+            TitleScreen titleScreen = new(this);
+            SpriteReader spriteReader = new();
+
+            // General modifications
+            GeneralModifications(flags, apconfigs.ApEnabled, rng);
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
@@ -74,7 +78,7 @@ namespace FFMQLib
 			MapObjects.SetEnemiesDensity(flags.EnemiesDensity, rng);
 			MapObjects.ShuffleEnemiesPosition(flags.ShuffleEnemiesPosition, GameMaps, rng);
 			EnemyAttackLinks.ShuffleAttacks(flags.EnemizerAttacks, flags.BossesScalingUpper, rng);
-			enemiesStats.ScaleEnemies(flags, rng);
+			EnemiesStats.ScaleEnemies(flags, rng);
 
 			// Overworld
 			Overworld.OpenNodes(flags);
@@ -111,22 +115,20 @@ namespace FFMQLib
 			SkyCoinMode(flags, rng);
 			ExitHack(Overworld.StartingLocation);
 			ProgressiveFormation(flags.ProgressiveFormations, Overworld, rng);
-			credits.Update();
+			credits.Update(preferences.PlayerSprite);
 
 			// Preferences			
 			RandomizeTracks(preferences.RandomMusic, sillyrng);
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			WindowPalette(preferences.WindowPalette);
 			
-			SpriteReader spriteReader = new SpriteReader();
 			spriteReader.LoadCustomSprites(preferences, this);
 
 			// Write everything back			
 			itemsPlacement.WriteChests(this);
-			credits.Write(this);
 			EnemyAttackLinks.Write(this);
 			Attacks.Write(this);
-			enemiesStats.Write(this);
+			EnemiesStats.Write(this);
 			GameMaps.Write(this);
 			MapChanges.Write(this);
 			Teleporters.Write(this);
@@ -138,7 +140,9 @@ namespace FFMQLib
 			Overworld.Write(this);
 			MapObjects.Write(this);
 			MapSpriteSets.Write(this);
-			titleScreen.Write(this, Metadata.Version, apconfigs.ApEnabled ? apconfigs.GetSeed() : seed, flags);
+
+            credits.Write(this);
+            titleScreen.Write(this, Metadata.Version, seed, flags);
 
 			// Spoilers
 			spoilersText = itemsPlacement.GenerateSpoilers(flags, titleScreen.versionText, titleScreen.hashText, seed.ToHex());

@@ -206,6 +206,7 @@ namespace FFMQLib
 
 	public partial class FFMQRom : SnesRom
 	{
+		/*
 		public void GenerateFromApConfig(ApConfigs apconfigs, Flags flags, Preferences preferences)
 		{
 			MT19337 rng;
@@ -318,7 +319,7 @@ namespace FFMQLib
 			// Remove header if any
 			this.Header = Array.Empty<byte>();
 		}
-
+		*/
 		public string GenerateRooms(bool crestshuffle, bool battlefieldshuffle, int mapshuffling, string seed)
 		{
 			ApConfigs apconfigs = new();

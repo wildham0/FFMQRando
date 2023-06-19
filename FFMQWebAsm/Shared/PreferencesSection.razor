@@ -23,8 +23,10 @@
                     </DropdownToggle>
                     <DropdownMenu MaxMenuHeight="10">
                         <DropdownItem Clicked="@(() => OnSpriteSelect("default"))">@((MarkupString)spritesSelect["default"])</DropdownItem>
+                            <DropdownItem Clicked="@(() => OnSpriteSelect("bartz"))">@((MarkupString)spritesSelect["bartz"])</DropdownItem>
                             <DropdownItem Clicked="@(() => OnSpriteSelect("fighter"))">@((MarkupString)spritesSelect["fighter"])</DropdownItem>
                             <DropdownItem Clicked="@(() => OnSpriteSelect("kain"))">@((MarkupString)spritesSelect["kain"])</DropdownItem>
+                            <DropdownItem Clicked="@(() => OnSpriteSelect("gblink"))">@((MarkupString)spritesSelect["gblink"])</DropdownItem>
                             <DropdownItem Clicked="@(() => OnSpriteSelect("rydia"))">@((MarkupString)spritesSelect["rydia"])</DropdownItem>
                             <DropdownItem Clicked="@(() => OnSpriteSelect("subrosian"))">@((MarkupString)spritesSelect["subrosian"])</DropdownItem>
                             <DropdownItem Clicked="@(() => OnSpriteSelect("random"))">@((MarkupString)spritesSelect["random"])</DropdownItem>
@@ -67,8 +69,10 @@
 
     private Dictionary<string, string> spritesSelect = new() {
          {"default", "<img src=\"skin-icons/default-benjamin-icon.png\" /> Default/Benjamin" },
+         {"bartz", "<img src=\"skin-icons/bartz-icon.png\" /> Bartz" },
          {"fighter", "<img src=\"skin-icons/fighter-icon.png\" /> Fighter" },
          {"kain", "<img src=\"skin-icons/kain-icon.png\" /> Kain" },
+         {"gblink", "<img src=\"skin-icons/gblink-icon.png\" /> GB Link" },
          {"rydia", "<img src=\"skin-icons/rydia-icon.png\" /> Rydia" },
          {"subrosian", "<img src=\"skin-icons/subrosian-icon.png\" /> Subrosian" },
          {"random", "Random" },
