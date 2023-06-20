@@ -14,20 +14,16 @@
     <None Remove="datafiles\template.bmp" />
     <None Remove="locations.yaml" />
     <None Remove="rooms.yaml" />
-    <None Remove="sprites\rydia.bmp" />
     <None Remove="sprites\spritesheets.zip" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="datafiles\entrances.yaml" />
-    <EmbeddedResource Include="sprites\fighter.bmp" />
-    <EmbeddedResource Include="sprites\kain.bmp" />
     <EmbeddedResource Include="datafiles\overworld.yaml" />
     <EmbeddedResource Include="datafiles\shufflingdata.yaml" />
     <EmbeddedResource Include="datafiles\entrancespairs.yaml" />
     <EmbeddedResource Include="datafiles\rooms.yaml" />
     <EmbeddedResource Include="datafiles\template.bmp" />
-    <EmbeddedResource Include="sprites\rydia.bmp" />
     <EmbeddedResource Include="sprites\spritesheets.zip" />
   </ItemGroup>
 

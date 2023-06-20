@@ -447,11 +447,13 @@ namespace FFMQLib
 
 			/*** Fall Basin ***/
 			// Put Chest under crab
-			MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
+			MapObjects[0x21][0x07].X--;
+
+            MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
 			MapObjects[0x21][0x0F].Y = MapObjects[0x21][0x07].Y;
 			MapObjects[0x21][0x0F].Gameflag = 0xFE;
 
-			TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
+            TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
 				new ScriptBuilder(new List<string>{
 					"04",
 					"05E43403",
@@ -461,8 +463,12 @@ namespace FFMQLib
 					"00"
 				}));
 
-			// Exit Fall Basin
-			GameMaps.TilesProperties[0x0A][0x22].Byte2 = 0x08;
+            // Remove Phoebe Script Tile
+            GameMaps[(int)MapList.FallBasin].ModifyMap(0x11, 0x06, 0x1D, true);
+
+            // Exit Fall Basin
+            GameMaps.TilesProperties[0x0A][0x22].Byte2 = 0x08;
+			
 
 			/*** Ice Pyramid ***/
 			// Ice Pyramid Entrance

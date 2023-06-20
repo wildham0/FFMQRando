@@ -240,7 +240,7 @@ namespace FFMQLib
 
 			if (contributorsList.Any())
 			{
-                spriteContributor = contributorsList.First().Item3 + " sprite by\n" + contributorsList.First().Item2 + "\n\n";
+                spriteContributor = contributorsList.First().Item3 + " Sprite by\n" + contributorsList.First().Item2 + "\n\n";
             }
 
 			additionalCredits = text.TextToByte(
@@ -277,6 +277,7 @@ namespace FFMQLib
 			// Keep sprite name to 10 or so characters
 			("subrosian", "Giga Otomia", "Subrosian"),
             ("bartz", "Giga Otomia", "Bartz"),
+            ("faris", "Giga Otomia", "Faris"),
         };
 
 		public void Write(FFMQRom rom)
