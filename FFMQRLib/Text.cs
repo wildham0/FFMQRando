@@ -248,7 +248,8 @@ namespace FFMQLib
 				"Main Developer\n" +
 				"wildham\n\n" +
 				"Contributors\n" +
-				"Oipo - Enemizer\n\n" +
+                "Oipo - Enemizer\n" +
+                "Alchav - Archipelago\n\n" +
                 spriteContributor +
                 "Playtesters\n" +
 				"spellzapp\n" +
