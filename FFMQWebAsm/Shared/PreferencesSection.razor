@@ -21,7 +21,7 @@
                     <DropdownToggle Class="btn-primary" Style="text-align: left">
                         @((MarkupString)spritesSelect[preferences.PlayerSprite])
                     </DropdownToggle>
-                    <DropdownMenu MaxMenuHeight="10">
+                    <DropdownMenu MaxMenuHeight="300px">
                         <DropdownItem Clicked="@(() => OnSpriteSelect("default"))">@((MarkupString)spritesSelect["default"])</DropdownItem>
                             <DropdownItem Clicked="@(() => OnSpriteSelect("bartz"))">@((MarkupString)spritesSelect["bartz"])</DropdownItem>
                             <DropdownItem Clicked="@(() => OnSpriteSelect("pcecil"))">@((MarkupString)spritesSelect["pcecil"])</DropdownItem>
