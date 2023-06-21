@@ -279,8 +279,11 @@ namespace FFMQLib
             ("bartz", "Giga Otomia", "Bartz"),
             ("faris", "Giga Otomia", "Faris"),
             ("neslink", "Giga Otomia", "Link"),
+            ("mogff6", "Giga Otomia", "Mog"),
             ("pcecil", "CtrlxZ", "Cecil"),
             ("ff1ninja", "CtrlxZ", "Ninja"),
+            ("cloudff7", "CtrlxZ", "Cloud"),
+            ("moogle", "CtrlxZ", "Moogle"),
         };
 
 		public void Write(FFMQRom rom)
