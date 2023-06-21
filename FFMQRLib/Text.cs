@@ -278,6 +278,9 @@ namespace FFMQLib
 			("subrosian", "Giga Otomia", "Subrosian"),
             ("bartz", "Giga Otomia", "Bartz"),
             ("faris", "Giga Otomia", "Faris"),
+            ("neslink", "Giga Otomia", "Link"),
+            ("pcecil", "CtrlxZ", "Cecil"),
+            ("ff1ninja", "CtrlxZ", "Ninja"),
         };
 
 		public void Write(FFMQRom rom)
