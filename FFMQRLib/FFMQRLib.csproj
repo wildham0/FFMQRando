@@ -14,7 +14,7 @@
     <None Remove="datafiles\template.bmp" />
     <None Remove="locations.yaml" />
     <None Remove="rooms.yaml" />
-    <None Remove="sprites\spritesheets.zip" />
+    <None Remove="sprites\customsprites.zip" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,7 +24,7 @@
     <EmbeddedResource Include="datafiles\entrancespairs.yaml" />
     <EmbeddedResource Include="datafiles\rooms.yaml" />
     <EmbeddedResource Include="datafiles\template.bmp" />
-    <EmbeddedResource Include="sprites\spritesheets.zip" />
+    <EmbeddedResource Include="sprites\customsprites.zip" />
   </ItemGroup>
 
   <ItemGroup>

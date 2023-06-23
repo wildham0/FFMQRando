@@ -139,6 +139,11 @@ h2 {
     text-align: left;
 }
 
+.sprite-icon {
+    width: 32px;
+    height: 32px;
+    image-rendering: pixelated;
+}
 
 #blazor-error-ui {
     background: lightyellow;

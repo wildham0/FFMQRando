@@ -231,18 +231,16 @@ namespace FFMQLib
 			
 		}
 
-		public void Update(string spritename)
+		public void Update(PlayerSprite sprite)
         {
 			FFMQRom text = new();
-			string spriteContributor = "";
-			
-			var contributorsList = SpritesContributors.Where(s => s.Item1 == spritename).ToList();
+            string spriteContributor = "";
 
-			if (contributorsList.Any())
+            if (sprite.author != "")
 			{
-                spriteContributor = contributorsList.First().Item3 + " Sprite by\n" + contributorsList.First().Item2 + "\n\n";
+                spriteContributor = sprite.name.Split(" (")[0] + " Sprite by\n" + sprite.author + "\n\n";
             }
-
+			
 			additionalCredits = text.TextToByte(
 				"FFMQ Randomizer\n\n" +
 				"Main Developer\n" +
@@ -271,20 +269,6 @@ namespace FFMQLib
 				"Original FFMQ Credits\n\n"
 				);
 		}
-
-		private static List<(string, string, string)> SpritesContributors = new()
-		{
-			// Keep sprite name to 10 or so characters
-			("subrosian", "Giga Otomia", "Subrosian"),
-            ("bartz", "Giga Otomia", "Bartz"),
-            ("faris", "Giga Otomia", "Faris"),
-            ("neslink", "Giga Otomia", "Link"),
-            ("mogff6", "Giga Otomia", "Mog"),
-            ("pcecil", "CtrlxZ", "Cecil"),
-            ("ff1ninja", "CtrlxZ", "Ninja"),
-            ("cloudff7", "CtrlxZ", "Cloud"),
-            ("moogle", "CtrlxZ", "Moogle"),
-        };
 
 		public void Write(FFMQRom rom)
 		{ 

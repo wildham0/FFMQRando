@@ -19,25 +19,16 @@
                 </Tooltip>
                 <Dropdown TValue="string">
                     <DropdownToggle Class="btn-primary" Style="text-align: left">
-                        @((MarkupString)spritesSelect[preferences.PlayerSprite])
+                        @((MarkupString)CurrentSpriteSelection())
                     </DropdownToggle>
                     <DropdownMenu MaxMenuHeight="300px">
-                        <DropdownItem Clicked="@(() => OnSpriteSelect("default"))">@((MarkupString)spritesSelect["default"])</DropdownItem>
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("bartz"))">@((MarkupString)spritesSelect["bartz"])</DropdownItem>
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("pcecil"))">@((MarkupString)spritesSelect["pcecil"])</DropdownItem>
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("cloudff7"))">@((MarkupString)spritesSelect["cloudff7"])</DropdownItem>
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("faris"))">@((MarkupString)spritesSelect["faris"])</DropdownItem>
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("fighter"))">@((MarkupString)spritesSelect["fighter"])</DropdownItem>
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("kain"))">@((MarkupString)spritesSelect["kain"])</DropdownItem>
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("gblink"))">@((MarkupString)spritesSelect["gblink"])</DropdownItem>
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("neslink"))">@((MarkupString)spritesSelect["neslink"])</DropdownItem>
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("mogff6"))">@((MarkupString)spritesSelect["mogff6"])</DropdownItem>
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("moogle"))">@((MarkupString)spritesSelect["moogle"])</DropdownItem>
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("ff1ninja"))">@((MarkupString)spritesSelect["ff1ninja"])</DropdownItem>
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("rydia"))">@((MarkupString)spritesSelect["rydia"])</DropdownItem>
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("subrosian"))">@((MarkupString)spritesSelect["subrosian"])</DropdownItem>
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("random"))">@((MarkupString)spritesSelect["random"])</DropdownItem>
-                        <DropdownItem Clicked="@(() => OnSpriteSelect("custom"))">@((MarkupString)spritesSelect["custom"])</DropdownItem>
+                        <DropdownItem Clicked="@(() => OnSpriteSelect("default"))"><img src="skin-icons/default-benjamin-icon.png" class="sprite-icon" /> Default/Benjamin</DropdownItem>
+                        @foreach(var sprite in playersprites.sprites)
+                        {
+                            <DropdownItem Clicked="@(() => OnSpriteSelect(@sprite.filename))"><img src="@(ConvertImageBytes(sprite.iconimg))" class="sprite-icon" /> @sprite.name</DropdownItem>
+                        }
+                        <DropdownItem Clicked="@(() => OnSpriteSelect("random"))">Random</DropdownItem>
+                        <DropdownItem Clicked="@(() => OnSpriteSelect("custom"))">Upload Custom Sprites</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
             </Field>
@@ -74,26 +65,8 @@
 
     private string windowPalette = "#0050A0";
 
-    private Dictionary<string, string> spritesSelect = new() {
-         {"default", "<img src=\"skin-icons/default-benjamin-icon.png\" /> Default/Benjamin" },
-         {"bartz", "<img src=\"skin-icons/bartz-icon.png\" /> Bartz" },
-         {"pcecil", "<img src=\"skin-icons/pcecil-icon.png\" /> Cecil (Paladin)" },
-         {"cloudff7", "<img src=\"skin-icons/cloudff7-icon.png\" /> Cloud" },
-         {"faris", "<img src=\"skin-icons/faris-icon.png\" /> Faris" },
-         {"fighter", "<img src=\"skin-icons/fighter-icon.png\" /> Fighter" },
-         {"kain", "<img src=\"skin-icons/kain-icon.png\" /> Kain" },
-         {"gblink", "<img src=\"skin-icons/gblink-icon.png\" /> Link (GB)" },
-         {"neslink", "<img src=\"skin-icons/neslink-icon.png\" /> Link (NES)" },
-         {"mogff6", "<img src=\"skin-icons/mogff6-icon.png\" /> Mog" },
-         {"moogle", "<img src=\"skin-icons/moogle-icon.png\" /> Moogle" },
-         {"ff1ninja", "<img src=\"skin-icons/ff1ninja-icon.png\" /> Ninja" },
-         {"rydia", "<img src=\"skin-icons/rydia-icon.png\" /> Rydia" },
-         {"subrosian", "<img src=\"skin-icons/subrosian-icon.png\" /> Subrosian" },
-         {"random", "Random" },
-         {"custom", "Upload Custom Sprites" },
-    };
-
     private string spriteMessage = "";
+    private PlayerSprites playersprites;
 
     private void WindowPaletteChange(string palette)
     {
@@ -116,6 +89,42 @@
         StateHasChanged();
     }
 
+    private string ConvertImageBytes(byte[] image)
+    {
+        var imagesrc = Convert.ToBase64String(image);
+        return string.Format("data:image/png;base64,{0}", imagesrc);
+    }
+
+    private string CurrentSpriteSelection()
+    {
+        if (preferences.PlayerSprite == "default")
+        {
+            return "<img src=\"skin-icons/default-benjamin-icon.png\" class=\nsprite-icon\n /> Default/Benjamin";
+        }
+        else if (preferences.PlayerSprite == "random")
+        {
+            return "Random";
+
+        }
+        else if (preferences.PlayerSprite == "custom")
+        {
+            return "Upload Custom Sprites";
+        }
+        else
+        {
+            var currentsprite = playersprites.sprites.Where(s => s.filename == preferences.PlayerSprite).ToList();
+            if (currentsprite.Any())
+            {
+                return "<img src=\"" + ConvertImageBytes(currentsprite.First().iconimg) + "\" class=\nsprite-icon\n /> " + currentsprite.First().name;
+            }
+            else
+            {
+                return "Error";    
+            }
+        }
+    }
+
+
     private void SetWindowPalette(ushort palette)
     {
 
@@ -129,6 +138,8 @@
 
     protected override void OnInitialized()
     {
+        playersprites = new(PlayerSpriteMode.Icons);
+
         LoadPreferences();
         LoadSprites();
         SetWindowPalette(preferences.WindowPalette);

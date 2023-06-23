@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.4.42";
+		public static string Version = "1.4.43";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -66,6 +66,8 @@ namespace FFMQLib
             Credits credits = new(this);
             TitleScreen titleScreen = new(this);
             SpriteReader spriteReader = new();
+            PlayerSprites playerSprites = new(PlayerSpriteMode.Spritesheets);
+			PlayerSprite playerSprite = playerSprites.GetSprite(preferences, rng);
 
             // General modifications
             GeneralModifications(flags, apconfigs.ApEnabled, rng);
@@ -115,17 +117,16 @@ namespace FFMQLib
 			SkyCoinMode(flags, rng);
 			ExitHack(Overworld.StartingLocation);
 			ProgressiveFormation(flags.ProgressiveFormations, Overworld, rng);
-			credits.Update(preferences.PlayerSprite);
+			credits.Update(playerSprite);
 
-			// Preferences			
-			RandomizeTracks(preferences.RandomMusic, sillyrng);
+            // Preferences			
+            RandomizeTracks(preferences.RandomMusic, sillyrng);
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			WindowPalette(preferences.WindowPalette);
-			
-			spriteReader.LoadCustomSprites(preferences, this);
+            spriteReader.LoadCustomSprites(playerSprite, this);
 
-			// Write everything back			
-			itemsPlacement.WriteChests(this);
+            // Write everything back			
+            itemsPlacement.WriteChests(this);
 			EnemyAttackLinks.Write(this);
 			Attacks.Write(this);
 			EnemiesStats.Write(this);

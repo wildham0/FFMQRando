@@ -7,7 +7,8 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Linq;
 using RomUtilities;
-
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 
 
@@ -42,7 +43,7 @@ namespace FFMQLib
                 colorCount = 0x100;
             }
 
-            for (int i = 0; i< colorCount; i++)
+            for (int i = 0; i < colorCount; i++)
             {
                 int lowerrange = infColortable + i * 4;
                 int upperrange = lowerrange + 4;
@@ -77,7 +78,7 @@ namespace FFMQLib
 
 
             // Encode Sprites
-            List<byte[]> walkseriesEncoded = EncodeSeries((0,0), 8);
+            List<byte[]> walkseriesEncoded = EncodeSeries((0, 0), 8);
             List<byte[]> pushseriesEncoded = EncodeSeries((16, 0), 8);
             List<byte[]> jumpseriesEncoded = EncodeSeries((32, 0), 6);
             List<byte[]> victoryseriesEncoded = EncodeSeries((48, 0), 4);
@@ -143,7 +144,7 @@ namespace FFMQLib
         private void ReadSpriteSheet(string spritename)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("spritesheets.zip"));
+            string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("customsprites.zip"));
             using (Stream zipfile = assembly.GetManifestResourceStream(filepath))
             {
                 using (ZipArchive spriteContainer = new ZipArchive(zipfile))
@@ -182,7 +183,7 @@ namespace FFMQLib
             List<byte> palettemask = new() { 0x01, 0x02, 0x04 };
 
             byte[] encodedline = new byte[3];
-            for(int i = 0; i < pixelline.Length; i++)
+            for (int i = 0; i < pixelline.Length; i++)
             {
                 byte pixelpalette;
 
@@ -195,7 +196,7 @@ namespace FFMQLib
                     pixelpalette = 0;
                 }
 
-                if((pixelpalette & palettemask[0]) > 0)
+                if ((pixelpalette & palettemask[0]) > 0)
                 {
                     encodedline[0] |= bitmask[i];
                 }
@@ -234,7 +235,7 @@ namespace FFMQLib
         private List<byte[]> EncodeSeries((int x, int y) startTile, int height)
         {
             List<byte[]> encodedSeries = new();
-            
+
             for (int i = 0; i < height; i++)
             {
                 encodedSeries.Add(EncodeTile((startTile.x, startTile.y + (i * 8))));
@@ -244,23 +245,173 @@ namespace FFMQLib
             return encodedSeries;
         }
 
-        public void LoadCustomSprites(Preferences pref, FFMQRom rom)
+        public void LoadCustomSprites(PlayerSprite sprite, FFMQRom rom)
         {
-            if (pref.PlayerSprite == "default")
+            if (sprite.filename == "default")
             {
                 return;
             }
+            else
+            {
+                data = sprite.spritesheet;
+                Encode(rom);
+            }
+        }
+    }
+
+    public enum PlayerSpriteMode
+    { 
+        Spritesheets,
+        Icons
+    }
+
+    public class PlayerSprite
+    {
+        public string filename { get; set; }
+        public string author { get; set; }
+        public string name { get; set; }
+        [YamlIgnore]
+        public byte[] spritesheet { get; set; }
+        [YamlIgnore]
+        public byte[] iconimg { get; set; }
+
+        public PlayerSprite()
+        {
+            filename = "";
+            author = "";
+            name = "";
+        }
+        public PlayerSprite(string _name, byte[] _spritedata)
+        {
+            filename = _name;
+            author = "";
+            name = "";
+            spritesheet = _spritedata;
+        }
+        public PlayerSprite(string _name)
+        {
+            filename = _name;
+            author = "";
+            name = "";
+        }
+        public PlayerSprite(PlayerSprite _sprite, byte[] _spritedata)
+        {
+            filename = _sprite.filename;
+            author = _sprite.author;
+            name = _sprite.name;
+            spritesheet = _spritedata;
+        }
+    }
+    public class PlayerSprites
+    {
+        public List<PlayerSprite> sprites { get; set; }
+        public PlayerSprites(PlayerSpriteMode mode)
+        {
+            LoadMetadata();
+            if (mode == PlayerSpriteMode.Icons)
+            {
+                LoadIcons();
+            }
+        }
+        private void LoadMetadata()
+        {
+            string metadatayaml = "";
+            var assembly = Assembly.GetExecutingAssembly();
+            string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("customsprites.zip"));
+            using (Stream zipfile = assembly.GetManifestResourceStream(filepath))
+            {
+                using (ZipArchive spriteContainer = new ZipArchive(zipfile))
+                {
+                    var entry = spriteContainer.GetEntry("metadata.yaml");
+                    using (StreamReader reader = new StreamReader(entry.Open()))
+                    {
+                        metadatayaml = reader.ReadToEnd();
+                    }
+                }
+            }
+
+            var deserializer = new DeserializerBuilder()
+                .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                .Build();
+
+            try
+            {
+                sprites = deserializer.Deserialize<List<PlayerSprite>>(metadatayaml);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            sprites = sprites.OrderBy(s => s.name).ToList();
+        }
+        public PlayerSprite GetSprite(Preferences pref, MT19337 rng)
+        {
+            if (pref.PlayerSprite == "default")
+            { 
+                return new PlayerSprite(pref.PlayerSprite);
+            }
+            if (pref.PlayerSprite == "random")
+            {
+                var selectedsprite = rng.PickFrom(sprites);
+
+                return new PlayerSprite(selectedsprite, LoadSpritesheet(selectedsprite.filename));
+            }
             else if (pref.PlayerSprite == "custom")
             {
-                data = pref.CustomSprites;
-                Encode(rom);
+                return new PlayerSprite(pref.PlayerSprite, pref.CustomSprites);
             }
             else
             {
-                ReadSpriteSheet(pref.PlayerSprite);
-                Encode(rom);
+                var selectedsprite = sprites.Where(s => s.filename == pref.PlayerSprite);
+
+                if (selectedsprite.Any())
+                {
+                    return new PlayerSprite(selectedsprite.First(), LoadSpritesheet(selectedsprite.First().filename));
+                }
+                else
+                {
+                    return new PlayerSprite("default");
+                }
             }
-        
+        }
+        private void LoadIcons()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("customsprites.zip"));
+            using (Stream zipfile = assembly.GetManifestResourceStream(filepath))
+            {
+                using (ZipArchive spriteContainer = new ZipArchive(zipfile))
+                {
+                    foreach (var sprite in sprites)
+                    {
+                        var entry = spriteContainer.GetEntry("icons/" + sprite.filename + ".png");
+                        using (BinaryReader reader = new BinaryReader(entry.Open()))
+                        {
+                            sprite.iconimg = reader.ReadBytes((int)entry.Length);
+                        }
+                    }
+                }
+            }
+        }
+        private byte[] LoadSpritesheet(string spritename)
+        {
+            byte[] spritesheet;
+            var assembly = Assembly.GetExecutingAssembly();
+            string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("customsprites.zip"));
+            using (Stream zipfile = assembly.GetManifestResourceStream(filepath))
+            {
+                using (ZipArchive spriteContainer = new ZipArchive(zipfile))
+                {
+                    var entry = spriteContainer.GetEntry("spritesheets/" + spritename + ".bmp");
+                    using (BinaryReader reader = new BinaryReader(entry.Open()))
+                    {
+                        spritesheet = reader.ReadBytes((int)entry.Length);
+                    }
+                }
+            }
+
+            return spritesheet;
         }
     }
 }
