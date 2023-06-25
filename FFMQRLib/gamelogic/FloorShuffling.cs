@@ -202,7 +202,7 @@ namespace FFMQLib
 			var seedLinksLocations = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links.Where(l => l.Entrance >= 0).Select(l => (l.Entrance, l.Location))).ToList();
 
 			// Find rooms that have requirements in other rooms to populate forbidden destinations
-			List<int> doomCastleRooms = new() { 195, 196, 197, 198, 199, 200 };
+			List<int> doomCastleRooms = new() { 195, 196, 197, 198, 199, 200, 201 };
 			var roomTriggers = Rooms.Where(r => !doomCastleRooms.Contains(r.Id)).SelectMany(r => r.GameObjects.Where(o => o.Type == GameObjectType.Trigger).Select(o => (r.Id, o.OnTrigger)).ToList()).ToList();
 			var roomsReq = Rooms.Where(r => !doomCastleRooms.Contains(r.Id)).SelectMany(r => r.Links.Where(l => l.Access.Any()).Select(l => (r.Id, l)).ToList()).ToList();
 			
