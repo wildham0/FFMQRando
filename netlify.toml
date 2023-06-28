@@ -12,6 +12,11 @@
   status = 200
   force = true
 [[redirects]]
+  from = "https://api.ffmqrando.net/*"
+  to = "https://ffmqrapi.azurewebsites.net/:splat"
+  status = 200
+  force = true
+[[redirects]]
   from = "/Archipelago"
   to = "/index.html"
   status = 200
