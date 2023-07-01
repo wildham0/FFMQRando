@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.4.45";
+		public static string Version = "1.4.46";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -38,17 +38,20 @@ namespace FFMQLib
 		{
 			seed = apconfigs.ApEnabled ? apconfigs.GetSeed() : seed;
 			
-			MT19337 rng;
-			MT19337 sillyrng;
-			using (SHA256 hasher = SHA256.Create())
+			MT19337 rng;				// Fixed RNG so the same seed with the same flagset generate the same results
+			MT19337 sillyrng;			// Fixed RNG so non impactful rng (preferences) matches for the same seed and the same flagset
+            MT19337 asyncrng;			// Free RNG so non impactful rng varies for the same seed and flagset
+            using (SHA256 hasher = SHA256.Create())
 			{
 				Blob hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
-				sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
+                sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
+            asyncrng = new MT19337((uint)Guid.NewGuid().GetHashCode());
+
 
             Attacks = new(this);
-            EnemyAttackLinks = new(this);
+			EnemyAttackLinks = new(this);
 			EnemiesStats = new(this);
 			GameMaps = new(this);
 			MapObjects = new(this);
@@ -63,14 +66,14 @@ namespace FFMQLib
 			GameLogic = new(apconfigs);
 			EntrancesData = new(this);
 
-            Credits credits = new(this);
-            TitleScreen titleScreen = new(this);
-            SpriteReader spriteReader = new();
-            PlayerSprites playerSprites = new(PlayerSpriteMode.Spritesheets);
-			PlayerSprite playerSprite = playerSprites.GetSprite(preferences, rng);
+			Credits credits = new(this);
+			TitleScreen titleScreen = new(this);
+			SpriteReader spriteReader = new();
+			PlayerSprites playerSprites = new(PlayerSpriteMode.Spritesheets);
+			PlayerSprite playerSprite = playerSprites.GetSprite(preferences, asyncrng);
 
-            // General modifications
-            GeneralModifications(flags, apconfigs.ApEnabled, rng);
+			// General modifications
+			GeneralModifications(flags, apconfigs.ApEnabled, rng);
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
@@ -119,14 +122,14 @@ namespace FFMQLib
 			ProgressiveFormation(flags.ProgressiveFormations, Overworld, rng);
 			credits.Update(playerSprite);
 
-            // Preferences			
-            RandomizeTracks(preferences.RandomMusic, sillyrng);
+			// Preferences			
+			RandomizeTracks(preferences.RandomMusic, sillyrng);
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			WindowPalette(preferences.WindowPalette);
-            spriteReader.LoadCustomSprites(playerSprite, this);
+			spriteReader.LoadCustomSprites(playerSprite, this);
 
-            // Write everything back			
-            itemsPlacement.WriteChests(this);
+			// Write everything back			
+			itemsPlacement.WriteChests(this);
 			EnemyAttackLinks.Write(this);
 			Attacks.Write(this);
 			EnemiesStats.Write(this);
@@ -142,8 +145,8 @@ namespace FFMQLib
 			MapObjects.Write(this);
 			MapSpriteSets.Write(this);
 
-            credits.Write(this);
-            titleScreen.Write(this, Metadata.Version, seed, flags);
+			credits.Write(this);
+			titleScreen.Write(this, Metadata.Version, seed, flags);
 
 			// Spoilers
 			spoilersText = itemsPlacement.GenerateSpoilers(flags, titleScreen.versionText, titleScreen.hashText, seed.ToHex());
