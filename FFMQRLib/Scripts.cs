@@ -2,77 +2,166 @@
 using System.Collections.Generic;
 using System.Linq;
 using System;
-
+using System.Threading.Tasks.Dataflow;
+using System.Runtime.Intrinsics.Arm;
 
 namespace FFMQLib
 {
-	public class GameScriptManager
+    public class TileScriptsManager : GameScriptManager
+    {
+		private const int TileScriptsBank = 0x03;
+        private const int TileScriptsPointers = 0xbb81;
+        private const int TileScriptOffset = 0xbc21;
+        private const int TileScriptEndOffset = 0xd280;
+        private const int TileScriptQty = 0x50;
+
+        private const int ExpansionBank = 0x14;
+        private const int ExpansionOffset = 0x8300;
+        private const int newTileScriptQty = 0x100;
+
+        public TileScriptsManager(FFMQRom rom) : base (rom, TileScriptsBank, TileScriptsPointers, TileScriptQty, TileScriptOffset, TileScriptEndOffset)
+		{
+            ExpandQuantity(ExpansionBank, ExpansionOffset, newTileScriptQty);
+        }
+        public override void Write(FFMQRom rom)
+        {
+            ExpansionCode(rom);
+            InternalWrite(rom);
+        }
+        private void ExpansionCode(FFMQRom rom)
+		{
+			rom.PutInBank(0x01, 0xB36C, Blob.FromHex("2280821460eaeaeaeaeaeaeaeaeaea"));
+            rom.PutInBank(0x14, 0x8280, Blob.FromHex("adee1938e900088d2000c95000b0045ca49b00080bc230a900005be220a9148519c230a52038e950000aaabf00831485175cbc9b006b"));
+        }
+    }
+
+    public class TalkScriptsManager : GameScriptManager
+    {
+        private const int TalkScriptsBank = 0x03;
+        private const int TalkScriptsPointers = 0xd5e5;
+        private const int TalkScriptOffset = 0xd6dd;
+        private const int TalkScriptEndOffset = 0xf811;
+        private const int TalkScriptQty = 0x7C;
+
+        private const int ExpansionBank = 0x14;
+        private const int ExpansionOffset = 0xA000;
+        private const int newTileScriptQty = 0x100;
+
+        public TalkScriptsManager(FFMQRom rom) : base(rom, TalkScriptsBank, TalkScriptsPointers, TalkScriptQty, TalkScriptOffset, TalkScriptEndOffset)
+        {
+ 
+        }
+        public override void Write(FFMQRom rom)
+        {
+             InternalWrite(rom);
+        }
+    }
+
+    public class GameScriptManager
 	{
 		private List<ScriptEntry> _scripts;
-		private Dictionary<int, ScriptBuilder> _newScripts;
+        //private List<(int, ScriptEntry)> _scripts2;
+        private Dictionary<int, ScriptBuilder> _newScripts;
 		private List<int> _enableMoveScripts;
-		private int PointersPosition;
+		private List<(int callid, int scriptid)> _callIds;
+		private List<int> forceToExpansion;
+
+		private int Bank;
+        private int PointersPosition;
 		private int PointersQty;
 		private int ScriptsStart;
 		private int ScriptsEnd;
+
+		private int expansionBank;
+		private int expansionOffset;
+		private int expansionQty;
+		
 		public class ScriptEntry
 		{
+			public int Id { get; set; }
 			public byte[] Script { get; set; }
 			public int Pointer { get; set; }
 			public List<int> Positions { get; set; }
+            public ushort Position { get; set; }
 
-			public ScriptEntry(byte[] script, int pointer, int position)
+            public ScriptEntry(byte[] script, int pointer, int position)
 			{
 				Script = script;
 				Pointer = pointer;
 				Positions = new();
 				Positions.Add(position);
 			}
-		}
+            public ScriptEntry(int id, byte[] script, ushort position)
+            {
+				Id = id;
+				Script = script;
+				Position = position;
+            }
+        }
 
 		public ScriptEntry Scripts(int index) => _scripts.Find(x => x.Positions.Contains(index));
 
-		public GameScriptManager(FFMQRom rom, int pointersPosition, int pointersQty, int scriptsStart, int scriptsEnd)
+		public GameScriptManager(FFMQRom rom, int bank, int pointersPosition, int pointersQty, int scriptsStart, int scriptsEnd)
 		{
-			PointersPosition = pointersPosition;
-			PointersQty = pointersQty;
-			ScriptsStart = scriptsStart;
-			ScriptsEnd = scriptsEnd;
-			_scripts = new();
-			_newScripts = new Dictionary<int, ScriptBuilder>();
-			_enableMoveScripts = new();
-
-			List<int> ScriptsPointers = rom.Get(PointersPosition, PointersQty * 2).Chunk(2).Select(x => x[1] * 0x100 + x[0]).ToList();
-
-			int previousScriptPointer = ScriptsPointers[ScriptsPointers.Count - 1];
-			int length = ScriptsEnd - previousScriptPointer;
-			_scripts.Add(new ScriptEntry(rom.GetFromBank(0x03, ScriptsPointers[ScriptsPointers.Count - 1], length), previousScriptPointer, ScriptsPointers.Count - 1));
-
-			for (int i = (ScriptsPointers.Count-2); i >= 0; i--)
-			{
-				if (ScriptsPointers[i] == previousScriptPointer)
-				{
-					_scripts.First().Positions.Add(i);
-				}
-				else
-				{
-					length = previousScriptPointer - ScriptsPointers[i];
-					_scripts.Insert(0, new ScriptEntry(rom.GetFromBank(0x03, ScriptsPointers[i], length), ScriptsPointers[i], i));
-					previousScriptPointer = ScriptsPointers[i];
-				}
-			}
+			LoadData(rom, bank, pointersPosition, pointersQty, scriptsStart, scriptsEnd);
 		}
+
+		private void LoadData(FFMQRom rom, int bank, int pointersPosition, int pointersQty, int scriptsStart, int scriptsEnd)
+		{
+
+            Bank = bank;
+            PointersPosition = pointersPosition;
+            PointersQty = pointersQty;
+            ScriptsStart = scriptsStart;
+            ScriptsEnd = scriptsEnd;
+            _scripts = new();
+            _newScripts = new Dictionary<int, ScriptBuilder>();
+            _enableMoveScripts = new();
+            forceToExpansion = new();
+			_callIds = new();
+
+            ushort currentScriptPointer = (ushort)ScriptsStart;
+            ushort nextScriptPointer;
+            int scriptCount = 0;
+
+            List<ushort> scriptPointers = rom.GetFromBank(Bank, PointersPosition, PointersQty * 2).ToUShorts().ToList();
+
+            for (int i = 0; i < scriptPointers.Count; i++)
+            {
+                if (i == scriptPointers.Count - 1)
+                {
+                    nextScriptPointer = (ushort)ScriptsEnd;
+                }
+                else
+                {
+                    nextScriptPointer = scriptPointers[i + 1];
+                }
+
+                _callIds.Add((i, scriptCount));
+
+                if (currentScriptPointer != nextScriptPointer)
+                {
+                    _scripts.Add(new ScriptEntry(scriptCount, rom.GetFromBank(Bank, currentScriptPointer, nextScriptPointer - currentScriptPointer), currentScriptPointer));
+                    scriptCount++;
+                }
+
+                currentScriptPointer = nextScriptPointer;
+            }
+        }
 
 		public void AddScript(int index, ScriptBuilder newscript)
 		{
 			_newScripts.Add(index, newscript);
 		}
-
 		public void AddMobileScript(int index)
 		{
 			_enableMoveScripts.Add(index);
 		}
-		public void Dump()
+        public void ForceScriptToExpansion(int index)
+        {
+            forceToExpansion.Add(index);
+        }
+        public void Dump()
 		{
 			for (int i = 0; i < _scripts.Count; i++)
 			{
@@ -81,50 +170,105 @@ namespace FFMQLib
 				Console.WriteLine(rawScriptString);
 			}
 		}
-		public void Write(FFMQRom rom)
+		public void ExpandQuantity(int newBank, int newOffset, int newQty)
 		{
-			int offset = ScriptsStart;
-			byte[] scripts = new byte[ScriptsEnd - ScriptsStart];
-			byte[] pointers = new byte[0];
+			expansionBank = newBank;
+			expansionOffset = newOffset;
+			expansionQty = newQty;
+		}
 
-			for (int i = 0; i < _scripts.Count; i++)
+		public virtual void Write(FFMQRom rom)
+		{
+			InternalWrite(rom);
+		}
+        public void InternalWrite(FFMQRom rom)
+		{
+			ushort offset = (ushort)(PointersPosition + (PointersQty * 2));
+			ushort expansionoffset = (ushort)(expansionOffset + ((expansionQty - PointersQty) * 2));
+
+			List<byte> scripts = new();
+            List<ushort> pointers = new();
+            List<ushort> expansionPointers = new();
+            List<byte> expansionScripts = new();
+
+            foreach (var script in _scripts)
 			{
-				var changedscripts = _newScripts.Where(x => _scripts[i].Positions.Contains(x.Key)).Select(y => y.Value);
+                var changedscripts = _newScripts.Where(x => _callIds.Where(x => x.scriptid == script.Id).Select(x => x.callid).Contains(x.Key)).Select(y => y.Value);
+				int padTo = 0;
 
 				if (changedscripts.Any())
 				{
-					//Console.WriteLine(offset);
-					_scripts[i].Script = changedscripts.First().Update(offset);
-					_scripts[i].Pointer = offset;
-					offset += _scripts[i].Script.Length;
-					//Console.WriteLine(String.Concat(Array.ConvertAll(_scripts[i].Script, x => x.ToString("X2"))));
+					if (forceToExpansion.Intersect(_callIds.Where(x => x.scriptid == script.Id).Select(x => x.callid)).Any())
+					{
+						var newScript = changedscripts.First().Update(expansionoffset);
+						script.Script = new byte[] { 0x07, (byte)(expansionoffset % 0x100), (byte)(expansionoffset / 0x100), (byte)expansionBank, 0x00 };
+                        
+						expansionScripts.AddRange(newScript);
+						expansionoffset += (ushort)newScript.Length;
+
+                        pointers.Add(offset);
+                        offset += (ushort)script.Script.Length;
+                    }
+					else
+					{
+                        script.Script = changedscripts.First().Update(offset);
+                        pointers.Add(offset);
+                        offset += (ushort)script.Script.Length;
+                    }
 				}
-				else if (_scripts[i].Positions.Where(x => _enableMoveScripts.Contains(x)).Any())
+				else if (_enableMoveScripts.Intersect(_callIds.Where(x => x.scriptid == script.Id).Select(x => x.callid)).Any())
+                {
+                    pointers.Add(offset);
+                    offset += (ushort)script.Script.Length;
+                }
+                else
+                {
+					padTo = script.Position - offset;
+                    offset = (ushort)script.Position;
+                    pointers.Add(offset);
+                    offset += (ushort)script.Script.Length;
+                }
+
+				scripts.AddRange(Enumerable.Repeat((byte)0x00, padTo));
+                scripts.AddRange(script.Script);
+            }
+
+			var expansionScript = _newScripts.Where(x => x.Key >= PointersQty).OrderBy(x => x.Key).ToList();
+
+			for (int i = PointersQty; i < expansionQty; i++)
+			{
+				var validscripts = expansionScript.Where(x => x.Key == i).ToList();
+
+				if (validscripts.Any())
 				{
-					_scripts[i].Pointer = offset;
-					offset += _scripts[i].Script.Length;
-				}
+                    var newScript = validscripts.First().Value.Update(expansionoffset);
+
+                    expansionScripts.AddRange(newScript);
+                    expansionPointers.Add(expansionoffset);
+                    expansionoffset += (ushort)newScript.Length;
+                }
 				else
 				{
-					offset = _scripts[i].Pointer;
-					offset += _scripts[i].Script.Length;
-				}
-
-				for (int j = 0; j < _scripts[i].Script.Length; j++)
-				{
-					scripts[_scripts[i].Pointer - ScriptsStart + j] = _scripts[i].Script[j];
-				}
+                    expansionPointers.Add(expansionoffset);
+                }
 			}
 
-			for (int i = 0; i < PointersQty; i++)
+
+			List<ushort> actualPointers = new();
+			
+			foreach (var callid in _callIds)
 			{
-				var targetScript = _scripts.Find(x => x.Positions.Contains(i));
-				pointers = pointers.Concat(new byte[] { (byte)(targetScript.Pointer % 0x100), (byte)(targetScript.Pointer / 0x100) }).ToArray();
-			}
+				actualPointers.Add((ushort)pointers[callid.scriptid]);
+            }
 
-			rom.Put(PointersPosition, pointers);
-			rom.PutInBank(0x03, ScriptsStart, scripts);
-		}
+			rom.PutInBank(Bank, PointersPosition, Blob.FromUShorts(actualPointers.ToArray()));
+            rom.PutInBank(Bank, ScriptsStart, scripts.ToArray());
+			if (expansionPointers.Any())
+			{
+                rom.PutInBank(expansionBank, expansionOffset, Blob.FromUShorts(expansionPointers.ToArray()));
+                rom.PutInBank(expansionBank, (expansionOffset + ((expansionQty - PointersQty) * 2)), expansionScripts.ToArray());
+            }
+        }
 	}
 
 
@@ -220,13 +364,13 @@ namespace FFMQLib
 		{
 			{ Items.Elixir, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.Elixir:X2}") },
 			{ Items.TreeWither, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.TreeWither:X2}") },
-			{ Items.WakeWater, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.WakeWater:X2}") },
+			{ Items.Wakewater, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.WakeWater:X2}") },
 			{ Items.VenusKey, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.VenusKey:X2}") },
 			{ Items.MultiKey, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.MultiKey:X2}") },
 			{ Items.Mask, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.Mask:X2}") },
 			{ Items.MagicMirror, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.MagicMirror:X2}") },
 			{ Items.ThunderRock, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.ThunderRock:X2}") },
-			{ Items.CaptainCap, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.CaptainCap:X2}") },
+			{ Items.CaptainsCap, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.CaptainsCap:X2}") },
 			{ Items.LibraCrest, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.LibraCrest:X2}") },
 			{ Items.GeminiCrest, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.GeminiCrest:X2}") },
 			{ Items.MobiusCrest, ($"{(int)FlagPositions.Items:X4}", $"{(int)ItemFlags.MobiusCrest:X2}") },
@@ -280,7 +424,7 @@ namespace FFMQLib
 			{ Items.EtherShield, ($"{(int)FlagPositions.Armors:X4}", $"{(int)ArmorFlags.EtherShield:X2}") },
 			{ Items.Charm, ($"{(int)FlagPositions.Armors:X4}", $"{(int)ArmorFlags.Charm:X2}") },
 			{ Items.MagicRing, ($"{(int)FlagPositions.Armors:X4}", $"{(int)ArmorFlags.MagicRing:X2}") },
-			{ Items.CupidLocket, ($"{(int)FlagPositions.Armors:X4}", $"{(int)ArmorFlags.CupidLock:X2}") },
+			{ Items.CupidLocket, ($"{(int)FlagPositions.Armors:X4}", $"{(int)ArmorFlags.CupidLocket:X2}") },
 
 		};
 		public class ScriptCommands {

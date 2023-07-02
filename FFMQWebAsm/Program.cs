@@ -11,11 +11,14 @@ using Blazorise;
 using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
 using Blazored.LocalStorage;
+using FFMQLib;
 
 namespace FFMQWebAsm
 {
     public class Program
     {
+        public FFMQRom GameRom { get; set; }
+
         public static async Task Main(string[] args)
         {
 
@@ -23,7 +26,7 @@ namespace FFMQWebAsm
             builder.Services
                 .AddBlazorise(options =>
                 {
-                    options.ChangeTextOnKeyPress = true;
+                    options.Immediate = true;
                 })
                 .AddBootstrap5Providers()
                 .AddFontAwesomeIcons();
@@ -33,8 +36,10 @@ namespace FFMQWebAsm
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             });
 
-            builder.RootComponents.Add<App>("#app");
+            builder.Services.AddSingleton<FFMQRom>();
 
+            builder.RootComponents.Add<App>("#app");
+            
             builder.Services.AddBlazoredLocalStorage();
 
             var host = builder.Build();

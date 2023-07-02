@@ -1,25 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="datafiles\entrances.yaml" />
     <None Remove="datafiles\entrancespairs.yaml" />
-    <None Remove="datafiles\overworld.yaml" />
+    <None Remove="datafiles\fighter.bmp" />
+    <None Remove="datafiles\kain.bmp" />
     <None Remove="datafiles\shufflingdata.yaml" />
+    <None Remove="datafiles\template.bmp" />
     <None Remove="locations.yaml" />
     <None Remove="rooms.yaml" />
+    <None Remove="sprites\customsprites.zip" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="datafiles\entrances.yaml" />
-    <EmbeddedResource Include="datafiles\overworld.yaml" />
     <EmbeddedResource Include="datafiles\shufflingdata.yaml" />
     <EmbeddedResource Include="datafiles\entrancespairs.yaml" />
     <EmbeddedResource Include="datafiles\rooms.yaml" />
-    <EmbeddedResource Include="datafiles\locations.yaml" />
+    <EmbeddedResource Include="datafiles\template.bmp" />
+    <EmbeddedResource Include="sprites\customsprites.zip" />
   </ItemGroup>
 
   <ItemGroup>

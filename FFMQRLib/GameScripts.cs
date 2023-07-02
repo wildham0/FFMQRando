@@ -10,12 +10,13 @@ namespace FFMQLib
 	{
 		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, LocationIds startinglocation, MT19337 rng)
 		{
+			const int GameStartScript = 0x01f811;
+
 			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
 
 			/*** Overworld ***/
 			// GameStart - Skip Mountain collapse
-			Put(RomOffsets.GameStartScript, Blob.FromHex($"23222b7a2a0b2700200470002ab0532050{((byte)startinglocation):X2}29ffff00"));
-			//Put(RomOffsets.GameStartScript, Blob.FromHex("23222b7a2a0b2700200470002ab05320501629ffff00"));
+			Put(GameStartScript, Blob.FromHex($"23222b7a2a0b2700200470002ab0532050{((byte)startinglocation):X2}29ffff00"));
 
 			GameFlags[(int)GameFlagsList.ShowPazuzuBridge] = true;
 
@@ -446,11 +447,13 @@ namespace FFMQLib
 
 			/*** Fall Basin ***/
 			// Put Chest under crab
-			MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
+			MapObjects[0x21][0x07].X--;
+
+            MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
 			MapObjects[0x21][0x0F].Y = MapObjects[0x21][0x07].Y;
 			MapObjects[0x21][0x0F].Gameflag = 0xFE;
 
-			TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
+            TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
 				new ScriptBuilder(new List<string>{
 					"04",
 					"05E43403",
@@ -460,8 +463,12 @@ namespace FFMQLib
 					"00"
 				}));
 
-			// Exit Fall Basin
-			GameMaps.TilesProperties[0x0A][0x22].Byte2 = 0x08;
+            // Remove Phoebe Script Tile
+            GameMaps[(int)MapList.FallBasin].ModifyMap(0x11, 0x06, 0x1D, true);
+
+            // Exit Fall Basin
+            GameMaps.TilesProperties[0x0A][0x22].Byte2 = 0x08;
+			
 
 			/*** Ice Pyramid ***/
 			// Ice Pyramid Entrance
@@ -634,9 +641,9 @@ namespace FFMQLib
 			/*** Spencer's Cave Post-Bomb ***/
 
 			// Reproduce spencer/tristam chest to avoid softlock
-			var spencerObject = new MapObject(0, this);
-			var tristamChestObject = new MapObject(0, this);
-			var boxObject = new MapObject(0, this);
+			var spencerObject = new MapObject();
+			var tristamChestObject = new MapObject();
+			var boxObject = new MapObject();
 
 			spencerObject.CopyFrom(MapObjects[0x02C][0x00]);
 			tristamChestObject.CopyFrom(MapObjects[0x02C][0x01]);

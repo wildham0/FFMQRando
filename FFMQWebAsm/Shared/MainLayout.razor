@@ -1,5 +1,34 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavManager
 
+@if (GetPage() == "/Archipelago")
+{ 
+<Layout Sider="true">
+    <LayoutSider>
+        <LayoutSiderContent>
+            <Sidebar @ref="sidebar" Data="@apSidebarInfo" />
+        </LayoutSiderContent>
+    </LayoutSider>
+
+    <Layout>
+        <LayoutHeader Fixed="true">
+                <a href="/Archipelago#"><Icon Name="IconName.Bars" IconSize="IconSize.x2" class="text-secondary" Margin="Margin.Is3" Clicked="@ToggleSidebar" /></a>
+        </LayoutHeader>
+        <LayoutContent>
+
+            <div class="page">
+                <div class="main">
+                    <div class="content">
+                        @Body
+                    </div>
+                </div>
+            </div>
+        </LayoutContent>
+    </Layout>
+</Layout>
+}
+else
+{
 <Layout Sider="true">
     <LayoutSider>
         <LayoutSiderContent>
@@ -23,22 +52,20 @@
         </LayoutContent>
     </Layout>
 </Layout>
-
+}
 <UpdateAvailableDetector/>
 
 @code{
     Sidebar sidebar;
     SidebarInfo sidebarInfo = new SidebarInfo
-    {
+        {
+            Brand = new SidebarBrandInfo
+            {
+                Text = "FFMQ Rando",
+            },
 
-        
-        Brand = new SidebarBrandInfo
-        {
-            Text = "FFMQ Rando",
-        },
-        
-        Items = new List<SidebarItemInfo>
-        {
+            Items = new List<SidebarItemInfo>
+            {
             new SidebarItemInfo
             {
                 Text = " Generation",
@@ -56,6 +83,48 @@
                 Text = " General Info",
                 Icon = IconName.QuestionCircle,
                 To = "#infoSection",
+            },
+            new SidebarItemInfo
+            {
+                Text = " Archipelago",
+                Icon = "ap-icon",
+                To = "/Archipelago",
+            },
+            new SidebarItemInfo
+            {
+                Text = " Discord",
+                Icon = "fab fa-discord",
+                To = "https://discord.gg/VwaZQQATUJ",
+            },
+            new SidebarItemInfo
+            {
+                Text = " GitHub",
+                Icon = "fab fa-github",
+                To = "https://github.com/wildham0/FFMQRando",
+            },
+            new SidebarItemInfo
+            {
+                Text = " Beta",
+                Icon = IconName.Server,
+                To = "https://dev.ffmqrando.net/",
+            },
+        }
+    };
+
+    SidebarInfo apSidebarInfo = new SidebarInfo
+        {
+            Brand = new SidebarBrandInfo
+            {
+                Text = "FFMQ Rando",
+            },
+
+            Items = new List<SidebarItemInfo>
+            {
+            new SidebarItemInfo
+            {
+                Text = " Back to Rando",
+                Icon = IconName.ArrowLeft,
+                To = "./",
             },
             new SidebarItemInfo
             {
@@ -81,5 +150,11 @@
     void ToggleSidebar()
     {
         sidebar.Toggle();
+    }
+
+    string GetPage()
+    {
+        var uri = new Uri(NavManager.Uri);
+        return uri.LocalPath;
     }
 }

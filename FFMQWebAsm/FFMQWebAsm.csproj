@@ -1,21 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+    <TypeScriptModuleKind>system</TypeScriptModuleKind>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blazored.LocalStorage" Version="4.2.0" />
-    <PackageReference Include="Blazorise" Version="0.9.5.3" />
-    <PackageReference Include="Blazorise.Bootstrap5" Version="0.9.5.3" />
-    <PackageReference Include="Blazorise.Components" Version="0.9.5.3" />
-    <PackageReference Include="Blazorise.Icons.FontAwesome" Version="0.9.5.3" />
-    <PackageReference Include="Blazorise.Sidebar" Version="0.9.5.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.1" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.JSInterop.WebAssembly" Version="6.0.1" />
-    <PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
+    <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
+    <PackageReference Include="Blazorise" Version="1.2.2" />
+    <PackageReference Include="Blazorise.Bootstrap5" Version="1.2.2" />
+    <PackageReference Include="Blazorise.Components" Version="1.2.2" />
+    <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.2.2" />
+    <PackageReference Include="Blazorise.Sidebar" Version="1.2.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.4" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.JSInterop.WebAssembly" Version="7.0.4" />
+    <PackageReference Include="System.Net.Http.Json" Version="7.0.1" />
   </ItemGroup>
 
   <ItemGroup>

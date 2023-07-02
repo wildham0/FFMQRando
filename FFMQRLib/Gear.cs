@@ -30,6 +30,78 @@ namespace FFMQLib
 			// Vendor Routine
 			PutInBank(0x11, 0x9430, Blob.FromHex("e230ad0015c920901dc92f9005c940900c6b202093981869208d00156b20a09398692f8d00156b"));
 		}
+		public void SetStartingItems(ItemsPlacement itemsplacement)
+		{
+			byte[] itemsByte = new byte[] { 0x00, 0x00 };
+			byte[] weaponsByte = new byte[] { 0x00, 0x00, 0x00 };
+			byte[] armorsByte = new byte[] { 0x00, 0x00, 0x00 };
+			byte[] spellsByte = new byte[] { 0x00, 0x00 };
+
+			byte startingWeapon = 0x00;
+			int startingWeaponLevel = -1;
+
+			List<(Items item, int count)> consumables  = new() { (Items.CurePotion, 0), (Items.HealPotion, 0), (Items.Refresher, 0), (Items.Seed, 0) };
+
+			foreach(var item in itemsplacement.StartingItems)
+			{
+				if (consumables.Select(x => x.item).Contains(item))
+				{
+					consumables = consumables.Select(x => (x.item == item) ? (x.item, x.count + 1) : x).ToList();
+				}
+				else if (item <= Items.SkyCoin)
+				{
+					int targetByte = ((int)item / 8);
+					byte targetBit = (byte)(0x80 / (Math.Pow(2, (int)item % 8)));
+
+					itemsByte[targetByte] |= targetBit;
+				}
+				else if (item >= Items.ExitBook && item <= Items.FlareSeal)
+				{
+					int targetByte = ((int)(item - Items.ExitBook) / 8);
+					byte targetBit = (byte)(0x80 / (Math.Pow(2, (int)(item - Items.ExitBook) % 8)));
+
+					spellsByte[targetByte] |= targetBit;
+				}
+				else if (item >= Items.SteelSword && item <= Items.NinjaStar)
+				{
+					int targetByte = ((int)(item - Items.SteelSword) / 8);
+					byte targetBit = (byte)(0x80 / (Math.Pow(2, (int)(item - Items.SteelSword) % 8)));
+
+					weaponsByte[targetByte] |= targetBit;
+
+					var currentWeaponLevel = ((item - Items.SteelSword) % 3);
+
+					if (currentWeaponLevel > startingWeaponLevel)
+					{
+						startingWeapon = (byte)item;
+					}
+				}
+				else if (item >= Items.SteelHelm && item <= Items.CupidLocket)
+				{
+					int targetByte = ((int)(item - Items.SteelHelm) / 8);
+					byte targetBit = (byte)(0x80 / (Math.Pow(2, (int)(item - Items.SteelHelm) % 8)));
+
+					armorsByte[targetByte] |= targetBit;
+				}
+			}
+
+			PutInBank(0x0C, 0xD0E1, new byte[] { startingWeapon });
+			PutInBank(0x0C, 0xD0E2, weaponsByte);
+			PutInBank(0x0C, 0xD0E5, armorsByte);
+			PutInBank(0x0C, 0xD0E8, spellsByte);
+			PutInBank(0x0C, 0xD3A2, itemsByte);
+
+			int currentConsumableSlot = 0;
+
+			foreach (var consumable in consumables)
+			{
+				if (consumable.count > 0)
+				{
+					PutInBank(0x0C, 0xD39A + (currentConsumableSlot * 2), new byte[] { (byte)consumable.item, (byte)consumable.count });
+					currentConsumableSlot++;
+				}
+			}
+		}
 		public void SetStartingWeapons(ItemsPlacement itemsPlacement)
 		{
 			if (itemsPlacement.StartingItems.Contains(Items.SteelSword))

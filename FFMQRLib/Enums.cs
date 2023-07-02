@@ -112,7 +112,8 @@ namespace FFMQLib
 		FireburgSellerItemBought = 0xD1,
 		WindiaSellerItemBought = 0xD2,
 
-
+		// Tentative removed enemy flag
+		ShowEnemies = 0xF9,
 
 
 	}
@@ -225,6 +226,10 @@ namespace FFMQLib
 		Pazuzu5F,
 		Pazuzu6F,
 
+		StoneGolem,
+		TwinheadWyvern,
+		Zuh,
+		
 		Barred,
 	}
 	public enum TreasureType : int
@@ -312,7 +317,7 @@ namespace FFMQLib
 		EtherShield = 0x0D,
 		Charm = 0x0E,
 		MagicRing = 0x0F,
-		CupidLock = 0x10,
+		CupidLocket = 0x10,
 	}
 	public enum SpellFlags : byte
 	{
@@ -339,7 +344,7 @@ namespace FFMQLib
 		Mask = 0x05,
 		MagicMirror = 0x06,
 		ThunderRock = 0x07,
-		CaptainCap = 0x08,
+		CaptainsCap = 0x08,
 		LibraCrest = 0x09,
 		GeminiCrest = 0x0A,
 		MobiusCrest = 0x0B,
@@ -352,13 +357,13 @@ namespace FFMQLib
 	{
 		Elixir = 0x00,
 		TreeWither = 0x01,
-		WakeWater = 0x02,
+		Wakewater = 0x02,
 		VenusKey = 0x03,
 		MultiKey = 0x04,
 		Mask = 0x05,
 		MagicMirror = 0x06,
 		ThunderRock = 0x07,
-		CaptainCap = 0x08,
+		CaptainsCap = 0x08,
 		LibraCrest = 0x09,
 		GeminiCrest = 0x0A,
 		MobiusCrest = 0x0B,
@@ -414,8 +419,24 @@ namespace FFMQLib
 		Charm = 0x3D,
 		MagicRing = 0x3E,
 		CupidLocket = 0x3F,
+		Xp54 = 0x60,
+		Xp99 = 0x61,
+		Xp540 = 0x62,
+		Xp744 = 0x63,
+		Xp816 = 0x64,
+		Xp1068 = 0x65,
+		Xp1200 = 0x66,
+		Xp2700 = 0x67,
+		Xp2808 = 0x68,
+		Gp150 = 0x69,
+		Gp300 = 0x6A,
+		Gp600 = 0x6B,
+		Gp900 = 0x6C,
+		Gp1200 = 0x6D,
 		BombRefill = 0xDD,
 		ProjectileRefill = 0xDE,
+		APItem = 0xF0,
+		APItemFiller = 0xF1,
 		None = 0xFF,
 	}
 
@@ -961,9 +982,5 @@ namespace FFMQLib
 		RainbowBridgeToPazuzu,
 		RainbowBridgeToSpencer,
 		FocusTower,
-	}
-	public partial class FFMQRom : SnesRom
-	{
-
 	}
 }

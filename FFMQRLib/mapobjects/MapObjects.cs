@@ -69,7 +69,7 @@ namespace FFMQLib
 
 				for (int j = 0; j < toremove; j++)
 				{
-					rng.TakeFrom(enemiescollection).Gameflag = 0xFE;
+					rng.TakeFrom(enemiescollection).Gameflag = (byte)NewGameFlagsList.ShowEnemies;
 				}
 			}
 		}

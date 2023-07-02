@@ -1,0 +1,277 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using System.IO;
+@using System.IO.Compression;
+@using System;
+@using System.Web
+@using System.Net.Http
+@using System.Text;
+@using FFMQLib;
+@using Microsoft.JSInterop;
+@using Microsoft.JSInterop.WebAssembly;
+@using Blazorise.Components;
+@using RomUtilities;
+@using Microsoft.AspNetCore.Components
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject HttpClient Http
+@inject FFMQRom rom
+
+
+    @if(!romLoaded)
+    {
+    <Field class="romFlag">
+            <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel>
+            <FileEdit Filter=".sfc" AutoReset="false" Changed="@LoadRomFromFile"></FileEdit>
+            <FieldHelp>@romMessage</FieldHelp>
+        </Field>
+    }
+    else
+    {
+        <Field class="romFlag">
+            <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel>
+        <Button Color="Color.Primary" Loading="@isGenerating" Clicked="@OnGenerate" Disabled="@generateDisabled" class="romBtn">Generate</Button>
+            <FieldHelp>@romMessage</FieldHelp>
+        <a href="" @onclick="@UnloadRom" @onclick:preventDefault>Use a different ROM file</a>
+        </Field>
+    }
+
+@code{
+    [Parameter]
+    public Flags Flags { get; set; }
+
+    [Parameter]
+    public Blob Seed { get; set; }
+
+    [Parameter]
+    public Preferences Preferences { get; set; }
+
+    [Parameter]
+    public ApConfigs ApConfigs { get; set; }
+
+    [Parameter]
+    public bool Beta { get; set; }
+
+    [Parameter]
+    public Action<bool> IsLoadFromMemoryDone { get; set; }
+
+    private long maxFileSize = 0x80200;
+    private bool isLoadingRom = false;
+    private bool generateDisabled { get => (isLoadingRom | (ApEnabled() & !ApConfigs.ApEnabled)); }
+    private bool isGenerating = false;
+    private bool romLoaded = false;
+
+    private bool generatedRom = false;
+    private string romMessage = "";
+
+    private byte[] savedRom = new byte[0];
+
+    bool ApEnabled()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+
+        string fullUrl = uri.OriginalString;
+        int index = fullUrl.IndexOf("Archipelago");
+        if (index >= 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    private async Task OnGenerate()
+    {
+        isGenerating = true;
+        romMessage = "Generating...";
+
+        await Generate();
+
+        isGenerating = false;
+    }
+
+    private async Task Generate()
+    {
+        // await here so we can yield and update interface since Randomize isn't async
+        await Task.Delay(TimeSpan.FromMilliseconds(1));
+
+        if (rom.IsEmpty())
+        {
+            romMessage = "No file.";
+            return;
+        }
+
+        if (generatedRom)
+        {
+            rom.RestoreOriginalData();
+            generatedRom = false;
+        }
+
+        if (!rom.Validate())
+        {
+            romMessage = "Invalid ROM file.";
+            return;
+        }
+
+        rom.beta = Beta;
+
+        try
+        {
+            string fileName = "";
+            string fileNameSpoilers = "";
+
+            if (ApConfigs.ApEnabled)
+            {
+                rom.Randomize(Seed, Flags, Preferences, ApConfigs);
+                romMessage = "Archipelago ROM file generated successfully.";
+                fileName = ApConfigs.FileName + ".sfc";
+                fileNameSpoilers = ApConfigs.FileName + "_Spoilers" + ".txt";
+            }
+            else
+            {
+                rom.Randomize(Seed, Flags, Preferences, ApConfigs);
+
+                romMessage = "ROM file generated successfully.";
+                fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".sfc";
+                fileNameSpoilers = "FFMQR_Spoilers_" + FFMQLib.Metadata.Version + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".txt";
+            }
+
+            var fs = rom.DataStream();
+
+            using var streamRef = new DotNetStreamReference(stream: fs);
+
+            await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+
+            if (Flags.EnableSpoilers)
+            {
+                var fsSpoilers = rom.SpoilerStream();
+
+                using var streamRefSpoilers = new DotNetStreamReference(stream: fsSpoilers);
+
+                await JS.InvokeVoidAsync("downloadFileFromStream", fileNameSpoilers, streamRefSpoilers);
+            }
+        }
+        catch (Exception ex)
+        {
+            romMessage = ex.Message;
+        }
+
+        generatedRom = true;
+    }
+
+    private async Task LoadRomFromFile(FileChangedEventArgs e)
+    {
+        romMessage = "Loading...";
+        isLoadingRom = true;
+        StateHasChanged();
+        try
+        {
+            await rom.LoadAsync(e.Files.First().OpenReadStream(maxFileSize));
+            if (!rom.Validate())
+            {
+                romMessage = "Invalid ROM file.";
+                isLoadingRom = false;
+                return;
+            }
+            else
+            {
+                romMessage = "ROM file loaded succesfully.";
+                isLoadingRom = false;
+                romLoaded = true;
+                rom.BackupOriginalData();
+                SaveRom();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private void UnloadRom()
+    {
+        romLoaded = false;
+        savedRom = new byte[0];
+        romMessage = "";
+        rom.Clear();
+        SaveRom();
+    }
+
+    private async void SaveRom()
+    {
+        if (!rom.IsEmpty())
+        {
+            rom.RestoreOriginalData();
+            savedRom = rom.DataReadOnly;
+        }
+        else
+        {
+            savedRom = new byte[0];
+        }
+
+        await JS.InvokeVoidAsync("saveSavedRom", savedRom);
+    }
+
+    public async Task<bool> LoadRom()
+    { 
+        savedRom = await JS.InvokeAsync<byte[]>("loadSavedRom");
+
+        if (savedRom != null)
+        {
+            if (savedRom.Length == 0)
+            {
+                return true;
+            }
+
+            rom.Load(savedRom);
+            romMessage = "Loading...";
+            isLoadingRom = true;
+            StateHasChanged();
+
+            try
+            {
+                if (!await rom.ValidateRom())
+                {
+                    romMessage = "Invalid ROM file.";
+                    isLoadingRom = false;
+                    romLoaded = false;
+                    return true;
+                }
+                else
+                {
+                    romMessage = "ROM file loaded from memory succesfully.";
+                    isLoadingRom = false;
+                    romLoaded = true;
+                    rom.BackupOriginalData();
+                    StateHasChanged();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        return true;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        bool doneLoading = false;
+        if (rom.IsEmpty())
+        {
+            await localStorage.RemoveItemAsync("RomPath");
+            doneLoading = await LoadRom();
+        }
+        else
+        {
+            romLoaded = true;
+            StateHasChanged();
+        }
+
+        IsLoadFromMemoryDone.Invoke(doneLoading);
+    }
+
+}

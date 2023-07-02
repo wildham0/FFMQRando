@@ -43,7 +43,14 @@ namespace FFMQLib
 			else if (flags.SkyCoinMode == SkyCoinModes.StartWith)
 			{
 				// Start With SkyCoin
-				PutInBank(0x0C, 0xD3A3, Blob.FromHex("01"));
+				List<string> mysteriousmanline = new()
+				{
+					$"Why are you talking to me? You already have the Sky Coin!",
+					$"Now take a look\nAt your inventory\nYou've got the Sky Coin\nAlready!",
+					$"Starting with the Sky Coin? Daring today, aren't we?",
+				};
+
+				UpdateMysteriousMan(rng.PickFrom(mysteriousmanline));
 			}
 			else if (flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals)
 			{
@@ -60,29 +67,17 @@ namespace FFMQLib
 						$"0D5F01{(int)Items.SkyCoin:X2}0162",
 						"00"
 					});
-				/*
-				var pazuzuScript = new ScriptBuilder(new List<string> {
-						"2B47",
-						"2B48",
-						"2B49",
-						"2B40",
-						"2B41",
-						"2B42",
-						"2B43",
-						"2B44",
-						"2B45",
-						"2B46",
-						"050260C11200",
-						"00"
-					});
-
-				var pazuzuJumpScript = new ScriptBuilder(new List<string> {
-						"0502A0C11200"
-					});*/
 
 				crystalSkyCoinScript.WriteAt(0x12, 0xC160, this);
-				//pazuzuScript.WriteAt(0x12, 0xC1A0, this);
-				//pazuzuJumpScript.WriteAt(0x03, 0xFDAD, this);
+
+				List<string> mysteriousmanline = new()
+				{
+					$"To enter Doom Castle, you shall defeat the four demons, no more, no less! Once the fourth evil one is defeated, then you shall receive the Sky Coin.",
+					$"Defeat the fourd Fiends to light the four orbs... I mean, receive the Sky Coin.",
+					$"Only the one strong enough to restore the four Crystals will be blessed by the Sky Coin!",
+				};
+
+				UpdateMysteriousMan(rng.PickFrom(mysteriousmanline));
 			}
 			else if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
 			{
@@ -102,7 +97,7 @@ namespace FFMQLib
 				PutInBank(0x12, 0xC100, Blob.FromHex("0b0f0ac1115e00058a00115e00058a0f930e052007ef970305210f5f0100"));
 
 				// Start With SkyCoin
-				PutInBank(0x0C, 0xD3A3, Blob.FromHex("01"));
+				//PutInBank(0x0C, 0xD3A3, Blob.FromHex("01"));
 
 				TalkScripts.AddScript(0x06,
 					new ScriptBuilder(new List<string> {
@@ -132,21 +127,7 @@ namespace FFMQLib
 					$"Legend says he told Phoebe to go forth and combat evil. To do that, she had to find {skycointqty} Sky Coin fragments."
 				};
 
-				// Mysterious Man tell nomber of fragments
-				TalkScripts.AddScript(0x09,
-					new ScriptBuilder(new List<string> {
-						"04",
-						"0502E0C112",
-						"00"
-					}));
-
-				var newMysteriousManScript = new ScriptBuilder(new List<string> {
-						"1A09" + TextToHex(rng.PickFrom(mysteriousmanline)) + "36",
-						"2B6C",
-						"0502E9FE03"
-					});
-
-				newMysteriousManScript.WriteAt(0x12, 0xC1E0, this);
+				UpdateMysteriousMan(rng.PickFrom(mysteriousmanline));
 
 				// Sky Coin new name
 				PutInBank(0x0C, 0xC1D4, Blob.FromHex("acbeccff9fc5b4bac0b8c1c7"));
@@ -157,6 +138,24 @@ namespace FFMQLib
 				PutInBank(0x04, 0x85D0, Blob.FromHex("7D3FFD3FBE2EFC945808280810100000B43D6E9428181000"));
 				PutInBank(0x04, 0x85E8, Blob.FromHex("808000000000000000000000000000008000000000000000"));
 			}
+		}
+		public void UpdateMysteriousMan(string dialogue)
+		{
+			// Mysterious Man tell nomber of fragments
+			TalkScripts.AddScript(0x09,
+				new ScriptBuilder(new List<string> {
+						"04",
+						"0502E0C112",
+						"00"
+				}));
+
+			var newMysteriousManScript = new ScriptBuilder(new List<string> {
+						"1A09" + TextToHex(dialogue) + "36",
+						"2B6C",
+						"0502E9FE03"
+					});
+
+			newMysteriousManScript.WriteAt(0x12, 0xC1E0, this);
 		}
 	}
 }

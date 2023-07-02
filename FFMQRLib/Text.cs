@@ -231,17 +231,25 @@ namespace FFMQLib
 			
 		}
 
-		public void Update()
+		public void Update(PlayerSprite sprite)
         {
 			FFMQRom text = new();
+            string spriteContributor = "";
 
+            if (sprite.author != "")
+			{
+                spriteContributor = sprite.name.Split(" (")[0] + " Sprite by\n" + sprite.author + "\n\n";
+            }
+			
 			additionalCredits = text.TextToByte(
 				"FFMQ Randomizer\n\n" +
 				"Main Developer\n" +
 				"wildham\n\n" +
 				"Contributors\n" +
-				"Oipo - Enemizer\n\n" +
-				"Playtesters\n" +
+                "Oipo - Enemizer\n" +
+                "Alchav - Archipelago\n\n" +
+                spriteContributor +
+                "Playtesters\n" +
 				"spellzapp\n" +
 				"caleb\n" +
 				"VampireKnight\n" +

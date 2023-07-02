@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using RomUtilities;
+using System.Diagnostics;
 using static System.Math;
 
 namespace FFMQLib
@@ -10,10 +11,12 @@ namespace FFMQLib
 	public class TilesProperties
 	{
 		private List<List<SingleTile>> _tilesProperties;
+		private const int MapTileDataOffset = 0x032800;
+
 
 		public TilesProperties(FFMQRom rom)
 		{
-			_tilesProperties = rom.Get(RomOffsets.MapTileData, 0x10 * 0x100).Chunk(0x100).Select(x => x.Chunk(0x02).Select(y => new SingleTile(y)).ToList()).ToList();
+			_tilesProperties = rom.Get(MapTileDataOffset, 0x10 * 0x100).Chunk(0x100).Select(x => x.Chunk(0x02).Select(y => new SingleTile(y)).ToList()).ToList();
 		}
 
 		public List<SingleTile> this[int propTableID]
@@ -24,7 +27,7 @@ namespace FFMQLib
 
 		public void Write(FFMQRom rom)
 		{
-			rom.Put(RomOffsets.MapTileData, _tilesProperties.SelectMany(x => x.SelectMany(y => y.GetBytes())).ToArray());
+			rom.Put(MapTileDataOffset, _tilesProperties.SelectMany(x => x.SelectMany(y => y.GetBytes())).ToArray());
 		}
 	}
 
@@ -49,7 +52,8 @@ namespace FFMQLib
 	{
 		private List<Map> _gameMaps;
 		public TilesProperties TilesProperties { get; set; }
-		public GameMaps(FFMQRom rom)
+        private const int MapDataAddressesOffset = 0x058735;
+        public GameMaps(FFMQRom rom)
 		{
 			TilesProperties = new TilesProperties(rom);
 			_gameMaps = new();
@@ -464,10 +468,7 @@ namespace FFMQLib
 			// We do this manually since we change a lot of things
 			List<byte> CloudMap = new() {
 			};
-		
-		
 		}
-
 		public void Write(FFMQRom rom)
 		{
 			List<int> validBanks = new() { 0x08, 0x13 };
@@ -495,7 +496,7 @@ namespace FFMQLib
 				currentAddress += map.CompressedMapSize;
 			}
 
-			rom.Put(RomOffsets.MapDataAddresses, newPointersTable.ToArray());
+			rom.Put(MapDataAddressesOffset, newPointersTable.ToArray());
 
 			TilesProperties.Write(rom);
 		}
@@ -520,12 +521,16 @@ namespace FFMQLib
 		public int SizeY => _dimensions.Item2;
 
 		public static readonly byte[] BitConverter = { 0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
+		private const int MapDataAddressesOffset = 0x058735;
+		private const int MapAttributesOffset = 0x058CD9;
+		private const int MapDimensionsTableOffset = 0x058540;
+
 
 		public Map(int mapID, TilesProperties tileprop, FFMQRom rom)
 		{
 			_mapId = mapID;
-			_mapAttributes = rom.Get(RomOffsets.MapAttributes + mapID * 0x0A, 0x0A).ToBytes();
-			_mapAddressRaw = rom.Get(RomOffsets.MapDataAddresses + (mapID * 3), 3);
+			_mapAttributes = rom.Get(MapAttributesOffset + mapID * 0x0A, 0x0A).ToBytes();
+			_mapAddressRaw = rom.Get(MapDataAddressesOffset + (mapID * 3), 3);
 			_mapAddress = _mapAddressRaw[2] * 0x8000 + (_mapAddressRaw[1] * 0x100 + _mapAddressRaw[0] - 0x8000);
 			_referenceTableAddressRaw = rom.Get(_mapAddress, 2);
 			_referenceTableAddress = _mapAddress + 2 + _referenceTableAddressRaw[1] * 0x100 + _referenceTableAddressRaw[0];
@@ -536,7 +541,7 @@ namespace FFMQLib
 
 			ModifiedMap = false;
 
-			var tempdimensions = rom.Get(RomOffsets.MapDimensionsTable + (_mapAttributes[0] & 0xF0) / 8, 2);
+			var tempdimensions = rom.Get(MapDimensionsTableOffset + (_mapAttributes[0] & 0xF0) / 8, 2);
 			_dimensions = (tempdimensions[0], tempdimensions[1]);
 
 			List<byte> tempReferenceTable = new();
@@ -619,38 +624,46 @@ namespace FFMQLib
 				}
 			}
 		}
-		public (int, int) Seek(List<int> validPositions, int offset, int currentposition)
+		public (int, int) Seek(int offset, int currentposition, int searchOffset)
 		{
-			int bestCandidate = validPositions.First();
-
 			if (offset >= 0x11 || currentposition + offset >= _mapUncompressed.Count)
 			{
-				return (bestCandidate, offset);
+				return (searchOffset, offset);
 			}
 
-			List<int> tempPositions = new(validPositions);
-
-			foreach (int position in tempPositions)
+			if (_mapUncompressed[currentposition - searchOffset - 1 + offset] != _mapUncompressed[currentposition + offset])
 			{
-				if (_mapUncompressed[currentposition - position - 1 + offset] != _mapUncompressed[currentposition + offset])
-				{
-					validPositions.Remove(position);
-				}
-			}
-
-			if (validPositions.Any())
-			{
-				return Seek(validPositions, offset + 1, currentposition);
+				return (searchOffset, offset);
 			}
 			else
 			{
-				return (bestCandidate, offset);
+				return Seek(offset + 1, currentposition, searchOffset);
 			}
+		}
+		public (int, int) SeekInitialization(int offset, int currentposition)
+		{
+			(int, int) bestResult = (0, 0);
+
+			int maxPosition = Math.Min(0x100, currentposition);
+
+			for(int i = 0; i < maxPosition; i++)
+			{
+				var result = Seek(offset, currentposition, i);
+				if (result.Item2 >= 0x11)
+				{
+					bestResult = result;
+					break;
+				}
+				else if (result.Item2 > bestResult.Item2)
+				{
+					bestResult = result;
+				}
+			}
+
+			return bestResult;
 		}
 		public void CompressMap()
 		{
-			List<int> validPositionsTemplate = Enumerable.Range(0, 0x100).ToList();
-
 			int currentposition = 1;
 
 			List<ZipAction> ActionsList = new();
@@ -702,18 +715,7 @@ namespace FFMQLib
 					break;
 				}
 
-				List<int> validPositions;
-
-				if (currentposition > 0x100)
-				{
-					validPositions = new(validPositionsTemplate);
-				}
-				else
-				{
-					validPositions = new(validPositionsTemplate.Where(x => x < currentposition));
-				}
-
-				(int, int) result = Seek(validPositions, 0, currentposition);
+				(int, int) result = SeekInitialization(0, currentposition);
 
 				if (result.Item2 > 2)
 				{
@@ -1181,17 +1183,19 @@ namespace FFMQLib
 	{
 		private List<Blob> _areaattributes = new();
 
+		private const int AreaAttributesPointers = 0x3AF3B;
+		private const int AreaAttributesPointersBase = 0x3B013;
+		private const int AreaAttributesPointersQty = 108;
 		public MapUtilities(FFMQRom rom)
 		{
-			var attributepointers = rom.Get(RomOffsets.AreaAttributesPointers, RomOffsets.AreaAttributesPointersQty * 2).Chunk(2);
+			var attributepointers = rom.Get(AreaAttributesPointers, AreaAttributesPointersQty * 2).Chunk(2);
 
 			foreach (var pointer in attributepointers)
 			{
-				var address = RomOffsets.AreaAttributesPointersBase + pointer[1] * 0x100 + pointer[0];
+				var address = AreaAttributesPointersBase + pointer[1] * 0x100 + pointer[0];
 				_areaattributes.Add(rom.Get(address, 8));
 			}
 		}
-
 		public byte AreaIdToMapId(byte areaid)
 		{
 			return _areaattributes[(int)areaid][1];

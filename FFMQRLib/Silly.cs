@@ -8,7 +8,11 @@ namespace FFMQLib
 {
 	public partial class FFMQRom : SnesRom
 	{
-		public void RandomBenjaminPalette(bool enable, MT19337 rng)
+		public void WindowPalette(ushort palette)
+		{
+			PutInBank(0x07, 0x800A, Blob.FromUShorts(new ushort[] { palette } ));
+		}
+        public void RandomBenjaminPalette(bool enable, MT19337 rng)
 		{
 			if (!enable)
 			{

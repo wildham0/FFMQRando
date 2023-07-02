@@ -40,10 +40,10 @@ namespace FFMQLib
 		[Description("Expert")]
 		Expert,
 	}
-	public class ItemsPlacement
+	public partial class ItemsPlacement
 	{
 		public List<Items> StartingItems { get; set; }
-		public List<GameObject> ItemsLocations { get; }
+		public List<GameObject> ItemsLocations { get; set;  }
 		
 		private const int TreasuresOffset = 0x8000;
 
@@ -58,7 +58,18 @@ namespace FFMQLib
 				Weight = _weight;
 			}
 		}
-		public ItemsPlacement(Flags flags, List<GameObject> initialGameObjects, FFMQRom rom, MT19337 rng)
+		public ItemsPlacement(Flags flags, List<GameObject> initialGameObjects, ApConfigs apconfigs, FFMQRom rom, MT19337 rng)
+		{
+			if (apconfigs.ApEnabled)
+			{
+                PlaceApItems(flags, apconfigs, initialGameObjects, rom, rng);
+            }
+			else
+			{
+				PlaceItems(flags, initialGameObjects, rom, rng);
+			}
+		}
+		public void PlaceItems(Flags flags, List<GameObject> initialGameObjects, FFMQRom rom, MT19337 rng)
 		{
 			bool badPlacement = true;
 			int counter = 0;
@@ -72,7 +83,7 @@ namespace FFMQLib
 
 
 			List<RegionWeight> regionsWeight = new() { new RegionWeight(MapRegions.Foresta, 1), new RegionWeight(MapRegions.Aquaria, 1), new RegionWeight(MapRegions.Fireburg, 1), new RegionWeight(MapRegions.Windia, 1) };
-			List<GameObjectType> validTypes = new() { GameObjectType.Battlefield, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
+			List<GameObjectType> validTypes = new() { GameObjectType.BattlefieldItem, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
 
 			List<GameObject> initialItemlocations = initialGameObjects.ToList();
 
@@ -121,7 +132,12 @@ namespace FFMQLib
 				{
 					Items itemToPlace;
 
-					List<GameObject> validLocations = ItemsLocations.Where(x => validTypes.Contains(x.Type) && x.Accessible && x.IsPlaced == false && x.Exclude == false).ToList();
+					List<GameObject> validLocations = ItemsLocations.Where(x => validTypes.Contains(x.Type) &&
+						x.Accessible &&
+						x.IsPlaced == false &&
+						x.Exclude == false &&
+                        (itemsList.NoMoreProgression ? true : x.Location != LocationIds.DoomCastle)
+                        ).ToList();
 
 					if (flags.LogicOptions == LogicOptions.Friendly)
 					{
@@ -236,9 +252,9 @@ namespace FFMQLib
 				var validSkyCoinLocations = ItemsLocations.Where(x => validTypes.Contains(x.Type) && x.IsPlaced == false && x.Prioritize == false && x.Exclude == false && x.Location != LocationIds.DoomCastle).ToList();
 
 				if(validSkyCoinLocations.Count < 40)
-                {
+				{
 					throw new Exception("Sky Coin Pieces error: not enough valid locations");
-                }
+				}
 
 				for (int i = 0; i < 40; i++)
 				{
@@ -256,7 +272,7 @@ namespace FFMQLib
 			// Fill excluded and unfilled locations
 			List<Items> consumables = new() { Items.CurePotion, Items.HealPotion, Items.Refresher, Items.Seed };
 			
-			var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.Battlefield || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20))).ToList();
+			var unfilledLocations = ItemsLocations.Where(x => x.IsPlaced == false && (x.Type == GameObjectType.NPC || x.Type == GameObjectType.BattlefieldItem || (x.Type == GameObjectType.Chest && x.ObjectId < 0x20))).ToList();
 
 			foreach (var location in unfilledLocations)
 			{
@@ -265,6 +281,7 @@ namespace FFMQLib
 				if (location.Type == GameObjectType.Chest || location.Type == GameObjectType.Box)
 				{
 					location.Type = GameObjectType.Box;
+					location.Reset = true;
 				}
 			}
 
@@ -286,6 +303,7 @@ namespace FFMQLib
 				if (box.Type == GameObjectType.Chest || box.Type == GameObjectType.Box)
 				{
 					box.Type = GameObjectType.Box;
+					box.Reset = true;
 				}
 			}
 
@@ -298,7 +316,6 @@ namespace FFMQLib
 				finalChests[i].IsPlaced = true;
 			}
 		}
-
 		private void ProcessRequirements(List<AccessReqs> accessReqToProcess)
 		{
 			while (accessReqToProcess.Any())
@@ -339,34 +356,34 @@ namespace FFMQLib
 		public string GenerateSpoilers(Flags flags, string version, string hash, string seed)
 		{
 			List<Items> invalidItems = new() { Items.CurePotion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
-			List<GameObjectType> validType = new() { GameObjectType.Battlefield, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
+			List<GameObjectType> validType = new() { GameObjectType.BattlefieldItem, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
 			List<(Items, string)> progressiveItems = new()
 			{
 				(Items.SteelSword, "Progressive Sword"),
-                (Items.KnightSword, "Progressive Sword"),
-                (Items.Excalibur, "Progressive Sword"),
-                (Items.Axe, "Progressive Axe"),
-                (Items.BattleAxe, "Progressive Axe"),
-                (Items.GiantsAxe, "Progressive Axe"),
-                (Items.CatClaw, "Progressive Claw"),
-                (Items.CharmClaw, "Progressive Claw"),
-                (Items.DragonClaw, "Progressive Claw"),
-                (Items.Bomb, "Progressive Bomb"),
-                (Items.JumboBomb, "Progressive Bomb"),
-                (Items.MegaGrenade, "Progressive Bomb"),
-                (Items.SteelHelm, "Progressive Helmet"),
-                (Items.MoonHelm, "Progressive Helmet"),
-                (Items.ApolloHelm, "Progressive Helmet"),
-                (Items.SteelShield, "Progressive Shield"),
-                (Items.VenusShield, "Progressive Shield"),
-                (Items.AegisShield, "Progressive Shield"),
-                (Items.SteelArmor, "Progressive Armor"),
-                (Items.NobleArmor, "Progressive Armor"),
-                (Items.GaiasArmor, "Progressive Armor"),
-                (Items.Charm, "Progressive Accessory"),
-                (Items.MagicRing, "Progressive Accessory"),
-                (Items.CupidLocket, "Progressive Accessory"),
-            };
+				(Items.KnightSword, "Progressive Sword"),
+				(Items.Excalibur, "Progressive Sword"),
+				(Items.Axe, "Progressive Axe"),
+				(Items.BattleAxe, "Progressive Axe"),
+				(Items.GiantsAxe, "Progressive Axe"),
+				(Items.CatClaw, "Progressive Claw"),
+				(Items.CharmClaw, "Progressive Claw"),
+				(Items.DragonClaw, "Progressive Claw"),
+				(Items.Bomb, "Progressive Bomb"),
+				(Items.JumboBomb, "Progressive Bomb"),
+				(Items.MegaGrenade, "Progressive Bomb"),
+				(Items.SteelHelm, "Progressive Helmet"),
+				(Items.MoonHelm, "Progressive Helmet"),
+				(Items.ApolloHelm, "Progressive Helmet"),
+				(Items.SteelShield, "Progressive Shield"),
+				(Items.VenusShield, "Progressive Shield"),
+				(Items.AegisShield, "Progressive Shield"),
+				(Items.SteelArmor, "Progressive Armor"),
+				(Items.NobleArmor, "Progressive Armor"),
+				(Items.GaiasArmor, "Progressive Armor"),
+				(Items.Charm, "Progressive Accessory"),
+				(Items.MagicRing, "Progressive Accessory"),
+				(Items.CupidLocket, "Progressive Accessory"),
+			};
 
 			string spoilers = "";
 
@@ -398,7 +415,7 @@ namespace FFMQLib
 				if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
 				{
 					itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
-                }
+				}
 				
 				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
 			}
@@ -406,34 +423,34 @@ namespace FFMQLib
 			spoilers += "\nAquaria\n";
 			foreach (var item in aquariaKi)
 			{
-                string itemname = item.Content.ToString();
-                if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
-                {
-                    itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
-                }
-                spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
+				string itemname = item.Content.ToString();
+				if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
+				{
+					itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
+				}
+				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
 			}
 
 			spoilers += "\nFireburg\n";
 			foreach (var item in fireburgKi)
 			{
-                string itemname = item.Content.ToString();
-                if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
-                {
-                    itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
-                }
-                spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
+				string itemname = item.Content.ToString();
+				if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
+				{
+					itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
+				}
+				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
 			}
 
 			spoilers += "\nWindia\n";
 			foreach (var item in windiaKi)
 			{
-                string itemname = item.Content.ToString();
-                if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
-                {
-                    itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
-                }
-                spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
+				string itemname = item.Content.ToString();
+				if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
+				{
+					itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
+				}
+				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
 			}
 
 			return spoilers;
@@ -447,6 +464,7 @@ namespace FFMQLib
 		public List<Items> HighProgression { get; set; }
 		public List<Items> Starting { get; set; }
 		public Items ForcedItem { get; set; }
+		public bool NoMoreProgression { get => !LowProgression.Any() && !HighProgression.Any(); }
 		public int Count { get => LowProgression.Count + NonProgression.Count + HighProgression.Count; }
 		private int lastCoinCount;
 		private List<Items> coinsProgression = new() { Items.SandCoin, Items.RiverCoin, Items.SunCoin };
@@ -532,7 +550,6 @@ namespace FFMQLib
 				throw new Exception("Logic error: Not supposed to be there");
 			}
 		}
-
 		public ItemsList(Flags flags, MT19337 rng)
 		{
 
@@ -557,11 +574,11 @@ namespace FFMQLib
 				Items.VenusKey, // NPC
 				Items.MultiKey, // NPC
 				Items.ThunderRock, // NPC
-				Items.CaptainCap, // NPC
+				Items.CaptainsCap, // NPC
 				Items.DragonClaw, // NPC
 				Items.MegaGrenade, //NPC
 				Items.Elixir, // NPC
-				Items.WakeWater, // NPC
+				Items.Wakewater, // NPC
 				Items.LibraCrest,
 				Items.GeminiCrest,
 				Items.MobiusCrest
@@ -609,7 +626,7 @@ namespace FFMQLib
 			StartingItems.Add(startingWeapon);
 
 			// SkyCoin
-			if (flags.SkyCoinMode == SkyCoinModes.StartWith)
+			if (flags.SkyCoinMode == SkyCoinModes.StartWith || flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
 			{
 				StartingItems.Add(Items.SkyCoin);
 				ProgressionSkyCoin.Remove(Items.SkyCoin);
@@ -697,5 +714,4 @@ namespace FFMQLib
 			Starting = StartingItems;
 		}
 	}
-
 }
