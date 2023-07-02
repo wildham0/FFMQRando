@@ -460,12 +460,12 @@ namespace FFMQLib
 				tracks.Remove(0x04);
 				tracks.Remove(0x15);
 
-				tracks.Shuffle(rng);
-				tracks.Insert(0x00, 0x00);
-				tracks.Insert(0x04, 0x04);
-				tracks.Insert(0x15, 0x15);
-				tracks.Add(0x1A);
-				List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
+                tracks.Shuffle(rng);
+                tracks.Insert(0x00, 0x00);
+                tracks.Insert(0x04, 0x04);
+                tracks.Insert(0x15, 0x15);
+                tracks.Add(0x1A);
+                List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
 
 				PutInBank(0x10, 0x8240, completetracks.OrderBy(x => x.Item1).Select(x => x.Item2).ToArray());
 				PutInBank(0x00, 0x928A, Blob.FromHex("22008210eaeaeaea")); // normal track loading routine
