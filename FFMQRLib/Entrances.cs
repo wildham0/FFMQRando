@@ -417,7 +417,7 @@ namespace FFMQLib
 			var yaml = serializer.Serialize(entrances);
 
 			return yaml;
-		}*/
+		}
 	}
 }
 
