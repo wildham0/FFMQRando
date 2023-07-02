@@ -132,7 +132,12 @@ namespace FFMQLib
 				{
 					Items itemToPlace;
 
-					List<GameObject> validLocations = ItemsLocations.Where(x => validTypes.Contains(x.Type) && x.Accessible && x.IsPlaced == false && x.Exclude == false).ToList();
+					List<GameObject> validLocations = ItemsLocations.Where(x => validTypes.Contains(x.Type) &&
+						x.Accessible &&
+						x.IsPlaced == false &&
+						x.Exclude == false &&
+                        (itemsList.NoMoreProgression ? true : x.Location != LocationIds.DoomCastle)
+                        ).ToList();
 
 					if (flags.LogicOptions == LogicOptions.Friendly)
 					{
@@ -459,6 +464,7 @@ namespace FFMQLib
 		public List<Items> HighProgression { get; set; }
 		public List<Items> Starting { get; set; }
 		public Items ForcedItem { get; set; }
+		public bool NoMoreProgression { get => !LowProgression.Any() && !HighProgression.Any(); }
 		public int Count { get => LowProgression.Count + NonProgression.Count + HighProgression.Count; }
 		private int lastCoinCount;
 		private List<Items> coinsProgression = new() { Items.SandCoin, Items.RiverCoin, Items.SunCoin };
