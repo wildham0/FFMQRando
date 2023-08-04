@@ -388,7 +388,7 @@ namespace FFMQLib
 			PutInBank(0x11, 0x89C0, Blob.FromHex("08c230ae610ef005ae600e8003aeb11028e0ff6b"));
 			PutInBank(0x11, 0x89E0, Blob.FromHex("22c08911dabf0098040a0a8df700c210686b"));
 		}
-			public void BugFixes()
+		public void BugFixes()
 		{
 			// Fix vendor buy 0 bug
 			PutInBank(0x00, 0xB75B, Blob.FromHex("D0")); // Instead of BPL, BNE to skip 0
@@ -433,8 +433,8 @@ namespace FFMQLib
 			// Fix music instrument overflow
 			// If the instruments data is full ($620, $20 bytes), when loading a new track the instruments will overflow and crash the spc chip by loading garbage data; the fix force the instrument data to be flushed to make space
 			PutInBank(0x0D, 0x8340, Blob.FromHex("22708811b016eaeaeaeaeaeaea"));
-            PutInBank(0x11, 0x8870, Blob.FromHex("a20000c220b528f009e8e8e02000d0f5386b186b"));
-        }
+			PutInBank(0x11, 0x8870, Blob.FromHex("a20000c220b528f009e8e8e02000d0f5386b186b"));
+		}
 		public void Msu1Support()
 		{
 			// see 10_8000_MSUSupport.asm
@@ -460,12 +460,12 @@ namespace FFMQLib
 				tracks.Remove(0x04);
 				tracks.Remove(0x15);
 
-                tracks.Shuffle(rng);
-                tracks.Insert(0x00, 0x00);
-                tracks.Insert(0x04, 0x04);
-                tracks.Insert(0x15, 0x15);
-                tracks.Add(0x1A);
-                List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
+				tracks.Shuffle(rng);
+				tracks.Insert(0x00, 0x00);
+				tracks.Insert(0x04, 0x04);
+				tracks.Insert(0x15, 0x15);
+				tracks.Add(0x1A);
+				List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
 
 				PutInBank(0x10, 0x8240, completetracks.OrderBy(x => x.Item1).Select(x => x.Item2).ToArray());
 				PutInBank(0x00, 0x928A, Blob.FromHex("22008210eaeaeaea")); // normal track loading routine

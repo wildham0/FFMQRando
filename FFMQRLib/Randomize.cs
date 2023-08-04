@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.5.00";
+		public static string Version = "1.5.01";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -29,6 +29,7 @@ namespace FFMQLib
 		public EnemiesStats EnemiesStats;
 		public GameLogic GameLogic;
 		public EntrancesData EntrancesData;
+		public MapPalettes MapPalettes;
 
 		private byte[] originalData;
 		public bool beta = false;
@@ -65,6 +66,7 @@ namespace FFMQLib
 			MapSpriteSets = new(this);
 			GameLogic = new(apconfigs);
 			EntrancesData = new(this);
+			MapPalettes = new(this);
 
 			Credits credits = new(this);
 			TitleScreen titleScreen = new(this);
@@ -74,9 +76,10 @@ namespace FFMQLib
 
 			// General modifications
 			GeneralModifications(flags, apconfigs.ApEnabled, rng);
+			UnjankOverworld(GameMaps, MapChanges, MapPalettes);
 
-			// Maps Changes
-			GameMaps.RandomGiantTreeMessage(rng);
+            // Maps Changes
+            GameMaps.RandomGiantTreeMessage(rng);
 			GameMaps.LessObnoxiousMaps(flags.TweakedDungeons, MapObjects, rng);
 
 			// Enemies
@@ -144,6 +147,7 @@ namespace FFMQLib
 			Overworld.Write(this);
 			MapObjects.Write(this);
 			MapSpriteSets.Write(this);
+			MapPalettes.Write(this);
 
 			credits.Write(this);
 			titleScreen.Write(this, Metadata.Version, seed, flags);

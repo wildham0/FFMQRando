@@ -5,6 +5,7 @@ using System.Text;
 using RomUtilities;
 using System.Diagnostics;
 using static System.Math;
+using System.Xml.Linq;
 
 namespace FFMQLib
 {
@@ -52,17 +53,52 @@ namespace FFMQLib
 	{
 		private List<Map> _gameMaps;
 		public TilesProperties TilesProperties { get; set; }
-        private const int MapDataAddressesOffset = 0x058735;
+        private const int MapDataAddressesOffset = 0x8735;
+        private const int MapDataAddressesBank = 0x0B;
+        private const int MapAttributesOffset = 0x8CD9;
+        private const int MapAttributesBank = 0x0B;
+        //private const int MapAttributesQty = 0x0A;
+        private const int MapAttributesLength = 0x0A;
+        private const int MapDimensionsTableOffset = 0x8540;
+        private const int MapDimensionsTableBank = 0x0B;
+
+		private const int CloudMapBank = 0x07;
+		private const int CloudMapOffset = 0xF6D1;
+        private const int NewCloudMapBank = 0x13;
+        private const int NewCloudMapOffset = 0xE000;
+        public RLEMap CloudsMap { get; set; }
         public GameMaps(FFMQRom rom)
 		{
 			TilesProperties = new TilesProperties(rom);
 			_gameMaps = new();
+			var mapAttributesData = rom.GetFromBank(MapAttributesBank, MapAttributesOffset, MapAttributesLength * 0x2C).Chunk(MapAttributesLength).Select(a => new MapAttributes(a)).ToList();
+            var mapDataPointers = rom.GetFromBank(MapDataAddressesBank, MapDataAddressesOffset, 3 * 0x2C).Chunk(3);
+            var dimensions = rom.GetFromBank(MapDimensionsTableBank, MapDimensionsTableOffset, 2 * 16).Chunk(2);
+            //byte[] _mapAddressRaw = rom.Get(MapDataAddressesOffset + (mapID * 3), 3);
+            // _mapAddress = _mapAddressRaw[2] * 0x8000 + (_mapAddressRaw[1] * 0x100 + _mapAddressRaw[0] - 0x8000);
+            //var tempdimensions = rom.Get(MapDimensionsTableOffset + (Attributes.MapDimensionId * 2), 2);
 
-			for (int i = 0; i < 0x2C; i++)
+            //var tempdimensions = rom.Get(MapDimensionsTableOffset + (_mapAttributes[0] & 0xF0) / 8, 2);
+            //_dimensions = (tempdimensions[0], tempdimensions[1]);
+
+            for (int i = 0; i < 0x2C; i++)
 			{
-				_gameMaps.Add(new Map(i, TilesProperties, rom));
+                //var tempdimensions = rom.GetFromBank(MapDimensionsTableOffset + (Attributes.MapDimensionId * 2), 2);
+
+                _gameMaps.Add(new Map(i,
+					(dimensions[mapAttributesData[i].MapDimensionId][0], dimensions[mapAttributesData[i].MapDimensionId][1]),
+					TilesProperties,
+					mapAttributesData[i],
+					mapDataPointers[i][2],
+					mapDataPointers[i][1] * 0x100 + mapDataPointers[i][0],
+                    rom));
 			}
-		}
+
+			CloudsMap = new RLEMap((dimensions[mapAttributesData[0].MapDimensionId][0], dimensions[mapAttributesData[0].MapDimensionId][1]),
+					CloudMapBank,
+					CloudMapOffset,
+					rom);
+        }
 
 		public Map this[int mapID]
 		{
@@ -402,6 +438,11 @@ namespace FFMQLib
 				_gameMaps[(int)MapList.BackgroundD].ModifyMap(currentX, yPositions[currentYindex], letters[' ']);
 			}
 		}
+		public void MoveCloudMap(FFMQRom rom)
+		{
+			rom.PutInBank(0x0B, 0x85AD, Blob.FromSBytes(new sbyte[] { NewCloudMapBank }));
+            rom.PutInBank(0x0B, 0x8586, Blob.FromUShorts(new ushort[] { NewCloudMapOffset }));
+        }
 		public void LessObnoxiousMaps(bool enable, ObjectList mapobjects, MT19337 rng)
 		{
 			if (!enable)
@@ -476,6 +517,7 @@ namespace FFMQLib
 			int currentAddress = 0x8000;
 
 			List<byte> newPointersTable = new();
+			List<byte> mapattributes = new();
 
 			foreach (var map in _gameMaps)
 			{
@@ -492,28 +534,51 @@ namespace FFMQLib
 
 				newPointersTable.AddRange(new List<byte>() { (byte)(currentAddress % 0x100), (byte)(currentAddress / 0x100), (byte)validBanks[currentBank] });
 
-				map.Write(rom, validBanks[currentBank], currentAddress);
+				rom.PutInBank(validBanks[currentBank], currentAddress, map.GetArray());
 				currentAddress += map.CompressedMapSize;
+
+                mapattributes.AddRange(map.Attributes.ToArray());
 			}
 
-			rom.Put(MapDataAddressesOffset, newPointersTable.ToArray());
+			rom.PutInBank(MapDataAddressesBank, MapDataAddressesOffset, newPointersTable.ToArray());
+			rom.PutInBank(MapAttributesBank, MapAttributesOffset, mapattributes.ToArray());
 
-			TilesProperties.Write(rom);
+			CloudsMap.Compress();
+            rom.PutInBank(NewCloudMapBank, NewCloudMapOffset, CloudsMap.GetArray());
+
+            TilesProperties.Write(rom);
+		}
+	}
+
+	public class MapAttributes
+	{ 
+		public int TilesProperties { get; set; }
+		public List<byte> GraphicRows { get; set; }
+        public int MapDimensionId { get; set; }
+        public byte UnknowByte1 { get; set; }
+		//private int length = 0x0A;
+		public MapAttributes(byte[] data)
+		{
+			TilesProperties = (data[0] & 0x0F);
+            MapDimensionId = (data[0] & 0xF0) / 16;
+			UnknowByte1 = data[1];
+			GraphicRows = data.Take(new Range(2, 10)).ToList();
+        }
+		public byte[] ToArray()
+		{
+			return new byte[] {	(byte)((MapDimensionId * 16) | (TilesProperties & 0x0F)), UnknowByte1 }.Concat(GraphicRows.Concat(Enumerable.Repeat((byte)0xFF, 8)).Take(8)).ToArray();
 		}
 	}
 
 	public class Map
 	{
-		private int _mapAddress;
-		private byte[] _mapAddressRaw;
-		private int _referenceTableAddress;
-		private byte[] _referenceTableAddressRaw;
+		//private int _mapAddress;
 		private (int, int) _dimensions;
-		private byte[] _mapAttributes = new byte[0x0A];
 		private int _mapId;
 		private List<byte> _mapUncompressed;
 		private List<byte> _mapCompressedData;
 		private List<SingleTile> _tileData;
+		public MapAttributes Attributes { get; set; }
 		public bool ModifiedMap { get; set; }
 
 		public int CompressedMapSize => _mapCompressedData.Count;
@@ -522,82 +587,92 @@ namespace FFMQLib
 
 		public static readonly byte[] BitConverter = { 0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
 		private const int MapDataAddressesOffset = 0x058735;
-		private const int MapAttributesOffset = 0x058CD9;
+		//private const int MapAttributesOffset = 0x058CD9;
 		private const int MapDimensionsTableOffset = 0x058540;
 
 
-		public Map(int mapID, TilesProperties tileprop, FFMQRom rom)
+		public Map(int mapID, (int x, int y) dimensions, TilesProperties tileprop, MapAttributes attributes, int bank, int offset, FFMQRom rom)
 		{
-			_mapId = mapID;
-			_mapAttributes = rom.Get(MapAttributesOffset + mapID * 0x0A, 0x0A).ToBytes();
-			_mapAddressRaw = rom.Get(MapDataAddressesOffset + (mapID * 3), 3);
-			_mapAddress = _mapAddressRaw[2] * 0x8000 + (_mapAddressRaw[1] * 0x100 + _mapAddressRaw[0] - 0x8000);
-			_referenceTableAddressRaw = rom.Get(_mapAddress, 2);
-			_referenceTableAddress = _mapAddress + 2 + _referenceTableAddressRaw[1] * 0x100 + _referenceTableAddressRaw[0];
-			_tileData = tileprop[_mapAttributes[0] & 0x0F];
+			Attributes = attributes;
 
-			_mapCompressedData = new();
-			_mapUncompressed = new();
+            _mapId = mapID;
+
+
+
+            //byte[] _mapAddressRaw = rom.Get(MapDataAddressesOffset + (mapID * 3), 3);
+            //byte[] _mapAddressRaw = rom.GetFromBank(bank, offset, 3);
+            //_mapAddress = _mapAddressRaw[2] * 0x8000 + (_mapAddressRaw[1] * 0x100 + _mapAddressRaw[0] - 0x8000);
+
+			_tileData = tileprop[Attributes.TilesProperties];
 
 			ModifiedMap = false;
 
-			var tempdimensions = rom.Get(MapDimensionsTableOffset + (_mapAttributes[0] & 0xF0) / 8, 2);
-			_dimensions = (tempdimensions[0], tempdimensions[1]);
+			//var tempdimensions = rom.Get(MapDimensionsTableOffset + (Attributes.MapDimensionId * 2), 2);
+			_dimensions = dimensions;
 
-			List<byte> tempReferenceTable = new();
+			UncompressMapData(bank, offset, rom);
+        }
+		private void UncompressMapData(int bank, int offset, FFMQRom rom)
+		{
+            _mapCompressedData = new();
+            _mapUncompressed = new();
 
-			var refChunkPosition = _referenceTableAddress;
-			var mapPosition = 0;
+            List<byte> tempReferenceTable = new();
 
+			var longDataAdress = bank * 0x8000 + offset - 0x8000;
+			var refAddress = rom.GetFromBank(bank, offset, 2).ToBytes();
+            var refChunkPosition = longDataAdress + 2 + refAddress[1] * 0x100 + refAddress[0]; 
+			
+            var mapPosition = 0;
 
-			bool decompressionIsOnGoing = true;
-			int currrentPosition = _mapAddress + 2;
-			_mapCompressedData.AddRange(_referenceTableAddressRaw);
+            bool decompressionIsOnGoing = true;
+            int currrentPosition = longDataAdress + 2;
+            _mapCompressedData.AddRange(refAddress);
 
-			while (decompressionIsOnGoing)
-			{
-				var currentAction = rom.Get(currrentPosition, 2);
+            while (decompressionIsOnGoing)
+            {
+                var currentAction = rom.Get(currrentPosition, 2);
 
-				var chunckLength = currentAction[0] & 0x0F;
-				if (chunckLength > 0)
-				{
-					var refChunk = rom.Get(refChunkPosition, chunckLength);
-					_mapUncompressed.AddRange(refChunk.ToBytes());
-					tempReferenceTable.AddRange(refChunk.ToBytes());
-					refChunkPosition += chunckLength;
-					mapPosition += chunckLength;
-				}
+                var chunckLength = currentAction[0] & 0x0F;
+                if (chunckLength > 0)
+                {
+                    var refChunk = rom.Get(refChunkPosition, chunckLength);
+                    _mapUncompressed.AddRange(refChunk.ToBytes());
+                    tempReferenceTable.AddRange(refChunk.ToBytes());
+                    refChunkPosition += chunckLength;
+                    mapPosition += chunckLength;
+                }
 
-				var higherbits = (currentAction[0] & 0xF0) / 16;
-				if (higherbits > 0)
-				{
-					var targetPosition = mapPosition - currentAction[1] - 1;
+                var higherbits = (currentAction[0] & 0xF0) / 16;
+                if (higherbits > 0)
+                {
+                    var targetPosition = mapPosition - currentAction[1] - 1;
 
-					for (int j = 0; j < higherbits + 2; j++)
-					{
-						_mapUncompressed.Add(_mapUncompressed[targetPosition]);
-						mapPosition++;
-						targetPosition++;
-					}
+                    for (int j = 0; j < higherbits + 2; j++)
+                    {
+                        _mapUncompressed.Add(_mapUncompressed[targetPosition]);
+                        mapPosition++;
+                        targetPosition++;
+                    }
 
-					currrentPosition += 2;
-					_mapCompressedData.AddRange(currentAction.ToBytes());
-				}
-				else if (currentAction[0] == 0x00)
-				{ 
-					decompressionIsOnGoing = false;
-					_mapCompressedData.Add(0x00);
-				}
-				else
-				{
-					currrentPosition++;
-					_mapCompressedData.Add(currentAction[0]);
-				}
-			}
+                    currrentPosition += 2;
+                    _mapCompressedData.AddRange(currentAction.ToBytes());
+                }
+                else if (currentAction[0] == 0x00)
+                {
+                    decompressionIsOnGoing = false;
+                    _mapCompressedData.Add(0x00);
+                }
+                else
+                {
+                    currrentPosition++;
+                    _mapCompressedData.Add(currentAction[0]);
+                }
+            }
 
-			_mapCompressedData.AddRange(tempReferenceTable);
-			_mapCompressedData.Add(0x00);
-		}
+            _mapCompressedData.AddRange(tempReferenceTable);
+            _mapCompressedData.Add(0x00);
+        }
 
 		public class ZipAction
 		{
@@ -766,6 +841,10 @@ namespace FFMQLib
 		{
 			rom.PutInBank(bank, address, _mapCompressedData.ToArray());
 		}
+		public byte[] GetArray()
+		{
+			return _mapCompressedData.ToArray();
+		}
 		public void ModifyMap(int destx, int desty, List<List<byte>> modifications)
 		{
 			for (int y = 0; y < modifications.Count; y++)
@@ -789,6 +868,18 @@ namespace FFMQLib
 			{
 				var layervalue = _mapUncompressed[destx + (desty * _dimensions.Item1)] & 0x80;
 				_mapUncompressed[destx + (desty * _dimensions.Item1)] = (byte)(modifications | layervalue);
+			}
+
+			ModifiedMap = true;
+		}
+		public void ReplaceAll(byte originaltile, byte newtile)
+		{
+			for (int i = 0; i < _mapUncompressed.Count; i++)
+			{
+				if (_mapUncompressed[i] == originaltile)
+				{
+					_mapUncompressed[i] = newtile;
+				}
 			}
 
 			ModifiedMap = true;
@@ -1009,6 +1100,141 @@ namespace FFMQLib
 		}*/
 	}
 
+	public class RLEMap
+	{
+		private List<byte> _compressedMap;
+        private List<byte> _uncompressedMap;
+		private (int x, int y) _dimensions;
+		private ushort _length;
+		public RLEMap((int x, int y) dimensions, int bank, int offset, FFMQRom rom)
+		{
+			_dimensions = dimensions;
+            _length = rom.GetFromBank(bank, offset, 2).ToUShorts()[0];
+			_compressedMap = rom.GetFromBank(bank, offset + 2, _length).ToBytes().ToList();
+			_uncompressedMap = new();
+
+            Uncompress();
+        }
+
+		private void Uncompress()
+		{
+			int currentposition = 0;
+
+			while (currentposition < _length)
+			{
+				byte currentbyte = _compressedMap[currentposition];
+
+				if ((currentbyte & 0x80) > 0)
+				{
+					currentbyte &= 0x7F;
+					currentposition++;
+					byte bytelength = _compressedMap[currentposition];
+
+					for (int i = 0; i < (bytelength + 3); i++)
+					{
+                        _uncompressedMap.Add(currentbyte);
+                    }
+					currentposition++;
+                }
+				else
+				{
+					_uncompressedMap.Add(currentbyte);
+					currentposition++;
+                }
+            }
+		}
+
+        public void Compress()
+        {
+			_compressedMap = new();
+            int currentposition = 0;
+			int runningCount = 1;
+
+            while (currentposition < _uncompressedMap.Count)
+            {
+                byte currentbyte = _uncompressedMap[currentposition];
+				byte nextbyte = 0xFF;
+
+                if (currentposition < (_uncompressedMap.Count - 1))
+				{
+                    nextbyte = _uncompressedMap[currentposition + 1];
+                }
+
+				if (currentbyte == nextbyte && runningCount < (0xFF + 3))
+				{
+					runningCount++;
+					currentposition++;
+					continue;
+				}
+				else
+				{
+					// write
+					if (runningCount >= 3)
+					{
+						_compressedMap.Add((byte)(currentbyte | 0x80));
+						_compressedMap.Add((byte)(runningCount - 3));
+						currentposition++;
+						runningCount = 1;
+						continue;
+					}
+					else
+					{
+						for (int i = 0; i < runningCount; i++)
+						{
+							_compressedMap.Add(currentbyte);
+						}
+
+                        currentposition++;
+                        runningCount = 1;
+                        continue;
+                    }
+				}
+			}
+
+			_length = (ushort)_compressedMap.Count;
+        }
+        public void ModifyMap(int destx, int desty, List<List<byte>> modifications)
+        {
+            for (int y = 0; y < modifications.Count; y++)
+            {
+                for (int x = 0; x < modifications[y].Count; x++)
+                {
+                    _uncompressedMap[(destx + x) + ((desty + y) * _dimensions.x)] = modifications[y][x];
+                }
+            }
+        }
+        public void ModifyMap(int destx, int desty, byte modifications, bool keepLayerData = false)
+        {
+            if (!keepLayerData)
+            {
+                _uncompressedMap[destx + (desty * _dimensions.x)] = modifications;
+            }
+            else
+            {
+                var layervalue = _uncompressedMap[destx + (desty * _dimensions.x)] & 0x80;
+                _uncompressedMap[destx + (desty * _dimensions.x)] = (byte)(modifications | layervalue);
+            }
+        }
+		public void DrawRow(int desty, int startx, int length, byte tile)
+		{
+			for (int i = 0; i < length; i++)
+			{
+                _uncompressedMap[startx + i + (desty * _dimensions.x)] = tile;
+            }
+		}
+        public void DrawColumn(int destx, int starty, int length, byte tile)
+        {
+            for (int i = 0; i < length; i++)
+            {
+                _uncompressedMap[destx + ((starty + i) * _dimensions.x)] = tile;
+            }
+        }
+        public byte[] GetArray()
+		{
+			return Blob.FromUShorts(new ushort[] { _length }) + _compressedMap.ToArray();
+		}
+    }
+
 	public class MapChangeAction
 	{
 		public byte Area {get; set;}
@@ -1109,7 +1335,14 @@ namespace FFMQLib
 		{
 			_mapchanges[index][address] = modification;
 		}
-		public void Replace(int index, Blob mapchange)
+        public void Modify(int index, int address, List<byte> modifications)
+        {
+			for (int i = 0; i < modifications.Count; i++)
+			{
+                _mapchanges[index][address + i] = modifications[i];
+            }
+        }
+        public void Replace(int index, Blob mapchange)
 		{
 			_mapchanges[index] = mapchange;
 		}
@@ -1131,6 +1364,14 @@ namespace FFMQLib
 				_pointers.Add(new byte[] { (byte)(currentpointer % 0x100), (byte)(currentpointer / 0x100) });
 				currentpointer += (ushort)change.Length;
 			}
+		}
+		public void ReorderOwMapchanges()
+		{
+			var inst25 = new MapChangeAction(0, 0x04, 0x00, 0x25);
+			var inst22 = new MapChangeAction(0, 0x22, 0x00, 0x22);
+
+			MapChangeActions[4] = inst22;
+			MapChangeActions[5] = inst25;
 		}
 		private void UpdateMapChangeActions(FFMQRom rom)
 		{
