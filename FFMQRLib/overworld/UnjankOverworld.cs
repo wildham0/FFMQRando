@@ -12,8 +12,6 @@ namespace FFMQLib
 		{
 			maps[0].Attributes.GraphicRows[4] = 0x20;
 			maps[0].Attributes.GraphicRows[5] = 0x1F;
-			PutInBank(0x01, 0x9165, Blob.FromHex("22009811"));
-			PutInBank(0x11, 0x9800, Blob.FromHex("ad910ed01b08c230da8ba904008ff4f27fa92000a2f4f2a0f5f2547f7fabfa285cb8830b"));
 
 			// Create tiles
 			//byte fullcliff = 0x14;
@@ -308,23 +306,26 @@ namespace FFMQLib
 			palette.Palettes[0x1A].Colors[0x36].Copy(palette.Palettes[0x16].Colors[0x09]);
 			palette.Palettes[0x1A].Colors[0x37].Copy(palette.Palettes[0x16].Colors[0x0A]);
 
-			// Overworld status hack
-			// branch farther for instruction 28
-			PutInBank(0x01, 0xC875, Blob.FromHex("27"));
+            // Overworld status hack
+            PutInBank(0x01, 0x9165, Blob.FromHex("22009D11"));
+            PutInBank(0x11, 0x9D00, Blob.FromHex("ad910ed01b08c230da8ba904008ff4f27fa92000a2f4f2a0f5f2547f7fabfa285cb8830b"));
+
+            // branch farther for instruction 28
+            PutInBank(0x01, 0xC875, Blob.FromHex("27"));
 			// check if were on overworld, if not normal behaviour, else we do extra gameflag checks
-			PutInBank(0x01, 0xC884, Blob.FromHex("ad910ed006226098118003adee198d191980e7eaeaeaeaeaea22409811"));
+			PutInBank(0x01, 0xC884, Blob.FromHex("ad910ed00622609D118003adee198d191980e7eaeaeaeaeaea22409D11"));
 			// instruction 2500 > moved + new water tile update routine
-			PutInBank(0x01, 0xF615, Blob.FromHex("2280981122e0981160"));
+			PutInBank(0x01, 0xF615, Blob.FromHex("22809D1122e09D1160"));
 
 			// new routines
-			PutInBank(0x11, 0x9840, Blob.FromHex("adee190a0a0a0a8dee19ad1319290f0dee198d13196b"));
-			PutInBank(0x11, 0x9860, Blob.FromHex("a90122769700f00ea90222769700f003a9186ba9176ba91a6b"));
+			PutInBank(0x11, 0x9D40, Blob.FromHex("adee190a0a0a0a8dee19ad1319290f0dee198d13196b"));
+			PutInBank(0x11, 0x9D60, Blob.FromHex("a90122769700f00ea90222769700f003a9186ba9176ba91a6b"));
 
 			// instruction 2500 moved
-			PutInBank(0x11, 0x9880, Blob.FromHex("e2308ba91148abc230a20000dabdb09848bcb698bdbc98fa8b547f06abfae8e8e00600d0e7ab6b000000000000000000809560a5c0b274d054d134d27f001f003f00"));
+			PutInBank(0x11, 0x9D80, Blob.FromHex("e2308ba91148abc230a20000dabdb09d48bcb69dbdbc9dfa8b547f06abfae8e8e00600d0e7ab6b000000000000000000809560a5c0b274d054d134d27f001f003f00"));
 
 			// water tile routine
-			PutInBank(0x11, 0x98E0, Blob.FromHex("08e230a200bf2099119f4ccf7f9f64cf7f9fd0cf7f9fd0cf7fe8e00490e7c2308ba22499a090d0a90300547f11a9020022769700d00320009bab286b00000000797a7a7931327a79"));
+			PutInBank(0x11, 0x9DE0, Blob.FromHex("08e230a200bf209e119f4ccf7f9f64cf7f9fd0cf7f9fd0cf7fe8e00490e7c2308ba2249ea090d0a90300547f11a9020022769700d00320009bab286b00000000797a7a7931327a79"));
 			
 			// We manually cover each tile individually, a bit silly but it works
 			PutInBank(0x11, 0x9B00, Blob.FromHex("a2509ca090d0a90300547f11a2549ca064cfa90300547f11a25c9ca024f3a90300547f11a2589ca0d0cfa90300547f1108e220a91c8f30887f8f34887f8f25897f8f208b7f8f268b7f8f678b7f8f6d8b7f8f718b7f8f778b7fa9378f32887f8f36887f8f62887f8fa1887f8f5e897f8fdd897f8fac8a7f8f9b8a7f8fd78a7f8ff58a7f8f168b7f8f228b7f8f2a8b7f8f698b7f8f6f8b7f8f748b7fa90e8f2bd17fa9168f70887f8f72887f8f74887f8f76887f8fa2887f8fe1887f8f65897f8f9e897f8f1d8a7f8fdb8a7f8fec8a7f8f178b7f8f358b7f8f568b7f8f608b7f8f628b7f8f668b7f8f6a8b7f8fa78b7f8fa98b7f8fad8b7f8faf8b7f8fb18b7f8fb48b7f2860"));
