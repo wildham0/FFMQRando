@@ -244,6 +244,11 @@ namespace FFMQLib
 				var updatedLink = flatLinkList.Find(x => x.Entrance == crest.Entrance);
 				var currentLocation = logic.Rooms.Find(x => x.Links.Select(l => l.Entrance).Contains(crest.Entrance)).Location;
 				var targetLocation = logic.Rooms.Find(x => x.Id == updatedLink.TargetRoom).Location;
+				// Add special check for Wintry Temple
+				if (keepWintryTemple && crest.Entrance == 191)
+				{
+					targetLocation = LocationIds.WintryTemple;
+				}
 				var access = crestAccess.Intersect(updatedLink.Access).ToList().First();
 				var crestItem = crestItemAccess.Find(c => c.Item2 == access).Item1;
 				var newTeleporter = crestsList.Find(x => x.Script == updatedLink.Teleporter).TargetTeleporter;
