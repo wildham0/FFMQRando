@@ -124,7 +124,7 @@ namespace FFMQLib
 				var frozenFieldRoom = Rooms.Find(x => x.Type == RoomType.Subregion && x.Region == SubRegions.AquariaFrozenField);
 				frozenFieldRoom.Links.RemoveAll(l => l.Access.Contains(AccessReqs.DualheadHydra));
 			}
-			else if(flags.MapShuffling == MapShufflingMode.None && !flags.CrestShuffle)
+			else if((flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Dungeons) && !flags.CrestShuffle)
 			{
 				var exitTrickRoom = Rooms.Find(x => x.Id == 75);
 				exitTrickRoom.Links.Add(new RoomLink(74, new() { AccessReqs.ExitBook }));
@@ -202,15 +202,6 @@ namespace FFMQLib
 					}
 				}
 			}
-
-			// Add Sealed Temple/Exit book trick location fix
-			/*
-			if (flags.LogicOptions == LogicOptions.Expert && flags.MapShuffling == MapShufflingMode.None && !flags.CrestShuffle)
-			{
-				var wintryInnerRoom = Rooms.Find(r => r.Id == 75);
-				var wintryOuterRoomLocation = Rooms.Find(r => r.Id == 74).Location;
-				wintryInnerRoom.Location = wintryOuterRoomLocation;
-			}*/
 
 			// Add Friendly logic extra requirements
 			if (flags.LogicOptions == LogicOptions.Friendly && (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Overworld))
