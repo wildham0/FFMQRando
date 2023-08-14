@@ -572,7 +572,7 @@ namespace FFMQLib
 			GameFlags[(int)NewGameFlagsList.TristamChestUnopened] = true; // Tristam Chest
 
 			// Block spencer's place exit
-			GameMaps[(int)MapList.SpencerCave].ModifyMap(0x11, 0x28, new List<List<byte>> { new List<byte> { 0x5B }, new List<byte> { 0x5C } });
+			GameMaps[(int)MapList.SpencerCave].ModifyMap(0x10, 0x28, new List<List<byte>> { new List<byte> { 0x3D, 0x3D, 0x3D }, new List<byte> { 0x3E, 0x3E, 0x3E } });
 
 			// Change map objects
 			MapObjects[0x2C][0x02].CopyFrom(MapObjects[0x2C][0x04]); // Copy box over Phoebe
