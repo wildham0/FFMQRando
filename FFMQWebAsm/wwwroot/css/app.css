@@ -12,6 +12,11 @@ h2 {
     text-align: center;
 }
 
+.text-over-dropdown {
+    position: absolute;
+    margin-top: -42px;
+}
+
 .btn-primary {
     color: #fff;
     background-color: #1b6ec2;

@@ -18,17 +18,30 @@
                     <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small />
                 </Tooltip>
                 <Dropdown TValue="string">
-                    <DropdownToggle Class="btn-primary" Style="text-align: left">
-                        @((MarkupString)CurrentSpriteSelection())
-                    </DropdownToggle>
+                    <DropdownToggle Clicked="@(() => OnPlayerSpritesToggleClicked())" Class="btn-primary" Visibility="@(playerSpritesEnableTextInput ? Visibility.Invisible : Visibility.Visible)" Style="text-align: left">
+                            @((MarkupString)CurrentSpriteSelection())
+                     </DropdownToggle>
+                    @if (playerSpritesEnableTextInput)
+                    {
+                        <TextEdit Autofocus @onfocusout="@OnSpriteTextInputFocusOut" Text="@spriteTextInput" TextChanged="@OnSpriteTextChanged" Class="text-over-dropdown" />
+                    }
                     <DropdownMenu MaxMenuHeight="300px">
-                        <DropdownItem Clicked="@(() => OnSpriteSelect("default"))"><img src="skin-icons/default-benjamin-icon.png" class="sprite-icon" /> Default/Benjamin</DropdownItem>
-                        @foreach(var sprite in playersprites.sprites)
+                        @if (displayDefault)
+                        { 
+                            <DropdownItem Clicked="@(() => OnSpriteSelect("default"))"><img src="skin-icons/default-benjamin-icon.png" class="sprite-icon" /> Default/Benjamin</DropdownItem>
+                        }
+                        @foreach(var sprite in currentsprites)
                         {
                             <DropdownItem Clicked="@(() => OnSpriteSelect(@sprite.filename))"><img src="@(ConvertImageBytes(sprite.iconimg))" class="sprite-icon" /> @sprite.name</DropdownItem>
                         }
-                        <DropdownItem Clicked="@(() => OnSpriteSelect("random"))">Random</DropdownItem>
-                        <DropdownItem Clicked="@(() => OnSpriteSelect("custom"))">Upload Custom Sprites</DropdownItem>
+                        @if (displayRandom)
+                        {
+                            <DropdownItem Clicked="@(() => OnSpriteSelect("random"))">Random</DropdownItem>
+                        }
+                        @if (displayUpload)
+                        {
+                            <DropdownItem Clicked="@(() => OnSpriteSelect("custom"))">Upload Custom Sprites</DropdownItem>
+                        }
                     </DropdownMenu>
                 </Dropdown>
             </Field>
@@ -67,6 +80,12 @@
 
     private string spriteMessage = "";
     private PlayerSprites playersprites;
+    private List<PlayerSprite> currentsprites;
+    private bool playerSpritesEnableTextInput = false;
+    private string spriteTextInput = "";
+    private bool displayDefault = true;
+    private bool displayRandom = true;
+    private bool displayUpload = true;
 
     private void WindowPaletteChange(string palette)
     {
@@ -139,6 +158,7 @@
     protected override void OnInitialized()
     {
         playersprites = new(PlayerSpriteMode.Icons);
+        currentsprites = playersprites.sprites;
 
         LoadPreferences();
         LoadSprites();
@@ -193,8 +213,42 @@
     void OnSpriteSelect(string selection)
     {
         preferences.PlayerSprite = selection;
+        playerSpritesEnableTextInput = false;
         StateHasChanged();
     }
+
+    void OnPlayerSpritesToggleClicked()
+    {
+        playerSpritesEnableTextInput = true;
+        StateHasChanged();
+    }
+
+    void OnSpriteTextInputFocusOut(FocusEventArgs e)
+    {
+        playerSpritesEnableTextInput = false;
+        currentsprites = playersprites.sprites;
+        displayDefault = true;
+        displayRandom = true;
+        displayUpload = true;
+        spriteTextInput = "";
+        StateHasChanged();
+    }
+
+    Task OnSpriteTextChanged(string value)
+    {
+        spriteTextInput = value;
+
+        currentsprites = playersprites.sprites.Where(s => s.name.Contains(value, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        displayDefault = ("Default/Benjamin".Contains(value, StringComparison.OrdinalIgnoreCase));
+        displayRandom = ("Random".Contains(value, StringComparison.OrdinalIgnoreCase));
+        displayUpload = ("Upload Custom Sprites".Contains(value, StringComparison.OrdinalIgnoreCase));
+
+        StateHasChanged();
+
+        return Task.CompletedTask;
+    }
+
     private async Task LoadSpritesFromFile(FileChangedEventArgs e)
     {
         spriteMessage = "Loading...";
