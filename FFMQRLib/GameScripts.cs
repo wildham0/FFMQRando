@@ -19,9 +19,17 @@ namespace FFMQLib
 			Put(GameStartScript, Blob.FromHex($"23222b7a2a0b2700200470002ab0532050{((byte)startinglocation):X2}29ffff00"));
 
 			GameFlags[(int)GameFlagsList.ShowPazuzuBridge] = true;
-
-			// Remove Mine Boulder
+            
+			// Set Pazuzu Initial Floor
+			GameFlags[(int)GameFlagsList.ShowPazuzu7F] = false;
+			int pazuzuFloor = rng.Between(0, 5);
 			for (int i = 0; i < 6; i++)
+			{
+				GameFlags[(int)GameFlagsList.ShowPazuzu1F + i] = (pazuzuFloor == i);
+            }
+
+            // Remove Mine Boulder
+            for (int i = 0; i < 6; i++)
 			{
 				Overworld.RemoveObject(i);
 			}

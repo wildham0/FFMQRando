@@ -529,5 +529,20 @@ namespace FFMQLib
 				ProcessRoomForRequirements(reqcount + link.Access.Count, link.TargetRoom, accesslist, visitedrooms);
 			}
 		}
+		/*
+		public string CrawlForSpoilers(LocationIds location)
+		{
+            var regionRooms = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
+            var initialRoom = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).ToList().Find(l => l.Location == location).TargetRoom;
+
+            List<int> visitedRooms = regionRooms;
+
+
+        }
+
+		
+		public List<string> ProcessRoomForSpoilers(int depth)
+		{ }*/
+
 	}
 }

@@ -73,7 +73,7 @@ namespace FFMQLib
 		{
 			bool badPlacement = true;
 			int counter = 0;
-			int placedChests = 0;
+			//int placedChests = 0;
 			int prioritizedLocationsCount = 0;
 			int prioritizedItemsCount = 0;
 			int looseItemsCount = 0;
@@ -90,10 +90,10 @@ namespace FFMQLib
 			while (badPlacement)
 			{
 				badPlacement = false;
-				placedChests = 0;
+				//placedChests = 0;
 
-				bool placedMirror = false;
-				bool placedMask = false;
+				//bool placedMirror = false;
+				//bool placedMask = false;
 
 				regionsWeight.Find(x => x.Region == MapRegions.Foresta).Weight = 1;
 				regionsWeight.Find(x => x.Region == MapRegions.Aquaria).Weight = 1;
@@ -141,23 +141,15 @@ namespace FFMQLib
 
 					if (flags.LogicOptions == LogicOptions.Friendly)
 					{
-						if (!placedMirror && validLocations.Where(x => x.Location == LocationIds.IcePyramid).Any())
+						if (!itemsList.MirrorIsPlaced && validLocations.Where(x => x.Location == LocationIds.IcePyramid).Any())
 						{
-							if (!placedItems.Contains(Items.MagicMirror))
-							{
-								validLocations = validLocations.Where(x => x.Location != LocationIds.IcePyramid).ToList();
-								itemsList.ForcedItem = Items.MagicMirror;
-							}
-							placedMirror = true;
+							validLocations = validLocations.Where(x => x.Location != LocationIds.IcePyramid).ToList();
+							itemsList.ForcedItem = Items.MagicMirror;
 						}
-						else if (!placedMask && validLocations.Where(x => x.Location == LocationIds.Volcano).Any())
+						else if (!itemsList.MaskIsPlaced && validLocations.Where(x => x.Location == LocationIds.Volcano).Any())
 						{
-							if (!placedItems.Contains(Items.Mask))
-							{
-								validLocations = validLocations.Where(x => x.Location != LocationIds.Volcano).ToList();
-								itemsList.ForcedItem = Items.Mask;
-							}
-							placedMask = true;
+							validLocations = validLocations.Where(x => x.Location != LocationIds.Volcano).ToList();
+							itemsList.ForcedItem = Items.Mask;
 						}
 					}
 
@@ -222,7 +214,6 @@ namespace FFMQLib
 					if (targetLocation.Type == GameObjectType.Chest || targetLocation.Type == GameObjectType.Box)
 					{ 
 						targetLocation.Type = GameObjectType.Chest;
-						placedChests++;
 					}
 					placedItems.Add(itemToPlace);
 					//Console.WriteLine(Enum.GetName(targetLocation.Location) + "_" + targetLocation.ObjectId + " - " + Enum.GetName(itemToPlace));
@@ -466,7 +457,9 @@ namespace FFMQLib
 		public Items ForcedItem { get; set; }
 		public bool NoMoreProgression { get => !LowProgression.Any() && !HighProgression.Any(); }
 		public int Count { get => LowProgression.Count + NonProgression.Count + HighProgression.Count; }
-		private int lastCoinCount;
+		public bool MirrorIsPlaced { get => !NonProgression.Contains(Items.MagicMirror); }
+        public bool MaskIsPlaced { get => !NonProgression.Contains(Items.Mask); }
+        private int lastCoinCount;
 		private List<Items> coinsProgression = new() { Items.SandCoin, Items.RiverCoin, Items.SunCoin };
 		private int progressionThreshold = 2;
 		public Items NextItem(int availablelocations, MT19337 rng)
