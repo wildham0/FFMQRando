@@ -43,8 +43,9 @@ namespace FFMQLib
 		public ProgressiveFormationsModes ProgressiveFormations { get; set; } = ProgressiveFormationsModes.Disabled;
 		public MapShufflingMode MapShuffling { get; set; } = MapShufflingMode.None;
 		public bool CrestShuffle { get; set; } = false;
+        //public bool KaelisMomIsKaeli { get; set; } = false;
 
-		private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;
+        private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;
 
 		public string GenerateFlagString()
 		{

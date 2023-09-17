@@ -44,16 +44,23 @@ namespace FFMQLib
         private const int TalkScriptQty = 0x7C;
 
         private const int ExpansionBank = 0x14;
-        private const int ExpansionOffset = 0xA000;
-        private const int newTileScriptQty = 0x100;
+        private const int ExpansionOffset = 0x9100;
+        private const int newTalkScriptQty = 0x100;
 
         public TalkScriptsManager(FFMQRom rom) : base(rom, TalkScriptsBank, TalkScriptsPointers, TalkScriptQty, TalkScriptOffset, TalkScriptEndOffset)
         {
- 
+            ExpandQuantity(ExpansionBank, ExpansionOffset, newTalkScriptQty);
         }
         public override void Write(FFMQRom rom)
         {
-             InternalWrite(rom);
+			ExpansionCode(rom);
+			InternalWrite(rom);
+        }
+
+        private void ExpansionCode(FFMQRom rom)
+        {
+            rom.PutInBank(0x00, 0x9B8A, Blob.FromHex("5c009014"));
+            rom.PutInBank(0x14, 0x9000, Blob.FromHex("e220a520c97cb008a90385195c909b00a9148519c230a52038e97c000aaabf00911485175c9c9b00"));
         }
     }
 

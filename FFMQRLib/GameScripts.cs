@@ -38,11 +38,55 @@ namespace FFMQLib
 			GameMaps[(int)MapList.Overworld].ModifyMap(0x0F, 0x0E, 0x56);
 
 			/*** Level Forest ***/
-			// Enter Level Forest
-			TileScripts.AddScript((int)TileScriptsList.EnterLevelForest,
+			for (int i = 0; i < 3; i++)
+			{
+				MapObjects[0x0E].Add(new MapObject(MapObjects[0x0D][0x00 + i]));
+            }
+
+            MapObjects[0x0E][0x12].Sprite = 0x4C;
+            MapObjects[0x0E][0x13].Sprite = 0x50;
+            MapObjects[0x0E][0x14].Gameflag = 0x34;
+            MapObjects[0x0E][0x12].Palette = 0x00; // Cloudman
+            MapObjects[0x0E][0x13].Palette = 0x00; // Cloud
+            MapObjects[0x0E][0x14].Palette = 0x00; // Old man
+            //MapObjects[0x0E][0x15].Palette = 0x04; // Boulder
+
+			// Put Cloud man first for script and switch oldman too for access
+			MapObjects.SwapMapObjects(0x0E, 0x12, 0x00);
+            MapObjects.SwapMapObjects(0x0E, 0x13, 0x01);
+            MapObjects.SwapMapObjects(0x0E, 0x14, 0x04);
+
+            MapSpriteSets.MapSpriteSets[0x05] = new MapSpriteSet(
+				new List<byte> { 0x06, 0x05, 0x47, 0x4a, 0x2a, 0x1e },
+				new List<SpriteAddressor> {
+                        new SpriteAddressor(0, 0, 0x39, SpriteSize.Tiles8),  // Rock
+                        new SpriteAddressor(2, 0, 0x01, SpriteSize.Tiles16), // Kaeli Base
+                        new SpriteAddressor(3, 0, 0x29, SpriteSize.Tiles16), // Kaeli Swing
+                        new SpriteAddressor(6, 0, 0x06, SpriteSize.Tiles16), // Kaeli's Mom
+						new SpriteAddressor(8, 0, 0x0D, SpriteSize.Tiles16), // Old Man
+						new SpriteAddressor(9, 0, 0x05, SpriteSize.Tiles16), // Cloud Man
+						new SpriteAddressor(10, 0, 0x14, SpriteSize.Tiles8), // Cloud
+
+				},
+				true
+				);
+
+			MapObjects[0x0D][0x02].Value = 0x80;
+
+			TalkScripts.AddScript(0x80,
+				new ScriptBuilder(new List<string>
+				{
+                    "04",
+                    "1A15" + TextToHex("Hey there, lubber. The forest is dying? Tell that to the &%?! marines! It's totally fine.") + "3600",
+                }
+				));
+
+
+            // Enter Level Forest
+            TileScripts.AddScript((int)TileScriptsList.EnterLevelForest,
 				new ScriptBuilder(new List<string> {
 					"2E13[03]",
-					"2C0001",
+					"2C0101",
 					"00",
 					"2C0101",
 					$"2E{(int)NewGameFlagsList.ShowForestaKaeli:X2}[11]",
@@ -58,7 +102,7 @@ namespace FFMQLib
 			// Boulder Man
 			TileScripts.AddScript((int)TileScriptsList.PushedBoulder,
 				new ScriptBuilder(new List<string> {
-					"2E13[03]0F8B0E05090075BC2A12402054FFFF",
+					"2E13[03]0F8B0E05090075BC2A14402054FFFF",
 					"1A0A" + TextToHex("Finally, after all these years I can go back home.\nHere have this.") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.BoulderOldMan]:X2}0162231323142B34",
 					"00"
