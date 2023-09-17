@@ -222,7 +222,7 @@ namespace FFMQLib
 		}
 	}
 	// link from link table, from the SQL world, describing a many-to-many relationship
-	public class EnemyAttackLink
+	public class EnemyAttackLink : ICloneable
 	{
 		private Blob _rawBytes;
 
@@ -265,6 +265,21 @@ namespace FFMQLib
 			CastHeal = _rawBytes[7];
 			CastCure = _rawBytes[8];
 		}
+
+		private EnemyAttackLink(int id, byte attackPattern, byte[] attacks, byte castHeal, byte castCure)
+		{
+			_Id = id;
+			AttackPattern = attackPattern;
+			Attacks = attacks;
+			CastHeal = castHeal;
+			CastCure = castCure;
+		}
+
+		public object Clone()
+		{
+			return new EnemyAttackLink(_Id, AttackPattern, Attacks, CastHeal, CastCure);
+		}
+
 		public void Write(FFMQRom rom)
 		{
 			_rawBytes[0] = AttackPattern;
@@ -332,18 +347,6 @@ namespace FFMQLib
 			switch (enemizerattacks) 
 			{
 				case EnemizerAttacks.Safe:
-					/*
-					possibleAttacks.Remove(0x4A); // Remove heal as it's very powerful early game
-					possibleAttacks.Remove(0xC1); // Remove self destruct as it makes bosses super easy and some regular monster super hard
-					possibleAttacks.Remove(0xC9); // Remove strong psychshield
-
-					// Remove dark king attacks as they make regular monsters impossible early on
-					for (byte i = 0xCA; i <= 0xD6; i++)
-					{
-						possibleAttacks.Remove(i);
-					}
-					_ShuffleAttacks(possibleAttacks, rng);
-					*/
 					SafeShuffleAttacks(bossscaling > EnemiesScaling.OneAndQuarter, rng);
 					break;
 				case EnemizerAttacks.Chaos:
@@ -374,7 +377,7 @@ namespace FFMQLib
 					}
 					break;
 				case EnemizerAttacks.SimpleShuffle:
-					var origLinks = new List<EnemyAttackLink>(_EnemyAttackLinks);
+					var origLinks = _EnemyAttackLinks.Select(eal => (EnemyAttackLink)eal.Clone()).ToList(); 
 					_EnemyAttackLinks.Shuffle(rng);
 					for(int i = 0; i < _EnemyAttackLinks.Count; i++) {
 						_EnemyAttackLinks[i]._Id = origLinks[i]._Id;
@@ -411,14 +414,14 @@ namespace FFMQLib
 					ea.Attacks[i] = possibleAttacks[(int)(rng.Next() % possibleAttacks.Count)]; 
 				}
 
-				// Some values of Unknown1 (e.g. 0x0B) result in the third (or other) attack slot being used
-				// regardless of it being 0xFF (which is an ignored slot for most other Unknown1 values)
+				// Some values of AttackPattern (e.g. 0x0B) result in the third (or other) attack slot being used
+				// regardless of it being 0xFF (which is an ignored slot for most other AttackPattern values)
 				if(noOfAttacks <= 3)
 				{
 					ea.AttackPattern = 0x01;
 				}
 
-				// Similarly, most Unknown1 values do not use attack slots 5 and 6, but 0x0D and 0x0C do.
+				// Similarly, most AttackPattern values do not use attack slots 5 and 6, but 0x0D and 0x0C do.
 				if(noOfAttacks >= 4)
 				{
 					ea.AttackPattern = 0x0D;
