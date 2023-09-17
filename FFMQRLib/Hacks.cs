@@ -177,7 +177,12 @@ namespace FFMQLib
 			fullbookscript.WriteAt(0x11, 0x9460, this);
 			jumpScript.WriteAt(0x03, 0xFFD0, this);
 			PutInBank(0x03, 0xFE80, Blob.FromHex("08D0FF"));
-		}
+
+            // Put a cap of 40k hp to hp scaled attacks
+            PutInBank(0x02, 0x9ABD, Blob.FromHex("20E0FE"));
+            PutInBank(0x02, 0x9AE9, Blob.FromHex("20E0FE"));
+            PutInBank(0x02, 0xFEE0, Blob.FromHex("0b20228fa516c9409c9003a9409c2b60"));
+        }
 		public void ExitHack(LocationIds startingLocation)
 		{
 			// Using exit on overworld send you back to home location
