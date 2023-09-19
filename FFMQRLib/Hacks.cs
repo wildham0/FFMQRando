@@ -185,9 +185,10 @@ namespace FFMQLib
         }
 		public void ExitHack(LocationIds startingLocation)
 		{
-			// Using exit on overworld send you back to home location
-			PutInBank(0x00, 0xC064, Blob.FromHex("22d08711eaeaeaeaea"));
-			PutInBank(0x11, 0x87D0, Blob.FromHex($"ad910e297f00f004c907006b08e220a9{(int)startingLocation:X2}8d880e28386b"));
+            // Using exit on overworld send you back to home location
+            PutInBank(0x00, 0xC06D, Blob.FromHex("eaea"));
+            PutInBank(0x00, 0xC074, Blob.FromHex("22d08711ea"));
+			PutInBank(0x11, 0x87D0, Blob.FromHex($"de1810e220ad910e297fd005a9{(int)startingLocation:X2}8d880e6b"));
 		}
 		public void ChestsHacks(Flags flags, ItemsPlacement itemsPlacement)
 		{
