@@ -177,8 +177,12 @@ namespace FFMQLib
 			fullbookscript.WriteAt(0x11, 0x9460, this);
 			jumpScript.WriteAt(0x03, 0xFFD0, this);
 			PutInBank(0x03, 0xFE80, Blob.FromHex("08D0FF"));
-		}
-		public void ExitHack(LocationIds startingLocation)
+
+			// Kaeli's Axe Sprite Fix, call 09209511 + 093d8c00 to initialize, 09309511 + 093d8c00 to restore
+			PutInBank(0x11, 0x9520, Blob.FromHex("08e230ad31108d3004a9238d3110286b"));
+            PutInBank(0x11, 0x9530, Blob.FromHex("08e230ad30048d3110286b"));
+        }
+        public void ExitHack(LocationIds startingLocation)
 		{
 			// Using exit on overworld send you back to home location
 			PutInBank(0x00, 0xC064, Blob.FromHex("22d08711eaeaeaeaea"));
