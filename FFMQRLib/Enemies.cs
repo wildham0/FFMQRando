@@ -170,9 +170,12 @@ namespace FFMQLib
 				e.MagicPower = ScaleStat(e.MagicPower, scaling, spread, rng);
 				e.Accuracy = ScaleStat(e.Accuracy, scaling, spread, rng);
 				e.Evasion = ScaleStat(e.Evasion, scaling, spread, rng);
+
+				Console.WriteLine(e.Id() + " - " + e.ResistData());
 			}
 		}
 	}
+	
 	public class Enemy
 	{
 		private Blob _rawBytes;
@@ -190,7 +193,28 @@ namespace FFMQLib
 		private const int EnemiesStatsBank = 0x02;
 		private const int EnemiesStatsLength = 0x0e;
 
-		public int Id()
+		private List<(int, string)> Elements = new() {
+			(0x01, "Projectile"),
+            (0x02, "Weapon"),
+            (0x04, "Barehand"),
+            (0x08, "Pinwheel"),
+            (0x10, "Air"),
+            (0x20, "Fire"),
+            (0x40, "Water"),
+            (0x80, "Earth")
+        };
+
+        private List<(int, string)> Status = new() {
+            (0x01, "Silence"),
+            (0x02, "Blind"),
+            (0x04, "Poison"),
+            (0x08, "Confusion"),
+            (0x10, "Sleep"),
+            (0x20, "Paralysis"),
+            (0x40, "Stone"),
+            (0x80, "Doom")
+        };
+        public int Id()
 		{
 			return _Id;
 		}
@@ -220,6 +244,14 @@ namespace FFMQLib
 			_rawBytes[0x0b] = Evasion;
 			rom.PutInBank(EnemiesStatsBank, EnemiesStatsAddress + (_Id * EnemiesStatsLength), _rawBytes);
 		}
+		public string ResistData()
+		{
+            var eleresist = String.Join(", ", Elements.Where(e => (e.Item1 & _rawBytes[6]) > 0).Select(e => e.Item2).ToList());
+            var statusresist = String.Join(", ", Status.Where(e => (e.Item1 & _rawBytes[7]) > 0).Select(e => e.Item2).ToList());
+            var eleweakness = String.Join(", ", Elements.Where(e => (e.Item1 & _rawBytes[0x0c]) > 0).Select(e => e.Item2).ToList());
+
+			return "Resist: " + eleresist + ", " + statusresist + "; " + "Weakness: " + eleweakness;
+        }
 	}
 	// link from link table, from the SQL world, describing a many-to-many relationship
 	public class EnemyAttackLink : ICloneable
