@@ -23,7 +23,8 @@ namespace FFMQLib
 			GameStateIndicator();
 			ArchipelagoSupport(apenabled);
 			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
-			PazuzuFixedFloorRng(rng);
+			FixMultiplyingDarkKing();
+            PazuzuFixedFloorRng(rng);
 			Msu1Support();
 		}
 		
@@ -182,6 +183,16 @@ namespace FFMQLib
             PutInBank(0x02, 0x9ABD, Blob.FromHex("20E0FE"));
             PutInBank(0x02, 0x9AE9, Blob.FromHex("20E0FE"));
             PutInBank(0x02, 0xFEE0, Blob.FromHex("0b20228fa516c9409c9003a9409c2b60"));
+        }
+		public void FixMultiplyingDarkKing()
+		{
+			// Expand Battle to 3 if multiply is casted
+			PutInBank(0x02, 0xD169, Blob.FromHex("5C509511"));
+            PutInBank(0x11, 0x9550, Blob.FromHex("a507f008c901f00b5c71d1022070955c8fd1022070955c92d102000000000000a513cdb3041015a9ff850d850e850fa500c901d007a90385008db40460"));
+
+			// Hard coded selectors when multiply is used, because dk is too big to share the screen
+			PutInBank(0x02, 0xD764, Blob.FromHex("22909511eaeab0"));
+            PutInBank(0x11, 0x9590, Blob.FromHex("c950d015a500c901f012a200bfc095119d2d0ae8e00cd0f4386b386ba507d0fa186b00000000000000000000000000000c04080a0204080a1604080a"));
         }
 		public void ExitHack(LocationIds startingLocation)
 		{
