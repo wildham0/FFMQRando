@@ -192,7 +192,7 @@ namespace FFMQLib
 
 			// Hard coded selectors when multiply is used, because dk is too big to share the screen
 			PutInBank(0x02, 0xD764, Blob.FromHex("22909511eaeab0"));
-            PutInBank(0x11, 0x9590, Blob.FromHex("c950d015a500c901f012a200bfc095119d2d0ae8e00cd0f4386b386ba507d0fa186b00000000000000000000000000000c04080a0204080a1604080a"));
+            PutInBank(0x11, 0x9590, Blob.FromHex("c950d014a500c901f012a200bfc095119d2d0ae8e00cd0f4386b386ba507d0fa186b00000000000000000000000000000c04080a0204080a1604080a"));
         }
 		public void ExitHack(LocationIds startingLocation)
 		{
