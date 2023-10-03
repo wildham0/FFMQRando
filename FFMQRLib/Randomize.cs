@@ -90,6 +90,7 @@ namespace FFMQLib
 			MapObjects.ShuffleEnemiesPosition(flags.ShuffleEnemiesPosition, GameMaps, rng);
 			EnemyAttackLinks.ShuffleAttacks(flags.EnemizerAttacks, flags.BossesScalingUpper, rng);
 			EnemiesStats.ScaleEnemies(flags, rng);
+			EnemiesStats.ShuffleResistWeakness(flags.ShuffleResWeakType, GameInfoScreen, rng);
 
 			// Overworld
 			Overworld.OpenNodes(flags);

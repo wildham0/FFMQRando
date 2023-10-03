@@ -157,6 +157,38 @@ namespace FFMQLib
 			}
 			return (ushort)Min(0xFFFF, Max(0x01, value * randomizedScaling / 100));
 		}
+		public void ShuffleResistWeakness(bool shuffle, GameInfoScreen info, MT19337 rng)
+		{
+			if (!shuffle)
+			{
+				return;
+			}
+			
+			var allList = Enum.GetValues<ElementsType>().ToList();
+			var elementsMainList = allList.Where(x => (int)x > 0x00FF).ToList();
+			var statusMainList = allList.Where(x => (int)x < 0x0100).ToList();
+			var elementsShuffledList = elementsMainList.ToList();
+			var statusShuffledList = statusMainList.ToList();
+
+			elementsShuffledList.Shuffle(rng);
+			statusShuffledList.Shuffle(rng);
+
+			var elementsPairList = elementsMainList.Select((e, i) => (e, elementsShuffledList[i])).ToList();
+			var statusPairList = statusMainList.Select((e, i) => (e, statusShuffledList[i])).ToList();
+
+			var allPairList = statusPairList.Concat(elementsPairList).ToList();
+
+			foreach (var enemy in _enemies)
+			{
+				List<ElementsType> newweaks = allPairList.Where(w => enemy.Weaknesses.Contains(w.Item1)).Select(w => w.Item2).ToList();
+				List<ElementsType> newresists = allPairList.Where(w => enemy.Resistances.Contains(w.Item1)).Select(w => w.Item2).ToList();
+
+				enemy.Weaknesses = newweaks.ToList();
+				enemy.Resistances = newresists.ToList();
+			}
+
+			info.ShuffledElementsType = allPairList;
+		}
 		public void ScaleEnemies(Flags flags, MT19337 rng)
 		{
 			List<int> enemiesId = Enumerable.Range(0, 0x40).ToList();
@@ -164,7 +196,6 @@ namespace FFMQLib
 
 			ScaleStats(flags.EnemiesScalingLower, flags.EnemiesScalingUpper, enemiesId, rng);
 			ScaleStats(flags.BossesScalingLower, flags.BossesScalingUpper, bossesId, rng);
-
 		}
 		public void ScaleStats(EnemiesScaling lowerboundscaling, EnemiesScaling upperboundscaling, List<int> validEnemies, MT19337 rng)
 		{
@@ -230,6 +261,9 @@ namespace FFMQLib
 		public byte MagicPower { get; set; }
 		public byte Accuracy { get; set; }
 		public byte Evasion { get; set; }
+		public List<ElementsType> Resistances { get; set; }
+		public List<ElementsType> Weaknesses { get; set; }
+
 		private int _Id;
 
 		private const int EnemiesStatsAddress = 0xC275; // Bank 02
@@ -253,6 +287,29 @@ namespace FFMQLib
 			MagicPower = _rawBytes[5];
 			Accuracy = _rawBytes[0x0a];
 			Evasion = _rawBytes[0x0b];
+			Resistances = new();
+			Weaknesses = new();
+
+
+			// resist => b
+			int resist = _rawBytes[0x06] * 0x100 + _rawBytes[0x07];
+			int weak = _rawBytes[0x0c];
+			var elementTypeList = Enum.GetValues<ElementsType>().ToList();
+			foreach (var element in elementTypeList)
+			{
+				if ((resist & (int)element) > 0)
+				{
+					Resistances.Add(element);
+				}
+			}
+
+			foreach (var element in elementTypeList)
+			{
+				if ((weak & ((int)element / 0x100)) > 0)
+				{
+					Weaknesses.Add(element);
+				}
+			}
 		}
 		public void Write(FFMQRom rom)
 		{
@@ -264,6 +321,23 @@ namespace FFMQLib
 			_rawBytes[5] = MagicPower;
 			_rawBytes[0x0a] = Accuracy;
 			_rawBytes[0x0b] = Evasion;
+
+			int tempresist = 0;
+			int tempweak = 0;
+
+			foreach (var resist in Resistances)
+			{
+				tempresist |= (int)resist;
+			}
+
+			foreach (var weak in Weaknesses)
+			{
+				tempweak |= ((int)weak / 0x100);
+			}
+			_rawBytes[0x06] = (byte)(tempresist / 0x100);
+			_rawBytes[0x07] = (byte)(tempresist % 0x100);
+			_rawBytes[0x0c] = (byte)(tempweak);
+
 			rom.PutInBank(EnemiesStatsBank, EnemiesStatsAddress + (_Id * EnemiesStatsLength), _rawBytes);
 		}
 	}

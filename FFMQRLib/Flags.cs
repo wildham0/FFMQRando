@@ -27,6 +27,7 @@ namespace FFMQLib
 		public EnemiesScaling BossesScalingLower { get; set; } = EnemiesScaling.Normal;
 		public EnemiesScaling BossesScalingUpper { get; set; } = EnemiesScaling.Normal;
 		public EnemizerAttacks EnemizerAttacks { get; set; } = EnemizerAttacks.Normal;
+		public bool ShuffleResWeakType { get; set; } = false;
 		public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
 		public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;
 		public bool ShuffleBattlefieldRewards { get; set; } = false;

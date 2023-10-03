@@ -19,13 +19,13 @@ namespace FFMQLib
 			{ ElementsType.Fire, "160201" },
 			{ ElementsType.Air, "160301" },
 			{ ElementsType.Zombie, "160401" },
-			{ ElementsType.Axe, "160501" },
+			{ ElementsType.Axe, "160505" },
 			{ ElementsType.Bomb, "160601" },
-			{ ElementsType.Projectile, "160701" },
+			{ ElementsType.Projectile, "160705" },
 			{ ElementsType.Doom, "160801" },
-			{ ElementsType.Stone, "160901" },
-			{ ElementsType.Silence, "160A01" },
-			{ ElementsType.Blind, "160B01" },
+			{ ElementsType.Stone, "160905" },
+			{ ElementsType.Silence, "160A05" },
+			{ ElementsType.Blind, "160B05" },
 			{ ElementsType.Poison, "160C01" },
 			{ ElementsType.Paralysis, "160D01" },
 			{ ElementsType.Sleep, "160E01" },
@@ -133,29 +133,33 @@ namespace FFMQLib
 				if (FragmentsCount > 0)
 				{
 					page1script += rom.TextToHex("Sky Fragments Required: " + FragmentsCount.ToString());
-					lineoffset += 2;
+					lineoffset += 3;
 				}
 
 				if (ShuffledElementsType.Any())
 				{
 					page1script += $"250C1503{lineoffset:X2}19";
-					page1script += rom.TextToHex("Elements & Ailments Shuffling");
+					page1script += rom.TextToHex("Elements Shuffling");
 					lineoffset ++;
-					page1script += $"25102402{lineoffset:X2}190518";
+					page1script += $"25102404{lineoffset:X2}110618";
 					lineoffset++;
-					page1script += $"1503{lineoffset:X2}19";
+					page1script += $"1505{lineoffset:X2}19";
 
-					ShuffledElementsType = ShuffledElementsType.Order().ToList();
+					ShuffledElementsType.Reverse();
 
 					int xcount = 0;
 					foreach (var elementgroup in ShuffledElementsType)
 					{
-						page1script += elementsbytes[elementgroup.Item1] + "DC" + elementsbytes[elementgroup.Item2] + "FF";
+						page1script += elementsbytes[elementgroup.Item1] + "DC" + elementsbytes[elementgroup.Item2];
 						xcount++;
-						if (xcount >= 5)
+						if (xcount >= 4)
 						{
 							page1script += "01";
 							xcount = 0;
+						}
+						else
+						{
+							page1script += "FF";
 						}
 					}
 					lineoffset += 5;
