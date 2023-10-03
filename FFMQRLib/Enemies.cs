@@ -57,6 +57,26 @@ namespace FFMQLib
 		SimpleShuffle,
 	}
 
+
+	public enum ElementsType
+	{ 
+		Silence = 0x0001,
+		Blind = 0x0002,
+		Poison = 0x0004,
+		Confusion = 0x0008,
+		Sleep = 0x0010,
+		Paralysis = 0x0020,
+		Stone = 0x0040,
+		Doom = 0x0080,
+		Projectile = 0x0100,
+		Bomb = 0x0200,
+		Axe = 0x0400,
+		Zombie = 0x0800,
+		Air = 0x1000,
+		Fire = 0x2000,
+		Water = 0x4000,
+		Earth = 0x8000,
+	}
 	public class Typing
 	{ 
 		public List<(int, string)> Elements = new() {

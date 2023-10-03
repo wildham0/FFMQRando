@@ -30,6 +30,7 @@ namespace FFMQLib
 		public GameLogic GameLogic;
 		public EntrancesData EntrancesData;
 		public MapPalettes MapPalettes;
+		public GameInfoScreen GameInfoScreen;
 
 		private byte[] originalData;
 		public bool beta = false;
@@ -67,9 +68,11 @@ namespace FFMQLib
 			GameLogic = new(apconfigs);
 			EntrancesData = new(this);
 			MapPalettes = new(this);
+			GameInfoScreen = new();
 
 			Credits credits = new(this);
 			TitleScreen titleScreen = new(this);
+
 			SpriteReader spriteReader = new();
 			PlayerSprites playerSprites = new(PlayerSpriteMode.Spritesheets);
 			PlayerSprite playerSprite = playerSprites.GetSprite(preferences, asyncrng);
@@ -148,6 +151,7 @@ namespace FFMQLib
 			MapObjects.Write(this);
 			MapSpriteSets.Write(this);
 			MapPalettes.Write(this);
+			GameInfoScreen.Write(this);
 
 			credits.Write(this);
 			titleScreen.Write(this, Metadata.Version, seed, flags);
