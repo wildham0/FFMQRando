@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.5.09";
+		public static string Version = "1.5.10";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -88,7 +88,7 @@ namespace FFMQLib
 			// Enemies
 			MapObjects.SetEnemiesDensity(flags.EnemiesDensity, rng);
 			MapObjects.ShuffleEnemiesPosition(flags.ShuffleEnemiesPosition, GameMaps, rng);
-			EnemyAttackLinks.ShuffleAttacks(flags.EnemizerAttacks, flags.BossesScalingUpper, rng);
+			EnemyAttackLinks.ShuffleAttacks(flags.EnemizerAttacks, flags.EnemizerGroups, rng);
 			EnemiesStats.ScaleEnemies(flags, rng);
 			EnemiesStats.ShuffleResistWeakness(flags.ShuffleResWeakType, GameInfoScreen, rng);
 

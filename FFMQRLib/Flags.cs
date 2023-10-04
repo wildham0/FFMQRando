@@ -27,7 +27,12 @@ namespace FFMQLib
 		public EnemiesScaling BossesScalingLower { get; set; } = EnemiesScaling.Normal;
 		public EnemiesScaling BossesScalingUpper { get; set; } = EnemiesScaling.Normal;
 		public EnemizerAttacks EnemizerAttacks { get; set; } = EnemizerAttacks.Normal;
-		public bool ShuffleResWeakType { get; set; } = false;
+		public EnemizerGroups EnemizerGroups
+		{
+			get => EnemizerAttacks == EnemizerAttacks.Normal ? EnemizerGroups.MobsOnly : internalEnemizerGroups;
+			set => internalEnemizerGroups = value;
+		}
+        public bool ShuffleResWeakType { get; set; } = false;
 		public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
 		public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;
 		public bool ShuffleBattlefieldRewards { get; set; } = false;
@@ -46,8 +51,9 @@ namespace FFMQLib
 		public bool CrestShuffle { get; set; } = false;
 
 		private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;
+        private EnemizerGroups internalEnemizerGroups = EnemizerGroups.MobsOnly;
 
-		public string GenerateFlagString()
+        public string GenerateFlagString()
 		{
 			var flaglist = this.GetType().GetProperties();
 			var orderedflaglist = flaglist.OrderBy(x => x.Name).ToList();

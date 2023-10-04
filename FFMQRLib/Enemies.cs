@@ -45,17 +45,26 @@ namespace FFMQLib
 	}
 	public enum EnemizerAttacks : int
 	{
-		[Description("Standard")]
+		[Description("Disabled")]
 		Normal = 0,
-		[Description("Safe Randomization")]
+        [Description("Script Shuffle")]
+        SimpleShuffle,
+        [Description("Safe Randomization")]
 		Safe,
 		[Description("Chaos Randomization")]
 		Chaos,
-		[Description("Self-Destruct")]
+        [Description("Self-Destruct")]
 		SelfDestruct,
-		[Description("Simple Shuffle")]
-		SimpleShuffle,
 	}
+	public enum EnemizerGroups
+	{
+        [Description("Mobs Only")]
+        MobsOnly = 0,
+        [Description("Mobs & Bosses")]
+        MobsBosses,
+        [Description("Mobs, Bosses & Dark King")]
+        MobsBossesDK,
+    }
 
 
 	public enum ElementsType
@@ -290,8 +299,6 @@ namespace FFMQLib
 			Resistances = new();
 			Weaknesses = new();
 
-
-			// resist => b
 			int resist = _rawBytes[0x06] * 0x100 + _rawBytes[0x07];
 			int weak = _rawBytes[0x0c];
 			var elementTypeList = Enum.GetValues<ElementsType>().ToList();
@@ -354,15 +361,12 @@ namespace FFMQLib
 		public byte[] Attacks { get; set; }
 		public byte CastHeal { get; set; }
 		public byte CastCure { get; set; }
-		public int _Id;
-		public int Id()
-		{
-			return _Id;
-		}
+		public int Id { get; set; }
+		public int AttackCount => Attacks.Count(a => a != 0xFF);
 		public List<int> NeedsSlotsFilled()
 		{
 			// Twinhead Wyvern and Twinhead Hydra need their 4th attack slot filled, or the game locks up.
-			if(_Id == 76 || _Id == 77)
+			if(Id == 76 || Id == 77)
 			{
 				return new List<int>(new int[] {3});
 			}
@@ -373,7 +377,7 @@ namespace FFMQLib
 		{
 			_rawBytes = rom.GetFromBank(EnemiesAttackLinksBank, EnemiesAttackLinksAddress + (id * EnemiesAttackLinksLength), EnemiesAttackLinksLength);
 
-			_Id = id;
+			Id = id;
 			AttackPattern = _rawBytes[0];
 			Attacks = new byte[6];
 			Attacks[0] = _rawBytes[1];
@@ -388,7 +392,7 @@ namespace FFMQLib
 
 		private EnemyAttackLink(int id, byte attackPattern, byte[] attacks, byte castHeal, byte castCure)
 		{
-			_Id = id;
+			Id = id;
 			AttackPattern = attackPattern;
 			Attacks = attacks;
 			CastHeal = castHeal;
@@ -397,7 +401,7 @@ namespace FFMQLib
 
 		public object Clone()
 		{
-			return new EnemyAttackLink(_Id, AttackPattern, Attacks, CastHeal, CastCure);
+			return new EnemyAttackLink(Id, AttackPattern, Attacks, CastHeal, CastCure);
 		}
 
 		public void Write(FFMQRom rom)
@@ -411,7 +415,7 @@ namespace FFMQLib
 			_rawBytes[6] = Attacks[5];
 			_rawBytes[7] = CastHeal;
 			_rawBytes[8] = CastCure;
-			rom.PutInBank(EnemiesAttackLinksBank, EnemiesAttackLinksAddress + (_Id * EnemiesAttackLinksLength), _rawBytes);
+			rom.PutInBank(EnemiesAttackLinksBank, EnemiesAttackLinksAddress + (Id * EnemiesAttackLinksLength), _rawBytes);
 		}
 	}
 	// link from link table, from the SQL world, describing a many-to-many relationship
@@ -419,15 +423,25 @@ namespace FFMQLib
 	{
 		private List<EnemyAttackLink> _EnemyAttackLinks;
 		private Blob _darkKingAttackLinkBytes;
-		
-		private const int EnemiesAttackLinksQty = 0x53;
+		private byte iceGolemDesperateAttack;
 
-		// Dark King Attack Links, separate from EnemiesAttacks
-		private const int DarkKingAttackLinkAddress = 0xD09E; // Bank 02
+		private List<int> Mobs;
+		private List<int> Bosses;
+		private List<int> DarkCastleBosses;
+		private List<int> DarkKing;
+
+        private const int EnemiesAttackLinksQty = 0x53;
+
+        // Dark King Attack Links, separate from EnemiesAttacks
+        // Dark King has its own byte range on top of attack links ids 79 through 82
+        private const int DarkKingAttackLinkAddress = 0xD09E; // Bank 02
 		private const int DarkKingAttackLinkBank = 0x02;
 		private const int DarkKingAttackLinkQty = 0x0C;
 
-		public EnemyAttackLinks(FFMQRom rom)
+		private const int IceGolemDesperateAttackBank = 0x02;
+		private const int IceGolemDesperateAttackOffset = 0xAAC9;
+
+        public EnemyAttackLinks(FFMQRom rom)
 		{
 			_EnemyAttackLinks = new List<EnemyAttackLink>();
 
@@ -436,9 +450,15 @@ namespace FFMQLib
 				_EnemyAttackLinks.Add(new EnemyAttackLink(i, rom));
 			}
 
+			iceGolemDesperateAttack = rom.GetFromBank(IceGolemDesperateAttackBank, IceGolemDesperateAttackOffset, 1)[0];
 			_darkKingAttackLinkBytes = rom.GetFromBank(DarkKingAttackLinkBank, DarkKingAttackLinkAddress, DarkKingAttackLinkQty);
-		}
-		public EnemyAttackLink this[int attackid]
+
+            Mobs = Enumerable.Range(0, 0x40).ToList();
+            Bosses = Enumerable.Range(0x42, 8).ToList().Concat(new List<int>() { 0x4A, 0x4B, 0x4C, 0x4E }).ToList();
+			DarkCastleBosses = new List<int>() { 0x40, 0x41, 0x4D, 0x4F };
+			DarkKing = new List<int> { 0x50, 0x51, 0x52 };
+        }
+        public EnemyAttackLink this[int attackid]
 		{
 			get => _EnemyAttackLinks[attackid];
 			set => _EnemyAttackLinks[attackid] = value;
@@ -454,74 +474,126 @@ namespace FFMQLib
 				e.Write(rom);
 			}
 
-			rom.PutInBank(DarkKingAttackLinkBank, DarkKingAttackLinkAddress, _darkKingAttackLinkBytes);
-		}
-		public void ShuffleAttacks(EnemizerAttacks enemizerattacks, EnemiesScaling bossscaling, MT19337 rng)
+			rom.PutInBank(DarkKingAttackLinkBank, DarkKingAttackLinkAddress, _EnemyAttackLinks.Where(l => l.Id == 0x51 || l.Id == 0x52).OrderBy(l => l.Id).SelectMany(l => l.Attacks.ToList()).ToArray());
+            rom.PutInBank(IceGolemDesperateAttackBank, IceGolemDesperateAttackOffset, new byte[] { iceGolemDesperateAttack });
+        }
+		public void ShuffleAttacks(EnemizerAttacks enemizerattacks, EnemizerGroups group, MT19337 rng)
 		{
-			var possibleAttacks = new List<byte>();
-			for(byte i = 0x40; i <= 0xDB; i++)
-			{
-				possibleAttacks.Add(i);
-			}
-
 			switch (enemizerattacks) 
 			{
 				case EnemizerAttacks.Safe:
-					SafeShuffleAttacks(bossscaling > EnemiesScaling.OneAndQuarter, rng);
+                    SafeRandom(group, rng);
 					break;
 				case EnemizerAttacks.Chaos:
-					_ShuffleAttacks(possibleAttacks, rng);
+					ChaosRandom(group, rng);
 					break;
 				case EnemizerAttacks.SelfDestruct:
-					foreach(var ea in _EnemyAttackLinks)
-					{
-						ea.AttackPattern = 0x01;
-						ea.Attacks[0] = 0xC1;
-						ea.Attacks[1] = 0xFF;
-						ea.Attacks[2] = 0xFF;
-						ea.Attacks[3] = 0xFF;
-						ea.Attacks[4] = 0xFF;
-						ea.Attacks[5] = 0xFF;
-
-						// Some enemies require certain slots to be filled, or the game locks up
-						foreach(var slot in ea.NeedsSlotsFilled())
-						{
-							ea.Attacks[slot] = 0xC1;
-						}
-					}
-
-					// See the comment in _ShuffleAttacks() for more info
-					for(int i = 0; i < DarkKingAttackLinkQty; i++)
-					{
-						_darkKingAttackLinkBytes[i] = 0xC1;
-					}
+					Selfdestruct(group);
 					break;
 				case EnemizerAttacks.SimpleShuffle:
-					var origLinks = _EnemyAttackLinks.Select(eal => (EnemyAttackLink)eal.Clone()).ToList(); 
-					_EnemyAttackLinks.Shuffle(rng);
-					for(int i = 0; i < _EnemyAttackLinks.Count; i++) {
-						_EnemyAttackLinks[i]._Id = origLinks[i]._Id;
-
-						// Some enemies require certain slots to be filled, or the game locks up
-						foreach(var slot in _EnemyAttackLinks[i].NeedsSlotsFilled())
-						{
-							if(_EnemyAttackLinks[i].Attacks[slot] == 0xFF)
-							{
-								_EnemyAttackLinks[i].Attacks[slot] = possibleAttacks[(int)(rng.Next() % possibleAttacks.Count)];
-							}
-						}
-					}
+					ScriptShuffle(group, rng);
 					break;
 				default:
 					break;
-
 			}
 		}
-
-		private void _ShuffleAttacks(List<byte> possibleAttacks, MT19337 rng)
+		private List<int> GetValidEnemies(EnemizerGroups group)
 		{
-			foreach(var ea in _EnemyAttackLinks)
+            var validenemies = Mobs.ToList();
+            if (group != EnemizerGroups.MobsOnly)
+            {
+                validenemies.AddRange(Bosses.Concat(DarkCastleBosses).ToList());
+            }
+
+            if (group == EnemizerGroups.MobsBossesDK)
+            {
+                validenemies.AddRange(DarkKing);
+            }
+
+			return validenemies;
+        }
+		private void ScriptShuffle(EnemizerGroups group, MT19337 rng)
+		{
+			var mobs = Mobs.ToList();
+			Dictionary<int, int> switchList = new();
+
+			while (mobs.Count > 1)
 			{
+				var tempmobA = rng.TakeFrom(mobs);
+                var tempmobB = rng.TakeFrom(mobs);
+
+				switchList.Add(tempmobA, tempmobB);
+                switchList.Add(tempmobB, tempmobA);
+            }
+
+			if (group != EnemizerGroups.MobsOnly)
+			{
+				bool includedk = (group == EnemizerGroups.MobsBossesDK);
+				
+				var bosses = Bosses.Concat(DarkCastleBosses).ToList();
+                List<int> tooShortBosses = new() { 0x42, 0x43 };
+
+				if (includedk)
+				{
+					bosses = bosses.Concat(DarkKing).ToList();
+                    tooShortBosses.Add(0x50);
+				}
+
+				bosses.RemoveAll(tooShortBosses.Contains);
+				
+				// Do hydra/wyvern first since it requires a minimum 4 attacks pattern
+				var hydra = 0x4C;
+				var wyvern = 0x4D;
+
+				bosses.Remove(hydra);
+                var hydracompanion = rng.TakeFrom(bosses);
+
+				switchList.Add(hydra, hydracompanion);
+				switchList.Add(hydracompanion, hydra);
+
+				if (hydracompanion != wyvern)
+				{
+                    bosses.Remove(wyvern);
+                    var wyverncompanion = rng.TakeFrom(bosses);
+
+					switchList.Add(wyvern, wyverncompanion);
+					switchList.Add(wyverncompanion, wyvern);
+				}
+
+				bosses.AddRange(tooShortBosses);
+
+				while (bosses.Count > 1)
+				{
+					var tempbossA = rng.TakeFrom(bosses);
+					var tempbossB = rng.TakeFrom(bosses);
+
+					switchList.Add(tempbossA, tempbossB);
+					switchList.Add(tempbossB, tempbossA);
+				}
+			}
+
+			foreach (var link in _EnemyAttackLinks)
+			{
+				if (switchList.TryGetValue(link.Id, out var newid))
+				{
+					link.Id = newid;
+                }
+			}
+		}
+		private void ChaosRandom(EnemizerGroups group, MT19337 rng)
+		{
+            var possibleAttacks = new List<byte>();
+            for (byte i = 0x40; i <= 0xDB; i++)
+            {
+                possibleAttacks.Add(i);
+            }
+
+			var validenemies = GetValidEnemies(group);
+
+            foreach (var link in validenemies)
+			{
+				var ea = _EnemyAttackLinks[link];
+				
 				uint noOfAttacks = (rng.Next() % 5) + 1;
 
 				for(uint i = 0; i < 6; i++)
@@ -557,13 +629,83 @@ namespace FFMQLib
 				}
 			}
 
-			// Dark King has its own byte range on top of attack links ids 79 through 82
-			// TODO: The Ice Golem has a special healing blizzard it does when it has < 50% HP, probably want to randomise that as well? Maybe more enemies have a similar thing?
-			for(int i = 0; i < DarkKingAttackLinkQty; i++)
+			if (group != EnemizerGroups.MobsOnly)
 			{
-				_darkKingAttackLinkBytes[i] = possibleAttacks[(int)(rng.Next() % possibleAttacks.Count)];
-			}
+                iceGolemDesperateAttack = rng.PickFrom(possibleAttacks);
+            }
 		}
+		private void SafeRandom(EnemizerGroups group, MT19337 rng)
+		{
+            var validenemies = GetValidEnemies(group);
+            var validattacks = _EnemyAttackLinks.Where(l => Mobs.Contains(l.Id)).SelectMany(l => l.Attacks).Distinct().ToList();
+			List<byte> dkattacks = new();
+
+
+            if (group != EnemizerGroups.MobsOnly)
+			{
+                validattacks.AddRange(_EnemyAttackLinks.Where(l => Bosses.Concat(DarkCastleBosses).Contains(l.Id)).SelectMany(l => l.Attacks).Distinct().ToList());
+            }
+
+			if (group == EnemizerGroups.MobsBossesDK)
+			{
+                dkattacks.AddRange(_EnemyAttackLinks.Where(l => DarkKing.Contains(l.Id)).SelectMany(l => l.Attacks).Distinct().ToList());
+            }
+
+			List<byte> invalidattacks = new() { 0x49, 0x4A, 0xC1, 0xC2, 0xC8, 0xC9, 0xFF };
+			validattacks.RemoveAll(invalidattacks.Contains);
+            validattacks = validattacks.Distinct().ToList();
+
+			foreach (var link in validenemies)
+			{
+				List<byte> attackpool = validattacks;
+
+                if (DarkCastleBosses.Concat(DarkKing).Contains(link))
+				{
+					attackpool.AddRange(dkattacks);
+                }
+				
+				List<byte> newattacks = new();
+
+				for (int i = 0; i < _EnemyAttackLinks[link].AttackCount; i++)
+				{
+					newattacks.Add(rng.PickFrom(validattacks));
+                }
+
+				newattacks.Sort();
+                while (newattacks.Count < 6)
+                {
+                    newattacks.Add(0xFF);
+                }
+
+				_EnemyAttackLinks[link].Attacks = newattacks.ToArray();
+            }
+
+			iceGolemDesperateAttack = rng.PickFrom(validattacks);
+        }
+		private void Selfdestruct(EnemizerGroups group)
+		{
+			var validenemies = GetValidEnemies(group);
+
+            foreach (var link in validenemies)
+            {
+                var ea = _EnemyAttackLinks[link];
+
+                ea.AttackPattern = 0x01;
+                ea.Attacks[0] = 0xC1;
+                ea.Attacks[1] = 0xFF;
+                ea.Attacks[2] = 0xFF;
+                ea.Attacks[3] = 0xFF;
+                ea.Attacks[4] = 0xFF;
+                ea.Attacks[5] = 0xFF;
+
+                // Some enemies require certain slots to be filled, or the game locks up
+                foreach (var slot in ea.NeedsSlotsFilled())
+                {
+                    ea.Attacks[slot] = 0xC1;
+                }
+            }
+        }
+		// deprecated, harvest for reference data down the road
 		private void SafeShuffleAttacks(bool highhpscaling, MT19337 rng)
 		{
 			List<AttackPattern> standardPatterns = new()
