@@ -78,8 +78,8 @@ namespace FFMQLib
                     new List<byte> { 0x06, 0x05, 0x47, 0x4a, 0x2a, 0x1e },
                     new List<SpriteAddressor> {
                         new SpriteAddressor(0, 0, 0x39, SpriteSize.Tiles8),  // Rock
-                        new SpriteAddressor(2, 0, 0x06, SpriteSize.Tiles16), // Kaeli Base
-						new SpriteAddressor(3, 0, 0x06, SpriteSize.Tiles16), // Kaeli Base
+                        new SpriteAddressor(2, 0, 0x06, SpriteSize.Tiles16), // Kaeli's Mom
+						new SpriteAddressor(3, 0, 0x06, SpriteSize.Tiles16), // Kaeli's Mom
                         new SpriteAddressor(6, 0, 0x06, SpriteSize.Tiles16), // Kaeli's Mom
 						new SpriteAddressor(8, 0, 0x0D, SpriteSize.Tiles16), // Old Man
 						new SpriteAddressor(9, 0, 0x05, SpriteSize.Tiles16), // Cloud Man
@@ -192,24 +192,20 @@ namespace FFMQLib
 			{
 				TileScripts.AddScript((int)TileScriptsList.FightMinotaur,
 				new ScriptBuilder(new List<string> {
-					"050B63[21]",
-					"050BE3[22]",
+					"050B63[20]",
+					"050BE3[20]",
 					"2A35460054105a0e2527275246022A05453055FFFF",
 					"1A0BAE63FF57FF57CE30ACC8C5C3C5BCC6B8CE36",
 					"2A1B278544105430555054FFFF",
 					"1A82" + TextToHex("&%?!! That son of a harpooner just poisoned me! Let's do for this &?!% baracoota!"),
 					"36",
-					"2A75448544754405440054FFFF",
+					"2A754405440054FFFF",
 					"05E41714",
-					"2A62468544105436465640FFFF",
+					"2A624675441054FFFF",
 					"1A82" + TextToHex("You're a &?%! agonist, mate! Here, you earned it. Split a few skulls for me!") + "36",
-					"2C7544",
-					"2C8544",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliForesta]:X2}0162",
 					$"23{(int)NewGameFlagsList.ShowSickKaeli:X2}",
-					"0880FF",
-					"61",
-					"2A1640454666424646FFFF",
+                    "2A205465424546FFFF",
 					"236D",
 					"231E",
 					"2B63",
