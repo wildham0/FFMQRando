@@ -183,6 +183,13 @@ namespace FFMQLib
             PutInBank(0x02, 0x9ABD, Blob.FromHex("20E0FE"));
             PutInBank(0x02, 0x9AE9, Blob.FromHex("20E0FE"));
             PutInBank(0x02, 0xFEE0, Blob.FromHex("0b20228fa516c9409c9003a9409c2b60"));
+
+            // Load resist message for bomb/axe/projectile
+            PutInBank(0x02, 0x9C79, Blob.FromHex("EAEA"));
+
+            // Apply resist to bombs
+            PutInBank(0x02, 0x905B, Blob.FromHex("20f0feeaeaea"));
+            PutInBank(0x02, 0xFEF0, Blob.FromHex("209d9920699a20ed9b60"));
         }
 		public void FixMultiplyingDarkKing()
 		{
