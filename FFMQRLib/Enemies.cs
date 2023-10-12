@@ -363,15 +363,7 @@ namespace FFMQLib
 		public byte CastCure { get; set; }
 		public int Id { get; set; }
 		public int AttackCount => Attacks.Count(a => a != 0xFF);
-		public List<int> NeedsSlotsFilled()
-		{
-			// Twinhead Wyvern and Twinhead Hydra need their 4th attack slot filled, or the game locks up.
-			if(Id == 76 || Id == 77)
-			{
-				return new List<int>(new int[] {3});
-			}
-			return new List<int>();
-		}
+		public List<int> NeedsSlotsFilled { get; }
 
 		public EnemyAttackLink(int id, FFMQRom rom)
 		{
@@ -388,7 +380,8 @@ namespace FFMQLib
 			Attacks[5] = _rawBytes[6];
 			CastHeal = _rawBytes[7];
 			CastCure = _rawBytes[8];
-		}
+			NeedsSlotsFilled = new();
+        }
 
 		private EnemyAttackLink(int id, byte attackPattern, byte[] attacks, byte castHeal, byte castCure)
 		{
@@ -457,6 +450,12 @@ namespace FFMQLib
             Bosses = Enumerable.Range(0x42, 8).ToList().Concat(new List<int>() { 0x4A, 0x4B, 0x4C, 0x4E }).ToList();
 			DarkCastleBosses = new List<int>() { 0x40, 0x41, 0x4D, 0x4F };
 			DarkKing = new List<int> { 0x50, 0x51, 0x52 };
+
+			// Wyvern, Hydra, DK2 and Dk3 need to have a specific slot filled to avoid softlock
+			_EnemyAttackLinks[0x4C].NeedsSlotsFilled.Add(3);
+            _EnemyAttackLinks[0x4D].NeedsSlotsFilled.Add(3);
+            _EnemyAttackLinks[0x51].NeedsSlotsFilled.Add(3);
+			_EnemyAttackLinks[0x52].NeedsSlotsFilled.Add(2);
         }
         public EnemyAttackLink this[int attackid]
 		{
@@ -620,7 +619,7 @@ namespace FFMQLib
 				}
 
 				// Some enemies require certain slots to be filled, or the game locks up
-				foreach(var slot in ea.NeedsSlotsFilled())
+				foreach(var slot in ea.NeedsSlotsFilled)
 				{
 					if(ea.Attacks[slot] == 0xFF)
 					{
@@ -699,7 +698,7 @@ namespace FFMQLib
                 ea.Attacks[5] = 0xFF;
 
                 // Some enemies require certain slots to be filled, or the game locks up
-                foreach (var slot in ea.NeedsSlotsFilled())
+                foreach (var slot in ea.NeedsSlotsFilled)
                 {
                     ea.Attacks[slot] = 0xC1;
                 }
