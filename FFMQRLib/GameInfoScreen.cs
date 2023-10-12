@@ -18,11 +18,11 @@ namespace FFMQLib
 			{ ElementsType.Water, "160101" },
 			{ ElementsType.Fire, "160201" },
 			{ ElementsType.Air, "160301" },
-			{ ElementsType.Zombie, "160401" },
-			{ ElementsType.Axe, "160505" },
-			{ ElementsType.Bomb, "160601" },
+			{ ElementsType.Zombie, "161001" }, // Original Icon 160401
+			{ ElementsType.Axe, "161205" }, // Original Icon 160505
+			{ ElementsType.Bomb, "161105" }, // Original Icon 160601
 			{ ElementsType.Projectile, "160705" },
-			{ ElementsType.Doom, "160801" },
+			{ ElementsType.Doom, "160805" }, // Color bugged?
 			{ ElementsType.Stone, "160905" },
 			{ ElementsType.Silence, "160A05" },
 			{ ElementsType.Blind, "160B05" },
@@ -37,11 +37,18 @@ namespace FFMQLib
 			ShuffledElementsType = new();
 			pagecount = 1;
 		}
-
+		private void NewElementsIcons(FFMQRom rom)
+		{
+			rom.PutInBank(0x10, 0x8F00, Blob.FromHex("4000E40040001C003E003E043E0C1C000000000000000000000000003E005738237C237C037C063804083E6F5F5F7F3E00002E2E8C94F088F0846040202000000000187874220100"));
+			rom.PutInBank(0x10, 0x8F60, Blob.FromHex("f40410aba24098a0100022df8d00aba2008fa0030022df8d006b"));
+			rom.PutInBank(0x00, 0xBB34, Blob.FromHex("22608f10eaeaeaeaeaeaeaeaeaeaea"));
+		}
 		public void Write(FFMQRom rom)
 		{
-			// Extend menu size
-			rom.PutInBank(0x03, 0xAB49, Blob.FromHex("88"));
+			NewElementsIcons(rom);
+
+            // Extend menu size
+            rom.PutInBank(0x03, 0xAB49, Blob.FromHex("88"));
 			rom.PutInBank(0x03, 0xAB07, Blob.FromHex("11"));
 
 			// Fix Item Scroll
@@ -139,7 +146,7 @@ namespace FFMQLib
 				if (ShuffledElementsType.Any())
 				{
 					page1script += $"250C1503{lineoffset:X2}19";
-					page1script += rom.TextToHex("Elements Shuffling");
+					page1script += rom.TextToHex("Resist/Weak Shuffling");
 					lineoffset ++;
 					page1script += $"25102404{lineoffset:X2}110618";
 					lineoffset++;
