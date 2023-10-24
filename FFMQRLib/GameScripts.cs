@@ -28,6 +28,11 @@ namespace FFMQLib
 				GameFlags[(int)GameFlagsList.ShowPazuzu1F + i] = (pazuzuFloor == i);
             }
 
+            for (int i = 0; i < 16; i++)
+            {
+                GameFlags[(int)NewGameFlagsList.KaeliQuest1 + i] = false;
+            }
+
             // Remove Mine Boulder
             for (int i = 0; i < 6; i++)
 			{
@@ -47,7 +52,7 @@ namespace FFMQLib
 					"2C0101",
 					$"2E{(int)NewGameFlagsList.ShowForestaKaeli:X2}[11]",
 					"2EE3[11]",
-					$"050f{(int)Companion.Kaeli:X2}[11]",
+					$"050f{(int)CompanionsId.Kaeli:X2}[11]",
 					"2A3346634013432344505010530054FFFF",
 					"1A82" + TextToHex("There, griffin. Path is cleared. Let's find that decaying !&%? piece of lumber.") + "36",
 					"2A03440825682213424346FFFF",
@@ -77,7 +82,7 @@ namespace FFMQLib
 			TileScripts.AddScript((int)TileScriptsList.FightMinotaur,
 				new ScriptBuilder(new List<string> {
 					"050B63[21]",
-					$"050f{(int)Companion.Kaeli:X2}[22]",
+					$"050f{(int)CompanionsId.Kaeli:X2}[22]",
 					"2A30460054105a0e2527275246022A00453055FFFF",
 					"1A0BAE63FF57FF57CE30ACC8C5C3C5BCC6B8CE36",
 					"2A1B278044105430555054FFFF",
@@ -91,7 +96,8 @@ namespace FFMQLib
 					"2C8044",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliForesta]:X2}0162",
 					$"23{(int)NewGameFlagsList.ShowSickKaeli:X2}",
-					"0880FF",
+                    $"23{(int)NewGameFlagsList.KaeliQuest1:X2}",
+                    "0880FF",
 					"61",
 					"2A1140404661424146FFFF",
 					"236D",
@@ -135,7 +141,7 @@ namespace FFMQLib
 					"057C03[14]",
 					"2C4246",
 					"0880FF",
-					$"05E6{(int)Companion.KaeliPromo:X2}085B85",
+					$"05E6{(int)CompanionsId.Kaeli:X2}085B85",
 					$"2B{(int)NewGameFlagsList.ShowSickKaeli:X2}23{(int)NewGameFlagsList.KaeliCured:X2}",
 					"00",
 					"2C124300",
@@ -177,7 +183,7 @@ namespace FFMQLib
 					"2C1042",
 					"2C4046",
 					"0880FF",
-					$"05E6{(int)Companion.Tristam:X2}085B85",
+					$"05E6{(int)CompanionsId.Tristam:X2}085B85",
 					$"2B{(int)NewGameFlagsList.ShowSandTempleTristam:X2}",
 					$"2B{(int)NewGameFlagsList.ShowFireburgTristam:X2}",
 					"00"
@@ -189,7 +195,7 @@ namespace FFMQLib
 			TileScripts.AddScript((int)TileScriptsList.BoneDungeonTristamBomb,
 				new ScriptBuilder(new List<string> {
 					$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[15]",
-					$"050f{(int)Companion.Tristam:X2}[15]",
+					$"050f{(int)CompanionsId.Tristam:X2}[15]",
 					"2a3046104130441054ffff",
 					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}",
 					flags.ProgressiveGear ? "09309411" : "",
@@ -203,7 +209,8 @@ namespace FFMQLib
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}0162",
 					"2a10434046ffff", // 24ff > d3fe
 					$"23{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}",
-					"00"
+                    $"23{(int)NewGameFlagsList.TristamQuest1:X2}",
+                    "00"
 				}));
 
 			// Fight Rex
@@ -270,7 +277,7 @@ namespace FFMQLib
 					"2C1042",
 					"2C4046",
 					"0880FF",
-					$"05E6{(int)Companion.Phoebe:X2}085B85",
+					$"05E6{(int)CompanionsId.Phoebe:X2}085B85",
 					$"2B{(int)NewGameFlagsList.ShowLibraTemplePhoebe:X2}",
 					"00"
 				}));
@@ -409,13 +416,14 @@ namespace FFMQLib
 			TileScripts.AddScript((int)TileScriptsList.WintryCavePhoebeClaw,
 				new ScriptBuilder(new List<string> {
 					$"2e{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[07]",
-					$"050f{(int)Companion.Phoebe:X2}[07]",
+					$"050f{(int)CompanionsId.Phoebe:X2}[07]",
 					"2a3046104310443054ffff",
 					"1a8a" + TextToHex("Good job not being a clutz and falling down like an idiot! I guess that calls for a reward..."),
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeWintryCave]:X2}0162",
 					"2a10414046ffff", // 24ff > d3fe
 					$"23{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}",
-					"00"
+                    $"23{(int)NewGameFlagsList.PhoebeQuest1:X2}",
+                    "00"
 				}));
 
 			// Wintry Squid
@@ -466,7 +474,7 @@ namespace FFMQLib
 					"04",
 					"05E43403",
 					"2B25",
-					GameFlags[(int)GameFlagsList.ShowFallBasinChest] ? "" : "23B3",
+					//GameFlags[(int)GameFlagsList.ShowFallBasinChest] ? "" : "23B3",
 					"2A67463F46FFFF",
 					"00"
 				}));
@@ -707,13 +715,13 @@ namespace FFMQLib
 					"1A3A" + TextToHex($"Help you? Oh! Uh... Oh no! My {rng.PickFrom(reubenDiseaseList)} is acting up! Arrgh, the pain... No? Alright...") + "36",
 					"2A11434146FFFF",
 					"0880FF",
-					$"05E6{(int)Companion.Reuben:X2}085B85",
+					$"05E6{(int)CompanionsId.Reuben:X2}085B85",
 					$"2B{(int)NewGameFlagsList.ShowFireburgReuben:X2}",
 					"00",
 					"1A3A" + TextToHex(rng.PickFrom(reubenJoinDialogueList)) + "36",
 					"2A11434146FFFF",
 					"0880FF",
-					$"05E6{(int)Companion.ReubenPromo:X2}085B85",
+					$"05E6{(int)CompanionsId.Reuben:X2}085B85",
 					$"2B{(int)NewGameFlagsList.ShowFireburgReuben:X2}",
 					"00",
 				}));
@@ -803,7 +811,7 @@ namespace FFMQLib
 					"057C00[18]",
 					"2C4146",
 					"0880FF",
-					$"05E6{(int)Companion.TristamPromo:X2}085B85",
+					$"05E6{(int)CompanionsId.Tristam:X2}085B85",
 					$"2B{(int)NewGameFlagsList.ShowSandTempleTristam:X2}2B{(int)NewGameFlagsList.ShowFireburgTristam:X2}",
 					"00",
 					"2C114000",
@@ -851,13 +859,14 @@ namespace FFMQLib
 			TileScripts.AddScript((int)TileScriptsList.BlowingOffMineBoulder,
 				new ScriptBuilder(new List<string> {
 					$"2E{(int)NewGameFlagsList.ReubenMineItemGiven:X2}[07]",
-					$"050f{(int)Companion.Reuben:X2}[07]",
+					$"050f{(int)CompanionsId.Reuben:X2}[07]",
 					"2a3046104310443054ffff",
 					"1a91" + TextToHex("Ugh, my feet are killing me! Do me a favor and hold this on the way back. It's weighting a ton!"),
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeFallBasin]:X2}0162",
 					"2a10414046ffff",
 					$"23{(int)NewGameFlagsList.ReubenMineItemGiven:X2}",
-					"2E37[10]",
+                    $"23{(int)NewGameFlagsList.ReubenQuest1:X2}",
+                    "2E37[10]",
 					"2D" + ScriptItemFlags[Items.MegaGrenade].Item1,
 					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[11]",
 					"00",
@@ -1122,7 +1131,7 @@ namespace FFMQLib
 					"057C01[18]",
 					"2C4046",
 					"0880FF",
-					$"05E6{(int)Companion.KaeliPromo:X2}085B85",
+					$"05E6{(int)CompanionsId.Kaeli:X2}085B85",
 					$"2B{(int)NewGameFlagsList.ShowWindiaKaeli:X2}",
 					"00",
 					"2C104000",
@@ -1138,7 +1147,7 @@ namespace FFMQLib
 					"2C1243",
 					"2C4246",
 					"0880FF",
-					$"05E6{(int)Companion.PhoebePromo:X2}085B85",
+					$"05E6{(int)CompanionsId.Phoebe:X2}085B85",
 					$"2B{(int)NewGameFlagsList.ShowWindiaPhoebe:X2}",
 					"00"
 				}));

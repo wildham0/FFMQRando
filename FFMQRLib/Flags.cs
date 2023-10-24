@@ -34,6 +34,8 @@ namespace FFMQLib
 		}
         public bool ShuffleResWeakType { get; set; } = false;
 		public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
+		public LevelingType CompanionLevelingType { get; set; } = LevelingType.Quests;
+		public SpellbookType CompanionSpellbookType { get; set; } = SpellbookType.Standard;
 		public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;
 		public bool ShuffleBattlefieldRewards { get; set; } = false;
 		public bool RandomStartingWeapon { get; set; } = false;

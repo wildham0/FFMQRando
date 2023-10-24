@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.5.13";
+		public static string Version = "1.5.15";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -30,6 +30,7 @@ namespace FFMQLib
 		public GameLogic GameLogic;
 		public EntrancesData EntrancesData;
 		public MapPalettes MapPalettes;
+		public Companions Companions;
 		public GameInfoScreen GameInfoScreen;
 
 		private byte[] originalData;
@@ -68,6 +69,7 @@ namespace FFMQLib
 			GameLogic = new(apconfigs);
 			EntrancesData = new(this);
 			MapPalettes = new(this);
+			Companions = new(flags.CompanionLevelingType);
 			GameInfoScreen = new();
 
 			Credits credits = new(this);
@@ -121,8 +123,11 @@ namespace FFMQLib
 			SetDoomCastleMode(flags.DoomCastleMode);
 			DoomCastleShortcut(flags.DoomCastleShortcut);
 
-			// Various
-			SetLevelingCurve(flags.LevelingCurve);
+			// Companion
+			Companions.SetSpellbooks(flags.CompanionSpellbookType, GameInfoScreen, rng);
+
+            // Various
+            SetLevelingCurve(flags.LevelingCurve);
 			ProgressiveGears(flags.ProgressiveGear);
 			SkyCoinMode(flags, rng);
 			ExitHack(Overworld.StartingLocation);
@@ -152,6 +157,7 @@ namespace FFMQLib
 			MapObjects.Write(this);
 			MapSpriteSets.Write(this);
 			MapPalettes.Write(this);
+			Companions.Write(this);
 			GameInfoScreen.Write(this);
 
 			credits.Write(this);

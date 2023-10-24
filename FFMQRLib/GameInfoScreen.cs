@@ -4,14 +4,17 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using RomUtilities;
+using System.Runtime.Intrinsics.Arm;
 
 namespace FFMQLib
 {
 	public class GameInfoScreen
-	{ 
+	{
 		public int FragmentsCount { get; set; }
 		public List<(ElementsType, ElementsType)> ShuffledElementsType { get; set; }
+		public List<(CompanionsId, List<(int level, SpellFlags spell)>)> SpellLearning { get; set; }
 		private int pagecount;
+		private List<int> pageoffsets;
 		private Dictionary<ElementsType, string> elementsbytes = new()
 		{
 			{ ElementsType.Earth, "160001" },
@@ -31,11 +34,36 @@ namespace FFMQLib
 			{ ElementsType.Sleep, "160E01" },
 			{ ElementsType.Confusion, "160F01" },
 		};
+		private Dictionary<SpellFlags, List<string>> spellbooksbytes = new()
+		{
+			{ SpellFlags.ExitBook, new() { "164816164916", "165816165916" } },
+			{ SpellFlags.CureBook, new() { "164A16164B16", "165A16165B16" } },
+			{ SpellFlags.HealBook, new() { "164C16164D16", "165C16165D16" } },
+			{ SpellFlags.LifeBook, new() { "164E16164F16", "165E16165F16" } },
+			{ SpellFlags.QuakeBook, new() { "166016166116", "167016167116" } },
+			{ SpellFlags.BlizzardBook, new() { "166216166316", "167216167316" } },
+			{ SpellFlags.FireBook, new() { "166416166516", "167416167516" } },
+			{ SpellFlags.AeroBook, new() { "166616166716", "167616167716" } },
+			{ SpellFlags.ThunderSeal, new() { "166816166916", "167816167916" } },
+			{ SpellFlags.WhiteSeal, new() { "166A16166B16", "167A16167B16" } },
+			{ SpellFlags.MeteorSeal, new() { "166C16166D16", "167C16167D16" } },
+			{ SpellFlags.FlareSeal, new() { "166E16166F16", "167E16167F16" } },
+		};
+		private Dictionary<CompanionsId, string> companionnames = new()
+		{
+			{ CompanionsId.Kaeli, "Kaeli" },
+			{ CompanionsId.Tristam, "Tristam" },
+			{ CompanionsId.Phoebe, "Phoebe" },
+			{ CompanionsId.Reuben, "Reuben" },
+
+		};
 		public GameInfoScreen()
 		{
 			FragmentsCount = 0;
 			ShuffledElementsType = new();
+			SpellLearning = new();
 			pagecount = 1;
+			pageoffsets = new();
 		}
 		private void NewElementsIcons(FFMQRom rom)
 		{
@@ -45,10 +73,11 @@ namespace FFMQLib
 		}
 		public void Write(FFMQRom rom)
 		{
-			NewElementsIcons(rom);
+			GeneratePages(rom);
+            NewElementsIcons(rom);
 
-            // Extend menu size
-            rom.PutInBank(0x03, 0xAB49, Blob.FromHex("88"));
+			// Extend menu size
+			rom.PutInBank(0x03, 0xAB49, Blob.FromHex("88"));
 			rom.PutInBank(0x03, 0xAB07, Blob.FromHex("11"));
 
 			// Fix Item Scroll
@@ -116,71 +145,178 @@ namespace FFMQLib
 						"2401041e13",
 						"18",
 						"0f0100",         // check current page
-						"057C000092",
-						"057C010093",
-						"057C020094",
-						"057C030095",
-						"057C040096",
-						"058d",
-						"00"
+						//"057C000092",
+						//"057C010093",
+						//"057C020094",
+						//"057C030095",
+						//"057C040096",
+						//"058d",
+						//"00"
 				});
-			
-			maindrawscript.WriteAt(0x10, 0x9180, rom);
 
-			string page1script = "";
-			int lineoffset = 0x06;
-
-			page1script += $"250C1503{lineoffset:X2}19";
-			if (FragmentsCount == 0 && !ShuffledElementsType.Any())
+			for(int i = 0; i < pageoffsets.Count; i++)
 			{
-				page1script += rom.TextToHex("No info available.");
-			}
-			else
-			{
-				if (FragmentsCount > 0)
-				{
-					page1script += rom.TextToHex("Sky Fragments Required: " + FragmentsCount.ToString());
-					lineoffset += 3;
-				}
+                maindrawscript.Add("057C" + i.ToString().PadLeft(2, '0') + $"{(pageoffsets[i] % 0x100):X2}" + $"{(pageoffsets[i] / 0x100):X2}");
+            }
 
-				if (ShuffledElementsType.Any())
-				{
-					page1script += $"250C1503{lineoffset:X2}19";
-					page1script += rom.TextToHex("Resist/Weak Shuffling");
-					lineoffset ++;
-					page1script += $"25102404{lineoffset:X2}110618";
-					lineoffset++;
-					page1script += $"1505{lineoffset:X2}19";
+			maindrawscript.Add("058d");
+            maindrawscript.Add("00");
 
-					ShuffledElementsType.Reverse();
-
-					int xcount = 0;
-					foreach (var elementgroup in ShuffledElementsType)
-					{
-						page1script += elementsbytes[elementgroup.Item1] + "DC" + elementsbytes[elementgroup.Item2];
-						xcount++;
-						if (xcount >= 4)
-						{
-							page1script += "01";
-							xcount = 0;
-						}
-						else
-						{
-							page1script += "FF";
-						}
-					}
-					lineoffset += 5;
-				}
-			}
-
-			var page1 = new ScriptBuilder(
-				new List<string> {
-					page1script,
-					"00"
-				});
-			
-			page1.WriteAt(0x10, 0x9200, rom);
-
+            maindrawscript.WriteAt(0x10, 0x9180, rom);
 		}
+		private void GeneratePages(FFMQRom rom)
+		{
+            int lineoffset = 0x06;
+
+            List<string> pages = new();
+
+            if (FragmentsCount == 0 && !ShuffledElementsType.Any() && !SpellLearning.Any())
+            {
+                string pagescript = $"250C1503{lineoffset:X2}19";
+                pagescript += rom.TextToHex("No info available.");
+                pages.Add(pagescript);
+            }
+
+            if (FragmentsCount > 0 || ShuffledElementsType.Any())
+            {
+                string pagescript = $"250C1503{lineoffset:X2}19";
+                if (FragmentsCount > 0)
+                {
+                    pagescript += rom.TextToHex("Sky Fragments Required: " + FragmentsCount.ToString());
+                    lineoffset += 3;
+                }
+
+                if (ShuffledElementsType.Any())
+                {
+                    pagescript += $"250C1503{lineoffset:X2}19";
+                    pagescript += rom.TextToHex("Resist/Weak Shuffling");
+                    lineoffset++;
+                    pagescript += $"25102404{lineoffset:X2}110618";
+                    lineoffset++;
+                    pagescript += $"1505{lineoffset:X2}19";
+
+                    ShuffledElementsType.Reverse();
+
+                    int xcount = 0;
+                    foreach (var elementgroup in ShuffledElementsType)
+                    {
+                        pagescript += elementsbytes[elementgroup.Item1] + "DC" + elementsbytes[elementgroup.Item2];
+                        xcount++;
+                        if (xcount >= 4)
+                        {
+                            pagescript += "01";
+                            xcount = 0;
+                        }
+                        else
+                        {
+                            pagescript += "FF";
+                        }
+                    }
+                    lineoffset += 5;
+                }
+                pages.Add(pagescript);
+            }
+
+            if (SpellLearning.Any())
+            {
+                foreach (var spelllearner in SpellLearning.OrderBy(l => l.Item1))
+                {
+                    pages.Add(CompanionPage(spelllearner.Item1, rom));
+                }
+            }
+
+            if (pages.Count > 1)
+            {
+                for (int i = 0; i < pages.Count; i++)
+                {
+                    pages[i] += "250C15191519";
+                    pages[i] += rom.TextToHex((i + 1).ToString() + "/" + pages.Count.ToString() + " ") + "DC";
+                }
+            }
+
+			pagecount = pages.Count;
+
+            int pageoffset = 0x9200;
+
+            foreach (var page in pages)
+            {
+                var pagescript = new ScriptBuilder(
+                    new List<string> {
+                        page,
+                        "00"
+                    });
+
+                pagescript.WriteAt(0x10, pageoffset, rom);
+				pageoffsets.Add(pageoffset);
+                pageoffset += pagescript.Size();
+            }
+        }
+		private string CompanionPage(CompanionsId companion, FFMQRom rom)
+		{
+            string pagescript = "";
+            int lineoffset = 0x06;
+
+			// name box
+			pagescript += $"240101{(companionnames[companion].Length+2):X2}0318";
+            pagescript += $"250C15020219";
+            pagescript += rom.TextToHex(companionnames[companion]);
+
+            // Spell window
+			pagescript += $"25102401041E0518";
+            pagescript += $"15020419";
+            pagescript += rom.TextToHex("Spells");
+
+            // Position cursor
+            pagescript += $"15020519";
+
+            /*
+            pagescript += $"250C1503{lineoffset:X2}19";
+            pagescript += rom.TextToHex(companionnames[companion] + " - Spells");
+            lineoffset++;
+            pagescript += $"25102404{lineoffset:X2}1A0918";
+            lineoffset++;
+            pagescript += $"1505{lineoffset:X2}19";*/
+
+            var spellist = SpellLearning.Find(s => s.Item1 == companion).Item2.OrderBy(s => s.level).ToList();
+            
+			int xcount = 0;
+            string line1 = "";
+            string line2 = "";
+            string line3 = "";
+
+            foreach (var spell in spellist)
+            {
+                var currentspellsprite = spellbooksbytes[spell.spell];
+
+				line1 += currentspellsprite[0];
+				line2 += currentspellsprite[1];
+                line3 += rom.TextToHex(spell.level.ToString().PadLeft(2));
+
+
+                /*
+				line1 += "FF" + currentspellsprite[0] + "FF";
+                line2 += "FF" + currentspellsprite[1] + "FF";
+                line3 += rom.TextToHex("Lv" + spell.level.ToString().PadLeft(2));
+				*/
+                xcount++;
+                if (xcount >= 10)
+                {
+                    pagescript += line1 + "01" + line2 + "01" + line3 + "01";
+                    xcount = 0;
+                    line1 = "";
+                    line2 = "";
+                    line3 = "";
+                }
+                else
+                {
+                    line1 += "FF";
+                    line2 += "FF";
+                    line3 += "FF";
+                }
+            }
+            pagescript += line1 + "01" + line2 + "01" + line3 + "01";
+
+			return pagescript;
+        }
 	}
 }

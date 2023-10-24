@@ -323,6 +323,10 @@ namespace FFMQLib
 
 			return OutputBlob();
 		}
+		public int Size()
+		{
+			return (_scriptSeries.SelectMany(s => s).Count() / 2);
+        }
 		private byte[] OutputBlob()
 		{
 			for (int i = 0; i < _scriptSeries.Count; i++)
