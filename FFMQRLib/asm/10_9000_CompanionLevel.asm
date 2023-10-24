@@ -209,6 +209,7 @@ loop:
 
 LoadEquipSpells:
   REP #$30
+  INX
   TXA
   CLC
   ADC #$A300
