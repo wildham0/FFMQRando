@@ -594,7 +594,7 @@ namespace FFMQLib
 			{
                 // Ben Levelup
                 rom.PutInBank(0x02, 0x8830, Blob.FromHex("2220a310"));
-                rom.PutInBank(0x10, 0xA320, Blob.FromHex("2000a020a0a222029b006b"));
+                rom.PutInBank(0x10, 0xA320, Blob.FromHex("08e230ad9010c9fff0062000a020a0a222029b00286b"));
             }
 
 			// Quest fullfilled
