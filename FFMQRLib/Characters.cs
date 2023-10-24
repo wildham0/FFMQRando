@@ -674,7 +674,7 @@ namespace FFMQLib
 			rom.PutInBank(0x10, 0xA280, Blob.FromHex("08e220c210ae96108e9410ae9b108e9810ad9d108d9a109ca1102860"));
 
             // HpUp
-            rom.PutInBank(0x10, 0xA2A0, Blob.FromHex("08e230ad9410186928008d94102860"));
+            rom.PutInBank(0x10, 0xA2A0, Blob.FromHex("08e230ad94101869288d94102860"));
 
             // ComputeAI
             rom.PutInBank(0x10, 0xA230, Blob.FromHex("08c230dabf0000102903000aaabf30a4108dc210fae220c210a900ebbf000010aabf20a410a8a904aa0bf4b8102b225a9700f003988002a9009dc010e88ae00c0090e72b2860"));
