@@ -656,7 +656,7 @@ namespace FFMQLib
 
 			// SetLevel_Ben
 
-			rom.PutInBank(0x10, 0xA0A0, Blob.FromHex($"08e230ad10101869{benlevelbonus}8d90102860"));
+			rom.PutInBank(0x10, 0xA0A0, Blob.FromHex($"08e220ad10101869{benlevelbonus}8d90102860"));
 
             // SetLevel_Quest
 			rom.PutInBank(0x10, 0xA0B0, Blob.FromHex("08e220c210daa900ebad920e38e9010a0aa8186d920e38e901aa981869a922769700f001e818690122769700f001e818690122769700f001e818690122769700f001e8186901bf00a4108d9010fa2860"));

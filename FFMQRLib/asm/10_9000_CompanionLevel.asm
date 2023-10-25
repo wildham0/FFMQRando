@@ -53,7 +53,7 @@ GetCompanionOffset:
 
 SetLevel_Ben:
   PHP
-  SEP #$30
+  SEP #$20
   LDA benlevel
   CLC
   ADC #$00 ; change given setting
