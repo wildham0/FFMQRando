@@ -571,9 +571,20 @@ namespace FFMQLib
 				
 				List<LevelThreshold> newloadout = new();
 				List<SpellFlags> cumulativespells = new();
+				bool level23set = false;
 
 				foreach (var spellsgroup in companionspells)
 				{
+					if (spellsgroup.Key == 23)
+					{
+						level23set = true;
+					}
+					else if (spellsgroup.Key > 23 && !level23set)
+					{
+                        newloadout.Add(new(23, this[companion].ArmorSet2, new(cumulativespells)));
+						level23set = true;
+                    }
+
 					cumulativespells.AddRange(spellsgroup.Item2);
                     newloadout.Add(new(spellsgroup.Key, spellsgroup.Key < 23 ? this[companion].ArmorSet1 : this[companion].ArmorSet2, new(cumulativespells)));
                 }
