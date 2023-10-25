@@ -81,8 +81,8 @@ namespace FFMQLib
 			// Fight Minotaur
 			TileScripts.AddScript((int)TileScriptsList.FightMinotaur,
 				new ScriptBuilder(new List<string> {
-					"050B63[21]",
-					$"050f{(int)CompanionsId.Kaeli:X2}[22]",
+					"050B63[22]",
+					$"050f{(int)CompanionsId.Kaeli:X2}[23]",
 					"2A30460054105a0e2527275246022A00453055FFFF",
 					"1A0BAE63FF57FF57CE30ACC8C5C3C5BCC6B8CE36",
 					"2A1B278044105430555054FFFF",
@@ -194,8 +194,8 @@ namespace FFMQLib
 			GameFlags[0xC9] = false;
 			TileScripts.AddScript((int)TileScriptsList.BoneDungeonTristamBomb,
 				new ScriptBuilder(new List<string> {
-					$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[15]",
-					$"050f{(int)CompanionsId.Tristam:X2}[15]",
+					$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[16]",
+					$"050f{(int)CompanionsId.Tristam:X2}[16]",
 					"2a3046104130441054ffff",
 					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}",
 					flags.ProgressiveGear ? "09309411" : "",
@@ -415,8 +415,8 @@ namespace FFMQLib
 			// Collaspe
 			TileScripts.AddScript((int)TileScriptsList.WintryCavePhoebeClaw,
 				new ScriptBuilder(new List<string> {
-					$"2e{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[07]",
-					$"050f{(int)CompanionsId.Phoebe:X2}[07]",
+					$"2e{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[08]",
+					$"050f{(int)CompanionsId.Phoebe:X2}[08]",
 					"2a3046104310443054ffff",
 					"1a8a" + TextToHex("Good job not being a clutz and falling down like an idiot! I guess that calls for a reward..."),
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeWintryCave]:X2}0162",
@@ -858,17 +858,17 @@ namespace FFMQLib
 			// Throw Mega Grenade
 			TileScripts.AddScript((int)TileScriptsList.BlowingOffMineBoulder,
 				new ScriptBuilder(new List<string> {
-					$"2E{(int)NewGameFlagsList.ReubenMineItemGiven:X2}[07]",
-					$"050f{(int)CompanionsId.Reuben:X2}[07]",
+					$"2E{(int)NewGameFlagsList.ReubenMineItemGiven:X2}[08]",
+					$"050f{(int)CompanionsId.Reuben:X2}[08]",
 					"2a3046104310443054ffff",
 					"1a91" + TextToHex("Ugh, my feet are killing me! Do me a favor and hold this on the way back. It's weighting a ton!"),
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeFallBasin]:X2}0162",
 					"2a10414046ffff",
 					$"23{(int)NewGameFlagsList.ReubenMineItemGiven:X2}",
                     $"23{(int)NewGameFlagsList.ReubenQuest1:X2}",
-                    "2E37[10]",
+                    "2E37[11]",
 					"2D" + ScriptItemFlags[Items.MegaGrenade].Item1,
-					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[11]",
+					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[12]",
 					"00",
 					"2A105411411140214430461525404626252142214346464746ffff",
 					"1a92" + TextToHex("Thanks! I would have died of old age waiting for my incompetent son to save me!") + "36",
