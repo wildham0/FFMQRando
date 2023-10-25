@@ -249,13 +249,13 @@ namespace FFMQLib
             var conbase = Blob.FromUShorts(new ushort[] { (ushort)ConBase });
             levelingdata.AddRange(conbase.ToBytes());
 
-            levelingdata.Add((byte)MagMultiplier);
-            var magbase = Blob.FromUShorts(new ushort[] { (ushort)MagBase });
-            levelingdata.AddRange(magbase.ToBytes());
-
             levelingdata.Add((byte)SpdMultiplier);
             var spdbase = Blob.FromUShorts(new ushort[] { (ushort)SpdBase });
             levelingdata.AddRange(spdbase.ToBytes());
+
+            levelingdata.Add((byte)MagMultiplier);
+            var magbase = Blob.FromUShorts(new ushort[] { (ushort)MagBase });
+            levelingdata.AddRange(magbase.ToBytes());
 
 			levelingdata.Add((byte)WhiteMPBase);
             levelingdata.Add((byte)BlackMPBase);
