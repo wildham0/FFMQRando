@@ -19,22 +19,22 @@ namespace FFMQLib
 			Put(GameStartScript, Blob.FromHex($"23222b7a2a0b2700200470002ab0532050{((byte)startinglocation):X2}29ffff00"));
 
 			GameFlags[(int)GameFlagsList.ShowPazuzuBridge] = true;
-            
+			
 			// Set Pazuzu Initial Floor
 			GameFlags[(int)GameFlagsList.ShowPazuzu7F] = false;
 			int pazuzuFloor = rng.Between(0, 5);
 			for (int i = 0; i < 6; i++)
 			{
 				GameFlags[(int)GameFlagsList.ShowPazuzu1F + i] = (pazuzuFloor == i);
-            }
+			}
 
-            for (int i = 0; i < 16; i++)
-            {
-                GameFlags[(int)NewGameFlagsList.KaeliQuest1 + i] = false;
-            }
+			for (int i = 0; i < 16; i++)
+			{
+				GameFlags[(int)NewGameFlagsList.KaeliQuest1 + i] = false;
+			}
 
-            // Remove Mine Boulder
-            for (int i = 0; i < 6; i++)
+			// Remove Mine Boulder
+			for (int i = 0; i < 6; i++)
 			{
 				Overworld.RemoveObject(i);
 			}
@@ -96,8 +96,8 @@ namespace FFMQLib
 					"2C8044",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliForesta]:X2}0162",
 					$"23{(int)NewGameFlagsList.ShowSickKaeli:X2}",
-                    $"23{(int)NewGameFlagsList.KaeliQuest1:X2}",
-                    "0880FF",
+					$"23{(int)NewGameFlagsList.KaeliQuest1:X2}",
+					"0880FF",
 					"61",
 					"2A1140404661424146FFFF",
 					"236D",
@@ -209,8 +209,8 @@ namespace FFMQLib
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}0162",
 					"2a10434046ffff", // 24ff > d3fe
 					$"23{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}",
-                    $"23{(int)NewGameFlagsList.TristamQuest1:X2}",
-                    "00"
+					$"23{(int)NewGameFlagsList.TristamQuest1:X2}",
+					"00"
 				}));
 
 			// Fight Rex
@@ -422,8 +422,8 @@ namespace FFMQLib
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeWintryCave]:X2}0162",
 					"2a10414046ffff", // 24ff > d3fe
 					$"23{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}",
-                    $"23{(int)NewGameFlagsList.PhoebeQuest1:X2}",
-                    "00"
+					$"23{(int)NewGameFlagsList.PhoebeQuest1:X2}",
+					"00"
 				}));
 
 			// Wintry Squid
@@ -465,11 +465,11 @@ namespace FFMQLib
 			// Put Chest under crab
 			MapObjects[0x21][0x07].X--;
 
-            MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
+			MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
 			MapObjects[0x21][0x0F].Y = MapObjects[0x21][0x07].Y;
 			MapObjects[0x21][0x0F].Gameflag = 0xFE;
 
-            TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
+			TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
 				new ScriptBuilder(new List<string>{
 					"04",
 					"05E43403",
@@ -479,19 +479,19 @@ namespace FFMQLib
 					"00"
 				}));
 
-            // Remove Phoebe Script Tile
-            GameMaps[(int)MapList.FallBasin].ModifyMap(0x11, 0x06, 0x1D, true);
+			// Remove Phoebe Script Tile
+			GameMaps[(int)MapList.FallBasin].ModifyMap(0x11, 0x06, 0x1D, true);
 
 			// Fix pillar softlock
-            GameMaps[(int)MapList.FallBasin].ModifyMap(0x03, 0x17, 
+			GameMaps[(int)MapList.FallBasin].ModifyMap(0x03, 0x17, 
 				new()
 				{ 
 					new() { 0x1D, 0x0D, 0x0E },
-                    new() { 0x1D, 0x1D, 0x1E },
-                });
+					new() { 0x1D, 0x1D, 0x1E },
+				});
 
-            // Exit Fall Basin
-            GameMaps.TilesProperties[0x0A][0x22].Byte2 = 0x08;
+			// Exit Fall Basin
+			GameMaps.TilesProperties[0x0A][0x22].Byte2 = 0x08;
 
 			/*** Ice Pyramid ***/
 			// Ice Pyramid Entrance
@@ -872,12 +872,12 @@ namespace FFMQLib
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeFallBasin]:X2}0162",
 					"2a10414046ffff",
 					$"23{(int)NewGameFlagsList.ReubenMineItemGiven:X2}",
-                    $"23{(int)NewGameFlagsList.ReubenQuest1:X2}",
-                    "2E37[11]",
+					$"23{(int)NewGameFlagsList.ReubenQuest1:X2}",
+					"2E37[11]",
 					"2D" + ScriptItemFlags[Items.MegaGrenade].Item1,
 					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[12]",
 					"00",
-					"2A105411411140214430461525404626252142214346464746ffff",
+					"2A105411411140214410541525105426252142214346464746ffff",
 					"1a92" + TextToHex("Thanks! I would have died of old age waiting for my incompetent son to save me!") + "36",
 					"2A314151424146FFFF",
 					"2337",

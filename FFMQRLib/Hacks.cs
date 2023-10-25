@@ -190,7 +190,12 @@ namespace FFMQLib
             // Apply resist to bombs
             PutInBank(0x02, 0x905B, Blob.FromHex("20f0feeaeaea"));
             PutInBank(0x02, 0xFEF0, Blob.FromHex("209d9920699a20ed9b60"));
-        }
+
+			// Transfer Reuben Megagrenade animation to benjamin
+			PutInBank(0x01, 0xD9D0, Blob.FromHex("ae9d198e3519eaeaeaeaeaea"));
+			PutInBank(0x01, 0xD9E2, Blob.FromHex("ad8b0e18690c"));
+			PutInBank(0x01, 0xD9EB, Blob.FromHex("20b08c"));
+		}
 		public void FixMultiplyingDarkKing()
 		{
 			// Expand Battle to 3 if multiply is casted

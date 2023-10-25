@@ -43,17 +43,17 @@ namespace FFMQLib
 			
 			MT19337 rng;				// Fixed RNG so the same seed with the same flagset generate the same results
 			MT19337 sillyrng;			// Fixed RNG so non impactful rng (preferences) matches for the same seed and the same flagset
-            MT19337 asyncrng;			// Free RNG so non impactful rng varies for the same seed and flagset
-            using (SHA256 hasher = SHA256.Create())
+			MT19337 asyncrng;			// Free RNG so non impactful rng varies for the same seed and flagset
+			using (SHA256 hasher = SHA256.Create())
 			{
 				Blob hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
-                sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
+				sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
-            asyncrng = new MT19337((uint)Guid.NewGuid().GetHashCode());
+			asyncrng = new MT19337((uint)Guid.NewGuid().GetHashCode());
 
 
-            Attacks = new(this);
+			Attacks = new(this);
 			EnemyAttackLinks = new(this);
 			EnemiesStats = new(this);
 			GameMaps = new(this);
@@ -83,8 +83,8 @@ namespace FFMQLib
 			GeneralModifications(flags, apconfigs.ApEnabled, rng);
 			UnjankOverworld(GameMaps, MapChanges, MapPalettes);
 
-            // Maps Changes
-            GameMaps.RandomGiantTreeMessage(rng);
+			// Maps Changes
+			GameMaps.RandomGiantTreeMessage(rng);
 			GameMaps.LessObnoxiousMaps(flags.TweakedDungeons, MapObjects, rng);
 
 			// Enemies
@@ -126,8 +126,8 @@ namespace FFMQLib
 			// Companion
 			Companions.SetSpellbooks(flags.CompanionSpellbookType, GameInfoScreen, rng);
 
-            // Various
-            SetLevelingCurve(flags.LevelingCurve);
+			// Various
+			SetLevelingCurve(flags.LevelingCurve);
 			ProgressiveGears(flags.ProgressiveGear);
 			SkyCoinMode(flags, rng);
 			ExitHack(Overworld.StartingLocation);
