@@ -482,9 +482,16 @@ namespace FFMQLib
             // Remove Phoebe Script Tile
             GameMaps[(int)MapList.FallBasin].ModifyMap(0x11, 0x06, 0x1D, true);
 
+			// Fix pillar softlock
+            GameMaps[(int)MapList.FallBasin].ModifyMap(0x03, 0x17, 
+				new()
+				{ 
+					new() { 0x1D, 0x0D, 0x0E },
+                    new() { 0x1D, 0x1D, 0x1E },
+                });
+
             // Exit Fall Basin
             GameMaps.TilesProperties[0x0A][0x22].Byte2 = 0x08;
-			
 
 			/*** Ice Pyramid ***/
 			// Ice Pyramid Entrance

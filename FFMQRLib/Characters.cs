@@ -499,7 +499,7 @@ namespace FFMQLib
 				{
                     levelrange = new() { Enumerable.Range(1, 41).Concat(Enumerable.Range(1, 35)).ToList() };
 					spells = new() { spells.SelectMany(s => s).ToList() };
-					counts = new() { rng.Between(2, 20)};
+					counts = new() { rng.Between(6, 20)};
                     collapsedlist = weightlist.Select(x => (x.spell, x.Item2.Select(c => c.companion).ToList())).ToList();
                 }
 
@@ -669,7 +669,7 @@ namespace FFMQLib
 
 			rom.PutInBank(0x10, 0xA0A0, Blob.FromHex($"08e220ad10101869{benlevelbonus}8d90102860"));
 
-            // SetLevel_Quest
+            // SetLevel_Quest; flush to ComputeStats, maybe move one or the other
 			rom.PutInBank(0x10, 0xA0B0, Blob.FromHex("08e220c210daa900ebad920e38e9010a0aa8186d920e38e901aa981869a922769700f001e818690122769700f001e818690122769700f001e818690122769700f001e8186901bf00a4108d9010fa2860"));
 
 			// ComputeStats
