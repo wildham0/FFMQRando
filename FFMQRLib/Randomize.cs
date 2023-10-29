@@ -75,9 +75,10 @@ namespace FFMQLib
 			Credits credits = new(this);
 			TitleScreen titleScreen = new(this);
 
-			SpriteReader spriteReader = new();
+			PlayerSpriteReader spriteReader = new();
 			PlayerSprites playerSprites = new(PlayerSpriteMode.Spritesheets);
 			PlayerSprite playerSprite = playerSprites.GetSprite(preferences, asyncrng);
+			DarkKingSpriteReader dkSpriteReader = new();
 
 			// General modifications
 			GeneralModifications(flags, apconfigs.ApEnabled, rng);
@@ -139,9 +140,11 @@ namespace FFMQLib
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			WindowPalette(preferences.WindowPalette);
 			spriteReader.LoadCustomSprites(playerSprite, this);
+            dkSpriteReader.RandomizeDarkKingTrueForm(preferences.DarkKingTrueForm, sillyrng, this);
 
-			// Write everything back			
-			itemsPlacement.WriteChests(this);
+
+            // Write everything back			
+            itemsPlacement.WriteChests(this);
 			EnemyAttackLinks.Write(this);
 			Attacks.Write(this);
 			EnemiesStats.Write(this);

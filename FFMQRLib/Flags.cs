@@ -259,7 +259,8 @@ namespace FFMQLib
 	{
 		public bool RandomBenjaminPalette { get; set; } = false;
 		public bool RandomMusic { get; set; } = false;
-		public ushort WindowPalette { get; set; } = 0x5140;
+        public bool DarkKingTrueForm { get; set; } = false;
+        public ushort WindowPalette { get; set; } = 0x5140;
 		public string PlayerSprite { get; set; } = "default";
 		public byte[] CustomSprites { get; set; } = new byte[0];
 
