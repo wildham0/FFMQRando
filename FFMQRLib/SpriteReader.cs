@@ -421,9 +421,11 @@ namespace FFMQLib
 
 			return result;
         }
-		public void RandomizeDarkKingTrueForm(bool enable, MT19337 rng, FFMQRom rom)
+		public void RandomizeDarkKingTrueForm(Preferences pref, MT19337 rng, FFMQRom rom)
 		{
-			if (!enable)
+			bool debugmode = pref.DarkKing3.Length > 0;
+			
+			if (!pref.DarkKingTrueForm && !debugmode)
 			{
 				rng.Next();
                 return;
@@ -432,12 +434,26 @@ namespace FFMQLib
             var rngback = rng;
 
             var filename = rng.PickFrom(dktrueformsname);
+			DarkKingSpriteDataPack darkking3 = new();
+            DarkKingSpriteDataPack darkking4 = new();
 
-            LoadSpritesheetFromZip(filename + "1");
-			DarkKingSpriteDataPack darkking3 = Encode();
 
-            LoadSpritesheetFromZip(filename + "2");
-            DarkKingSpriteDataPack darkking4 = Encode();
+            if (debugmode)
+			{
+				data = pref.DarkKing3;
+                darkking3 = Encode();
+
+                data = pref.DarkKing4;
+                darkking4 = Encode();
+            }
+			else
+			{
+                LoadSpritesheetFromZip(filename + "1");
+                darkking3 = Encode();
+
+                LoadSpritesheetFromZip(filename + "2");
+                darkking4 = Encode();
+            }
 
             rom.PutInBank(drawingArrayBank, drawingArrayOffsetDK3, darkking3.DrawingArray);
             rom.PutInBank(drawingArrayBank, paletteArrayOffsetDK3, darkking3.PaletteArray);

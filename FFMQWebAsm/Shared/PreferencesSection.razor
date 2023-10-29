@@ -1,298 +1,360 @@
 ﻿@using System.IO;
+@using System.IO.Compression;
 @using System.Text;
 @inject HttpClient Http
 @using System.Net.Http
 @using FFMQLib;
+@inject NavigationManager NavigationManager
 @inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
 @inject IJSRuntime JS
 
 <Container class="sectionBox">
-    <div class="box-title text-secondary">Preferences</div> 
-    <div class="text-secondary">Preferences doesn't affect the randomization and can be enabled/disabled without any impact on gameplay.</div>
-    <Container Class="flagBox">
-        <Container Class="flagColumn">
-            <BoolFlag UsePreset=false Name="Randomize Benjamin's Palette" @bind-Value="preferences.RandomBenjaminPalette" Tooltip="Randomly select Benjamin's palette, giving him a brand new look!" />
-            <Field Class="dropFlag">
-                <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Custom Player Sprite</FieldLabel>
-                <Tooltip Text="Select a custom sprite set to replace the main character.<br/><br/>Default/Benjamin will keep the rom original sprite or an hacked rom sprite.<br/><br/>Upload Custom Sprites allows you to upload your own spritesheet." Inline Multiline Placement="TooltipPlacement.Right">
-                    <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small />
-                </Tooltip>
-                <Dropdown TValue="string">
-                    <DropdownToggle Clicked="@(() => OnPlayerSpritesToggleClicked())" Class="btn-primary" Visibility="@(playerSpritesEnableTextInput ? Visibility.Invisible : Visibility.Visible)" Style="text-align: left">
-                            @((MarkupString)CurrentSpriteSelection())
-                     </DropdownToggle>
-                    @if (playerSpritesEnableTextInput)
-                    {
-                        <TextEdit Autofocus @onfocusout="@OnSpriteTextInputFocusOut" Text="@spriteTextInput" TextChanged="@OnSpriteTextChanged" Class="text-over-dropdown" />
-                    }
-                    <DropdownMenu MaxMenuHeight="300px">
-                        @if (displayDefault)
-                        { 
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("default"))"><img src="skin-icons/default-benjamin-icon.png" class="sprite-icon" /> Default/Benjamin</DropdownItem>
-                        }
-                        @foreach(var sprite in currentsprites)
-                        {
-                            <DropdownItem Clicked="@(() => OnSpriteSelect(@sprite.filename))"><img src="@(ConvertImageBytes(sprite.iconimg))" class="sprite-icon" /> @sprite.name</DropdownItem>
-                        }
-                        @if (displayRandom)
-                        {
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("random"))">Random</DropdownItem>
-                        }
-                        @if (displayUpload)
-                        {
-                            <DropdownItem Clicked="@(() => OnSpriteSelect("custom"))">Upload Custom Sprites</DropdownItem>
-                        }
-                    </DropdownMenu>
-                </Dropdown>
-            </Field>
-            
-                @if (preferences.PlayerSprite == "custom")
-            {
-                <Field class="romFlag">
-                    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Load</FieldLabel>
-                    <FileEdit Filter=".bmp" AutoReset="false" Changed="@LoadSpritesFromFile"></FileEdit>
-                    <FieldHelp>@spriteMessage</FieldHelp>
-                </Field>
-            }
-            <BoolFlag UsePreset=false Name="Randomize Dark King's True Form" @bind-Value="preferences.DarkKingTrueForm" Tooltip="Dark King's True Form will be randomly selected and replace his Space Spider form." />
-            <BoolFlag UsePreset=false Name="Randomize Music" @bind-Value="preferences.RandomMusic" Tooltip="Shuffle the music tracks." />
-            <Field>
-                <Text TextColor="TextColor.Secondary" class="fw-bold">Default Window Palette</Text>
-                <Tooltip Text="Set the Window starting palette.<br/><br/>Default blue is RGB 0, 80, 160 (#0050A0)." Inline Multiline Placement="TooltipPlacement.Right">
-                    <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small />
-                </Tooltip>
-                <ColorEdit Color="@windowPalette" ColorChanged="@WindowPaletteChange" />
-            </Field>
-            <Field class="text-secondary dropFlag romBtn">
-                <Button Color="Color.Primary" Clicked="@SavePreferences">Save Preferences</Button>
-            </Field>
-        </Container>
-        <Container Class="flagColumn">
-        </Container>
-    </Container>
+	<div class="box-title text-secondary">Preferences</div> 
+	<div class="text-secondary">Preferences doesn't affect the randomization and can be enabled/disabled without any impact on gameplay.</div>
+	<Container Class="flagBox">
+		<Container Class="flagColumn">
+			<BoolFlag UsePreset=false Name="Randomize Benjamin's Palette" @bind-Value="preferences.RandomBenjaminPalette" Tooltip="Randomly select Benjamin's palette, giving him a brand new look!" />
+			<Field Class="dropFlag">
+				<FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Custom Player Sprite</FieldLabel>
+				<Tooltip Text="Select a custom sprite set to replace the main character.<br/><br/>Default/Benjamin will keep the rom original sprite or an hacked rom sprite.<br/><br/>Upload Custom Sprites allows you to upload your own spritesheet." Inline Multiline Placement="TooltipPlacement.Right">
+					<Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small />
+				</Tooltip>
+				<Dropdown TValue="string">
+					<DropdownToggle Clicked="@(() => OnPlayerSpritesToggleClicked())" Class="btn-primary" Visibility="@(playerSpritesEnableTextInput ? Visibility.Invisible : Visibility.Visible)" Style="text-align: left">
+							@((MarkupString)CurrentSpriteSelection())
+					 </DropdownToggle>
+					@if (playerSpritesEnableTextInput)
+					{
+						<TextEdit Autofocus @onfocusout="@OnSpriteTextInputFocusOut" Text="@spriteTextInput" TextChanged="@OnSpriteTextChanged" Class="text-over-dropdown" />
+					}
+					<DropdownMenu MaxMenuHeight="300px">
+						@if (displayDefault)
+						{ 
+							<DropdownItem Clicked="@(() => OnSpriteSelect("default"))"><img src="skin-icons/default-benjamin-icon.png" class="sprite-icon" /> Default/Benjamin</DropdownItem>
+						}
+						@foreach(var sprite in currentsprites)
+						{
+							<DropdownItem Clicked="@(() => OnSpriteSelect(@sprite.filename))"><img src="@(ConvertImageBytes(sprite.iconimg))" class="sprite-icon" /> @sprite.name</DropdownItem>
+						}
+						@if (displayRandom)
+						{
+							<DropdownItem Clicked="@(() => OnSpriteSelect("random"))">Random</DropdownItem>
+						}
+						@if (displayUpload)
+						{
+							<DropdownItem Clicked="@(() => OnSpriteSelect("custom"))">Upload Custom Sprites</DropdownItem>
+						}
+					</DropdownMenu>
+				</Dropdown>
+			</Field>
+			
+			@if (preferences.PlayerSprite == "custom")
+			{
+				<Field class="romFlag">
+					<FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Load</FieldLabel>
+					<FileEdit Filter=".bmp" AutoReset="false" Changed="@LoadSpritesFromFile"></FileEdit>
+					<FieldHelp>@spriteMessage</FieldHelp>
+				</Field>
+			}
+			<BoolFlag UsePreset=false Name="Randomize Dark King's True Form" @bind-Value="preferences.DarkKingTrueForm" Tooltip="Dark King's True Form will be randomly selected and replace his Space Spider form." />
+			@if (GetBetaStatus())
+			{
+				<Field class="romFlag">
+					<FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Load</FieldLabel>
+					<FileEdit Filter=".zip" AutoReset="false" Changed="@LoadDKSpritesFromFile"></FileEdit>
+					<FieldHelp>@dkMessage</FieldHelp>
+				</Field>
+			}
+			<BoolFlag UsePreset=false Name="Randomize Music" @bind-Value="preferences.RandomMusic" Tooltip="Shuffle the music tracks." />
+			<Field>
+				<Text TextColor="TextColor.Secondary" class="fw-bold">Default Window Palette</Text>
+				<Tooltip Text="Set the Window starting palette.<br/><br/>Default blue is RGB 0, 80, 160 (#0050A0)." Inline Multiline Placement="TooltipPlacement.Right">
+					<Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small />
+				</Tooltip>
+				<ColorEdit Color="@windowPalette" ColorChanged="@WindowPaletteChange" />
+			</Field>
+			<Field class="text-secondary dropFlag romBtn">
+				<Button Color="Color.Primary" Clicked="@SavePreferences">Save Preferences</Button>
+			</Field>
+		</Container>
+		<Container Class="flagColumn">
+		</Container>
+	</Container>
 </Container>
 
 @code
-                {
-    [Parameter]
-    public Preferences preferences { get; set; }
+				{
+	[Parameter]
+	public Preferences preferences { get; set; }
 
-    private string windowPalette = "#0050A0";
+	private string windowPalette = "#0050A0";
 
-    private string spriteMessage = "";
-    private PlayerSprites playersprites;
-    private List<PlayerSprite> currentsprites;
-    private bool playerSpritesEnableTextInput = false;
-    private string spriteTextInput = "";
-    private bool displayDefault = true;
-    private bool displayRandom = true;
-    private bool displayUpload = true;
+	private string spriteMessage = "";
+	private PlayerSprites playersprites;
+	private List<PlayerSprite> currentsprites;
+	private bool playerSpritesEnableTextInput = false;
+	private string spriteTextInput = "";
+	private bool displayDefault = true;
+	private bool displayRandom = true;
+	private bool displayUpload = true;
+	private string dkMessage = "";
 
-    private void WindowPaletteChange(string palette)
-    {
-        int red = Convert.ToInt32(palette.Substring(1, 2), 16);
-        int green = Convert.ToInt32(palette.Substring(3, 2), 16);
-        int blue = Convert.ToInt32(palette.Substring(5, 2), 16);
+	private void WindowPaletteChange(string palette)
+	{
+		int red = Convert.ToInt32(palette.Substring(1, 2), 16);
+		int green = Convert.ToInt32(palette.Substring(3, 2), 16);
+		int blue = Convert.ToInt32(palette.Substring(5, 2), 16);
 
-        int gamered = red / 8;
-        int gamegreen = green / 8;
-        int gameblue = blue / 8;
+		int gamered = red / 8;
+		int gamegreen = green / 8;
+		int gameblue = blue / 8;
 
-        ushort paletteValue = (ushort)(gamered + (gamegreen * 32) + (gameblue * 32 * 32));
-        preferences.WindowPalette = paletteValue;
+		ushort paletteValue = (ushort)(gamered + (gamegreen * 32) + (gameblue * 32 * 32));
+		preferences.WindowPalette = paletteValue;
 
-        red = gamered * 8;
-        green = gamegreen * 8;
-        blue = gameblue * 8;
+		red = gamered * 8;
+		green = gamegreen * 8;
+		blue = gameblue * 8;
 
-        windowPalette = $"#{red:X2}{green:X2}{blue:X2}";
-        StateHasChanged();
-    }
+		windowPalette = $"#{red:X2}{green:X2}{blue:X2}";
+		StateHasChanged();
+	}
 
-    private string ConvertImageBytes(byte[] image)
-    {
-        var imagesrc = Convert.ToBase64String(image);
-        return string.Format("data:image/png;base64,{0}", imagesrc);
-    }
+	private string ConvertImageBytes(byte[] image)
+	{
+		var imagesrc = Convert.ToBase64String(image);
+		return string.Format("data:image/png;base64,{0}", imagesrc);
+	}
 
-    private string CurrentSpriteSelection()
-    {
-        if (preferences.PlayerSprite == "default")
-        {
-            return "<img src=\"skin-icons/default-benjamin-icon.png\" class=\nsprite-icon\n /> Default/Benjamin";
-        }
-        else if (preferences.PlayerSprite == "random")
-        {
-            return "Random";
+	private string CurrentSpriteSelection()
+	{
+		if (preferences.PlayerSprite == "default")
+		{
+			return "<img src=\"skin-icons/default-benjamin-icon.png\" class=\nsprite-icon\n /> Default/Benjamin";
+		}
+		else if (preferences.PlayerSprite == "random")
+		{
+			return "Random";
 
-        }
-        else if (preferences.PlayerSprite == "custom")
-        {
-            return "Upload Custom Sprites";
-        }
-        else
-        {
-            var currentsprite = playersprites.sprites.Where(s => s.filename == preferences.PlayerSprite).ToList();
-            if (currentsprite.Any())
-            {
-                return "<img src=\"" + ConvertImageBytes(currentsprite.First().iconimg) + "\" class=\nsprite-icon\n /> " + currentsprite.First().name;
-            }
-            else
-            {
-                return "Error";    
-            }
-        }
-    }
-
-
-    private void SetWindowPalette(ushort palette)
-    {
-
-        int red = (palette % 32) * 8;
-        int green = ((palette % (32 * 32))/32) * 8;
-        int blue = (palette / (32 * 32)) * 8;
-
-        windowPalette = $"#{red:X2}{green:X2}{blue:X2}";
-        StateHasChanged();
-    }
-
-    protected override void OnInitialized()
-    {
-        playersprites = new(PlayerSpriteMode.Icons);
-        currentsprites = playersprites.sprites;
-
-        LoadPreferences();
-        LoadSprites();
-        SetWindowPalette(preferences.WindowPalette);
-    }
+		}
+		else if (preferences.PlayerSprite == "custom")
+		{
+			return "Upload Custom Sprites";
+		}
+		else
+		{
+			var currentsprite = playersprites.sprites.Where(s => s.filename == preferences.PlayerSprite).ToList();
+			if (currentsprite.Any())
+			{
+				return "<img src=\"" + ConvertImageBytes(currentsprite.First().iconimg) + "\" class=\nsprite-icon\n /> " + currentsprite.First().name;
+			}
+			else
+			{
+				return "Error";    
+			}
+		}
+	}
 
 
-    public void SavePreferences()
-    {
-        var prefList = preferences.GetType().GetProperties().ToList();
+	private void SetWindowPalette(ushort palette)
+	{
 
-        foreach (var pref in prefList)
-        {
-            localStorage.SetItem(pref.Name, pref.GetValue(preferences, null));
-        }
-    }
+		int red = (palette % 32) * 8;
+		int green = ((palette % (32 * 32))/32) * 8;
+		int blue = (palette / (32 * 32)) * 8;
 
-    public void LoadPreferences()
-    {
-        var prefList = preferences.GetType().GetProperties().ToList();
+		windowPalette = $"#{red:X2}{green:X2}{blue:X2}";
+		StateHasChanged();
+	}
 
-        foreach (var pref in prefList)
-        {
-            if (pref.PropertyType == typeof(bool))
-            {
-                bool? value = localStorage.GetItem<bool?>(pref.Name);
-                if (value != null)
-                {
-                    pref.SetValue(preferences, value);
-                }
-            }
-            else if (pref.PropertyType == typeof(ushort))
-            {
-                ushort? value = localStorage.GetItem<ushort?>(pref.Name);
-                if (value != null)
-                {
-                    pref.SetValue(preferences, value);
-                }
+	protected override void OnInitialized()
+	{
+		playersprites = new(PlayerSpriteMode.Icons);
+		currentsprites = playersprites.sprites;
 
-            }
-            else if (pref.PropertyType == typeof(string))
-            {
-                string value = localStorage.GetItem<string>(pref.Name);
-                if (value != null && value != "")
-                {
-                    pref.SetValue(preferences, value);
-                }
-            }
-        }
-    }
+		LoadPreferences();
+		LoadSprites();
+		SetWindowPalette(preferences.WindowPalette);
+	}
 
-    void OnSpriteSelect(string selection)
-    {
-        preferences.PlayerSprite = selection;
-        playerSpritesEnableTextInput = false;
-        StateHasChanged();
-    }
 
-    void OnPlayerSpritesToggleClicked()
-    {
-        playerSpritesEnableTextInput = true;
-        StateHasChanged();
-    }
+	public void SavePreferences()
+	{
+		var prefList = preferences.GetType().GetProperties().ToList();
 
-    void OnSpriteTextInputFocusOut(FocusEventArgs e)
-    {
-        playerSpritesEnableTextInput = false;
-        currentsprites = playersprites.sprites;
-        displayDefault = true;
-        displayRandom = true;
-        displayUpload = true;
-        spriteTextInput = "";
-        StateHasChanged();
-    }
+		foreach (var pref in prefList)
+		{
+			localStorage.SetItem(pref.Name, pref.GetValue(preferences, null));
+		}
+	}
 
-    Task OnSpriteTextChanged(string value)
-    {
-        spriteTextInput = value;
+	public void LoadPreferences()
+	{
+		var prefList = preferences.GetType().GetProperties().ToList();
 
-        currentsprites = playersprites.sprites.Where(s => s.name.Contains(value, StringComparison.OrdinalIgnoreCase)).ToList();
+		foreach (var pref in prefList)
+		{
+			if (pref.PropertyType == typeof(bool))
+			{
+				bool? value = localStorage.GetItem<bool?>(pref.Name);
+				if (value != null)
+				{
+					pref.SetValue(preferences, value);
+				}
+			}
+			else if (pref.PropertyType == typeof(ushort))
+			{
+				ushort? value = localStorage.GetItem<ushort?>(pref.Name);
+				if (value != null)
+				{
+					pref.SetValue(preferences, value);
+				}
 
-        displayDefault = ("Default/Benjamin".Contains(value, StringComparison.OrdinalIgnoreCase));
-        displayRandom = ("Random".Contains(value, StringComparison.OrdinalIgnoreCase));
-        displayUpload = ("Upload Custom Sprites".Contains(value, StringComparison.OrdinalIgnoreCase));
+			}
+			else if (pref.PropertyType == typeof(string))
+			{
+				string value = localStorage.GetItem<string>(pref.Name);
+				if (value != null && value != "")
+				{
+					pref.SetValue(preferences, value);
+				}
+			}
+		}
+	}
 
-        StateHasChanged();
+	void OnSpriteSelect(string selection)
+	{
+		preferences.PlayerSprite = selection;
+		playerSpritesEnableTextInput = false;
+		StateHasChanged();
+	}
 
-        return Task.CompletedTask;
-    }
+	void OnPlayerSpritesToggleClicked()
+	{
+		playerSpritesEnableTextInput = true;
+		StateHasChanged();
+	}
 
-    private async Task LoadSpritesFromFile(FileChangedEventArgs e)
-    {
-        spriteMessage = "Loading...";
-        StateHasChanged();
-        try
-        {
-            byte[] spritesheet = new byte[0];
-            MemoryStream ms = new MemoryStream();
-            await e.Files.First().OpenReadStream().CopyToAsync(ms);
-            spritesheet = ms.ToArray();
+	void OnSpriteTextInputFocusOut(FocusEventArgs e)
+	{
+		playerSpritesEnableTextInput = false;
+		currentsprites = playersprites.sprites;
+		displayDefault = true;
+		displayRandom = true;
+		displayUpload = true;
+		spriteTextInput = "";
+		StateHasChanged();
+	}
 
-            preferences.CustomSprites = spritesheet;
-            preferences.ValidateCustomSprites();
-            spriteMessage = "Custom Sprites Loaded";
-            SaveSprites();
-        }
-        catch (Exception ex)
-        {
-            spriteMessage = ex.Message;
-            Console.WriteLine(ex.Message);
-        }
-    }
+	Task OnSpriteTextChanged(string value)
+	{
+		spriteTextInput = value;
 
-    private async void SaveSprites()
-    {
-        byte[] savedSprites = new byte[0];
-        if (preferences.CustomSprites.Length > 0)
-        {
-            savedSprites = preferences.CustomSprites;
-        }
+		currentsprites = playersprites.sprites.Where(s => s.name.Contains(value, StringComparison.OrdinalIgnoreCase)).ToList();
 
-        await JS.InvokeVoidAsync("saveSavedSprites", savedSprites);
-    }
+		displayDefault = ("Default/Benjamin".Contains(value, StringComparison.OrdinalIgnoreCase));
+		displayRandom = ("Random".Contains(value, StringComparison.OrdinalIgnoreCase));
+		displayUpload = ("Upload Custom Sprites".Contains(value, StringComparison.OrdinalIgnoreCase));
 
-    public async void LoadSprites()
-    {
-        byte[] savedSprites = await JS.InvokeAsync<byte[]>("loadSavedSprites");
+		StateHasChanged();
 
-        if (savedSprites != null)
-        {
-            preferences.CustomSprites = savedSprites;
-            spriteMessage = "Saved Custom Sprites Loaded";
-            StateHasChanged();
-        }
-    }
+		return Task.CompletedTask;
+	}
+
+	private bool GetBetaStatus()
+	{
+		var uri = new Uri(NavigationManager.Uri);
+
+		string fullUrl = uri.OriginalString;
+		int index = fullUrl.IndexOf("dev");
+		if (index >= 0)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	private async Task LoadSpritesFromFile(FileChangedEventArgs e)
+	{
+		spriteMessage = "Loading...";
+		StateHasChanged();
+		try
+		{
+			byte[] spritesheet = new byte[0];
+			MemoryStream ms = new MemoryStream();
+			await e.Files.First().OpenReadStream().CopyToAsync(ms);
+			spritesheet = ms.ToArray();
+
+			preferences.CustomSprites = spritesheet;
+			preferences.ValidateCustomSprites();
+			spriteMessage = "Custom Sprites Loaded";
+			SaveSprites();
+		}
+		catch (Exception ex)
+		{
+			spriteMessage = ex.Message;
+			Console.WriteLine(ex.Message);
+		}
+	}
+	private async Task LoadDKSpritesFromFile(FileChangedEventArgs e)
+	{
+		dkMessage = "Loading...";
+		StateHasChanged();
+		try
+		{
+			byte[] spritesheet = new byte[0];
+			MemoryStream ms = new MemoryStream();
+			await e.Files.First().OpenReadStream().CopyToAsync(ms);
+
+			using (ZipArchive spriteContainer = new ZipArchive(ms))
+			{
+				var entry = spriteContainer.GetEntry("darkking1.bmp");
+				using (BinaryReader reader = new BinaryReader(entry.Open()))
+				{
+					preferences.DarkKing3 = reader.ReadBytes((int)entry.Length);
+				}
+				entry = spriteContainer.GetEntry("darkking2.bmp");
+				using (BinaryReader reader = new BinaryReader(entry.Open()))
+				{
+					preferences.DarkKing4 = reader.ReadBytes((int)entry.Length);
+				}
+			}
+			
+			//spritesheet = ms.ToArray();
+
+			//preferences.CustomSprites = spritesheet;
+			//preferences.ValidateCustomSprites();
+			dkMessage = "Dark King Sprites Loaded";
+			//SaveSprites();
+		}
+		catch (Exception ex)
+		{
+			dkMessage = ex.Message;
+			Console.WriteLine(ex.Message);
+		}
+	}
+
+	private async void SaveSprites()
+	{
+		byte[] savedSprites = new byte[0];
+		if (preferences.CustomSprites.Length > 0)
+		{
+			savedSprites = preferences.CustomSprites;
+		}
+
+		await JS.InvokeVoidAsync("saveSavedSprites", savedSprites);
+	}
+
+	public async void LoadSprites()
+	{
+		byte[] savedSprites = await JS.InvokeAsync<byte[]>("loadSavedSprites");
+
+		if (savedSprites != null)
+		{
+			preferences.CustomSprites = savedSprites;
+			spriteMessage = "Saved Custom Sprites Loaded";
+			StateHasChanged();
+		}
+	}
 }

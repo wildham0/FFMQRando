@@ -263,8 +263,10 @@ namespace FFMQLib
         public ushort WindowPalette { get; set; } = 0x5140;
 		public string PlayerSprite { get; set; } = "default";
 		public byte[] CustomSprites { get; set; } = new byte[0];
+		public byte[] DarkKing3 { get; set; } = new byte[0];
+        public byte[] DarkKing4 { get; set; } = new byte[0];
 
-		public void ValidateCustomSprites()
+        public void ValidateCustomSprites()
 		{
 			if (CustomSprites[0x00] != 0x42 || CustomSprites[0x01] != 0x4D)
 			{

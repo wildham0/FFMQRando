@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.5.23";
+		public static string Version = "1.5.25";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -140,7 +140,7 @@ namespace FFMQLib
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			WindowPalette(preferences.WindowPalette);
 			spriteReader.LoadCustomSprites(playerSprite, this);
-            dkSpriteReader.RandomizeDarkKingTrueForm(preferences.DarkKingTrueForm, sillyrng, this);
+            dkSpriteReader.RandomizeDarkKingTrueForm(preferences, sillyrng, this);
 
 
             // Write everything back			
