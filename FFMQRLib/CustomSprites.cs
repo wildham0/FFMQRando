@@ -341,7 +341,7 @@ namespace FFMQLib
 		}
 		public void SetPlayerSprite(PlayerSprite playersprite, FFMQRom rom)
 		{
-			if (playersprite.name == "default")
+			if (playersprite.filename == "default")
 			{
 				return;
 			}
