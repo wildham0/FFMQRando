@@ -333,6 +333,7 @@ namespace FFMQLib
 				BombShrugSeriesEncoded = EncodeSeries((80, 0), 4, 0),
 				ShrugHandEncoded = EncodeTile((96, 24), 0),
 				ClimbSeriesEncoded = EncodeSeries((80, 32), 3, 0),
+				Palette = finalPalette
 			};
 
 			return playerSpriteDataPack;
