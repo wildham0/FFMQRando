@@ -502,6 +502,21 @@ namespace FFMQLib
 			{
 				mapobjects[i].Where(x => x.Type == MapObjectType.Battle).ToList().ForEach(x => x.Gameflag = 0xFE);
 			}
+
+			// Mine Interior
+			// Reduce enemies count for legacy reasons, maybe not needed, keep an eye on it
+			/*
+			for (int i = 0; i < mapobjects[0x2E].Count; i++)
+			{
+				var enemiescollection = mapobjects[0x2E].Where(x => x.Type == MapObjectType.Battle).ToList();
+				int totalcount = enemiescollection.Count;
+				int toremove = ((100 - 25) * totalcount) / 100;
+
+				for (int j = 0; j < toremove; j++)
+				{
+					rng.TakeFrom(enemiescollection).Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+				}
+			}*/
 		}
 
 		public void UpdateCloudMap()
