@@ -13,6 +13,7 @@ namespace FFMQLib
 		public List<(string, int)> TextDTE = new() {
 
 			("\n", 0x01),
+			("|", 0x06), // enemy name linefeed if in box, otherwise space
 			("#", 0x36), // end of box
 			("Crystal", 0x3d),
 			("Rainbow Road", 0x3e), // DTE in DTE...
