@@ -45,8 +45,8 @@ namespace FFMQLib
 	{
 		[Description("Standard")]
 		Standard = 0,
-		[Description("Standard Extended")]
-		StandardExtended,
+		[Description("Extended")]
+		Extended,
 		[Description("Random Balanced")]
 		RandomBalanced,
 		[Description("Random Chaos")]
@@ -305,7 +305,7 @@ namespace FFMQLib
 		}
 	}
 
-	public class Companions
+	public partial class Companions
 	{
 		private List<Companion> companions;
 		private LevelingType levelingtype;
@@ -438,7 +438,7 @@ namespace FFMQLib
 			//List<(SpellFlags spell, List<int> levelrange, CompanionsId companion)> spelllist = new();
 			List<(CompanionsId companion, SpellFlags spell, int level)> spelllist = new();
 
-			if (spellbooktype == SpellbookType.Standard || spellbooktype == SpellbookType.StandardExtended)
+			if (spellbooktype == SpellbookType.Standard || spellbooktype == SpellbookType.Extended)
 			{
 				spelllist = new()
 				{
@@ -454,7 +454,7 @@ namespace FFMQLib
 					(CompanionsId.Phoebe, SpellFlags.WhiteSeal, rng.Between(16, 31)),
 				};
 
-				if (spellbooktype == SpellbookType.StandardExtended)
+				if (spellbooktype == SpellbookType.Extended)
 				{
 					spelllist.Add((CompanionsId.Tristam, SpellFlags.ExitBook, rng.Between(16, 23)));
 					spelllist.Add((CompanionsId.Tristam, SpellFlags.QuakeBook, rng.Between(8, 15)));
@@ -589,6 +589,11 @@ namespace FFMQLib
 					newloadout.Add(new(spellsgroup.Key, spellsgroup.Key < 23 ? this[companion].ArmorSet1 : this[companion].ArmorSet2, new(cumulativespells)));
 				}
 
+				if (!level23set)
+				{
+					newloadout.Add(new(23, this[companion].ArmorSet2, new(cumulativespells)));
+				}
+				
 				this[companion].LoadOut = newloadout;
 			}
 		}
