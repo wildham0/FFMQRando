@@ -16,13 +16,32 @@ namespace FFMQLib
 	
 	}
 
+	public class Quest
+	{ 
+		public Quests Name { get; set; }
+		public NewGameFlagsList Gameflag { get; set; }
+		public int Quantity { get; set; }
+		public string Description { get; set; }
+	}
+
 	public partial class Companions
 	{ 
-		public bool KaeliEnabled { get;  }
-		public bool TristamEnabled { get; }
-		public bool PhoebeEnabled { get; }
-		public bool ReubenEnabled { get; }
-		public List<(Quests quest, NewGameFlagsList gameflag)> Quests { get; }
+		public bool KaeliEnabled { get; set; }
+		public bool TristamEnabled { get; set; }
+		public bool PhoebeEnabled { get; set; }
+		public bool ReubenEnabled { get; set; }
+		public int QuestQuantity { get; set; }
+		public List<Quest> Quests { get; set; }
+
+		private void InitializeQuests()
+		{
+			KaeliEnabled = true;
+			TristamEnabled = true;
+			PhoebeEnabled = true;
+			ReubenEnabled = true;
+			QuestQuantity = 1;
+			Quests = new();
+		}
 
 
 

@@ -474,7 +474,7 @@ namespace FFMQLib
 					Enumerable.Range(1,15).ToList(),
 					Enumerable.Range(5,15).ToList(),
 					Enumerable.Range(15,20).ToList(),
-					Enumerable.Range(1,35).ToList(),
+					Enumerable.Range(1,25).ToList(),
 				};
 
 				List<List<SpellFlags>> spells = new()
@@ -487,9 +487,9 @@ namespace FFMQLib
 
 				List<int> counts = new()
 				{
-					rng.Between(2, 6),
-					rng.Between(3, 8),
-					rng.Between(1, 4),
+					rng.Between(3, 6),
+					rng.Between(4, 8),
+					rng.Between(2, 4),
 					rng.Between(0, 1)
 				};
 				
