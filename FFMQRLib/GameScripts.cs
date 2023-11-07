@@ -54,7 +54,7 @@ namespace FFMQLib
 					"2EE3[11]",
 					$"050f{(int)CompanionsId.Kaeli:X2}[11]",
 					"2A3346634013432344505010530054FFFF",
-					"1A82" + TextToHex("There, griffin. Path is cleared. Let's find that decaying !&%? piece of lumber.") + "36",
+					"1A82" + TextToHex("There, griffin. Path is cleared. Let's find that decaying !&%? piece of lumber.", true) + "36",
 					"2A03440825682213424346FFFF",
 					"23E3",
 					"00"
@@ -64,7 +64,7 @@ namespace FFMQLib
 			TileScripts.AddScript((int)TileScriptsList.PushedBoulder,
 				new ScriptBuilder(new List<string> {
 					"2E13[03]0F8B0E05090075BC2A12402054FFFF",
-					"1A0A" + TextToHex("Finally, after all these years I can go back home.\nHere have this.") + "36",
+					"1A0A" + TextToHex("Finally, after all these years I can go back home.\nHere have this.", true) + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.BoulderOldMan]:X2}0162231323142B34",
 					"00"
 				}));

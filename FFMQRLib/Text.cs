@@ -169,15 +169,15 @@ namespace FFMQLib
 		};
 
 
-		public string TextToHex(string text)
+		public string TextToHex(string text, bool enabledte = true)
 		{
-			return String.Join("", TextToByte(text).SelectMany(x => String.Join("", x.ToString("X2"))));
+			return String.Join("", TextToByte(text, enabledte).SelectMany(x => String.Join("", x.ToString("X2"))));
 		}
-		public byte[] TextToByte(string text)
+		public byte[] TextToByte(string text, bool enabledte)
 		{
 			byte[] byteText = new byte[text.Length];
 
-			var orderedDTE = TextDTE.OrderByDescending(x => x.Item1.Length);
+			var orderedDTE = enabledte ? TextDTE.OrderByDescending(x => x.Item1.Length) : TextDTE.Where(x => x.Item2 < 0x3D && x.Item2 > 0x7F).OrderByDescending(x => x.Item1.Length);
 
 			string blackoutString = "************";
 			
@@ -267,7 +267,8 @@ namespace FFMQLib
 				"The FFR Community\n" +
 				"&\n" +
 				"The FFMQR Community\n\n" +
-				"Original FFMQ Credits\n\n"
+				"Original FFMQ Credits\n\n",
+				true
 				);
 		}
 
@@ -344,7 +345,7 @@ namespace FFMQLib
 			}
 
 			hashText = EncodeTo32(hash).Substring(0, 8);
-			rom.PutInBank(titleScreenBank, offsetHash, rom.TextToByte(hashText));
+			rom.PutInBank(titleScreenBank, offsetHash, rom.TextToByte(hashText, false));
 		}
 		private string EncodeTo32(byte[] bytesToEncode)
 		{

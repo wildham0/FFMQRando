@@ -112,7 +112,7 @@ namespace FFMQLib
 
 			// Add Game Info option
 			rom.PutInBank(0x03, 0xAB36, Blob.FromHex("07009110"));
-			rom.PutInBank(0x10, 0x9100, Blob.FromHex(rom.TextToHex("GAMEINFO") + "02" + rom.TextToHex("SAVE")));
+			rom.PutInBank(0x10, 0x9100, Blob.FromHex(rom.TextToHex("GAMEINFO", true) + "02" + rom.TextToHex("SAVE", true)));
 			rom.PutInBank(0x00, 0xBC3F, Blob.FromHex("08"));
 			rom.PutInBank(0x00, 0xBE35, Blob.FromHex("22809010f4e4bdbd4bbe48bd49be487c47be"));
 			rom.PutInBank(0x10, 0x9080, Blob.FromHex("a50229ff000a85640a6564aa640164056b"));
@@ -173,7 +173,7 @@ namespace FFMQLib
             if (FragmentsCount == 0 && !ShuffledElementsType.Any() && !SpellLearning.Any())
             {
                 string pagescript = $"250C1503{lineoffset:X2}19";
-                pagescript += rom.TextToHex("No info available.");
+                pagescript += rom.TextToHex("No info available.", true);
                 pages.Add(pagescript);
             }
 
@@ -182,14 +182,14 @@ namespace FFMQLib
                 string pagescript = $"250C1503{lineoffset:X2}19";
                 if (FragmentsCount > 0)
                 {
-                    pagescript += rom.TextToHex("Sky Fragments Required: " + FragmentsCount.ToString());
+                    pagescript += rom.TextToHex("Sky Fragments Required: " + FragmentsCount.ToString(), true);
                     lineoffset += 3;
                 }
 
                 if (ShuffledElementsType.Any())
                 {
                     pagescript += $"250C1503{lineoffset:X2}19";
-                    pagescript += rom.TextToHex("Resist/Weak Shuffling");
+                    pagescript += rom.TextToHex("Resist/Weak Shuffling", true);
                     lineoffset++;
                     pagescript += $"25102404{lineoffset:X2}110618";
                     lineoffset++;
@@ -259,12 +259,12 @@ namespace FFMQLib
 			// name box
 			pagescript += $"240101{(companionnames[companion].Length+2):X2}0318";
             pagescript += $"250C15020219";
-            pagescript += rom.TextToHex(companionnames[companion]);
+            pagescript += rom.TextToHex(companionnames[companion], true);
 
             // Spell window
 			pagescript += $"25102401041E0518";
             pagescript += $"15020419";
-            pagescript += rom.TextToHex("Spells");
+            pagescript += rom.TextToHex("Spells", true);
 
             // Position cursor
             pagescript += $"15020519";
@@ -290,7 +290,7 @@ namespace FFMQLib
 
 				line1 += currentspellsprite[0];
 				line2 += currentspellsprite[1];
-                line3 += rom.TextToHex(spell.level.ToString().PadLeft(2));
+                line3 += rom.TextToHex(spell.level.ToString().PadLeft(2), true);
 
 
                 /*

@@ -473,7 +473,7 @@ namespace FFMQLib
 				{
 					Enumerable.Range(1,15).ToList(),
 					Enumerable.Range(5,15).ToList(),
-					Enumerable.Range(15,20).ToList(),
+					Enumerable.Range(15,15).ToList(),
 					Enumerable.Range(1,25).ToList(),
 				};
 

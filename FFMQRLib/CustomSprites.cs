@@ -178,7 +178,7 @@ namespace FFMQLib
 			rom.PutInBank(0x02, 0xD351, Blob.FromHex("2280b010eaea"));
 			rom.PutInBank(0x10, 0xB080, Blob.FromHex("485a08c230afb8d0028d4a11a2a0b0a00011a90f00540010287a686b"));
 
-			string finalname = rom.TextToHex(dksprite.name);
+			string finalname = rom.TextToHex(dksprite.name, false);
 			while (finalname.Length < 0x20)
 			{
 				finalname += "03";
