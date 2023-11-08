@@ -55,7 +55,7 @@ namespace FFMQLib
 
 	public class DarkKingTrueForm
 	{
-		private DarkKingSprite dksprite;
+		public DarkKingSprite DarkKingSprite { get; set; }
 		private byte[] dk3bmpdata;
 		private byte[] dk4bmpdata;
 
@@ -99,15 +99,15 @@ namespace FFMQLib
 						Console.WriteLine(ex.ToString());
 					}
 
-					dksprite = rng.PickFrom(spritelist);
+					DarkKingSprite = rng.PickFrom(spritelist);
 
-					entry = spriteContainer.GetEntry(dksprite.filename + "1.bmp");
+					entry = spriteContainer.GetEntry(DarkKingSprite.filename + "1.bmp");
 					using (BinaryReader reader = new BinaryReader(entry.Open()))
 					{
 						dk3bmpdata = reader.ReadBytes((int)entry.Length);
 					}
 
-					entry = spriteContainer.GetEntry(dksprite.filename + "2.bmp");
+					entry = spriteContainer.GetEntry(DarkKingSprite.filename + "2.bmp");
 					using (BinaryReader reader = new BinaryReader(entry.Open()))
 					{
 						dk4bmpdata = reader.ReadBytes((int)entry.Length);
@@ -139,8 +139,8 @@ namespace FFMQLib
 				darkking3 = darkkingspritereader.EncodeDarkKing(pref.DarkKing3);
 				darkking4 = darkkingspritereader.EncodeDarkKing(pref.DarkKing4);
 
-				dksprite.name = "Test|King";
-				dksprite.author = "";
+				DarkKingSprite.name = "Test|King";
+				DarkKingSprite.author = "";
 			}
 			else
 			{
@@ -178,7 +178,7 @@ namespace FFMQLib
 			rom.PutInBank(0x02, 0xD351, Blob.FromHex("2280b010eaea"));
 			rom.PutInBank(0x10, 0xB080, Blob.FromHex("485a08c230afb8d0028d4a11a2a0b0a00011a90f00540010287a686b"));
 
-			string finalname = rom.TextToHex(dksprite.name, false);
+			string finalname = rom.TextToHex(DarkKingSprite.name, false);
 			while (finalname.Length < 0x20)
 			{
 				finalname += "03";

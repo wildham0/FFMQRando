@@ -177,7 +177,7 @@ namespace FFMQLib
 		{
 			byte[] byteText = new byte[text.Length];
 
-			var orderedDTE = enabledte ? TextDTE.OrderByDescending(x => x.Item1.Length) : TextDTE.Where(x => x.Item2 < 0x3D && x.Item2 > 0x7F).OrderByDescending(x => x.Item1.Length);
+			var orderedDTE = enabledte ? TextDTE.OrderByDescending(x => x.Item1.Length) : TextDTE.Where(x => x.Item2 < 0x3D || x.Item2 > 0x7F).OrderByDescending(x => x.Item1.Length);
 
 			string blackoutString = "************";
 			
@@ -232,16 +232,22 @@ namespace FFMQLib
 			
 		}
 
-		public void Update(PlayerSprite sprite)
+		public void Update(PlayerSprite sprite, DarkKingSprite dksprite)
         {
 			FFMQRom text = new();
             string spriteContributor = "";
+			string dkSpriteContributor = "";
 
-            if (sprite.author != "")
+			if (sprite.author != "")
 			{
                 spriteContributor = sprite.name.Split(" (")[0] + " Sprite by\n" + sprite.author + "\n\n";
             }
-			
+
+			if (dksprite.author != "")
+			{
+				dkSpriteContributor = "Alt Dark King Sprite by\n" + dksprite.author + "\n\n";
+			}
+
 			additionalCredits = text.TextToByte(
 				"FFMQ Randomizer\n\n" +
 				"Main Developer\n" +
@@ -250,7 +256,8 @@ namespace FFMQLib
                 "Oipo - Enemizer\n" +
                 "Alchav - Archipelago\n\n" +
                 spriteContributor +
-                "Playtesters\n" +
+				dkSpriteContributor +
+				"Playtesters\n" +
 				"spellzapp\n" +
 				"caleb\n" +
 				"VampireKnight\n" +

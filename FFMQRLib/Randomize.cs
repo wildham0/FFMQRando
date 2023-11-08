@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.5.28";
+		public static string Version = "1.5.29";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -142,7 +142,7 @@ namespace FFMQLib
 			darkKingTrueForm.RandomizeDarkKingTrueForm(preferences, sillyrng, this);
 
 			// Credits
-			credits.Update(playerSprite);
+			credits.Update(playerSprite, darkKingTrueForm.DarkKingSprite);
 
 			// Write everything back			
 			itemsPlacement.WriteChests(this);
