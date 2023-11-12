@@ -827,12 +827,12 @@
   id: 164
   area: 47
   coordinates: [14, 6]
-  teleporter: [16, 2]
+  teleporter: [98, 8] # Script for reuben, original value [16, 2]
 - name: Fireburg - Hotel
   id: 165
   area: 47
   coordinates: [20, 8]
-  teleporter: [17, 2]
+  teleporter: [96, 8] # It's a script now for tristam, original value [17, 2]
 - name: Fireburg - GrenadeMan House Script
   id: 166
   area: 47
@@ -1613,11 +1613,11 @@
   area: 80
   coordinates: [21, 39]
   teleporter: [30, 5]
-- name: Windia - INN's Script # Change to teleporter
+- name: Windia - INN's Script # Change to teleporter /  Change back to script!
   id: 321
   area: 80
   coordinates: [18, 34]
-  teleporter: [31, 2] # Original value [79, 8]
+  teleporter: [97, 8] # Original value [79, 8] > [31, 2]
 - name: Windia - Vendor House
   id: 322
   area: 80

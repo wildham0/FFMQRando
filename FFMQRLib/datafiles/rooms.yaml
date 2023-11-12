@@ -1846,11 +1846,11 @@
     access: []
   - target_room: 77
     entrance: 164
-    teleporter: [16, 2]
+    teleporter: [98, 8] # original value [16, 2]
     access: []
   - target_room: 82
     entrance: 165
-    teleporter: [17, 2]
+    teleporter: [96, 8] # original value [17, 2]
     access: []
   - target_room: 208
     access: ["Claw"]
@@ -3183,7 +3183,7 @@
     access: []
   - target_room: 163
     entrance: 321
-    teleporter: [31, 2]
+    teleporter: [97, 8]
     access: []
   - target_room: 165
     entrance: 322

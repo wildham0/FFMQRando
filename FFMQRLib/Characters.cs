@@ -34,6 +34,10 @@ namespace FFMQLib
 	{
 		[Description("Quests")]
 		Quests = 0,
+		[Description("Quests Extended")]
+		QuestsExtended,
+		[Description("Save the Crystals")]
+		SaveCrystals,
 		[Description("Benjamin Level")]
 		BenPlus0,
 		[Description("Benjamin Level + 5")]
@@ -417,6 +421,8 @@ namespace FFMQLib
 			};
 
 			companions = new() { kaeli, tristam, phoebe, reuben };
+
+			InitializeQuests(type);
 		}
 		public void SetSpellbooks(SpellbookType spellbooktype, GameInfoScreen infoscreen, MT19337 rng)
 		{
@@ -599,6 +605,8 @@ namespace FFMQLib
 		}
 		public void Write(FFMQRom rom)
 		{
+
+			QuestRoutines(rom);
 			LevelingRoutine(rom);
 
 			// Leveling Routine Hooks
@@ -606,7 +614,7 @@ namespace FFMQLib
 			rom.PutInBank(0x00, 0xA26B, Blob.FromHex("2200a310eaeaeaea"));
 			rom.PutInBank(0x10, 0xA300, Blob.FromHex("d006a980001ca0102000a02080a26b"));
 
-			if (levelingtype != LevelingType.Quests)
+			if (levelingtype >= LevelingType.BenPlus0 && levelingtype <= LevelingType.BenPlus10)
 			{
 				// Ben Levelup
 				rom.PutInBank(0x02, 0x8830, Blob.FromHex("2220a310"));
@@ -624,12 +632,27 @@ namespace FFMQLib
 				15, 34, 34, 34, 34,
 				23, 31, 31, 31, 31,
 			};
-			/*
-			if (levelingtype == LevelingType.Quests)
-			{ 
-			
-			
-			}*/
+
+			if (levelingtype == LevelingType.SaveCrystals)
+			{
+				levelsset = new()
+				{
+					07, 15, 23, 34, 41,
+					07, 15, 23, 34, 41,
+					07, 15, 23, 34, 41,
+					07, 15, 23, 34, 41,
+				};
+
+			}
+
+
+
+				/*
+				if (levelingtype == LevelingType.Quests)
+				{ 
+
+
+				}*/
 			rom.PutInBank(0x10, 0xA400, levelsset.ToArray());
 
 			// lut_CompanionStats + Weapon Data
@@ -650,7 +673,7 @@ namespace FFMQLib
 			string levelingroutine = "B0A0";
 			string benlevelbonus = "00";
 
-			if (levelingtype != LevelingType.Quests)
+			if (levelingtype >= LevelingType.BenPlus0 && levelingtype <= LevelingType.BenPlus10)
 			{
 				levelingroutine = "A0A0";
 

@@ -122,6 +122,8 @@ namespace FFMQLib
 			if (!pref.DarkKingTrueForm && !debugmode)
 			{
 				rng.Next();
+				DarkKingSprite = new();
+				DarkKingSprite.author = "";
 				return;
 			}
 

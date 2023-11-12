@@ -144,7 +144,8 @@ namespace FFMQLib
         // Tentative removed enemy flag
         ShowEnemies = 0xF9,
 
-
+		// Invalid flag
+		None = 0x100,
 	}
 	public enum AccessReqs : int
 	{
@@ -551,7 +552,12 @@ namespace FFMQLib
 		EnterFallBasin, // Teleport and run intro script
 		IcePyramidCheckStatue,
 		ReceiveWakeWater,
-		EnterWindiaInn // Teleport to an Inn
+		VolcanoExtraScript, // previously EnterWindiaInn
+		APMirrorMaskScript = 0x50,
+		EnterFireburgHotel = 0x60,
+		EnterWindiaInn,
+		EnterReubenHouse,
+
 	}
 
 	public enum TalkScriptsList : int

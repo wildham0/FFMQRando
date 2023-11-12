@@ -75,6 +75,8 @@ namespace FFMQLib
 			Credits credits = new(this);
 			TitleScreen titleScreen = new(this);
 
+			//Companions.
+
 			// Sprites
 			PlayerSprites playerSprites = new(PlayerSpriteMode.Spritesheets); // Merge by updating Credits at the end
 			PlayerSprite playerSprite = playerSprites.GetSprite(preferences, asyncrng);
