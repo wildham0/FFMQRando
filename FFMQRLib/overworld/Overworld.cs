@@ -52,11 +52,13 @@ namespace FFMQLib
 				switch (allBattlefields[i])
 				{
 					case BattlefieldRewardType.Gold:
-						owSprites[i + 0x11].Palette = gpColor;
+						owSprites[i + 0x11].Sprite = 0x60;
+                        owSprites[i + 0x11].Palette = gpColor;
 						owSprites[i + 0x25].Palette = gpColor;
 						break;
 					case BattlefieldRewardType.Item:
-						owSprites[i + 0x11].Palette = itemColor;
+                        owSprites[i + 0x11].Sprite = 0x62;
+                        owSprites[i + 0x11].Palette = itemColor;
 						owSprites[i + 0x25].Palette = itemColor;
 						break;
 					case BattlefieldRewardType.Experience:

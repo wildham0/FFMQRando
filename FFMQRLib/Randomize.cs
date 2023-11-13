@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.5.06";
+		public static string Version = "1.5.29";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -30,6 +30,8 @@ namespace FFMQLib
 		public GameLogic GameLogic;
 		public EntrancesData EntrancesData;
 		public MapPalettes MapPalettes;
+		public Companions Companions;
+		public GameInfoScreen GameInfoScreen;
 
 		private byte[] originalData;
 		public bool beta = false;
@@ -41,17 +43,17 @@ namespace FFMQLib
 			
 			MT19337 rng;				// Fixed RNG so the same seed with the same flagset generate the same results
 			MT19337 sillyrng;			// Fixed RNG so non impactful rng (preferences) matches for the same seed and the same flagset
-            MT19337 asyncrng;			// Free RNG so non impactful rng varies for the same seed and flagset
-            using (SHA256 hasher = SHA256.Create())
+			MT19337 asyncrng;			// Free RNG so non impactful rng varies for the same seed and flagset
+			using (SHA256 hasher = SHA256.Create())
 			{
 				Blob hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
-                sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
+				sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
-            asyncrng = new MT19337((uint)Guid.NewGuid().GetHashCode());
+			asyncrng = new MT19337((uint)Guid.NewGuid().GetHashCode());
 
 
-            Attacks = new(this);
+			Attacks = new(this);
 			EnemyAttackLinks = new(this);
 			EnemiesStats = new(this);
 			GameMaps = new(this);
@@ -67,26 +69,33 @@ namespace FFMQLib
 			GameLogic = new(apconfigs);
 			EntrancesData = new(this);
 			MapPalettes = new(this);
+			Companions = new(flags.CompanionLevelingType);
+			GameInfoScreen = new();
 
 			Credits credits = new(this);
 			TitleScreen titleScreen = new(this);
-			SpriteReader spriteReader = new();
-			PlayerSprites playerSprites = new(PlayerSpriteMode.Spritesheets);
+
+			//Companions.
+
+			// Sprites
+			PlayerSprites playerSprites = new(PlayerSpriteMode.Spritesheets); // Merge by updating Credits at the end
 			PlayerSprite playerSprite = playerSprites.GetSprite(preferences, asyncrng);
+			DarkKingTrueForm darkKingTrueForm = new();
 
 			// General modifications
 			GeneralModifications(flags, apconfigs.ApEnabled, rng);
 			UnjankOverworld(GameMaps, MapChanges, MapPalettes);
 
-            // Maps Changes
-            GameMaps.RandomGiantTreeMessage(rng);
+			// Maps Changes
+			GameMaps.RandomGiantTreeMessage(rng);
 			GameMaps.LessObnoxiousMaps(flags.TweakedDungeons, MapObjects, rng);
 
 			// Enemies
 			MapObjects.SetEnemiesDensity(flags.EnemiesDensity, rng);
 			MapObjects.ShuffleEnemiesPosition(flags.ShuffleEnemiesPosition, GameMaps, rng);
-			EnemyAttackLinks.ShuffleAttacks(flags.EnemizerAttacks, flags.BossesScalingUpper, rng);
+			EnemyAttackLinks.ShuffleAttacks(flags.EnemizerAttacks, flags.EnemizerGroups, rng);
 			EnemiesStats.ScaleEnemies(flags, rng);
+			EnemiesStats.ShuffleResistWeakness(flags.ShuffleResWeakType, GameInfoScreen, rng);
 
 			// Overworld
 			Overworld.OpenNodes(flags);
@@ -117,19 +126,25 @@ namespace FFMQLib
 			SetDoomCastleMode(flags.DoomCastleMode);
 			DoomCastleShortcut(flags.DoomCastleShortcut);
 
+			// Companion
+			Companions.SetSpellbooks(flags.CompanionSpellbookType, GameInfoScreen, rng);
+
 			// Various
 			SetLevelingCurve(flags.LevelingCurve);
 			ProgressiveGears(flags.ProgressiveGear);
 			SkyCoinMode(flags, rng);
 			ExitHack(Overworld.StartingLocation);
 			ProgressiveFormation(flags.ProgressiveFormations, Overworld, rng);
-			credits.Update(playerSprite);
 
 			// Preferences			
 			RandomizeTracks(preferences.RandomMusic, sillyrng);
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			WindowPalette(preferences.WindowPalette);
-			spriteReader.LoadCustomSprites(playerSprite, this);
+			playerSprites.SetPlayerSprite(playerSprite, this);
+			darkKingTrueForm.RandomizeDarkKingTrueForm(preferences, sillyrng, this);
+
+			// Credits
+			credits.Update(playerSprite, darkKingTrueForm.DarkKingSprite);
 
 			// Write everything back			
 			itemsPlacement.WriteChests(this);
@@ -148,6 +163,8 @@ namespace FFMQLib
 			MapObjects.Write(this);
 			MapSpriteSets.Write(this);
 			MapPalettes.Write(this);
+			Companions.Write(this);
+			GameInfoScreen.Write(this);
 
 			credits.Write(this);
 			titleScreen.Write(this, Metadata.Version, seed, flags);

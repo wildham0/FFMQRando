@@ -13,6 +13,7 @@ namespace FFMQLib
 		public List<(string, int)> TextDTE = new() {
 
 			("\n", 0x01),
+			("|", 0x06), // enemy name linefeed if in box, otherwise space
 			("#", 0x36), // end of box
 			("Crystal", 0x3d),
 			("Rainbow Road", 0x3e), // DTE in DTE...
@@ -168,15 +169,15 @@ namespace FFMQLib
 		};
 
 
-		public string TextToHex(string text)
+		public string TextToHex(string text, bool enabledte = true)
 		{
-			return String.Join("", TextToByte(text).SelectMany(x => String.Join("", x.ToString("X2"))));
+			return String.Join("", TextToByte(text, enabledte).SelectMany(x => String.Join("", x.ToString("X2"))));
 		}
-		public byte[] TextToByte(string text)
+		public byte[] TextToByte(string text, bool enabledte)
 		{
 			byte[] byteText = new byte[text.Length];
 
-			var orderedDTE = TextDTE.OrderByDescending(x => x.Item1.Length);
+			var orderedDTE = enabledte ? TextDTE.OrderByDescending(x => x.Item1.Length) : TextDTE.Where(x => x.Item2 < 0x3D || x.Item2 > 0x7F).OrderByDescending(x => x.Item1.Length);
 
 			string blackoutString = "************";
 			
@@ -231,16 +232,22 @@ namespace FFMQLib
 			
 		}
 
-		public void Update(PlayerSprite sprite)
+		public void Update(PlayerSprite sprite, DarkKingSprite dksprite)
         {
 			FFMQRom text = new();
             string spriteContributor = "";
+			string dkSpriteContributor = "";
 
-            if (sprite.author != "")
+			if (sprite.author != "")
 			{
                 spriteContributor = sprite.name.Split(" (")[0] + " Sprite by\n" + sprite.author + "\n\n";
             }
-			
+
+			if (dksprite.author != "")
+			{
+				dkSpriteContributor = "Alt Dark King Sprite by\n" + dksprite.author + "\n\n";
+			}
+
 			additionalCredits = text.TextToByte(
 				"FFMQ Randomizer\n\n" +
 				"Main Developer\n" +
@@ -249,7 +256,8 @@ namespace FFMQLib
                 "Oipo - Enemizer\n" +
                 "Alchav - Archipelago\n\n" +
                 spriteContributor +
-                "Playtesters\n" +
+				dkSpriteContributor +
+				"Playtesters\n" +
 				"spellzapp\n" +
 				"caleb\n" +
 				"VampireKnight\n" +
@@ -266,7 +274,8 @@ namespace FFMQLib
 				"The FFR Community\n" +
 				"&\n" +
 				"The FFMQR Community\n\n" +
-				"Original FFMQ Credits\n\n"
+				"Original FFMQ Credits\n\n",
+				true
 				);
 		}
 
@@ -343,7 +352,7 @@ namespace FFMQLib
 			}
 
 			hashText = EncodeTo32(hash).Substring(0, 8);
-			rom.PutInBank(titleScreenBank, offsetHash, rom.TextToByte(hashText));
+			rom.PutInBank(titleScreenBank, offsetHash, rom.TextToByte(hashText, false));
 		}
 		private string EncodeTo32(byte[] bytesToEncode)
 		{

@@ -127,6 +127,7 @@ namespace FFMQLib
 					$"Legend says he told Phoebe to go forth and combat evil. To do that, she had to find {skycointqty} Sky Coin fragments."
 				};
 
+				GameInfoScreen.FragmentsCount = skycointqty;
 				UpdateMysteriousMan(rng.PickFrom(mysteriousmanline));
 
 				// Sky Coin new name

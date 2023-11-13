@@ -14,6 +14,7 @@
     <None Remove="locations.yaml" />
     <None Remove="rooms.yaml" />
     <None Remove="sprites\customsprites.zip" />
+    <None Remove="sprites\dktrueforms.zip" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,6 +24,7 @@
     <EmbeddedResource Include="datafiles\rooms.yaml" />
     <EmbeddedResource Include="datafiles\template.bmp" />
     <EmbeddedResource Include="sprites\customsprites.zip" />
+    <EmbeddedResource Include="sprites\dktrueforms.zip" />
   </ItemGroup>
 
   <ItemGroup>

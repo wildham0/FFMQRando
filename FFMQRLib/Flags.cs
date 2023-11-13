@@ -27,7 +27,15 @@ namespace FFMQLib
 		public EnemiesScaling BossesScalingLower { get; set; } = EnemiesScaling.Normal;
 		public EnemiesScaling BossesScalingUpper { get; set; } = EnemiesScaling.Normal;
 		public EnemizerAttacks EnemizerAttacks { get; set; } = EnemizerAttacks.Normal;
+		public EnemizerGroups EnemizerGroups
+		{
+			get => EnemizerAttacks == EnemizerAttacks.Normal ? EnemizerGroups.MobsOnly : internalEnemizerGroups;
+			set => internalEnemizerGroups = value;
+		}
+        public bool ShuffleResWeakType { get; set; } = false;
 		public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
+		public LevelingType CompanionLevelingType { get; set; } = LevelingType.Quests;
+		public SpellbookType CompanionSpellbookType { get; set; } = SpellbookType.Standard;
 		public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;
 		public bool ShuffleBattlefieldRewards { get; set; } = false;
 		public bool RandomStartingWeapon { get; set; } = false;
@@ -45,9 +53,10 @@ namespace FFMQLib
 		public bool CrestShuffle { get; set; } = false;
         //public bool KaelisMomIsKaeli { get; set; } = false;
 
-        private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;
+    private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;
+    private EnemizerGroups internalEnemizerGroups = EnemizerGroups.MobsOnly;
 
-		public string GenerateFlagString()
+    public string GenerateFlagString()
 		{
 			var flaglist = this.GetType().GetProperties();
 			var orderedflaglist = flaglist.OrderBy(x => x.Name).ToList();
@@ -251,11 +260,14 @@ namespace FFMQLib
 	{
 		public bool RandomBenjaminPalette { get; set; } = false;
 		public bool RandomMusic { get; set; } = false;
-		public ushort WindowPalette { get; set; } = 0x5140;
+        public bool DarkKingTrueForm { get; set; } = false;
+        public ushort WindowPalette { get; set; } = 0x5140;
 		public string PlayerSprite { get; set; } = "default";
 		public byte[] CustomSprites { get; set; } = new byte[0];
+		public byte[] DarkKing3 { get; set; } = new byte[0];
+        public byte[] DarkKing4 { get; set; } = new byte[0];
 
-		public void ValidateCustomSprites()
+        public void ValidateCustomSprites()
 		{
 			if (CustomSprites[0x00] != 0x42 || CustomSprites[0x01] != 0x4D)
 			{

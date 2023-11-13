@@ -124,12 +124,17 @@
 
     <Container Class="flagBox">
         <Container Class="flagColumn">
-            <EnumFlag UsePreset=usePreset Name="Enemies Density" @bind-Value="flags.EnemiesDensity" Tooltip="Set how many enemies are on each maps." />
             <DoubleEnumFlag UsePreset=usePreset Name="Standard Enemies Scaling" @bind-Value="flags.EnemiesScalingLower" @bind-Value2="flags.EnemiesScalingUpper" Tooltip="Randomly adjust enemies stats by the selected range percentage.<br/><br/>Include mini-bosses' weaker clones." />
             <DoubleEnumFlag UsePreset=usePreset Name="Bosses Scaling" @bind-Value="flags.BossesScalingLower" @bind-Value2="flags.BossesScalingUpper" Tooltip="Randomly adjust bosses stats by the selected range percentage.<br/><br/>Include Mini-Bosses, Bosses, Bosses' refights and the Dark King." />
-            <EnumFlag UsePreset=usePreset Name="Enemizer Attacks" @bind-Value="flags.EnemizerAttacks" Tooltip="Shuffles enemy attacks.<br /><br />Standard: No shuffle.<br /><br />Safe Randomization: Randomize every attack but leave out self-destruct and Dark King attacks<br /><br />Chaos Randomization: Randomize and include self destruct and Dark King attacks<br /><br />Self-destruct: Every enemy self destructs<br /><br />Simple Shuffle: Instead of randomizing, shuffle one monsters attacks to another. Dark King is left vanilla." />
+            <EnumFlag UsePreset=usePreset Name="Enemizer Attacks" @bind-Value="flags.EnemizerAttacks" Tooltip="Shuffles enemy attacks.<br /><br />Disabled: No shuffle.<br /><br />Safe Randomization: Randomize every attack, but remove self-destruct and multiply; only the Dark Castle's bosses can get Dark King attacks.<br /><br />Chaos Randomization: Randomize every attack. Any attack is possible.<br /><br />Self-destruct: Every enemy self destructs<br /><br />Script Shuffle: Shuffle the whole attack script between each enemies." />
+                @if (flags.EnemizerAttacks != EnemizerAttacks.Normal)
+                {
+                    <EnumFlag UsePreset=usePreset Name="Enemizer Groups" @bind-Value="flags.EnemizerGroups" Tooltip="Set which enemies groups will be affected by Enemizer." />
+                }
+            <BoolFlag UsePreset=usePreset Name="Shuffle Resist/Weakness Types" @bind-Value="flags.ShuffleResWeakType" Tooltip="Resistance and weakness types are shuffled for all enemies." />
         </Container>
         <Container Class="flagColumn">
+            <EnumFlag UsePreset=usePreset Name="Enemies Density" @bind-Value="flags.EnemiesDensity" Tooltip="Set how many enemies are on each maps." />
             <BoolFlag UsePreset=usePreset Name="Shuffle Enemies' Positions" @bind-Value="flags.ShuffleEnemiesPosition" Tooltip="Instead of their original position in a given map, enemies are randomly placed." />
             <EnumFlag UsePreset=usePreset Name="Progressive Formations" @bind-Value="flags.ProgressiveFormations" Tooltip="Enemies' formations are selected by regions, with the weakest formations always selected in Foresta and the strongest in Windia.<br /><br />Disabled: Standard formations are used.<br /><br />By Regions (Strict): Formations will come exclusively from the current region, whatever the map is.<br /><br />By Regions (Keep Type): Formations will keep the original formation type and match with the nearest power level." />
         </Container>
@@ -155,6 +160,21 @@
 </Container>
 
 <div><br /></div>
+
+    <Container class="sectionBox">
+        <div class="box-title text-secondary">Companions</div>
+
+        <Container Class="flagBox">
+            <Container Class="flagColumn">
+                <EnumFlag UsePreset=usePreset Name="Leveling Type" @bind-Value="flags.CompanionLevelingType" Tooltip="Set how companions gain levels.<br/><br/>Quest: Complete each companion's individual quest for them to promote to their second version.<br/><br/>Benjamin Level: Companions' level tracks Benjamin's." />
+                <EnumFlag UsePreset=usePreset Name="Spellbook Type" @bind-Value="flags.CompanionSpellbookType" Tooltip="Update companions' spellbook.<br/><br/>Standard: Original game spellbooks.<br/><br/>Standard Extended: Add some extra spells. Tristam gains Exit and Quake and Reuben gets Blizzard.<br/><br/>Random Balanced: Randomize the spellbooks with an appropriate mix of spells.<br/><br/>Random Chaos: Randomize the spellbooks in total free-for-all." />
+            </Container>
+            <Container Class="flagColumn">
+            </Container>
+        </Container>
+    </Container>
+
+    <div><br /></div>
 
 <Container class="sectionBox">
     <div class="box-title text-secondary">Other</div> 

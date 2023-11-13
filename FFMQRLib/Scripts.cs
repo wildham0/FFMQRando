@@ -4,6 +4,7 @@ using System.Linq;
 using System;
 using System.Threading.Tasks.Dataflow;
 using System.Runtime.Intrinsics.Arm;
+using System.Reflection;
 
 namespace FFMQLib
 {
@@ -64,7 +65,60 @@ namespace FFMQLib
         }
     }
 
-    public class GameScriptManager
+	public class QuestScriptsManager
+	{
+		private const int QuestScriptsBank = 0x10;
+		private const int QuestScriptsPointers = 0xA700;
+		private const int TalkScriptOffset = 0xA700;
+		private const int TalkScriptEndOffset = 0xf811;
+		private const int TalkScriptQty = 0x7C;
+
+		private const int ExpansionBank = 0x14;
+		private const int ExpansionOffset = 0xA000;
+		private const int newTileScriptQty = 0x100;
+
+		private int Bank;
+		private int Offset;
+
+		public List<ushort> Addresses { get; set; }
+		private List<ScriptBuilder> scripts;
+		private int currentLength;
+
+		public QuestScriptsManager(int bank, int offset)
+		{
+			Bank = bank;
+			Offset = offset;
+			currentLength = offset;
+			scripts = new();
+		}
+		public void AddScript(ScriptBuilder script)
+		{
+			script.Size();
+			scripts.Add(script);
+			Addresses.Add((ushort)currentLength);
+			currentLength += script.Size();
+		}
+		public string GetAddress(QuestScriptId script)
+		{
+			ushort address = Addresses[(int)script];
+			string textaddress = $"{address:X4}";
+			return textaddress.Substring(2, 2) + textaddress.Substring(0, 2);
+		}
+		public void Write(FFMQRom rom)
+		{
+			List<byte> allscripts = new();
+			ushort currentoffset = (ushort)Offset;
+			foreach (var script in scripts)
+			{
+				var newScript = script.Update(currentoffset);
+
+				allscripts.AddRange(newScript);
+				currentoffset += (ushort)newScript.Length;
+			}
+			rom.PutInBank(Bank, Offset, allscripts.ToArray());
+		}
+	}
+	public class GameScriptManager
 	{
 		private List<ScriptEntry> _scripts;
         //private List<(int, ScriptEntry)> _scripts2;
@@ -112,7 +166,13 @@ namespace FFMQLib
 		{
 			LoadData(rom, bank, pointersPosition, pointersQty, scriptsStart, scriptsEnd);
 		}
-
+		public GameScriptManager(int bank, int pointersPosition, int scriptsStart)
+		{
+			Bank = bank;
+			PointersPosition = pointersPosition;
+			ScriptsStart = scriptsStart;
+			PointersQty = 0;
+		}
 		private void LoadData(FFMQRom rom, int bank, int pointersPosition, int pointersQty, int scriptsStart, int scriptsEnd)
 		{
 
@@ -330,6 +390,10 @@ namespace FFMQLib
 
 			return OutputBlob();
 		}
+		public int Size()
+		{
+			return (_scriptSeries.SelectMany(s => s).Count() / 2);
+        }
 		private byte[] OutputBlob()
 		{
 			for (int i = 0; i < _scriptSeries.Count; i++)

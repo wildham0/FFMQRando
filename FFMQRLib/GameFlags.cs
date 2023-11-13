@@ -18,7 +18,11 @@ namespace FFMQLib
 			_gameflags = rom.Get(StartingGameFlags, 0x20);
 
 		}
-		public void Write(FFMQRom rom)
+        public GameFlags()
+        {
+
+        }
+        public void Write(FFMQRom rom)
 		{
 			rom.Put(StartingGameFlags, _gameflags);
 		}

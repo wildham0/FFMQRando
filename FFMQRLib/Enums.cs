@@ -122,10 +122,30 @@ namespace FFMQLib
 		FireburgSellerItemBought = 0xD1,
 		WindiaSellerItemBought = 0xD2,
 
-		// Tentative removed enemy flag
-		ShowEnemies = 0xF9,
+		// Quests flags
+		KaeliQuest1 = 0xA9,
+        KaeliQuest2 = 0xAA,
+        KaeliQuest3 = 0xAB,
+        KaeliQuest4 = 0xAC,
+        TristamQuest1 = 0xAD,
+        TristamQuest2 = 0xAE,
+        TristamQuest3 = 0xAF,
+        TristamQuest4 = 0xB0,
+        PhoebeQuest1 = 0xB1,
+        PhoebeQuest2 = 0xB2,
+        PhoebeQuest3 = 0xB3,
+        PhoebeQuest4 = 0xB4,
+        ReubenQuest1 = 0xB5,
+        ReubenQuest2 = 0xB6,
+        ReubenQuest3 = 0xB7,
+        ReubenQuest4 = 0xB8,
 
 
+        // Tentative removed enemy flag
+        ShowEnemies = 0xF9,
+
+		// Invalid flag
+		None = 0x100,
 	}
 	public enum AccessReqs : int
 	{
@@ -251,7 +271,7 @@ namespace FFMQLib
 		Dummy
 			
 	}
-	public enum Companion : int
+	public enum CompanionsId : int
 	{
 		Benjamin = 0x00,
 		Kaeli = 0x01,
@@ -261,7 +281,8 @@ namespace FFMQLib
 		KaeliPromo = 0x05,
 		TristamPromo = 0x06,
 		PhoebePromo = 0x07,
-		ReubenPromo = 0x08
+		ReubenPromo = 0x08,
+		None = 0xFF
 	}
 	public enum ItemGivingNPCs
 	{
@@ -531,7 +552,12 @@ namespace FFMQLib
 		EnterFallBasin, // Teleport and run intro script
 		IcePyramidCheckStatue,
 		ReceiveWakeWater,
-		EnterWindiaInn // Teleport to an Inn
+		VolcanoExtraScript, // previously EnterWindiaInn
+		APMirrorMaskScript = 0x50,
+		EnterFireburgHotel = 0x60,
+		EnterWindiaInn,
+		EnterReubenHouse,
+
 	}
 
 	public enum TalkScriptsList : int
