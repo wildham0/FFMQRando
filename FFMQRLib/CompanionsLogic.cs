@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using RomUtilities;
 using System.Collections;
+using System.Runtime.Intrinsics.Arm;
 
 
 namespace FFMQLib
@@ -18,6 +19,12 @@ namespace FFMQLib
 		SaveCrystalofFire,
 		SaveCrystalofWind,
 		SaveQtyCrystals,
+		CollectQtyItems,
+		CollectQtySkyCoins,
+		ClearQtyBattlefields,
+		ClearLavaDomeBattlefield,
+		ClearWindia1Battlefield,
+		ClearWindia2Battlefield,
 		DefeatMinotaur,
 		DefeatSquidite,
 		DefeatSnowCrab,
@@ -36,6 +43,18 @@ namespace FFMQLib
 		Easy = 0,
 		Medium,
 		Hard
+	}
+	public enum QuestScriptId
+	{ 
+		QuestCompletedBox = 0x00,
+		KaeliLevelUp,
+		TristamLevelUp,
+		PhoebeLevelUp,
+		ReubenLevelUp,
+		AnyCompanionLevelUp,
+		CollectQty,
+		CrystalsQty
+
 	}
 
 	public class Quest
@@ -65,6 +84,15 @@ namespace FFMQLib
 			Description = description;
 			Companion = companion;
 		}
+		public Quest(QuestsId name, int qty, CompanionsId companion, NewGameFlagsList flag, string description)
+		{
+			Name = name;
+			Gameflag = NewGameFlagsList.None;
+			Quantity = qty;
+			Gameflag = flag;
+			Description = description;
+			Companion = companion;
+		}
 		public Quest()
 		{
 			Rating = QuestRating.Easy;
@@ -79,6 +107,7 @@ namespace FFMQLib
 		public bool ReubenEnabled { get; set; }
 		public int QuestQuantity { get; set; }
 		public List<Quest> Quests { get; set; }
+		private QuestScriptsManager questsScripts;
 		private LevelingType LevelingType;
 		private Dictionary<CompanionsId, string> CompanionRoutines = new()
 		{
@@ -96,8 +125,12 @@ namespace FFMQLib
 			ReubenEnabled = true;
 			QuestQuantity = 1;
 			Quests = new();
+			questsScripts = new(0x10, 0xA700);
 
 			LevelingType = type;
+
+			CreateTestQuests();
+			GenerateQuestsScripts();
 
 			if (type == LevelingType.Quests)
 			{
@@ -156,7 +189,19 @@ namespace FFMQLib
 			int mediumminibossesqty = rng.Between(4, 5);
 			int hardminibossesqty = rng.Between(6, 7);
 
-			// Acquire X items + treasure hook
+			int easycollectqty = rng.Between(20, 30);
+			int mediumcollectqty = rng.Between(40, 60);
+			int hardcollectqty = rng.Between(70, 99);
+
+			bool skycoinfragment = false;
+			int easyskycoinqty = rng.Between(15, 20);
+			int mediumskycoinqty = rng.Between(25, 30);
+			int hardskycoinqty = rng.Between(35, 38);
+
+			int easybattlefieldsqty = rng.Between(5, 9);
+			int mediumbattlefieldsqty = rng.Between(10, 14);
+			int hardbattlefieldsqty = rng.Between(14, 18);
+
 			// Clear Battlefields + battlefield hook
 			// Quest Quest (just add to script)
 			// Visit Quests (we'll need some talk scripts in here =/ )
@@ -174,6 +219,15 @@ namespace FFMQLib
 				new Quest(QuestsId.SaveQtyCrystals, 2, QuestRating.Easy, "Save 2 Crystals."),
 				new Quest(QuestsId.SaveQtyCrystals, 3, QuestRating.Medium, "Save 3 Crystals."),
 				new Quest(QuestsId.SaveQtyCrystals, 4, QuestRating.Hard, "Save All 4 Crystals."),
+				new Quest(QuestsId.CollectQtyItems, easycollectqty, QuestRating.Easy, $"Collect {easycollectqty} Refreshers."),
+				new Quest(QuestsId.CollectQtyItems, mediumcollectqty, QuestRating.Medium, $"Collect {mediumcollectqty} Refreshers."),
+				new Quest(QuestsId.CollectQtyItems, hardcollectqty, QuestRating.Hard, $"Collect {hardcollectqty} Refreshers."),
+				new Quest(QuestsId.ClearQtyBattlefields, easybattlefieldsqty, QuestRating.Easy, $"Clear {easybattlefieldsqty} Battlefields."),
+				new Quest(QuestsId.ClearQtyBattlefields, mediumbattlefieldsqty, QuestRating.Medium, $"Clear {mediumbattlefieldsqty} Battlefields."),
+				new Quest(QuestsId.ClearQtyBattlefields, hardbattlefieldsqty, QuestRating.Hard, $"Clear {hardbattlefieldsqty} Battlefields."),
+				new Quest(QuestsId.ClearLavaDomeBattlefield, 0, QuestRating.Medium, $"Clear Lava Dome Battlefield."),
+				new Quest(QuestsId.ClearWindia1Battlefield, 0, QuestRating.Medium, $"Clear Winda Small Area Battlefield."),
+				new Quest(QuestsId.ClearWindia2Battlefield, 0, QuestRating.Medium, $"Clear Windia Large Area Battlefield."),
 				new Quest(QuestsId.DefeatMinotaur, 0, QuestRating.Easy, "Defeat Minotaur."),
 				new Quest(QuestsId.DefeatSquidite, 0, QuestRating.Easy, "Defeat Squidite."),
 				new Quest(QuestsId.DefeatSnowCrab, 0, QuestRating.Medium, "Defeat Snow Crab."),
@@ -184,6 +238,26 @@ namespace FFMQLib
 				new Quest(QuestsId.DefeatQtyMinibosses, easyminibossesqty, QuestRating.Easy, $"Defeat {easyminibossesqty} Minibosses."),
 				new Quest(QuestsId.DefeatQtyMinibosses, mediumminibossesqty, QuestRating.Medium, $"Defeat {mediumminibossesqty} Minibosses."),
 				new Quest(QuestsId.DefeatQtyMinibosses, hardminibossesqty, QuestRating.Hard, $"Defeat {hardminibossesqty} Minibosses."),
+			};
+
+			if (skycoinfragment)
+			{
+				Quests.AddRange(new List<Quest>()
+				{
+					new Quest(QuestsId.CollectQtySkyCoins, easyskycoinqty, QuestRating.Easy, $"Collect {easyskycoinqty} Sky Fragments."),
+					new Quest(QuestsId.CollectQtySkyCoins, mediumskycoinqty, QuestRating.Medium, $"Collect {mediumskycoinqty} Sky Fragments."),
+					new Quest(QuestsId.CollectQtySkyCoins, hardskycoinqty, QuestRating.Hard, $"Collect {hardskycoinqty} Sky Fragments."),
+				});
+			}
+		}
+		private void CreateTestQuests()
+		{
+			List<CompanionsId> companions = new() { CompanionsId.Kaeli, CompanionsId.Tristam, CompanionsId.Phoebe, CompanionsId.Reuben };
+
+			Quests = new List<Quest>()
+			{
+				new Quest(QuestsId.CollectQtyItems, 10, CompanionsId.Tristam, NewGameFlagsList.TristamQuest1, "Collect 10 Refreshers"),
+				new Quest(QuestsId.SaveQtyCrystals, 1, CompanionsId.Tristam, NewGameFlagsList.TristamQuest2, "Save 1 Crystal"),
 			};
 		}
 		private void CreateCrystalQuests()
@@ -240,9 +314,86 @@ namespace FFMQLib
 		}
 		private void QuestRoutines(FFMQRom rom)
 		{
-			var scriptkaeli = new ScriptBuilder(new List<string>()
+			// Write Scripts
+			questsScripts.Write(rom);
+
+			// Main routine, check for no companion then level
+			rom.PutInBank(0x10, 0xA340, Blob.FromHex("08e220ad9010c9fff00c2000a0a9288d1e0022029b00286b"));
+			rom.PutInBank(0x10, 0xA360, Blob.FromHex("08e220ad9010c9fff00c2000a0286b")); // same but don't trigger screen refresh
+
+			// Companion routine, check for companion, then go to main routine
+			//rom.PutInBank(0x10, 0xA360, Blob.FromHex("08e220ad9e0ec901d0032240a310286b"));
+			//rom.PutInBank(0x10, 0xA370, Blob.FromHex("08e220ad9e0ec902d0032240a310286b"));
+			//rom.PutInBank(0x10, 0xA380, Blob.FromHex("08e220ad9e0ec903d0032240a310286b"));
+			//rom.PutInBank(0x10, 0xA390, Blob.FromHex("08e220ad9e0ec904d0032240a310286b"));
+
+			// Items Qty Script Handler
+			rom.PutInBank(0x10, 0xA370, Blob.FromHex("08e220c210a20000bd9e0ec913f00ce8e8e0080090f29c9e00286be8bd9e0e8d9e00286b"));
+			rom.PutInBank(0x03, 0x8A24, Blob.FromHex("07" + questsScripts.GetAddress(QuestScriptId.CollectQty) + "1000"));
+
+			// Battlefield Script Handler
+			rom.PutInBank(0x02, 0x89F5, Blob.FromHex("20e0ffeaeaea"));
+			rom.PutInBank(0x02, 0xFFE0, Blob.FromHex("a25fd520358822a0a3109006a2e0ff20358822d4a3109006a2e0ff20358860")); // Messages + Check
+			rom.PutInBank(0x03, 0xFFE0, Blob.FromHex("2c2527aac860429c69c3bfb8c7b8b7ce22")); // Jingle + Text
+
+			var bfqtyquests = Quests.Where(q => q.Name == QuestsId.ClearQtyBattlefields).ToList();
+			int bfqtyqty = 0xFF;
+			int bfqtyflag = 0x00;
+			CompanionsId bfqtycompanion= CompanionsId.None;
+
+			if (bfqtyquests.Any())
 			{
-				"0880A7",
+				bfqtyflag = (int)bfqtyquests[0].Gameflag;
+				bfqtyqty = bfqtyquests[0].Quantity;
+				bfqtycompanion = bfqtyquests[0].Companion;
+			}
+
+			var bfclearquests = Quests.Where(q => q.Name >= QuestsId.ClearLavaDomeBattlefield && q.Name <= QuestsId.ClearWindia2Battlefield).ToList();
+			int bfclearqty = 0xFF;
+			int bfclearflag = 0x00;
+			CompanionsId bfclearcompanion = CompanionsId.None;
+
+			int targetbf = 0xFF;
+
+			if (bfclearquests.Any())
+			{
+				bfclearflag = (int)bfclearquests[0].Gameflag;
+				bfclearqty = bfclearquests[0].Quantity;
+				bfclearcompanion = bfclearquests[0].Companion;
+
+				if (bfclearquests[0].Name == QuestsId.ClearLavaDomeBattlefield)
+				{
+					targetbf = (int)LocationIds.VolcanoBattlefield01;
+				}
+				else if (bfclearquests[0].Name == QuestsId.ClearWindia1Battlefield)
+				{
+					targetbf = (int)LocationIds.WindiaBattlefield01;
+				}
+				else if (bfclearquests[0].Name == QuestsId.ClearWindia2Battlefield)
+				{
+					targetbf = (int)LocationIds.WindiaBattlefield02;
+				}
+			}
+
+			rom.PutInBank(0x10, 0xA3A0, Blob.FromHex($"08e230a9{bfqtyflag:X2}22769700d027a000a201bdd30fd001c8e8e01590f5c0{bfqtyqty:X2}9014a9{bfqtyflag:X2}22609700ad920ec9{bfqtycompanion:X2}d00422a0a31028386b286b08e230a9{bfclearflag:X2}22769700d01ba2{targetbf:X2}bdd30fd014a9{bfclearflag:X2}22609700ad920ec9{bfclearcompanion:X2}d00422a0a31028386b286b"));
+
+		}
+		public void GenerateQuestsScripts()
+		{
+			FFMQRom rom = new();
+
+			// Quest Completed Box
+			questsScripts.AddScript(new ScriptBuilder(new List<string>()
+			{
+				"2a20542527a054ffff",
+				"1A00" + rom.TextToHex("\n          Quest Completed!") + "36",
+				"00"
+			}));
+
+			// Script Kaeli 0x00
+			questsScripts.AddScript(new ScriptBuilder(new List<string>()
+			{
+				"08" + questsScripts.GetAddress(QuestScriptId.QuestCompletedBox),
 				"0F9010",
 				"0BFF[07]",
 				"0F920E",
@@ -250,11 +401,12 @@ namespace FFMQLib
 				"2C2A27",
 				"0940A310",
 				"00"
-			});
+			}));
 
-			var scripttristam = new ScriptBuilder(new List<string>()
+			// Script Tristam 0x01
+			questsScripts.AddScript(new ScriptBuilder(new List<string>()
 			{
-				"0880A7",
+				"08" + questsScripts.GetAddress(QuestScriptId.QuestCompletedBox),
 				"0F9010",
 				"0BFF[07]",
 				"0F920E",
@@ -262,11 +414,12 @@ namespace FFMQLib
 				"2C2A27",
 				"0940A310",
 				"00"
-			});
+			}));
 
-			var scriptphoebe = new ScriptBuilder(new List<string>()
+			// Script Phoebe 0x02
+			questsScripts.AddScript(new ScriptBuilder(new List<string>()
 			{
-				"0880A7",
+				"08" + questsScripts.GetAddress(QuestScriptId.QuestCompletedBox),
 				"0F9010",
 				"0BFF[07]",
 				"0F920E",
@@ -274,11 +427,11 @@ namespace FFMQLib
 				"2C2A27",
 				"0940A310",
 				"00"
-			});
-
-			var scriptreuben = new ScriptBuilder(new List<string>()
+			}));
+			// Script Reuben 0x03
+			questsScripts.AddScript(new ScriptBuilder(new List<string>()
 			{
-				"0880A7",
+				"08" + questsScripts.GetAddress(QuestScriptId.QuestCompletedBox),
 				"0F9010",
 				"0BFF[07]",
 				"0F920E",
@@ -286,26 +439,72 @@ namespace FFMQLib
 				"2C2A27",
 				"0940A310",
 				"00"
-			});
+			}));
 
-			var scriptbox = new ScriptBuilder(new List<string>()
+			// Uodate individual companion scripts 
+			CompanionRoutines = new()
 			{
-				"2a20542527a054ffff",
-				"1A00" + rom.TextToHex("\n          Quest Completed!") + "36",
-				"00"
-			});
+				{ CompanionsId.None, "00000000" },
+				{ CompanionsId.Kaeli, "07" + questsScripts.GetAddress(QuestScriptId.KaeliLevelUp) + "10" },
+				{ CompanionsId.Tristam, "07" + questsScripts.GetAddress(QuestScriptId.TristamLevelUp) + "10" },
+				{ CompanionsId.Phoebe, "07" + questsScripts.GetAddress(QuestScriptId.PhoebeLevelUp) + "10" },
+				{ CompanionsId.Reuben, "07" + questsScripts.GetAddress(QuestScriptId.ReubenLevelUp) + "10" },
+			};
 
-			var scriptanycompanion = new ScriptBuilder(new List<string>()
+			// Any companion
+			questsScripts.AddScript(new ScriptBuilder(new List<string>()
 			{
-				"0880A7",
+				"08" + questsScripts.GetAddress(QuestScriptId.QuestCompletedBox),
 				"0F9010",
 				"0BFF[05]",
 				"2C2A27",
 				"0940A310",
 				"00"
-			});
+			}));
 
+			// Item Quantity Quest
+			var itemsquests = Quests.Where(q => q.Name == QuestsId.CollectQtyItems).ToList();
+			int itemsqty = 0xFF;
+			int itemsflag = 0x00;
+			CompanionsId itemscompanion = CompanionsId.None;
 
+			if (itemsquests.Any())
+			{
+				itemsflag = (int)itemsquests[0].Gameflag;
+				itemsqty = itemsquests[0].Quantity;
+				itemscompanion = itemsquests[0].Companion;
+			}
+
+			var skyfragmentsquests = Quests.Where(q => q.Name == QuestsId.CollectQtySkyCoins).ToList();
+			int skyfragmentsqty = 0xFF;
+			int skyfragmentsflag = 0x00;
+			CompanionsId skyfragmentscompanion = CompanionsId.None;
+
+			if (skyfragmentsquests.Any())
+			{
+				skyfragmentsflag = (int)skyfragmentsquests[0].Gameflag;
+				skyfragmentsqty = skyfragmentsquests[0].Quantity;
+				skyfragmentscompanion = skyfragmentsquests[0].Companion;
+			}
+
+			// Collect Script
+			questsScripts.AddScript(new ScriptBuilder(new List<string>()
+			{
+				"05FD81[02]",
+				"09ED9B00",
+				"51",
+				(itemsflag != 0x00) ? $"2E{itemsflag:X2}[08]" : "0A[08]",             // skip all if already done
+				"0970A310",                                                           // get refresher qty
+				$"0506{itemsqty:X2}[08]",                                             // if smaller, jump
+				$"23{itemsflag:X2}",                                                  // setflag
+				CompanionRoutines[itemscompanion],
+				(skyfragmentsflag != 0x00) ? $"2E{skyfragmentsflag:X2}[08]" : "00",   // skip all if already done
+				"0F930E",                                                             // get sky fragment qty
+				$"0506{skyfragmentsqty:X2}[08]",                                      // if smaller, jump
+				$"23{skyfragmentsflag:X2}",                                           // setflag
+				CompanionRoutines[skyfragmentscompanion],
+				"00"
+			}));
 
 			// Save Qty Crystals Quest
 			var matchedquests = Quests.Where(q => q.Name == QuestsId.SaveQtyCrystals).ToList();
@@ -320,7 +519,7 @@ namespace FFMQLib
 				crystalcompanion = matchedquests[0].Companion;
 			}
 
-			var scriptcrystalqty = new ScriptBuilder(new List<string>()
+			questsScripts.AddScript(new ScriptBuilder(new List<string>()
 			{
 				$"2E{crystalflag:X2}[13]", // if quest already fufilled, skip all
 				"053B00",
@@ -332,28 +531,12 @@ namespace FFMQLib
 				"1301",
 				"050B05[10]",
 				"1301",
-				$"0506{crystalqty}[13]", // if not enough yet, jump
+				$"0506{crystalqty:X2}[13]", // if not enough yet, jump
 				$"23{crystalflag:X2}",
 				CompanionRoutines[crystalcompanion],
 				"00",
-			});
+			}));
 
-			scriptkaeli.WriteAt(0x10, 0xA700, rom);
-			scripttristam.WriteAt(0x10, 0xA720, rom);
-			scriptphoebe.WriteAt(0x10, 0xA740, rom);
-			scriptreuben.WriteAt(0x10, 0xA760, rom);
-			scriptbox.WriteAt(0x10, 0xA780, rom);
-			scriptanycompanion.WriteAt(0x10, 0xA7B0, rom);
-			scriptcrystalqty.WriteAt(0x10, 0xA7D0, rom);
-
-			// Main routine, check for no companion then level
-			rom.PutInBank(0x10, 0xA340, Blob.FromHex("08e220ad9010c9fff00c2000a0a9288d1e0022029b00286b"));
-
-			// Companion routine, check for companion, then go to main routine
-			rom.PutInBank(0x10, 0xA360, Blob.FromHex("08e220ad9e0ec901d0032240a310286b"));
-			rom.PutInBank(0x10, 0xA370, Blob.FromHex("08e220ad9e0ec902d0032240a310286b"));
-			rom.PutInBank(0x10, 0xA380, Blob.FromHex("08e220ad9e0ec903d0032240a310286b"));
-			rom.PutInBank(0x10, 0xA390, Blob.FromHex("08e220ad9e0ec904d0032240a310286b"));
 		}
 		public NewGameFlagsList GetQuestFlag(QuestsId quest, CompanionsId companion = CompanionsId.None)
 		{
@@ -386,7 +569,7 @@ namespace FFMQLib
 					script += $"23{matchedquest.Gameflag:X2}";
 				}
 
-				script += "07B0A710";
+				script += "07" + questsScripts.GetAddress(QuestScriptId.AnyCompanionLevelUp) + "10";
 				return script;
 			}
 			else
@@ -395,7 +578,7 @@ namespace FFMQLib
 
 				if (selectedQuest.Name == QuestsId.SaveQtyCrystals)
 				{
-					return "07D0A710";
+					return "07" + questsScripts.GetAddress(QuestScriptId.CrystalsQty) + "10";
 				}
 				else
 				{
