@@ -43,34 +43,148 @@ namespace FFMQLib
 			GameMaps[(int)MapList.Overworld].ModifyMap(0x0F, 0x0E, 0x56);
 
 			/*** Level Forest ***/
+			// Copy over Cloudman+Oldman
+			for (int i = 0; i < 3; i++)
+			{
+				MapObjects[0x0E].Add(new MapObject(MapObjects[0x0D][0x00 + i]));
+            }
+
+            MapObjects[0x0E][0x12].Sprite = 0x4C;
+            MapObjects[0x0E][0x13].Sprite = 0x50;
+            MapObjects[0x0E][0x14].Gameflag = 0x34;
+            MapObjects[0x0E][0x12].Palette = 0x00; // Cloudman
+            MapObjects[0x0E][0x13].Palette = 0x00; // Cloud
+            MapObjects[0x0E][0x14].Palette = 0x00; // Old man
+
+			// Put Cloud man first for script and switch oldman too for access
+			MapObjects.SwapMapObjects(0x0E, 0x12, 0x00);
+            MapObjects.SwapMapObjects(0x0E, 0x13, 0x01);
+            MapObjects.SwapMapObjects(0x0E, 0x14, 0x04);
+
+            MapObjects.SwapMapObjects(0x0E, 0x12, 0x05); // Switch back Kaeli at Tree
+            MapObjects.SwapMapObjects(0x0E, 0x13, 0x06); // And Kaeli's mom
+
+			// Final Order
+			// 0x00 Cloudman
+			// 0x01 Cloud
+			// 0x02 Minotaur
+			// 0x03 Kaeli Entrance
+			// 0x04 Oldman
+			// 0x05 Kaeli at Tree
+			// 0x06 Kaeli's mom
+
+			bool enablekaelismom = true;
+
+            PutInBank(0x01, 0xD6E5, Blob.FromHex("a905ea8de219")); // Set axe swing script to new Kaeli at tree map object
+
+			if (enablekaelismom)
+			{
+                MapSpriteSets.MapSpriteSets[0x05] = new MapSpriteSet(
+                    new List<byte> { 0x06, 0x05, 0x47, 0x4a, 0x2a, 0x1e },
+                    new List<SpriteAddressor> {
+                        new SpriteAddressor(0, 0, 0x39, SpriteSize.Tiles8),  // Rock
+                        new SpriteAddressor(2, 0, 0x06, SpriteSize.Tiles16), // Kaeli's Mom
+						new SpriteAddressor(3, 0, 0x06, SpriteSize.Tiles16), // Kaeli's Mom
+                        new SpriteAddressor(6, 0, 0x06, SpriteSize.Tiles16), // Kaeli's Mom
+						new SpriteAddressor(8, 0, 0x0D, SpriteSize.Tiles16), // Old Man
+						new SpriteAddressor(9, 0, 0x05, SpriteSize.Tiles16), // Cloud Man
+						new SpriteAddressor(10, 0, 0x14, SpriteSize.Tiles8), // Cloud
+                    },
+                    true
+                    );
+            }
+			else
+			{
+                MapSpriteSets.MapSpriteSets[0x05] = new MapSpriteSet(
+					new List<byte> { 0x06, 0x05, 0x47, 0x4a, 0x2a, 0x1e },
+					new List<SpriteAddressor> {
+                        new SpriteAddressor(0, 0, 0x39, SpriteSize.Tiles8),  // Rock
+                        new SpriteAddressor(2, 0, 0x01, SpriteSize.Tiles16), // Kaeli Base
+                        new SpriteAddressor(3, 0, 0x29, SpriteSize.Tiles16), // Kaeli Swing
+                        new SpriteAddressor(6, 0, 0x06, SpriteSize.Tiles16), // Kaeli's Mom
+						new SpriteAddressor(8, 0, 0x0D, SpriteSize.Tiles16), // Old Man
+						new SpriteAddressor(9, 0, 0x05, SpriteSize.Tiles16), // Cloud Man
+						new SpriteAddressor(10, 0, 0x14, SpriteSize.Tiles8), // Cloud
+					},
+					true
+					);
+            }
+
+
+            // Update Kaeli Tree Map Object
+            MapObjects[0x0E][0x03].Gameflag = 0x00;
+            MapObjects[0x0E][0x03].Value = 0x80;
+            MapObjects[0x0E][0x03].Orientation = 0x00;
+            MapObjects[0x0E][0x03].UnknownIndex = 0x00;
+            MapObjects[0x0E][0x03].X = 0x2D;
+            MapObjects[0x0E][0x03].Y = 0x12;
+			MapObjects[0x0E][0x03].Behavior = 0x0A;
+
+			string treecuttingdialogue = enablekaelismom ? "Tree, your death is a small sacrifice, but the path opened is great. Praise the Void!" : "There, griffin. Path is cleared. Let's find that decaying !&%? piece of lumber.";
+
+            TalkScripts.AddScript(0x80,
+				new ScriptBuilder(new List<string>
+				{
+                    "04",
+					"0F8B0E",
+                    "057C01[09]",
+                    "057C03[10]",
+                    "1A80" + TextToHex(treecuttingdialogue) + "36",
+                    "2C0344" + "09209511093d8c00" + "2C0825" + "09309511093d8c00" + "2C6822",
+                    "2A13424346FFFF",
+                    "23E3",
+                    "00",
+					"2A105210510054FFFF00",
+                    "2A105210530054FFFF00",
+                }
+				));
+
 			// Enter Level Forest
-			TileScripts.AddScript((int)TileScriptsList.EnterLevelForest,
+			if (enablekaelismom)
+			{
+				TileScripts.AddScript((int)TileScriptsList.EnterLevelForest,
 				new ScriptBuilder(new List<string> {
-					"2E13[03]",
-					"2C0001",
-					"00",
 					"2C0101",
-					$"2E{(int)NewGameFlagsList.ShowForestaKaeli:X2}[11]",
-					"2EE3[11]",
-					$"050f{(int)CompanionsId.Kaeli:X2}[11]",
-					"2A3346634013432344505010530054FFFF",
-					"1A82" + TextToHex("There, griffin. Path is cleared. Let's find that decaying !&%? piece of lumber.", true) + "36",
-					"2A03440825682213424346FFFF",
-					"23E3",
-					"00"
+					$"2E{(int)NewGameFlagsList.ShowForestaKaeli:X2}[04]",
+					"2EE3[04]",
+					"00",
+					"2C434600"
 				}));
+			}
+			else
+			{
+                TileScripts.AddScript((int)TileScriptsList.EnterLevelForest,
+                new ScriptBuilder(new List<string> {
+                    "2C0101",
+                    $"2E{(int)NewGameFlagsList.ShowForestaKaeli:X2}[05]",
+                    "2EE3[05]",
+                    $"050f{(int)Companion.Kaeli:X2}[05]",
+                    "00",
+                    "2C434600"
+                }));
+            }
 
 			// Boulder Man
 			TileScripts.AddScript((int)TileScriptsList.PushedBoulder,
 				new ScriptBuilder(new List<string> {
-					"2E13[03]0F8B0E05090075BC2A12402054FFFF",
-					"1A0A" + TextToHex("Finally, after all these years I can go back home.\nHere have this.", true) + "36",
+					"2E13[03]0F8B0E05090075BC2A14402054FFFF",
+					"1A0A" + TextToHex("Finally, after all these years I can go back home.\nHere have this.") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.BoulderOldMan]:X2}0162231323142B34",
 					"00"
 				}));
 
-			// Following script, reproduced for extra space
-			TileScripts.AddScript(0x2F,
+            // Boulder Man Talking Script
+            TalkScripts.AddScript((int)0x0A,
+                new ScriptBuilder(new List<string> {
+                    "2E13[03]",
+                    "5BB442B543BFB76A5FB5BFC2B6BE48C0596359B56CFF46C758C173B043BF4C55C6BBC267BC42B4C6BCB7B8CF",
+					"00",
+                    "5B4F7D4473A1B46755C6B856FF1D01FFCCB8C7CF",
+					"00"
+                }));
+
+            // Following script, reproduced for extra space
+            TileScripts.AddScript(0x2F,
 				new ScriptBuilder(new List<string> {
 					"2E38[03]",
 					"2338",
@@ -79,32 +193,60 @@ namespace FFMQLib
 				}));
 
 			// Fight Minotaur
-			TileScripts.AddScript((int)TileScriptsList.FightMinotaur,
+			if (enablekaelismom)
+			{
+				TileScripts.AddScript((int)TileScriptsList.FightMinotaur,
 				new ScriptBuilder(new List<string> {
-					"050B63[22]",
-					$"050f{(int)CompanionsId.Kaeli:X2}[22]",
-					"2A30460054105a0e2527275246022A00453055FFFF",
+					"050B63[20]",
+					"050BE3[20]",
+					"2A35460054105a0e2527275246022A05453055FFFF",
 					"1A0BAE63FF57FF57CE30ACC8C5C3C5BCC6B8CE36",
-					"2A1B278044105430555054FFFF",
+					"2A1B278544105430555054FFFF",
 					"1A82" + TextToHex("&%?!! That son of a harpooner just poisoned me! Let's do for this &?!% baracoota!"),
 					"36",
-					"2A70448044704400440054FFFF",
+					"2A754405440054FFFF",
 					"05E41714",
-					"2A62468044105431465140FFFF",
+					"2A624675441054FFFF",
 					"1A82" + TextToHex("You're a &?%! agonist, mate! Here, you earned it. Split a few skulls for me!") + "36",
-					"2C7044",
-					"2C8044",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliForesta]:X2}0162",
 					$"23{(int)NewGameFlagsList.ShowSickKaeli:X2}",
-					"0880FF",
-					"61",
-					"2A1140404661424146FFFF",
+                    "2A205465424546FFFF",
 					"236D",
 					"231E",
 					"2B63",
 					"2B15",
 					"00"
 				}));
+			}
+			else
+			{
+                TileScripts.AddScript((int)TileScriptsList.FightMinotaur,
+                new ScriptBuilder(new List<string> {
+                    "050B63[21]",
+                    $"050f{(int)CompanionsId.Kaeli:X2}[22]",
+                    "2A35460054105a0e2527275246022A05453055FFFF",
+                    "1A0BAE63FF57FF57CE30ACC8C5C3C5BCC6B8CE36",
+                    "2A1B278544105430555054FFFF",
+                    "1A82" + TextToHex("&%?!! That son of a harpooner just poisoned me! Let's do for this &?!% baracoota!"),
+                    "36",
+                    "2A75448544754405440054FFFF",
+                    "05E41714",
+                    "2A62468544105436465640FFFF",
+                    "1A82" + TextToHex("You're a &?%! agonist, mate! Here, you earned it. Split a few skulls for me!") + "36",
+                    "2C7544",
+                    "2C8544",
+                    $"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliForesta]:X2}0162",
+                    $"23{(int)NewGameFlagsList.ShowSickKaeli:X2}",
+                    "0880FF",
+                    "61",
+                    "2A1640454666424646FFFF",
+                    "236D",
+                    "231E",
+                    "2B63",
+                    "2B15",
+                    "00"
+                }));
+            }
 
 			/*** Foresta ***/
 			// Kaeli TreeWither

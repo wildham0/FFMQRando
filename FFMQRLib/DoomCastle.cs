@@ -140,12 +140,12 @@ namespace FFMQLib
 				MapSpriteSets.MapSpriteSets.Add(new MapSpriteSet(
 					new List<byte> { 0x52, 0x50, 0x56, 0x54, 0x1f, 0x1e },
 					new List<SpriteAddressor> {
-						new SpriteAddressor(4, 0x13, SpriteSize.Tiles16),
-						new SpriteAddressor(7, 0x27, SpriteSize.Tiles16),
-						new SpriteAddressor(8, 0x14, SpriteSize.Tiles16),
-						new SpriteAddressor(16, 0x15, SpriteSize.Tiles16),
-						new SpriteAddressor(24, 0x16, SpriteSize.Tiles16),
-					},
+						new SpriteAddressor(1, 0, 0x13, SpriteSize.Tiles16),
+						new SpriteAddressor(3, 0, 0x14, SpriteSize.Tiles16),
+						new SpriteAddressor(5, 0, 0x15, SpriteSize.Tiles16),
+						new SpriteAddressor(8, 0, 0x16, SpriteSize.Tiles16),
+                        new SpriteAddressor(10, 0, 0x27, SpriteSize.Tiles16),
+                    },
 					true
 					));
 

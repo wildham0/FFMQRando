@@ -16,20 +16,58 @@ namespace FFMQLib
 	public class SpriteAddressor
 	{ 
 		public byte SpriteGraphic { get; set; }
-		public int Position { get; set; }
+		public int Position => GetPosition();
+		public int Row { get; set; }
+		public int RowOffset { get; set; }
 		public SpriteSize Size { get; set; }
-
-		public SpriteAddressor(int _position, byte _graphic, SpriteSize _size)
+		private List<(int index, byte bit)> rowToIndex = new() { (0, 0xF0), (0, 0x08), (0, 0x04), (1, 0xF0), (1, 0x0F), (2, 0xF0), (0, 0x02), (2, 0x0F), (3, 0xF0), (3, 0x0F), (0, 0x01), (4, 0xF0), (4, 0x0F), (5, 0xF0) };
+        private List<byte> offsetToIndex = new() { 0x88, 0x44, 0x22, 0x11 };
+		private List<int> fullRows = new() { 0x01, 0x02, 0x06, 0x0A };
+        public SpriteAddressor(int _position, byte _graphic, SpriteSize _size)
 		{
-			Position = _position;
+			//Position = _position;
 			Size = _size;
 			SpriteGraphic = _graphic;
 		}
-		public (int index, byte bit) GetPositionBytes()
+        public SpriteAddressor(int _row, int _offset, byte _graphic, SpriteSize _size)
+        {
+            Row = _row;
+			RowOffset = _offset;
+            Size = _size;
+            SpriteGraphic = _graphic;
+        }
+        public SpriteAddressor(int _index, int _bit, byte _graphic)
+        {
+			byte bitIndex = (byte)(0x80 / Math.Pow(2, _bit));
+            Row = rowToIndex.FindIndex(x => x.index == _index && (x.bit & bitIndex) > 0);
+            RowOffset = (_bit > 3) ? (_bit - 4) : _bit;
+            Size = ((_graphic & 0x80) > 0) ? SpriteSize.Tiles8 : SpriteSize.Tiles16;
+            SpriteGraphic = (byte)(_graphic & 0x7F);
+        }
+		/*
+        public (int index, byte bit) GetPositionBytes()
 		{
 			return (Position / 8, (byte)(0x80 / Math.Pow(2,Position % 8)));
-		}
-		public byte GetSprite()
+		}*/
+        public (int index, byte bit) GetPositionBytes()
+        {
+			if (fullRows.Contains(Row))
+			{
+				var targetIndex = rowToIndex[Row];
+				return (targetIndex.index, targetIndex.bit);
+			}
+			else
+			{
+                var targetIndex = rowToIndex[Row];
+				return (targetIndex.index, (byte)(offsetToIndex[RowOffset] & targetIndex.bit));
+            }
+        }
+		public int GetPosition()
+		{
+			var positionByte = GetPositionBytes();
+			return (positionByte.index * 8) + (int)Math.Log2(0x80 / positionByte.bit);
+        }
+        public byte GetSprite()
 		{
 			return (byte)(SpriteGraphic | ((Size == SpriteSize.Tiles8) ? 0x80 : 0x00));
 		}
@@ -52,11 +90,14 @@ namespace FFMQLib
 			{
 				for (int j = 0; j < (i < 5 ? 8 : 4); j++)
 				{
-					if ((spriteList[i] & (byte)(0x80 / Math.Pow(2, j))) > 0)
+					byte bitIndex = (byte)(spriteList[i] & (byte)(0x80 / Math.Pow(2, j)));
+
+					if (bitIndex > 0)
 					{
 						byte targetByte = rom.Get(_address + _pointer + 12 + spritecount, 1).ToBytes()[0];
-						AdressorList.Add(new SpriteAddressor(i * 8 + j, targetByte, (targetByte & 0x80) > 0 ? SpriteSize.Tiles8 : SpriteSize.Tiles16));
-						spritecount++;
+                        //AdressorList.Add(new SpriteAddressor(i * 8 + j, targetByte, (targetByte & 0x80) > 0 ? SpriteSize.Tiles8 : SpriteSize.Tiles16));
+                        AdressorList.Add(new SpriteAddressor(i, j, targetByte));
+                        spritecount++;
 					}
 				}
 			}
@@ -77,7 +118,9 @@ namespace FFMQLib
 
 			foreach (var addressor in orderedAddressors)
 			{
-				positionList[addressor.GetPositionBytes().index] |= addressor.GetPositionBytes().bit;
+				var positionByte = addressor.GetPositionBytes();
+
+                positionList[positionByte.index] |= positionByte.bit;
 			}
 
 			positionList[5] |= (byte)(LoadMonsterSprites ? 0x01 : 0x00);

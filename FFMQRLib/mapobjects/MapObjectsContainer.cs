@@ -101,6 +101,12 @@ namespace FFMQLib
 		{
 			return _areaattributes[area][1];
 		}
+		public void SwapMapObjects(int collection, int id1, int id2)
+		{
+			var tempobject = new MapObject(_collections[_pointerCollectionPairs[collection]][id1]);
+			_collections[_pointerCollectionPairs[collection]][id1] = new MapObject(_collections[_pointerCollectionPairs[collection]][id2]);
+            _collections[_pointerCollectionPairs[collection]][id2] = new MapObject(tempobject);
+        }
 		public void Write(FFMQRom rom)
 		{
 			var pointerOffset = _attributepointers[0].ToUShorts()[0];
