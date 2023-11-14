@@ -5,6 +5,7 @@ using System.Text;
 using System.Linq;
 using RomUtilities;
 using System.Runtime.Intrinsics.Arm;
+using System.Collections;
 
 namespace FFMQLib
 {
@@ -13,6 +14,7 @@ namespace FFMQLib
 		public int FragmentsCount { get; set; }
 		public List<(ElementsType, ElementsType)> ShuffledElementsType { get; set; }
 		public List<(CompanionsId, List<(int level, SpellFlags spell)>)> SpellLearning { get; set; }
+		public List<(CompanionsId, string)> Quests { get; set; }
 		private int pagecount;
 		private List<int> pageoffsets;
 		private Dictionary<ElementsType, string> elementsbytes = new()
@@ -217,11 +219,12 @@ namespace FFMQLib
                 pages.Add(pagescript);
             }
 
-            if (SpellLearning.Any())
+			List<CompanionsId> companions = new() { CompanionsId.Kaeli, CompanionsId.Tristam, CompanionsId.Phoebe, CompanionsId.Reuben };
+            if (SpellLearning.Any() || Quests.Any())
             {
-                foreach (var spelllearner in SpellLearning.OrderBy(l => l.Item1))
+                foreach (var companion in companions)
                 {
-                    pages.Add(CompanionPage(spelllearner.Item1, rom));
+                    pages.Add(CompanionPage(companion, rom));
                 }
             }
 
@@ -269,7 +272,7 @@ namespace FFMQLib
             // Position cursor
             pagescript += $"15020519";
 
-            /*
+			/*
             pagescript += $"250C1503{lineoffset:X2}19";
             pagescript += rom.TextToHex(companionnames[companion] + " - Spells");
             lineoffset++;
@@ -277,7 +280,15 @@ namespace FFMQLib
             lineoffset++;
             pagescript += $"1505{lineoffset:X2}19";*/
 
-            var spellist = SpellLearning.Find(s => s.Item1 == companion).Item2.OrderBy(s => s.level).ToList();
+			List<(int level, SpellFlags spell)> spellist = new();
+
+			var companionspells = SpellLearning.Where(s => s.Item1 == companion).ToList();
+			if (companionspells.Any())
+			{
+				spellist = SpellLearning.Find(s => s.Item1 == companion).Item2.OrderBy(s => s.level).ToList();
+			}
+
+			//var spellist = SpellLearning.Find(s => s.Item1 == companion).Item2.OrderBy(s => s.level).ToList();
             
 			int xcount = 0;
             string line1 = "";
@@ -316,6 +327,24 @@ namespace FFMQLib
             }
             pagescript += line1 + "01" + line2 + "01" + line3 + "01";
 
+			// Do Quests
+			var selectedquests = Quests.Where(x => x.Item1 == companion).ToList();
+
+			if (selectedquests.Any())
+			{
+				int questcount = 1;
+				pagescript += $"250C2401091E0E18";
+				pagescript += $"250C15020919";
+
+				pagescript += rom.TextToHex("Quests\n\n");
+
+				foreach (var quest in selectedquests)
+				{
+					pagescript += rom.TextToHex(questcount + "." + quest.Item2 + "\n");
+					questcount++;
+				}
+			}
+			
 			return pagescript;
         }
 	}

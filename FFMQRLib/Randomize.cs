@@ -75,8 +75,6 @@ namespace FFMQLib
 			Credits credits = new(this);
 			TitleScreen titleScreen = new(this);
 
-			//Companions.
-
 			// Sprites
 			PlayerSprites playerSprites = new(PlayerSpriteMode.Spritesheets); // Merge by updating Credits at the end
 			PlayerSprite playerSprite = playerSprites.GetSprite(preferences, asyncrng);
@@ -96,6 +94,10 @@ namespace FFMQLib
 			EnemyAttackLinks.ShuffleAttacks(flags.EnemizerAttacks, flags.EnemizerGroups, rng);
 			EnemiesStats.ScaleEnemies(flags, rng);
 			EnemiesStats.ShuffleResistWeakness(flags.ShuffleResWeakType, GameInfoScreen, rng);
+
+			// Companions
+			Companions.SetSpellbooks(flags.CompanionSpellbookType, GameInfoScreen, rng);
+			Companions.SetQuests(flags, GameInfoScreen, rng);
 
 			// Overworld
 			Overworld.OpenNodes(flags);
@@ -125,9 +127,6 @@ namespace FFMQLib
 			// Doom Castle
 			SetDoomCastleMode(flags.DoomCastleMode);
 			DoomCastleShortcut(flags.DoomCastleShortcut);
-
-			// Companion
-			Companions.SetSpellbooks(flags.CompanionSpellbookType, GameInfoScreen, rng);
 
 			// Various
 			SetLevelingCurve(flags.LevelingCurve);

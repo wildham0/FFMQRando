@@ -557,6 +557,10 @@ namespace FFMQLib
 		EnterFireburgHotel = 0x60,
 		EnterWindiaInn,
 		EnterReubenHouse,
+		PointlessLedgeQuest,
+		LightTempleQuest,
+		MountGaleQuest,
+		EnterWindiaInnBedroom,
 
 	}
 
@@ -634,7 +638,9 @@ namespace FFMQLib
 		MysteriousManSealedTemple = 0x4C, 
 		FightMedusa = 0x4D,
 		GiantTree = 0x4E,
+		FightGidrah = 0x52,
 		FightHeadlessKnight = 0x54,
+		WindiaChocobo = 0x5A,
 		KaeliWindia = 0x5B,
 		Otto = 0x5C,
 		CaptainMacWindia = 0x5F,
@@ -642,6 +648,9 @@ namespace FFMQLib
 		WindiaSellerGirl = 0x67,
 		CaptainMacOnShip = 0x75,
 		VenusChest = 0x7B,
+		// Extended Talk Scripts
+		TreeHouseQuestNPC = 0x80, 
+		KaeliCuttingTree
 	}
 	public enum BattlefieldRewardType : byte
 	{

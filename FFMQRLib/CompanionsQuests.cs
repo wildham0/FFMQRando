@@ -33,6 +33,14 @@ namespace FFMQLib
 		DefeatGidrah,
 		DefeatDullahan,
 		DefeatQtyMinibosses,
+		SaveArion,
+		BuildRainbowBridge,
+		ThawAquaria,
+		VisitPointlessLedge,
+		VisitLightTemple,
+		VisitTreeHouses,
+		VisitMountGale,
+		VisitChocobo,
 		CureKaeli,
 		VisitBoneDungeon,
 		VisitWintryCave,
@@ -53,8 +61,8 @@ namespace FFMQLib
 		ReubenLevelUp,
 		AnyCompanionLevelUp,
 		CollectQty,
-		CrystalsQty
-
+		CrystalsQty,
+		BossesQty,
 	}
 
 	public class Quest
@@ -65,7 +73,6 @@ namespace FFMQLib
 		public string Description { get; set; }
 		public CompanionsId Companion { get; set; }
 		public QuestRating Rating { get; set; }
-
 		public Quest(QuestsId name, int qty, QuestRating rating, string description)
 		{
 			Name = name;
@@ -108,7 +115,7 @@ namespace FFMQLib
 		public int QuestQuantity { get; set; }
 		public List<Quest> Quests { get; set; }
 		private QuestScriptsManager questsScripts;
-		private LevelingType LevelingType;
+		private List<CompanionsId> companionslist = new() { CompanionsId.Kaeli, CompanionsId.Tristam, CompanionsId.Phoebe, CompanionsId.Reuben };
 		private Dictionary<CompanionsId, string> CompanionRoutines = new()
 		{
 			{ CompanionsId.None, "00000000" },
@@ -117,7 +124,14 @@ namespace FFMQLib
 			{ CompanionsId.Phoebe, "0740A710" },
 			{ CompanionsId.Reuben, "0760A710" },
 		};
-		private void InitializeQuests(LevelingType type)
+		private Dictionary<CompanionsId, List<NewGameFlagsList>> gameflagsList = new()
+		{
+			{ CompanionsId.Kaeli, new List<NewGameFlagsList> { NewGameFlagsList.KaeliQuest1, NewGameFlagsList.KaeliQuest2, NewGameFlagsList.KaeliQuest3, NewGameFlagsList.KaeliQuest4, } },
+			{ CompanionsId.Tristam, new List<NewGameFlagsList> { NewGameFlagsList.TristamQuest1, NewGameFlagsList.TristamQuest2, NewGameFlagsList.TristamQuest3, NewGameFlagsList.TristamQuest4, } },
+			{ CompanionsId.Phoebe, new List<NewGameFlagsList> { NewGameFlagsList.PhoebeQuest1, NewGameFlagsList.PhoebeQuest2, NewGameFlagsList.PhoebeQuest3, NewGameFlagsList.PhoebeQuest4, } },
+			{ CompanionsId.Reuben, new List<NewGameFlagsList> { NewGameFlagsList.ReubenQuest1, NewGameFlagsList.ReubenQuest2, NewGameFlagsList.ReubenQuest3, NewGameFlagsList.ReubenQuest4, } },
+		};
+		public void SetQuests(Flags flags, GameInfoScreen screen, MT19337 rng)
 		{
 			KaeliEnabled = true;
 			TristamEnabled = true;
@@ -127,24 +141,24 @@ namespace FFMQLib
 			Quests = new();
 			questsScripts = new(0x10, 0xA700);
 
-			LevelingType = type;
-
-			CreateTestQuests();
-			GenerateQuestsScripts();
-
-			if (type == LevelingType.Quests)
+			if (levelingType == LevelingType.Quests)
 			{
 				CreateStandardQuests();
 			}
-			else if(type == LevelingType.SaveCrystals)
+			else if (levelingType == LevelingType.SaveCrystals)
 			{
 				CreateCrystalQuests();
 			}
+			else if (levelingType == LevelingType.QuestsExtended)
+			{
+				CreateExtendedQuests(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin, flags.DoomCastleShortcut, rng);
+			}
+
+			GenerateQuestsScripts();
+			AddQuestsToGameInfoScreen(screen);
 		}
 		private void CreateStandardQuests()
 		{
-			List<CompanionsId> companions = new() { CompanionsId.Kaeli, CompanionsId.Tristam, CompanionsId.Phoebe, CompanionsId.Reuben };
-
 			Quests.Add(new Quest()
 			{
 				Name = QuestsId.CureKaeli,
@@ -181,10 +195,8 @@ namespace FFMQLib
 				Description = "Visit Mine with Reuben and return to Fireburg."
 			});
 		}
-		private void CreateExtendedQuests(MT19337 rng)
+		private void CreateExtendedQuests(bool skycoinfragment, bool darkkingshorcut, MT19337 rng)
 		{
-			List<CompanionsId> companions = new() { CompanionsId.Kaeli, CompanionsId.Tristam, CompanionsId.Phoebe, CompanionsId.Reuben };
-
 			int easyminibossesqty = rng.Between(2, 3);
 			int mediumminibossesqty = rng.Between(4, 5);
 			int hardminibossesqty = rng.Between(6, 7);
@@ -193,7 +205,6 @@ namespace FFMQLib
 			int mediumcollectqty = rng.Between(40, 60);
 			int hardcollectqty = rng.Between(70, 99);
 
-			bool skycoinfragment = false;
 			int easyskycoinqty = rng.Between(15, 20);
 			int mediumskycoinqty = rng.Between(25, 30);
 			int hardskycoinqty = rng.Between(35, 38);
@@ -202,83 +213,96 @@ namespace FFMQLib
 			int mediumbattlefieldsqty = rng.Between(10, 14);
 			int hardbattlefieldsqty = rng.Between(14, 18);
 
-			// Clear Battlefields + battlefield hook
-			// Quest Quest (just add to script)
-			// Visit Quests (we'll need some talk scripts in here =/ )
-
-			Quests = new()
+			List<Quest> availableQuests = new()
 			{
-				new Quest(QuestsId.CureKaeli, 0, QuestRating.Hard, CompanionsId.Kaeli, "Give Elixir to poisoned Kaeli."),
-				new Quest(QuestsId.VisitBoneDungeon, 0, QuestRating.Medium, CompanionsId.Tristam, "Visit Bone Dungeon with Tristam and return to Fireburg."),
-				new Quest(QuestsId.VisitWintryCave, 0, QuestRating.Medium, CompanionsId.Phoebe, "Visit Wintry Cave with Phoebe and return to Windia."),
-				new Quest(QuestsId.VisitMine, 0, QuestRating.Easy, CompanionsId.Reuben, "Visit Mine with Reuben and return to Fireburg."),
-				new Quest(QuestsId.SaveCrystalofEarth, 0, QuestRating.Easy, "Save the Crystal of Earth."),
-				new Quest(QuestsId.SaveCrystalofWater, 0, QuestRating.Medium, "Save the Crystal of Water."),
-				new Quest(QuestsId.SaveCrystalofFire, 0, QuestRating.Medium, "Save the Crystal of Fire."),
-				new Quest(QuestsId.SaveCrystalofWind, 0, QuestRating.Hard, "Save the Crystal of Wind."),
-				new Quest(QuestsId.SaveQtyCrystals, 2, QuestRating.Easy, "Save 2 Crystals."),
-				new Quest(QuestsId.SaveQtyCrystals, 3, QuestRating.Medium, "Save 3 Crystals."),
-				new Quest(QuestsId.SaveQtyCrystals, 4, QuestRating.Hard, "Save All 4 Crystals."),
-				new Quest(QuestsId.CollectQtyItems, easycollectqty, QuestRating.Easy, $"Collect {easycollectqty} Refreshers."),
-				new Quest(QuestsId.CollectQtyItems, mediumcollectqty, QuestRating.Medium, $"Collect {mediumcollectqty} Refreshers."),
-				new Quest(QuestsId.CollectQtyItems, hardcollectqty, QuestRating.Hard, $"Collect {hardcollectqty} Refreshers."),
-				new Quest(QuestsId.ClearQtyBattlefields, easybattlefieldsqty, QuestRating.Easy, $"Clear {easybattlefieldsqty} Battlefields."),
-				new Quest(QuestsId.ClearQtyBattlefields, mediumbattlefieldsqty, QuestRating.Medium, $"Clear {mediumbattlefieldsqty} Battlefields."),
-				new Quest(QuestsId.ClearQtyBattlefields, hardbattlefieldsqty, QuestRating.Hard, $"Clear {hardbattlefieldsqty} Battlefields."),
-				new Quest(QuestsId.ClearLavaDomeBattlefield, 0, QuestRating.Medium, $"Clear Lava Dome Battlefield."),
-				new Quest(QuestsId.ClearWindia1Battlefield, 0, QuestRating.Medium, $"Clear Winda Small Area Battlefield."),
-				new Quest(QuestsId.ClearWindia2Battlefield, 0, QuestRating.Medium, $"Clear Windia Large Area Battlefield."),
-				new Quest(QuestsId.DefeatMinotaur, 0, QuestRating.Easy, "Defeat Minotaur."),
-				new Quest(QuestsId.DefeatSquidite, 0, QuestRating.Easy, "Defeat Squidite."),
-				new Quest(QuestsId.DefeatSnowCrab, 0, QuestRating.Medium, "Defeat Snow Crab."),
-				new Quest(QuestsId.DefeatJinn, 0, QuestRating.Medium, "Defeat Jinn."),
-				new Quest(QuestsId.DefeatMedusa, 0, QuestRating.Medium, "Defeat Medusa."),
-				new Quest(QuestsId.DefeatGidrah, 0, QuestRating.Hard, "Defeat Gidrah."),
-				new Quest(QuestsId.DefeatDullahan, 0, QuestRating.Hard, "Defeat Dullahan."),
-				new Quest(QuestsId.DefeatQtyMinibosses, easyminibossesqty, QuestRating.Easy, $"Defeat {easyminibossesqty} Minibosses."),
-				new Quest(QuestsId.DefeatQtyMinibosses, mediumminibossesqty, QuestRating.Medium, $"Defeat {mediumminibossesqty} Minibosses."),
-				new Quest(QuestsId.DefeatQtyMinibosses, hardminibossesqty, QuestRating.Hard, $"Defeat {hardminibossesqty} Minibosses."),
+				new Quest(QuestsId.CureKaeli, 0, QuestRating.Hard, CompanionsId.Kaeli, "Give Elixir to\n  poisoned Kaeli."),
+				new Quest(QuestsId.VisitBoneDungeon, 0, QuestRating.Medium, CompanionsId.Tristam, "Visit Bone Dungeon with\n  Tristam and go to Fireburg."),
+				new Quest(QuestsId.VisitWintryCave, 0, QuestRating.Medium, CompanionsId.Phoebe, "Visit Wintry Cave with\n  Phoebe and return to Windia."),
+				new Quest(QuestsId.VisitMine, 0, QuestRating.Easy, CompanionsId.Reuben, "Visit Mine with Reuben and\n  return to Fireburg."),
+				new Quest(QuestsId.SaveCrystalofEarth, 0, QuestRating.Easy, "Save the Crystal\n  of Earth."),
+				new Quest(QuestsId.SaveCrystalofWater, 0, QuestRating.Medium, "Save the Crystal\n  of Water."),
+				new Quest(QuestsId.SaveCrystalofFire, 0, QuestRating.Medium, "Save the Crystal of Fire.\n"),
+				new Quest(QuestsId.SaveCrystalofWind, 0, QuestRating.Hard, "Save the Crystal of Wind.\n"),
+				new Quest(QuestsId.SaveQtyCrystals, 2, QuestRating.Easy, "Save 2 Crystals.\n"),
+				new Quest(QuestsId.SaveQtyCrystals, 3, QuestRating.Medium, "Save 3 Crystals.\n"),
+				new Quest(QuestsId.SaveQtyCrystals, 4, QuestRating.Hard, "Save All 4 Crystals.\n"),
+				new Quest(QuestsId.CollectQtyItems, easycollectqty, QuestRating.Easy, $"Collect {easycollectqty} Refreshers.\n"),
+				new Quest(QuestsId.CollectQtyItems, mediumcollectqty, QuestRating.Medium, $"Collect {mediumcollectqty} Refreshers.\n"),
+				new Quest(QuestsId.CollectQtyItems, hardcollectqty, QuestRating.Hard, $"Collect {hardcollectqty} Refreshers.\n"),
+				new Quest(QuestsId.ClearQtyBattlefields, easybattlefieldsqty, QuestRating.Easy, $"Clear {easybattlefieldsqty} Battlefields.\n"),
+				new Quest(QuestsId.ClearQtyBattlefields, mediumbattlefieldsqty, QuestRating.Medium, $"Clear {mediumbattlefieldsqty} Battlefields.\n"),
+				new Quest(QuestsId.ClearQtyBattlefields, hardbattlefieldsqty, QuestRating.Hard, $"Clear {hardbattlefieldsqty} Battlefields.\n"),
+				new Quest(QuestsId.ClearLavaDomeBattlefield, 0, QuestRating.Medium, $"Clear Lava Dome\n  Battlefield."),
+				new Quest(QuestsId.ClearWindia1Battlefield, 0, QuestRating.Medium, $"Clear Windia Small\n  Area Battlefield."),
+				new Quest(QuestsId.ClearWindia2Battlefield, 0, QuestRating.Medium, $"Clear Windia Large\n  Area Battlefield."),
+				new Quest(QuestsId.DefeatMinotaur, 0, QuestRating.Easy, "Defeat Minotaur.\n"),
+				new Quest(QuestsId.DefeatSquidite, 0, QuestRating.Easy, "Defeat Squidite.\n"),
+				new Quest(QuestsId.DefeatSnowCrab, 0, QuestRating.Medium, "Defeat Snow Crab.\n"),
+				new Quest(QuestsId.DefeatJinn, 0, QuestRating.Medium, "Defeat Jinn.\n"),
+				new Quest(QuestsId.DefeatMedusa, 0, QuestRating.Medium, "Defeat Medusa.\n"),
+				new Quest(QuestsId.DefeatGidrah, 0, QuestRating.Hard, "Defeat Gidrah.\n"),
+				new Quest(QuestsId.DefeatDullahan, 0, QuestRating.Hard, "Defeat Dullahan.\n"),
+				new Quest(QuestsId.DefeatQtyMinibosses, easyminibossesqty, QuestRating.Easy, $"Defeat {easyminibossesqty} Minibosses.\n"),
+				new Quest(QuestsId.DefeatQtyMinibosses, mediumminibossesqty, QuestRating.Medium, $"Defeat {mediumminibossesqty} Minibosses.\n"),
+				new Quest(QuestsId.DefeatQtyMinibosses, hardminibossesqty, QuestRating.Hard, $"Defeat {hardminibossesqty} Minibosses.\n"),
+				new Quest(QuestsId.SaveArion, 0, QuestRating.Medium, $"Save Arion.\n"),
+				new Quest(QuestsId.ThawAquaria, 0, QuestRating.Medium, $"Thaw Aquaria.\n"),
+				new Quest(QuestsId.VisitChocobo, 0, QuestRating.Medium, $"Visit the Chocobo\n  in Winda."),
+				new Quest(QuestsId.VisitLightTemple, 0, QuestRating.Medium, $"Visit the Light Temple.\n"),
+				new Quest(QuestsId.VisitPointlessLedge, 0, QuestRating.Medium, $"Visit the Pointless Ledge\n  in Lava Dome."),
+				new Quest(QuestsId.VisitTreeHouses, 0, QuestRating.Medium, $"Someone is hiding in one the 3 Alive Forest treehouses."),
+				new Quest(QuestsId.VisitMountGale, 0, QuestRating.Medium, $"Visit the upper right\n  ledge on Mount Gale."),
 			};
 
 			if (skycoinfragment)
 			{
-				Quests.AddRange(new List<Quest>()
+				availableQuests.AddRange(new List<Quest>()
 				{
 					new Quest(QuestsId.CollectQtySkyCoins, easyskycoinqty, QuestRating.Easy, $"Collect {easyskycoinqty} Sky Fragments."),
 					new Quest(QuestsId.CollectQtySkyCoins, mediumskycoinqty, QuestRating.Medium, $"Collect {mediumskycoinqty} Sky Fragments."),
 					new Quest(QuestsId.CollectQtySkyCoins, hardskycoinqty, QuestRating.Hard, $"Collect {hardskycoinqty} Sky Fragments."),
 				});
 			}
-		}
-		private void CreateTestQuests()
-		{
-			List<CompanionsId> companions = new() { CompanionsId.Kaeli, CompanionsId.Tristam, CompanionsId.Phoebe, CompanionsId.Reuben };
 
-			Quests = new List<Quest>()
+			if (darkkingshorcut)
 			{
-				new Quest(QuestsId.CollectQtyItems, 10, CompanionsId.Tristam, NewGameFlagsList.TristamQuest1, "Collect 10 Refreshers"),
-				new Quest(QuestsId.SaveQtyCrystals, 1, CompanionsId.Tristam, NewGameFlagsList.TristamQuest2, "Save 1 Crystal"),
-			};
+				availableQuests.AddRange(new List<Quest>()
+				{
+					new Quest(QuestsId.BuildRainbowBridge, 0, QuestRating.Medium, $"Build the Rainbow Bridge."),
+				});
+			}
+
+			List<QuestRating> questratings = new() { QuestRating.Easy, QuestRating.Medium, QuestRating.Medium, QuestRating.Hard };
+			int currentflag = 0;
+			foreach (var rating in questratings)
+			{
+				foreach (var companion in companionslist)
+				{
+					var selectedquest = rng.PickFrom(availableQuests.Where(x => x.Rating == rating && (x.Companion == companion || x.Companion == CompanionsId.None)).ToList());
+					selectedquest.Companion = companion;
+					selectedquest.Gameflag = gameflagsList[companion][currentflag];
+					Quests.Add(selectedquest);
+
+					availableQuests = availableQuests.Where(x => x.Name != selectedquest.Name).ToList();
+				}
+				currentflag++;
+			}
+		}
+		private void AddQuestsToGameInfoScreen(GameInfoScreen screen)
+		{
+			screen.Quests = Quests.Select(q => (q.Companion, q.Description)).ToList();
 		}
 		private void CreateCrystalQuests()
 		{
 			Quests = new();
 			QuestQuantity = 4;
-			List<CompanionsId> companions = new() { CompanionsId.Kaeli, CompanionsId.Tristam, CompanionsId.Phoebe, CompanionsId.Reuben };
-			Dictionary<CompanionsId, List<NewGameFlagsList>> flagslist = new()
-			{
-				{ CompanionsId.Kaeli, new List<NewGameFlagsList> { NewGameFlagsList.KaeliQuest1, NewGameFlagsList.KaeliQuest2, NewGameFlagsList.KaeliQuest3, NewGameFlagsList.KaeliQuest4, } },
-				{ CompanionsId.Tristam, new List<NewGameFlagsList> { NewGameFlagsList.TristamQuest1, NewGameFlagsList.TristamQuest2, NewGameFlagsList.TristamQuest3, NewGameFlagsList.TristamQuest4, } },
-				{ CompanionsId.Phoebe, new List<NewGameFlagsList> { NewGameFlagsList.PhoebeQuest1, NewGameFlagsList.PhoebeQuest2, NewGameFlagsList.PhoebeQuest3, NewGameFlagsList.PhoebeQuest4, } },
-				{ CompanionsId.Reuben, new List<NewGameFlagsList> { NewGameFlagsList.ReubenQuest1, NewGameFlagsList.ReubenQuest2, NewGameFlagsList.ReubenQuest3, NewGameFlagsList.ReubenQuest4, } },
-			};
 
-			foreach (var companion in companions)
+			foreach (var companion in companionslist)
 			{
 				Quests.Add(new Quest()
 				{ 
 					Name = QuestsId.SaveCrystalofEarth,
-					Gameflag = flagslist[companion][0],
+					Gameflag = gameflagsList[companion][0],
 					Quantity = 0,
 					Companion = companion,
 					Description = "Save the Crystal of Earth"
@@ -287,7 +311,7 @@ namespace FFMQLib
 				Quests.Add(new Quest()
 				{
 					Name = QuestsId.SaveCrystalofWater,
-					Gameflag = flagslist[companion][1],
+					Gameflag = gameflagsList[companion][1],
 					Quantity = 0,
 					Companion = companion,
 					Description = "Save the Crystal of Water"
@@ -296,7 +320,7 @@ namespace FFMQLib
 				Quests.Add(new Quest()
 				{
 					Name = QuestsId.SaveCrystalofFire,
-					Gameflag = flagslist[companion][2],
+					Gameflag = gameflagsList[companion][2],
 					Quantity = 0,
 					Companion = companion,
 					Description = "Save the Crystal of Fire"
@@ -305,7 +329,7 @@ namespace FFMQLib
 				Quests.Add(new Quest()
 				{
 					Name = QuestsId.SaveCrystalofWind,
-					Gameflag = flagslist[companion][3],
+					Gameflag = gameflagsList[companion][3],
 					Quantity = 0,
 					Companion = companion,
 					Description = "Save the Crystal of Wind"
@@ -339,19 +363,19 @@ namespace FFMQLib
 			var bfqtyquests = Quests.Where(q => q.Name == QuestsId.ClearQtyBattlefields).ToList();
 			int bfqtyqty = 0xFF;
 			int bfqtyflag = 0x00;
-			CompanionsId bfqtycompanion= CompanionsId.None;
+			int bfqtycompanion = (int)CompanionsId.None;
 
 			if (bfqtyquests.Any())
 			{
 				bfqtyflag = (int)bfqtyquests[0].Gameflag;
 				bfqtyqty = bfqtyquests[0].Quantity;
-				bfqtycompanion = bfqtyquests[0].Companion;
+				bfqtycompanion = (int)bfqtyquests[0].Companion;
 			}
 
 			var bfclearquests = Quests.Where(q => q.Name >= QuestsId.ClearLavaDomeBattlefield && q.Name <= QuestsId.ClearWindia2Battlefield).ToList();
 			int bfclearqty = 0xFF;
 			int bfclearflag = 0x00;
-			CompanionsId bfclearcompanion = CompanionsId.None;
+			int bfclearcompanion = (int)CompanionsId.None;
 
 			int targetbf = 0xFF;
 
@@ -359,7 +383,7 @@ namespace FFMQLib
 			{
 				bfclearflag = (int)bfclearquests[0].Gameflag;
 				bfclearqty = bfclearquests[0].Quantity;
-				bfclearcompanion = bfclearquests[0].Companion;
+				bfclearcompanion = (int)bfclearquests[0].Companion;
 
 				if (bfclearquests[0].Name == QuestsId.ClearLavaDomeBattlefield)
 				{
@@ -378,7 +402,7 @@ namespace FFMQLib
 			rom.PutInBank(0x10, 0xA3A0, Blob.FromHex($"08e230a9{bfqtyflag:X2}22769700d027a000a201bdd30fd001c8e8e01590f5c0{bfqtyqty:X2}9014a9{bfqtyflag:X2}22609700ad920ec9{bfqtycompanion:X2}d00422a0a31028386b286b08e230a9{bfclearflag:X2}22769700d01ba2{targetbf:X2}bdd30fd014a9{bfclearflag:X2}22609700ad920ec9{bfclearcompanion:X2}d00422a0a31028386b286b"));
 
 		}
-		public void GenerateQuestsScripts()
+		private void GenerateQuestsScripts()
 		{
 			FFMQRom rom = new();
 
@@ -441,7 +465,7 @@ namespace FFMQLib
 				"00"
 			}));
 
-			// Uodate individual companion scripts 
+			// Update individual companion scripts 
 			CompanionRoutines = new()
 			{
 				{ CompanionsId.None, "00000000" },
@@ -537,6 +561,42 @@ namespace FFMQLib
 				"00",
 			}));
 
+			// Defeat Qty Minibosses
+			var minibossesquests = Quests.Where(q => q.Name == QuestsId.DefeatQtyMinibosses).ToList();
+			int minibossesqty = 0xFF;
+			int minibossesflag = 0x00;
+			CompanionsId minibossescompanion = CompanionsId.None;
+
+			if (minibossesquests.Any())
+			{
+				minibossesflag = (int)minibossesquests[0].Gameflag;
+				minibossesqty = minibossesquests[0].Quantity;
+				minibossescompanion = minibossesquests[0].Companion;
+			}
+
+			questsScripts.AddScript(new ScriptBuilder(new List<string>()
+			{
+				$"2E{minibossesflag:X2}[19]", // if quest already fufilled, skip all
+				"053B00",
+				"2E15[04]", // Minotaur
+				"1301",
+				"2E24[06]", // Squidite
+				"1301",
+				"2E25[08]", // Snow Crab
+				"1301",
+				"2E26[10]", // Jinn
+				"1301",
+				"2E27[12]", // Medusa
+				"1301",
+				"2E28[14]", // Gidrah
+				"1301",
+				"2E2A[16]", // Dullahan
+				"1301",
+				$"0506{minibossesqty:X2}[19]", // if not enough yet, jump
+				$"23{minibossesflag:X2}",
+				CompanionRoutines[minibossescompanion],
+				"00",
+			}));
 		}
 		public NewGameFlagsList GetQuestFlag(QuestsId quest, CompanionsId companion = CompanionsId.None)
 		{
@@ -560,7 +620,7 @@ namespace FFMQLib
 				return "";
 			}
 
-			if (LevelingType == LevelingType.SaveCrystals)
+			if (levelingType == LevelingType.SaveCrystals)
 			{
 				string script = "";
 
@@ -580,13 +640,14 @@ namespace FFMQLib
 				{
 					return "07" + questsScripts.GetAddress(QuestScriptId.CrystalsQty) + "10";
 				}
+				else if (selectedQuest.Name == QuestsId.DefeatQtyMinibosses)
+				{
+					return "07" + questsScripts.GetAddress(QuestScriptId.BossesQty) + "10";
+				}
 				else
 				{
 					return $"23{(int)selectedQuest.Gameflag:X2}" + CompanionRoutines[selectedQuest.Companion];
 				}
-
-
-				
 			}
 		}
 	}

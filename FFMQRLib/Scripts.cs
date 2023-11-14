@@ -90,6 +90,7 @@ namespace FFMQLib
 			Offset = offset;
 			currentLength = offset;
 			scripts = new();
+			Addresses = new();
 		}
 		public void AddScript(ScriptBuilder script)
 		{
