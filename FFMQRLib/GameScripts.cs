@@ -43,29 +43,144 @@ namespace FFMQLib
 			GameMaps[(int)MapList.Overworld].ModifyMap(0x0F, 0x0E, 0x56);
 
 			/*** Level Forest ***/
-			// Enter Level Forest
-			TileScripts.AddScript((int)TileScriptsList.EnterLevelForest,
-				new ScriptBuilder(new List<string> {
-					"2E13[03]",
-					"2C0001",
-					"00",
-					"2C0101",
-					$"2E{(int)NewGameFlagsList.ShowForestaKaeli:X2}[11]",
-					"2EE3[11]",
-					$"050f{(int)CompanionsId.Kaeli:X2}[11]",
-					"2A3346634013432344505010530054FFFF",
-					"1A82" + TextToHex("There, griffin. Path is cleared. Let's find that decaying !&%? piece of lumber.", true) + "36",
-					"2A03440825682213424346FFFF",
+			// Copy over Cloudman+Oldman
+			for (int i = 0; i < 3; i++)
+			{
+				MapObjects[0x0E].Add(new MapObject(MapObjects[0x0D][0x00 + i]));
+			}
+
+			MapObjects[0x0E][0x12].Sprite = 0x4C;
+			MapObjects[0x0E][0x13].Sprite = 0x50;
+			MapObjects[0x0E][0x14].Gameflag = 0x34;
+			MapObjects[0x0E][0x12].Palette = 0x00; // Cloudman
+			MapObjects[0x0E][0x13].Palette = 0x00; // Cloud
+			MapObjects[0x0E][0x14].Palette = 0x00; // Old man
+
+			// Put Cloud man first for script and switch oldman too for access
+			MapObjects.SwapMapObjects(0x0E, 0x12, 0x00);
+			MapObjects.SwapMapObjects(0x0E, 0x13, 0x01);
+			MapObjects.SwapMapObjects(0x0E, 0x14, 0x04);
+
+			MapObjects.SwapMapObjects(0x0E, 0x12, 0x05); // Switch back Kaeli at Tree
+			MapObjects.SwapMapObjects(0x0E, 0x13, 0x06); // And Kaeli's mom
+
+			// Final Order
+			// 0x00 Cloudman
+			// 0x01 Cloud
+			// 0x02 Minotaur
+			// 0x03 Kaeli Entrance
+			// 0x04 Oldman
+			// 0x05 Kaeli at Tree
+			// 0x06 Kaeli's mom
+
+			bool enablekaelismom = false;
+
+			PutInBank(0x01, 0xD6E5, Blob.FromHex("a905ea8de219")); // Set axe swing script to new Kaeli at tree map object
+
+			if (enablekaelismom)
+			{
+				MapSpriteSets.MapSpriteSets[0x05] = new MapSpriteSet(
+					new List<byte> { 0x06, 0x05, 0x47, 0x4a, 0x2a, 0x1e },
+					new List<SpriteAddressor>
+					{
+						new SpriteAddressor(0, 0, 0x39, SpriteSize.Tiles8),  // Rock
+						new SpriteAddressor(2, 0, 0x06, SpriteSize.Tiles16), // Kaeli's Mom
+						new SpriteAddressor(3, 0, 0x06, SpriteSize.Tiles16), // Kaeli's Mom
+						new SpriteAddressor(6, 0, 0x06, SpriteSize.Tiles16), // Kaeli's Mom
+						new SpriteAddressor(8, 0, 0x0D, SpriteSize.Tiles16), // Old Man
+						new SpriteAddressor(9, 0, 0x05, SpriteSize.Tiles16), // Cloud Man
+						new SpriteAddressor(10, 0, 0x14, SpriteSize.Tiles8), // Cloud
+					},
+					true
+					);
+			}
+			else
+			{
+				MapSpriteSets.MapSpriteSets[0x05] = new MapSpriteSet(
+					new List<byte> { 0x06, 0x05, 0x47, 0x4a, 0x2a, 0x1e },
+					new List<SpriteAddressor>
+					{
+						new SpriteAddressor(0, 0, 0x39, SpriteSize.Tiles8),  // Rock
+						new SpriteAddressor(2, 0, 0x01, SpriteSize.Tiles16), // Kaeli Base
+						new SpriteAddressor(3, 0, 0x29, SpriteSize.Tiles16), // Kaeli Swing
+						new SpriteAddressor(6, 0, 0x06, SpriteSize.Tiles16), // Kaeli's Mom
+						new SpriteAddressor(8, 0, 0x0D, SpriteSize.Tiles16), // Old Man
+						new SpriteAddressor(9, 0, 0x05, SpriteSize.Tiles16), // Cloud Man
+						new SpriteAddressor(10, 0, 0x14, SpriteSize.Tiles8), // Cloud
+					},
+					true
+					);
+			}
+
+			// Update Kaeli Tree Map Object
+			MapObjects[0x0E][0x03].Gameflag = 0x00;
+			MapObjects[0x0E][0x03].Value = (int)TalkScriptsList.KaeliCuttingTree;
+			MapObjects[0x0E][0x03].Orientation = 0x00;
+			MapObjects[0x0E][0x03].UnknownIndex = 0x00;
+			MapObjects[0x0E][0x03].X = 0x2D;
+			MapObjects[0x0E][0x03].Y = 0x12;
+			MapObjects[0x0E][0x03].Behavior = 0x0A;
+
+			string treecuttingdialogue = enablekaelismom ? "Tree, your death is a small sacrifice, but the path opened is great. Praise the Void!" : "There, griffin. Path is cleared. Let's find that decaying !&%? piece of lumber.";
+
+			TalkScripts.AddScript((int)TalkScriptsList.KaeliCuttingTree,
+				new ScriptBuilder(new List<string>
+				{
+					"04",
+					"0F8B0E",
+					"057C01[09]",
+					"057C03[10]",
+					"1A80" + TextToHex(treecuttingdialogue) + "36",
+					"2C0344" + "09209511093d8c00" + "2C0825" + "09309511093d8c00" + "2C6822",
+					"2A13424346FFFF",
 					"23E3",
-					"00"
+					"00",
+					"2A105210510054FFFF00",
+					"2A105210530054FFFF00",
+				}
+				));
+
+			// Enter Level Forest
+			if (enablekaelismom)
+			{
+				TileScripts.AddScript((int)TileScriptsList.EnterLevelForest,
+				new ScriptBuilder(new List<string> {
+					"2C0101",
+					$"2E{(int)NewGameFlagsList.ShowForestaKaeli:X2}[04]",
+					"2EE3[04]",
+					"00",
+					"2C434600"
 				}));
+			}
+			else
+			{
+				TileScripts.AddScript((int)TileScriptsList.EnterLevelForest,
+				new ScriptBuilder(new List<string> {
+					"2C0101",
+					$"2E{(int)NewGameFlagsList.ShowForestaKaeli:X2}[05]",
+					"2EE3[05]",
+					$"050f{(int)CompanionsId.Kaeli:X2}[05]",
+					"00",
+					"2C434600"
+				}));
+			}
 
 			// Boulder Man
 			TileScripts.AddScript((int)TileScriptsList.PushedBoulder,
 				new ScriptBuilder(new List<string> {
-					"2E13[03]0F8B0E05090075BC2A12402054FFFF",
-					"1A0A" + TextToHex("Finally, after all these years I can go back home.\nHere have this.", true) + "36",
+					"2E13[03]0F8B0E05090075BC2A14402054FFFF",
+					"1A0A" + TextToHex("Finally, after all these years I can go back home.\nHere have this.") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.BoulderOldMan]:X2}0162231323142B34",
+					"00"
+				}));
+
+			// Boulder Man Talking Script
+			TalkScripts.AddScript((int)0x0A,
+				new ScriptBuilder(new List<string> {
+					"2E13[03]",
+					"5BB442B543BFB76A5FB5BFC2B6BE48C0596359B56CFF46C758C173B043BF4C55C6BBC267BC42B4C6BCB7B8CF",
+					"00",
+					"5B4F7D4473A1B46755C6B856FF1D01FFCCB8C7CF",
 					"00"
 				}));
 
@@ -79,33 +194,63 @@ namespace FFMQLib
 				}));
 
 			// Fight Minotaur
-			TileScripts.AddScript((int)TileScriptsList.FightMinotaur,
+			if (enablekaelismom)
+			{
+				// WIP				
+				TileScripts.AddScript((int)TileScriptsList.FightMinotaur,
 				new ScriptBuilder(new List<string> {
-					"050B63[22]",
-					$"050f{(int)CompanionsId.Kaeli:X2}[23]",
-					"2A30460054105a0e2527275246022A00453055FFFF",
+					"050B63[20]",
+					"050BE3[20]",
+					"2A35460054105a0e2527275246022A05453055FFFF",
 					"1A0BAE63FF57FF57CE30ACC8C5C3C5BCC6B8CE36",
-					"2A1B278044105430555054FFFF",
+					"2A1B278544105430555054FFFF",
 					"1A82" + TextToHex("&%?!! That son of a harpooner just poisoned me! Let's do for this &?!% baracoota!"),
 					"36",
-					"2A70448044704400440054FFFF",
+					"2A754405440054FFFF",
 					"05E41714",
-					"2A62468044105431465140FFFF",
+					"2A624675441054FFFF",
 					"1A82" + TextToHex("You're a &?%! agonist, mate! Here, you earned it. Split a few skulls for me!") + "36",
-					"2C7044",
-					"2C8044",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliForesta]:X2}0162",
 					$"23{(int)NewGameFlagsList.ShowSickKaeli:X2}",
-					$"23{(int)NewGameFlagsList.KaeliQuest1:X2}",
-					"0880FF",
-					"61",
-					"2A1140404661424146FFFF",
+					"2A205465424546FFFF",
 					"236D",
 					"231E",
 					"2B63",
 					"2B15",
 					"00"
 				}));
+			}
+			else
+			{
+				TileScripts.AddScript((int)TileScriptsList.FightMinotaur,
+				new ScriptBuilder(new List<string> {
+					"050B63[21]",
+					$"050f{(int)CompanionsId.Kaeli:X2}[22]",
+					"2A35460054105a0e2527275246022A05453055FFFF",
+					"1A0BAE63FF57FF57CE30ACC8C5C3C5BCC6B8CE36",
+					"2A1B278544105430555054FFFF",
+					"1A82" + TextToHex("&%?!! That son of a harpooner just poisoned me! Let's do for this &?!% baracoota!"),
+					"36",
+					"2A75448544754405440054FFFF",
+					"05E41714",
+					"2A62468544105436465640FFFF",
+					"1A82" + TextToHex("You're a &?%! agonist, mate! Here, you earned it. Split a few skulls for me!") + "36",
+					"2C7544",
+					"2C8544",
+					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliForesta]:X2}0162",
+					$"23{(int)NewGameFlagsList.ShowSickKaeli:X2}",
+					"0880FF",
+					"61",
+					"2A1640454666424646FFFF",
+					"236D",
+					"231E",
+					"2B63",
+					"2B15",
+					Companions.GetQuestString(QuestsId.DefeatMinotaur),
+					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
+					"00"
+				}));
+			}
 
 			/*** Foresta ***/
 			// Kaeli TreeWither
@@ -136,9 +281,10 @@ namespace FFMQLib
 					"050c" + ScriptItemFlags[Items.Elixir].Item2 + "[04]",
 					"1A16" + TextToHex("I'll be fine, mate. Nothing a grog and some rest can't fix. I'll be back on deck in no time.") + "3600",
 					"1A16" + TextToHex("Mate! Psha, this taste like &?!% kelt, but I'm ready to show a leg! Heave and rally!") + "36",
-					"0F8B0E",
-					"057C01[13]",
-					"057C03[14]",
+					Companions.GetQuestString(QuestsId.CureKaeli),
+					"0F890E",
+					"057C0C[14]",
+					"057C0E[15]",
 					"2C4246",
 					"0880FF",
 					$"05E6{(int)CompanionsId.Kaeli:X2}085B85",
@@ -194,8 +340,8 @@ namespace FFMQLib
 			GameFlags[0xC9] = false;
 			TileScripts.AddScript((int)TileScriptsList.BoneDungeonTristamBomb,
 				new ScriptBuilder(new List<string> {
-					$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[16]",
-					$"050f{(int)CompanionsId.Tristam:X2}[16]",
+					$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[15]",
+					$"050f{(int)CompanionsId.Tristam:X2}[15]",
 					"2a3046104130441054ffff",
 					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}",
 					flags.ProgressiveGear ? "09309411" : "",
@@ -209,38 +355,29 @@ namespace FFMQLib
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}0162",
 					"2a10434046ffff", // 24ff > d3fe
 					$"23{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}",
-					$"23{(int)NewGameFlagsList.TristamQuest1:X2}",
 					"00"
 				}));
 
 			// Fight Rex
-			//MapObjects[0x16][0x05].Type = MapObjectType.Chest;
-			//MapObjects[0x16][0x05].Value = 0x04;
-			//MapObjects[0x16][0x05].Gameflag = 0xAD;
-			//Data[0x8004] = (byte)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonElixir];
-
 			TileScripts.AddScript((int)TileScriptsList.FightFlamerusRex,
 				new ScriptBuilder(new List<string> {
-					"2E01[06]",
+					"2E01[09]",
 					"1A1BA0C5C55301B243D14AC1B8C96AB55E42C0B8D23066576741C3586A5A413DFF5A9EB4C53FCE",
 					"05E4210C",
-					"2A42FF1D2529E6FFFF",
+					"2A42FF1D25FFFF",
+					Companions.GetQuestString(QuestsId.SaveCrystalofEarth),
+					Companions.GetQuestString(QuestsId.SaveQtyCrystals),
+					"2C29E6",
 					"2301",
 					"2B06",
-					(flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals) ? "050260C11200" : "00"
+					(flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals) ? "050260C11200" : "",
+					"00"
 				}));
 
 			// Tristam Quit Party Tile
-			/*
-			TileScripts.AddScript((int)TileScriptsList.TristamQuitPartyBoneDungeon,
-				new ScriptBuilder(new List<string> { "00" }));
-			*/
 			GameMaps[(int)MapList.BoneDungeon].ModifyMap(0x1D, 0x17, 0x84);
 
 			/*** Focus Tower ***/
-			//GameFlags[(int)GameFlagsList.ShowColumnMoved] = true;
-			//GameFlags[(int)GameFlagsList.ShowColumnNotMoved] = false;
-
 			MapObjects[0x0A][0x03].Gameflag = 0x00;
 			MapObjects[0x0A][0x05].Gameflag = 0x00;
 
@@ -284,23 +421,6 @@ namespace FFMQLib
 
 			/*** Aquaria ***/
 			// Entering Aquaria
-			/*
-			TileScripts.AddScript((int)TileScriptsList.EnterAquaria,
-				new ScriptBuilder(new List<string> {
-					"050B02[03]",
-					"2C0901",
-					"00",
-					"2F",
-					"050D02[10]",
-					$"23{(int)NewGameFlagsList.WakeWaterUsed:X2}",
-					"234F", //is it necessary?
-					"2A5EFF080161FFFFFF",
-					"2A20509053705015271225304506ff0900FFFF",
-					"00",
-					"2C0801",
-					"00",
-				}));*/
-
 			TileScripts.AddScript((int)TileScriptsList.EnterAquaria,
 				new ScriptBuilder(new List<string> {
 					"050B02[03]",
@@ -316,24 +436,19 @@ namespace FFMQLib
 			MapObjects[0x18][0x04].Value = 0x3F;
 			MapObjects[0x18][0x04].Type = MapObjectType.Talk;
 
-
 			TalkScripts.AddScript((int)TalkScriptsList.Unknown3f, new ScriptBuilder(new List<string>
 				{
 					"04",
 					"2F",
-					"050D02[07]",
+					"050D02[08]",
 					$"23{(int)NewGameFlagsList.WakeWaterUsed:X2}",
 					"2A15271225304506ff8E01FFFF",
 					"234F",
+					Companions.GetQuestString(QuestsId.ThawAquaria),
 					"00",
 					"1A00" + TextToHex("Maybe the WakeWater can save this poor plant.") + "36",
 					"00"
 				}));
-
-			/*
-			TileScripts.AddScript((int)TileScriptsList.EnterPhoebesHouse,
-				new ScriptBuilder(new List<string> { "2C0A0200" }));
-			*/
 
 			// Change Phoebe's script for the house exit to account for aquaria winter/summer 
 			TileScripts.AddScript((int)TileScriptsList.EnterPhoebesHouse,
@@ -415,14 +530,13 @@ namespace FFMQLib
 			// Collaspe
 			TileScripts.AddScript((int)TileScriptsList.WintryCavePhoebeClaw,
 				new ScriptBuilder(new List<string> {
-					$"2e{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[08]",
-					$"050f{(int)CompanionsId.Phoebe:X2}[08]",
+					$"2e{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[07]",
+					$"050f{(int)CompanionsId.Phoebe:X2}[07]",
 					"2a3046104310443054ffff",
 					"1a8a" + TextToHex("Good job not being a clutz and falling down like an idiot! I guess that calls for a reward..."),
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeWintryCave]:X2}0162",
 					"2a10414046ffff", // 24ff > d3fe
 					$"23{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}",
-					$"23{(int)NewGameFlagsList.PhoebeQuest1:X2}",
 					"00"
 				}));
 
@@ -437,6 +551,8 @@ namespace FFMQLib
 					GameFlags[0xB2] ? "" : "23B2",
 					"2A61463B46FFFF",
 					"23E0",
+					Companions.GetQuestString(QuestsId.DefeatSquidite),
+					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
 					"00"
 				}));
 
@@ -476,6 +592,8 @@ namespace FFMQLib
 					"2B25",
 					//GameFlags[(int)GameFlagsList.ShowFallBasinChest] ? "" : "23B3",
 					"2A67463F46FFFF",
+					Companions.GetQuestString(QuestsId.DefeatSnowCrab),
+					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
 					"00"
 				}));
 
@@ -560,7 +678,6 @@ namespace FFMQLib
 					"0cee19000cef191a094cb20100" // Hack to excute the falling down routine
 				}));
 
-
 			// Fight IceGolem
 			TileScripts.AddScript((int)TileScriptsList.FightIceGolem,
 				new ScriptBuilder(new List<string> {
@@ -569,7 +686,10 @@ namespace FFMQLib
 					"2C2727",
 					"1A31B243FF3F477D44D1C54078A4C1524DBBC8BBCF019F63FF57CE30ADB4BE403FBCC6CE",
 					"05E44F13",
-					"2A42FF1E2529E6FFFF",
+					"2A42FF1E25FFFF",
+					Companions.GetQuestString(QuestsId.SaveCrystalofWater),
+					Companions.GetQuestString(QuestsId.SaveQtyCrystals),
+					"2C29E6",
 					"2312",
 					"2B50",
 					"2B07",
@@ -582,7 +702,6 @@ namespace FFMQLib
 			MapObjects[0x02A][0x07].Gameflag = 0x12;
 
 			/*** Spencer's Cave Pre-bomb ***/
-
 			// Create New Tristam Chest
 			MapObjects[0x18][0x01].Value = 0x1E; // Change Talk Script of NPCs
 			MapObjects[0x02C][0x01].RawOverwrite(Blob.FromHex("AD7B6435A60224")); //Copy Venus Chest settings
@@ -658,11 +777,7 @@ namespace FFMQLib
 					"00"
 				}));
 
-
-
-
 			/*** Spencer's Cave Post-Bomb ***/
-
 			// Reproduce spencer/tristam chest to avoid softlock
 			var spencerObject = new MapObject();
 			var tristamChestObject = new MapObject();
@@ -690,6 +805,30 @@ namespace FFMQLib
 			MapObjects[0x2D].Insert(0, spencerObject);
 
 			/*** Fireburg ***/
+			// Create extra Reuben object
+			MapObjects[0x30].Add(new MapObject(MapObjects[0x30][0x01]));
+			var reubenobject = MapObjects[0x30][0x04];
+
+			reubenobject.Gameflag = 0xFE;
+			reubenobject.Value = 0x50;
+			reubenobject.X = 0x21;
+			reubenobject.Y = 0x2B;
+
+			// Process Quest
+			var reubenquest = Companions.GetQuestFlag(QuestsId.VisitMine, CompanionsId.Reuben);
+			TileScripts.AddScript((int)TileScriptsList.EnterReubenHouse,
+				new ScriptBuilder(new List<string>
+				{
+					"2C1002",
+					(reubenquest != NewGameFlagsList.None) ? $"2E{(int)reubenquest:X2}[08]" : "00",
+					$"050f{(int)CompanionsId.Reuben:X2}[08]",
+					$"050B{(int)NewGameFlagsList.ReubenMineItemGiven:X2}[08]",
+					"2A3446144314443054FFFF",
+					"1A50" + TextToHex("Whew. I'm exhausted. Let's never go back to the Mine again.") + "36",
+					Companions.GetQuestString(QuestsId.VisitMine),
+					"2A14414446FFFF",
+					"00",
+				}));
 
 			// Reuben
 			List<string> reubenDiseaseList = new()
@@ -796,6 +935,44 @@ namespace FFMQLib
 					"00",
 				}));
 
+			// Enter Fireburg Hotel
+			// Create extra Tristam object
+			MapObjects[0x31].Add(new MapObject(MapObjects[0x31][0x0B]));
+			MapObjects[0x31][0x0B].CopyFrom(MapObjects[0x31][0x01]);
+			var tristamobject = MapObjects[0x31][0x0B];
+
+			tristamobject.Gameflag = 0xFE;
+			tristamobject.Value = 0x50;
+			tristamobject.X = 0x11;
+			tristamobject.Y = 0x35;
+
+			// Process Quest
+			var tristamquest = Companions.GetQuestFlag(QuestsId.VisitBoneDungeon, CompanionsId.Tristam);
+
+			TileScripts.AddScript((int)TileScriptsList.EnterFireburgHotel,
+				new ScriptBuilder(new List<string>
+				{
+					"2C1102",
+					$"050f{(int)CompanionsId.Tristam:X2}[18]",
+					 (tristamquest != NewGameFlagsList.None) ? $"2E{(int)tristamquest:X2}[10]" : "0A[10]",
+					$"050B{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[10]",
+					"2A3B461B431B443054FFFF",
+					"1A50" + TextToHex("That was some good dungeon pillaging back there. Let's get some drinks!") + "36",
+					Companions.GetQuestString(QuestsId.VisitBoneDungeon),
+					"08[15]",
+					"2A1B414B46FFFF",
+					"00",
+					$"2E{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}[18]",
+					"2A3B461B431B443054FFFF",
+					"08[15]",
+					"2A1B414B46FFFF",
+					"00",
+					"1A50" + TextToHex("Tell you what, I'll give you this and you cover my tab, deal?") + "36",
+					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.TristamFireburg]:X2}0162",
+					$"23{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}",
+					"00"
+				}));
+
 			// Tristam Fireburg
 			List<string> tristamJoinDialogueList = new()
 			{
@@ -862,23 +1039,37 @@ namespace FFMQLib
 					"2C232500",
 				}));
 
+			// Jinn Fight
+			TileScripts.AddScript((int)TileScriptsList.FightJinn,
+				new ScriptBuilder(new List<string>
+				{
+					"050B26[07]",
+					"2C2727",
+					"05E4520D",
+					"2C6846",
+					"2B26",
+					Companions.GetQuestString(QuestsId.DefeatJinn),
+					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
+					"00",
+				}));
+
 			// Throw Mega Grenade
 			TileScripts.AddScript((int)TileScriptsList.BlowingOffMineBoulder,
 				new ScriptBuilder(new List<string> {
-					$"2E{(int)NewGameFlagsList.ReubenMineItemGiven:X2}[08]",
-					$"050f{(int)CompanionsId.Reuben:X2}[08]",
+					$"2E{(int)NewGameFlagsList.ReubenMineItemGiven:X2}[07]",
+					$"050f{(int)CompanionsId.Reuben:X2}[07]",
 					"2a3046104310443054ffff",
 					"1a91" + TextToHex("Ugh, my feet are killing me! Do me a favor and hold this on the way back. It's weighting a ton!"),
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeFallBasin]:X2}0162",
 					"2a10414046ffff",
 					$"23{(int)NewGameFlagsList.ReubenMineItemGiven:X2}",
-					$"23{(int)NewGameFlagsList.ReubenQuest1:X2}",
-					"2E37[11]",
+					"2E37[10]",
 					"2D" + ScriptItemFlags[Items.MegaGrenade].Item1,
-					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[12]",
+					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[11]",
 					"00",
 					"2A105411411140214410541525105426252142214346464746ffff",
 					"1a92" + TextToHex("Thanks! I would have died of old age waiting for my incompetent son to save me!") + "36",
+					Companions.GetQuestString(QuestsId.SaveArion),
 					"2A314151424146FFFF",
 					"2337",
 					"2BDF",
@@ -900,6 +1091,8 @@ namespace FFMQLib
 					"235D",
 					GameFlags[0xBB] ? "" : "23BB",
 					"2A60463D46FFFF",
+					Companions.GetQuestString(QuestsId.DefeatMedusa),
+					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
 					"00"
 				}));
 
@@ -942,7 +1135,7 @@ namespace FFMQLib
 					"2C8B01",
 					"00"
 				}));
-			TileScripts.AddScript((int)TileScriptsList.EnterWindiaInn,
+			TileScripts.AddScript((int)TileScriptsList.VolcanoExtraScript,
 				new ScriptBuilder(new List<string> {
 					"2F",
 					"050C05[03]",
@@ -952,15 +1145,32 @@ namespace FFMQLib
 				}));
 
 			/*** Lava Dome ***/
+			// Pointless Ledge Quest
+			GameMaps[(int)MapList.LavaDomeInteriorA].ModifyMap(0x04, 0x04, new List<List<byte>>() { new() { 0x59 }, new() { 0x59 } });
+
+			var pointlessledgeflag = Companions.GetQuestFlag(QuestsId.VisitPointlessLedge);
+
+			TileScripts.AddScript((int)TileScriptsList.PointlessLedgeQuest,
+				new ScriptBuilder(new List<string> {
+					(pointlessledgeflag != NewGameFlagsList.None) ? $"2E{(int)pointlessledgeflag:X2}[03]" : "00",
+					"1A00" + TextToHex("Well, that was pointless.\n...Or was it?") + "36",
+					Companions.GetQuestString(QuestsId.VisitPointlessLedge),
+					"00"
+				}));
+
+
 			// Fight Hydra
 			TileScripts.AddScript((int)TileScriptsList.FightDualheadHydra,
 				new ScriptBuilder(new List<string> {
-					"2E03[10]",
+					"2E03[13]",
 					"1A4EA2C74E41564C5A41BF4740B95CFF44CE",
 					"05E47D06",
 					"2364",
 					"2B08",
-					"2A42FF10501F2529E608270020052aFFFF",
+					"2A42FF10501F25FFFF",
+					Companions.GetQuestString(QuestsId.SaveCrystalofFire),
+					Companions.GetQuestString(QuestsId.SaveQtyCrystals),
+					"2A29E608270020052AFFFF",
 					"2BC7",
 					"23CC",
 					"2303",
@@ -994,6 +1204,30 @@ namespace FFMQLib
 				MapChanges.RemoveActionByFlag(0x43, 0x3C);
 			}
 
+			// Tree Houses Quest
+			var treehousesflag = Companions.GetQuestFlag(QuestsId.VisitTreeHouses);
+
+			if (treehousesflag != NewGameFlagsList.None)
+			{
+				List<(byte x, byte y)> treehouseslocations = new() { (0x1D, 0x37), (0x05, 0x31), (0x12, 0x22) };
+				List<byte> treehousesnpclook = new() { 0x60, 0x64, 0x68, 0x6C, 0x70, 0x74 };
+
+				MapObjects[0x11].Add(new MapObject(MapObjects[0x11][0x01]));
+				MapObjects[0x11][0x0C].Coord = rng.PickFrom(treehouseslocations);
+				MapObjects[0x11][0x0C].Sprite = rng.PickFrom(treehousesnpclook);
+				MapObjects[0x11][0x0C].Value = (byte)TalkScriptsList.TreeHouseQuestNPC;
+			}
+
+			TalkScripts.AddScript((int)TalkScriptsList.TreeHouseQuestNPC,
+				new ScriptBuilder(new List<string> {
+					$"2E{(int)treehousesflag:X2}[04]",
+					TextToHex("Even behind magical teleporting crests I cannot find quietude!") + "36",
+					Companions.GetQuestString(QuestsId.VisitTreeHouses),
+					"00",
+					TextToHex("Maybe no one will find me behind that giant boulder in the Mine.") + "36",
+					"00"
+				}));
+
 			/*** Giant Tree ***/
 			// Set door to chests in Giant Tree to open only once chimera is defeated
 			var treeDoorChangeClosed = MapChanges.Add(Blob.FromHex("3806122F3E"));
@@ -1026,6 +1260,20 @@ namespace FFMQLib
 			// Add hook on 3F to avoid softlock
 			MapObjects[0x47].Add(new MapObject(MapObjects[0x47][0x15]));
 			MapObjects[0x47][0x16].Coord = (0x2D, 0x36);
+
+			// Fight Gidrah
+			TalkScripts.AddScript((int)TalkScriptsList.FightGidrah,
+				new ScriptBuilder(new List<string> {
+					"04",
+					"05E49107",
+					"2C6146",
+					"2C0321",
+					"2B28",
+					"2329",
+					Companions.GetQuestString(QuestsId.DefeatGidrah),
+					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
+					"00"
+				}));
 
 			// Giant Tree Walking Script
 			var newGidrahLocation = GameLogic.FindTriggerLocation(AccessReqs.Gidrah);
@@ -1163,7 +1411,7 @@ namespace FFMQLib
 			TalkScripts.AddScript((int)TalkScriptsList.Otto,
 				new ScriptBuilder(new List<string> {
 					"04",
-					"2E78[11]",
+					"2E78[12]",
 					"2F",
 					"050C07[06]",
 					"1A5C" + TextToHex("I'm building a trebuchet to cross the chasm. A bridge? I guess... Need a Thunder Rock though.") + "36",
@@ -1172,8 +1420,83 @@ namespace FFMQLib
 					"0816FC",
 					"1A5C" + TextToHex("Good news everyone! The totally safe Rainbow Bridge is done! No tumbling to certain doom for you!") + "36",
 					"237823DC",
+					Companions.GetQuestString(QuestsId.BuildRainbowBridge),
 					"00",
 					"1A5C" + TextToHex("I could send you to the Moon with a Thunder Rock powered trebuchet. What, a whale?") + "36",
+					"00"
+				}));
+
+			// Windia INN
+			// Create extra Phoebe object
+			MapObjects[0x52][0x03].CopyFrom(MapObjects[0x52][0x02]);
+			var phoebeobject = MapObjects[0x52][0x03];
+
+			phoebeobject.Gameflag = 0xFE;
+			phoebeobject.Value = 0x50;
+			phoebeobject.X = 0x35;
+			phoebeobject.Y = 0x1B;
+
+			// Process Quest
+			var phoebequest = Companions.GetQuestFlag(QuestsId.VisitWintryCave, CompanionsId.Phoebe);
+			TileScripts.AddScript((int)TileScriptsList.EnterWindiaInn,
+				new ScriptBuilder(new List<string>
+				{
+					"2C1F02",
+					(phoebequest != NewGameFlagsList.None) ? $"2E{(int)phoebequest:X2}[08]" : "00",
+					$"050f{(int)CompanionsId.Phoebe:X2}[08]",
+					$"050B{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[08]",
+					"2A3346134313443054FFFF",
+					"1A50" + TextToHex("Well, you did survive the Wintry Cave, you can rest a bit before we go to Doom Castle.") + "36",
+					Companions.GetQuestString(QuestsId.VisitWintryCave),
+					"2A13414346FFFF",
+					"00",
+				}));
+
+			// Enter Inn bedroom with Kaeli
+			MapObjects[0x52][0x04].CopyFrom(MapObjects[0x52][0x00]);
+			var kaeliobject = MapObjects[0x52][0x04];
+
+			kaeliobject.Gameflag = 0xFE;
+			kaeliobject.Value = 0x51;
+			kaeliobject.X = 0x21;
+			kaeliobject.Y = 0x3B;
+
+			TileScripts.AddScript((int)TileScriptsList.EnterWindiaInnBedroom,
+				new ScriptBuilder(new List<string>
+				{
+					"2CD700",
+					$"2E{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}[07]",
+					"2A3446144314443054FFFF",
+					"1A50" + TextToHex("Hearty, mate. This is straight from my ?%!& ditty-bag, but I want you to have it!") + "36",
+					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliWindia]:X2}0162",
+					$"23{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}",
+					"2A14414446FFFF",
+					"00",
+				}));
+
+			// Chocobo Quest
+			var chocoboquestflag = Companions.GetQuestFlag(QuestsId.VisitChocobo);
+
+			TalkScripts.AddScript((int)TalkScriptsList.WindiaChocobo,
+				new ScriptBuilder(new List<string> {
+					"04",
+					"1A00B057423FB853CFFFFF9AFF9CBBC2B6C2B5C2CECE36",
+					(chocoboquestflag != NewGameFlagsList.None) ? $"2E{(int)chocoboquestflag:X2}[04]" : "00",
+					Companions.GetQuestString(QuestsId.VisitChocobo),
+					"00"
+				}));
+
+			/*** Light Temple ***/
+			// Light Temple Quest
+			GameMaps[(int)MapList.Caves].ModifyMap(0x22, 0x27, new List<List<byte>>() { new() { 0xCF, 0xCF } });
+
+			var ligthtempleflag = Companions.GetQuestFlag(QuestsId.VisitLightTemple);
+
+			TileScripts.AddScript((int)TileScriptsList.LightTempleQuest,
+				new ScriptBuilder(new List<string> {
+					(ligthtempleflag != NewGameFlagsList.None) ? $"2E{(int)ligthtempleflag:X2}[03]" : "00",
+					"1A00" + TextToHex("Finally! Hidden corridors should be shaded like in FF2...") + "36",
+					Companions.GetQuestString(QuestsId.VisitLightTemple),
 					"00"
 				}));
 
@@ -1192,7 +1515,22 @@ namespace FFMQLib
 					"232B",
 					GameFlags[0xC0] ? "" : "23C0",
 					"2A60463C46FFFF",
+					Companions.GetQuestString(QuestsId.DefeatDullahan),
+					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
 					"00",
+				}));
+
+			// Mount Gale Quest
+			GameMaps[(int)MapList.MountGale].ModifyMap(0x2C, 0x07, 0x48);
+
+			var mountgalequestflag = Companions.GetQuestFlag(QuestsId.VisitMountGale);
+
+			TileScripts.AddScript((int)TileScriptsList.MountGaleQuest,
+				new ScriptBuilder(new List<string> {
+					(mountgalequestflag != NewGameFlagsList.None) ? $"2E{(int)mountgalequestflag:X2}[03]" : "00",
+					"1A00" + TextToHex("Feels like something should be here...") + "36",
+					Companions.GetQuestString(QuestsId.VisitMountGale),
+					"00"
 				}));
 
 			/*** Pazuzu's Tower ***/
@@ -1226,20 +1564,28 @@ namespace FFMQLib
 						"08D5FF",
 					});
 
-			var standardCrystalScript = new ScriptBuilder(new List<string> {
-						"2A20500527205410575EFF4E01A057260161FF10530054202529E6FFFF",
-						"2305",
-						flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals ? "050260C11200" : "00",
-						"00"
-					});
+			var standardCrystalScript = new ScriptBuilder(new List<string>
+				{
+					"2A20500527205410575EFF4E01A057260161FF105300542025FFFF",
+					Companions.GetQuestString(QuestsId.SaveCrystalofWind),
+					Companions.GetQuestString(QuestsId.SaveQtyCrystals),
+					"2C29E6",
+					"2305",
+					flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals ? "050260C11200" : "00",
+					"00"
+				});
 
-			var floorCrystalScript = new ScriptBuilder(new List<string> {
-						"2E05[04]",
-						"2A61FF10531050202529E6FFFF",
-						"2305",
-						flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals ? "050260C11200" : "00",
-						"00"
-					});
+			var floorCrystalScript = new ScriptBuilder(new List<string>
+				{
+					"2E05[07]",
+					"2A61FF105310502025FFFF",
+					Companions.GetQuestString(QuestsId.SaveCrystalofWind),
+					Companions.GetQuestString(QuestsId.SaveQtyCrystals),
+					"2C29E6",
+					"2305",
+					flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals ? "050260C11200" : "00",
+					"00"
+				});
 
 			newResetflags.WriteAt(0x12, 0xC1A0, this);
 			newJumpInRoutineToReset.WriteAt(0x03, 0xFC6B, this);

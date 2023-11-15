@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.5.29";
+		public static string Version = "1.5.30";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -95,6 +95,10 @@ namespace FFMQLib
 			EnemiesStats.ScaleEnemies(flags, rng);
 			EnemiesStats.ShuffleResistWeakness(flags.ShuffleResWeakType, GameInfoScreen, rng);
 
+			// Companions
+			Companions.SetSpellbooks(flags.CompanionSpellbookType, GameInfoScreen, rng);
+			Companions.SetQuests(flags, GameInfoScreen, rng);
+
 			// Overworld
 			Overworld.OpenNodes(flags);
 			Battlefields.SetBattlesQty(flags.BattlesQuantity, rng);
@@ -123,9 +127,6 @@ namespace FFMQLib
 			// Doom Castle
 			SetDoomCastleMode(flags.DoomCastleMode);
 			DoomCastleShortcut(flags.DoomCastleShortcut);
-
-			// Companion
-			Companions.SetSpellbooks(flags.CompanionSpellbookType, GameInfoScreen, rng);
 
 			// Various
 			SetLevelingCurve(flags.LevelingCurve);

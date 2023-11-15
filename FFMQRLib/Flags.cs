@@ -51,11 +51,12 @@ namespace FFMQLib
 		public ProgressiveFormationsModes ProgressiveFormations { get; set; } = ProgressiveFormationsModes.Disabled;
 		public MapShufflingMode MapShuffling { get; set; } = MapShufflingMode.None;
 		public bool CrestShuffle { get; set; } = false;
+        //public bool KaelisMomIsKaeli { get; set; } = false;
 
-		private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;
-        private EnemizerGroups internalEnemizerGroups = EnemizerGroups.MobsOnly;
+    private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;
+    private EnemizerGroups internalEnemizerGroups = EnemizerGroups.MobsOnly;
 
-        public string GenerateFlagString()
+    public string GenerateFlagString()
 		{
 			var flaglist = this.GetType().GetProperties();
 			var orderedflaglist = flaglist.OrderBy(x => x.Name).ToList();
