@@ -3292,7 +3292,7 @@
     access: []
   - target_room: 164
     entrance: 337
-    teleporter: [215, 0]
+    teleporter: [102, 8]
     access: []
 - name: Windia Inn Beds
   id: 164

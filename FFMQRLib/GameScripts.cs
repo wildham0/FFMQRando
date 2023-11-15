@@ -114,7 +114,7 @@ namespace FFMQLib
 
 			// Update Kaeli Tree Map Object
 			MapObjects[0x0E][0x03].Gameflag = 0x00;
-			MapObjects[0x0E][0x03].Value = 0x80;
+			MapObjects[0x0E][0x03].Value = (int)TalkScriptsList.KaeliCuttingTree;
 			MapObjects[0x0E][0x03].Orientation = 0x00;
 			MapObjects[0x0E][0x03].UnknownIndex = 0x00;
 			MapObjects[0x0E][0x03].X = 0x2D;
@@ -196,6 +196,7 @@ namespace FFMQLib
 			// Fight Minotaur
 			if (enablekaelismom)
 			{
+				// WIP				
 				TileScripts.AddScript((int)TileScriptsList.FightMinotaur,
 				new ScriptBuilder(new List<string> {
 					"050B63[20]",
@@ -272,9 +273,6 @@ namespace FFMQLib
 					"2C114200"
 				}));
 
-			var kaeliquest = Companions.GetQuestFlag(QuestsId.CureKaeli, CompanionsId.Kaeli);
-			bool kaeliquestenabled = (kaeliquest != NewGameFlagsList.None);
-
 			// Sick Kaeli
 			TalkScripts.AddScript((int)TalkScriptsList.SickKaeli,
 				new ScriptBuilder(new List<string>{
@@ -283,7 +281,7 @@ namespace FFMQLib
 					"050c" + ScriptItemFlags[Items.Elixir].Item2 + "[04]",
 					"1A16" + TextToHex("I'll be fine, mate. Nothing a grog and some rest can't fix. I'll be back on deck in no time.") + "3600",
 					"1A16" + TextToHex("Mate! Psha, this taste like &?!% kelt, but I'm ready to show a leg! Heave and rally!") + "36",
-					kaeliquestenabled ? $"23{(int)kaeliquest:X2}0780A710" : "",
+					Companions.GetQuestString(QuestsId.CureKaeli),
 					"0F890E",
 					"057C0C[14]",
 					"057C0E[15]",
@@ -361,11 +359,6 @@ namespace FFMQLib
 				}));
 
 			// Fight Rex
-			//MapObjects[0x16][0x05].Type = MapObjectType.Chest;
-			//MapObjects[0x16][0x05].Value = 0x04;
-			//MapObjects[0x16][0x05].Gameflag = 0xAD;
-			//Data[0x8004] = (byte)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonElixir];
-
 			TileScripts.AddScript((int)TileScriptsList.FightFlamerusRex,
 				new ScriptBuilder(new List<string> {
 					"2E01[09]",
@@ -382,16 +375,9 @@ namespace FFMQLib
 				}));
 
 			// Tristam Quit Party Tile
-			/*
-			TileScripts.AddScript((int)TileScriptsList.TristamQuitPartyBoneDungeon,
-				new ScriptBuilder(new List<string> { "00" }));
-			*/
 			GameMaps[(int)MapList.BoneDungeon].ModifyMap(0x1D, 0x17, 0x84);
 
 			/*** Focus Tower ***/
-			//GameFlags[(int)GameFlagsList.ShowColumnMoved] = true;
-			//GameFlags[(int)GameFlagsList.ShowColumnNotMoved] = false;
-
 			MapObjects[0x0A][0x03].Gameflag = 0x00;
 			MapObjects[0x0A][0x05].Gameflag = 0x00;
 
@@ -435,23 +421,6 @@ namespace FFMQLib
 
 			/*** Aquaria ***/
 			// Entering Aquaria
-			/*
-			TileScripts.AddScript((int)TileScriptsList.EnterAquaria,
-				new ScriptBuilder(new List<string> {
-					"050B02[03]",
-					"2C0901",
-					"00",
-					"2F",
-					"050D02[10]",
-					$"23{(int)NewGameFlagsList.WakeWaterUsed:X2}",
-					"234F", //is it necessary?
-					"2A5EFF080161FFFFFF",
-					"2A20509053705015271225304506ff0900FFFF",
-					"00",
-					"2C0801",
-					"00",
-				}));*/
-
 			TileScripts.AddScript((int)TileScriptsList.EnterAquaria,
 				new ScriptBuilder(new List<string> {
 					"050B02[03]",
@@ -467,7 +436,6 @@ namespace FFMQLib
 			MapObjects[0x18][0x04].Value = 0x3F;
 			MapObjects[0x18][0x04].Type = MapObjectType.Talk;
 
-
 			TalkScripts.AddScript((int)TalkScriptsList.Unknown3f, new ScriptBuilder(new List<string>
 				{
 					"04",
@@ -481,11 +449,6 @@ namespace FFMQLib
 					"1A00" + TextToHex("Maybe the WakeWater can save this poor plant.") + "36",
 					"00"
 				}));
-
-			/*
-			TileScripts.AddScript((int)TileScriptsList.EnterPhoebesHouse,
-				new ScriptBuilder(new List<string> { "2C0A0200" }));
-			*/
 
 			// Change Phoebe's script for the house exit to account for aquaria winter/summer 
 			TileScripts.AddScript((int)TileScriptsList.EnterPhoebesHouse,
@@ -715,7 +678,6 @@ namespace FFMQLib
 					"0cee19000cef191a094cb20100" // Hack to excute the falling down routine
 				}));
 
-
 			// Fight IceGolem
 			TileScripts.AddScript((int)TileScriptsList.FightIceGolem,
 				new ScriptBuilder(new List<string> {
@@ -740,7 +702,6 @@ namespace FFMQLib
 			MapObjects[0x02A][0x07].Gameflag = 0x12;
 
 			/*** Spencer's Cave Pre-bomb ***/
-
 			// Create New Tristam Chest
 			MapObjects[0x18][0x01].Value = 0x1E; // Change Talk Script of NPCs
 			MapObjects[0x02C][0x01].RawOverwrite(Blob.FromHex("AD7B6435A60224")); //Copy Venus Chest settings
@@ -816,11 +777,7 @@ namespace FFMQLib
 					"00"
 				}));
 
-
-
-
 			/*** Spencer's Cave Post-Bomb ***/
-
 			// Reproduce spencer/tristam chest to avoid softlock
 			var spencerObject = new MapObject();
 			var tristamChestObject = new MapObject();
@@ -848,7 +805,7 @@ namespace FFMQLib
 			MapObjects[0x2D].Insert(0, spencerObject);
 
 			/*** Fireburg ***/
-			// Create extra Phoebe object
+			// Create extra Reuben object
 			MapObjects[0x30].Add(new MapObject(MapObjects[0x30][0x01]));
 			var reubenobject = MapObjects[0x30][0x04];
 
@@ -859,19 +816,17 @@ namespace FFMQLib
 
 			// Process Quest
 			var reubenquest = Companions.GetQuestFlag(QuestsId.VisitMine, CompanionsId.Reuben);
-			bool reubenquestenabled = (reubenquest != NewGameFlagsList.None);
 			TileScripts.AddScript((int)TileScriptsList.EnterReubenHouse,
 				new ScriptBuilder(new List<string>
 				{
 					"2C1002",
-					reubenquestenabled ? $"2E{(int)reubenquest:X2}[09]" : "00",
-					$"050f{(int)CompanionsId.Reuben:X2}[09]",
-					$"050B{(int)NewGameFlagsList.ReubenMineItemGiven:X2}[09]",
+					(reubenquest != NewGameFlagsList.None) ? $"2E{(int)reubenquest:X2}[08]" : "00",
+					$"050f{(int)CompanionsId.Reuben:X2}[08]",
+					$"050B{(int)NewGameFlagsList.ReubenMineItemGiven:X2}[08]",
 					"2A3446144314443054FFFF",
 					"1A50" + TextToHex("Whew. I'm exhausted. Let's never go back to the Mine again.") + "36",
-					$"23{(int)reubenquest:X2}",
+					Companions.GetQuestString(QuestsId.VisitMine),
 					"2A14414446FFFF",
-					"0760A710",
 					"00",
 				}));
 
@@ -993,25 +948,23 @@ namespace FFMQLib
 
 			// Process Quest
 			var tristamquest = Companions.GetQuestFlag(QuestsId.VisitBoneDungeon, CompanionsId.Tristam);
-			bool tristamquestenabled = (tristamquest != NewGameFlagsList.None);
 
 			TileScripts.AddScript((int)TileScriptsList.EnterFireburgHotel,
 				new ScriptBuilder(new List<string>
 				{
 					"2C1102",
-					$"050f{(int)CompanionsId.Tristam:X2}[19]",
-					tristamquestenabled ? $"2E{(int)tristamquest:X2}[11]" : "0A[11]",
-					$"050B{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[11]",
+					$"050f{(int)CompanionsId.Tristam:X2}[18]",
+					 (tristamquest != NewGameFlagsList.None) ? $"2E{(int)tristamquest:X2}[10]" : "0A[10]",
+					$"050B{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[10]",
 					"2A3B461B431B443054FFFF",
 					"1A50" + TextToHex("That was some good dungeon pillaging back there. Let's get some drinks!") + "36",
-					$"23{(int)tristamquest:X2}",
-					"08[16]",
+					Companions.GetQuestString(QuestsId.VisitBoneDungeon),
+					"08[15]",
 					"2A1B414B46FFFF",
-					"0720A710",
 					"00",
-					$"2E{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}[19]",
+					$"2E{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}[18]",
 					"2A3B461B431B443054FFFF",
-					"08[16]",
+					"08[15]",
 					"2A1B414B46FFFF",
 					"00",
 					"1A50" + TextToHex("Tell you what, I'll give you this and you cover my tab, deal?") + "36",
@@ -1260,16 +1213,18 @@ namespace FFMQLib
 				List<byte> treehousesnpclook = new() { 0x60, 0x64, 0x68, 0x6C, 0x70, 0x74 };
 
 				MapObjects[0x11].Add(new MapObject(MapObjects[0x11][0x01]));
-				MapObjects[0x11][0x0B].Coord = rng.PickFrom(treehouseslocations);
-				MapObjects[0x11][0x0B].Sprite = rng.PickFrom(treehousesnpclook);
-				MapObjects[0x11][0x0B].Value = (byte)TalkScriptsList.TreeHouseQuestNPC;
+				MapObjects[0x11][0x0C].Coord = rng.PickFrom(treehouseslocations);
+				MapObjects[0x11][0x0C].Sprite = rng.PickFrom(treehousesnpclook);
+				MapObjects[0x11][0x0C].Value = (byte)TalkScriptsList.TreeHouseQuestNPC;
 			}
 
 			TalkScripts.AddScript((int)TalkScriptsList.TreeHouseQuestNPC,
 				new ScriptBuilder(new List<string> {
-					(treehousesflag != NewGameFlagsList.None) ? $"2E{(int)treehousesflag:X2}[03]" : "00",
-					$"1A{(int)TalkScriptsList.TreeHouseQuestNPC:X2}" + TextToHex("Even behind magical teleporting crests I cannot find quietude!") + "36",
+					$"2E{(int)treehousesflag:X2}[04]",
+					TextToHex("Even behind magical teleporting crests I cannot find quietude!") + "36",
 					Companions.GetQuestString(QuestsId.VisitTreeHouses),
+					"00",
+					TextToHex("Maybe no one will find me behind that giant boulder in the Mine.") + "36",
 					"00"
 				}));
 
@@ -1483,19 +1438,17 @@ namespace FFMQLib
 
 			// Process Quest
 			var phoebequest = Companions.GetQuestFlag(QuestsId.VisitWintryCave, CompanionsId.Phoebe);
-			bool phoebequestenabled = (phoebequest != NewGameFlagsList.None);
 			TileScripts.AddScript((int)TileScriptsList.EnterWindiaInn,
 				new ScriptBuilder(new List<string>
 				{
 					"2C1F02",
-					phoebequestenabled ? $"2E{(int)phoebequest:X2}[09]" : "00",
-					$"050f{(int)CompanionsId.Phoebe:X2}[09]",
-					$"050B{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[09]",
+					(phoebequest != NewGameFlagsList.None) ? $"2E{(int)phoebequest:X2}[08]" : "00",
+					$"050f{(int)CompanionsId.Phoebe:X2}[08]",
+					$"050B{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[08]",
 					"2A3346134313443054FFFF",
 					"1A50" + TextToHex("Well, you did survive the Wintry Cave, you can rest a bit before we go to Doom Castle.") + "36",
-					$"23{(int)phoebequest:X2}",
+					Companions.GetQuestString(QuestsId.VisitWintryCave),
 					"2A13414346FFFF",
-					"0740A710",
 					"00",
 				}));
 
@@ -1503,10 +1456,10 @@ namespace FFMQLib
 			MapObjects[0x52][0x04].CopyFrom(MapObjects[0x52][0x00]);
 			var kaeliobject = MapObjects[0x52][0x04];
 
-			phoebeobject.Gameflag = 0xFE;
-			phoebeobject.Value = 0x50;
-			phoebeobject.X = 0x21;
-			phoebeobject.Y = 0x3B;
+			kaeliobject.Gameflag = 0xFE;
+			kaeliobject.Value = 0x51;
+			kaeliobject.X = 0x21;
+			kaeliobject.Y = 0x3B;
 
 			TileScripts.AddScript((int)TileScriptsList.EnterWindiaInnBedroom,
 				new ScriptBuilder(new List<string>
@@ -1514,7 +1467,7 @@ namespace FFMQLib
 					"2CD700",
 					$"2E{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}[07]",
 					"2A3446144314443054FFFF",
-					"1A5B" + TextToHex("Hearty, mate. This is straight from my ?%!& ditty-bag, but I want you to have it!") + "36",
+					"1A50" + TextToHex("Hearty, mate. This is straight from my ?%!& ditty-bag, but I want you to have it!") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliWindia]:X2}0162",
 					$"23{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}",
 					"2A14414446FFFF",

@@ -22,9 +22,7 @@ namespace FFMQLib
 		CollectQtyItems,
 		CollectQtySkyCoins,
 		ClearQtyBattlefields,
-		ClearLavaDomeBattlefield,
-		ClearWindia1Battlefield,
-		ClearWindia2Battlefield,
+		ClearSpecificBattlefield,
 		DefeatMinotaur,
 		DefeatSquidite,
 		DefeatSnowCrab,
@@ -201,9 +199,9 @@ namespace FFMQLib
 			int mediumminibossesqty = rng.Between(4, 5);
 			int hardminibossesqty = rng.Between(6, 7);
 
-			int easycollectqty = rng.Between(20, 30);
-			int mediumcollectqty = rng.Between(40, 60);
-			int hardcollectqty = rng.Between(70, 99);
+			int easycollectqty = rng.Between(15, 25);
+			int mediumcollectqty = rng.Between(26, 35);
+			int hardcollectqty = rng.Between(40, 50);
 
 			int easyskycoinqty = rng.Between(15, 20);
 			int mediumskycoinqty = rng.Between(25, 30);
@@ -217,7 +215,7 @@ namespace FFMQLib
 			{
 				new Quest(QuestsId.CureKaeli, 0, QuestRating.Hard, CompanionsId.Kaeli, "Give Elixir to\n  poisoned Kaeli."),
 				new Quest(QuestsId.VisitBoneDungeon, 0, QuestRating.Medium, CompanionsId.Tristam, "Visit Bone Dungeon with\n  Tristam and go to Fireburg."),
-				new Quest(QuestsId.VisitWintryCave, 0, QuestRating.Medium, CompanionsId.Phoebe, "Visit Wintry Cave with\n  Phoebe and return to Windia."),
+				new Quest(QuestsId.VisitWintryCave, 0, QuestRating.Medium, CompanionsId.Phoebe, "Visit Wintry Cave with\n  Phoebe and go to Windia."),
 				new Quest(QuestsId.VisitMine, 0, QuestRating.Easy, CompanionsId.Reuben, "Visit Mine with Reuben and\n  return to Fireburg."),
 				new Quest(QuestsId.SaveCrystalofEarth, 0, QuestRating.Easy, "Save the Crystal\n  of Earth."),
 				new Quest(QuestsId.SaveCrystalofWater, 0, QuestRating.Medium, "Save the Crystal\n  of Water."),
@@ -232,9 +230,9 @@ namespace FFMQLib
 				new Quest(QuestsId.ClearQtyBattlefields, easybattlefieldsqty, QuestRating.Easy, $"Clear {easybattlefieldsqty} Battlefields.\n"),
 				new Quest(QuestsId.ClearQtyBattlefields, mediumbattlefieldsqty, QuestRating.Medium, $"Clear {mediumbattlefieldsqty} Battlefields.\n"),
 				new Quest(QuestsId.ClearQtyBattlefields, hardbattlefieldsqty, QuestRating.Hard, $"Clear {hardbattlefieldsqty} Battlefields.\n"),
-				new Quest(QuestsId.ClearLavaDomeBattlefield, 0, QuestRating.Medium, $"Clear Lava Dome\n  Battlefield."),
-				new Quest(QuestsId.ClearWindia1Battlefield, 0, QuestRating.Medium, $"Clear Windia Small\n  Area Battlefield."),
-				new Quest(QuestsId.ClearWindia2Battlefield, 0, QuestRating.Medium, $"Clear Windia Large\n  Area Battlefield."),
+				new Quest(QuestsId.ClearSpecificBattlefield, (int)LocationIds.VolcanoBattlefield01, QuestRating.Medium, $"Clear Lava Dome\n  Battlefield."),
+				new Quest(QuestsId.ClearSpecificBattlefield, (int)LocationIds.WindiaBattlefield01, QuestRating.Medium, $"Clear Windia Small\n  Area Battlefield."),
+				new Quest(QuestsId.ClearSpecificBattlefield, (int)LocationIds.WindiaBattlefield02, QuestRating.Medium, $"Clear Windia Large\n  Area Battlefield."),
 				new Quest(QuestsId.DefeatMinotaur, 0, QuestRating.Easy, "Defeat Minotaur.\n"),
 				new Quest(QuestsId.DefeatSquidite, 0, QuestRating.Easy, "Defeat Squidite.\n"),
 				new Quest(QuestsId.DefeatSnowCrab, 0, QuestRating.Medium, "Defeat Snow Crab.\n"),
@@ -250,7 +248,7 @@ namespace FFMQLib
 				new Quest(QuestsId.VisitChocobo, 0, QuestRating.Medium, $"Visit the Chocobo\n  in Winda."),
 				new Quest(QuestsId.VisitLightTemple, 0, QuestRating.Medium, $"Visit the Light Temple.\n"),
 				new Quest(QuestsId.VisitPointlessLedge, 0, QuestRating.Medium, $"Visit the Pointless Ledge\n  in Lava Dome."),
-				new Quest(QuestsId.VisitTreeHouses, 0, QuestRating.Medium, $"Someone is hiding in one the 3 Alive Forest treehouses."),
+				new Quest(QuestsId.VisitTreeHouses, 0, QuestRating.Medium, $"Someone is hiding in\n  the Alive Forest treehouses."),
 				new Quest(QuestsId.VisitMountGale, 0, QuestRating.Medium, $"Visit the upper right\n  ledge on Mount Gale."),
 			};
 
@@ -258,9 +256,9 @@ namespace FFMQLib
 			{
 				availableQuests.AddRange(new List<Quest>()
 				{
-					new Quest(QuestsId.CollectQtySkyCoins, easyskycoinqty, QuestRating.Easy, $"Collect {easyskycoinqty} Sky Fragments."),
-					new Quest(QuestsId.CollectQtySkyCoins, mediumskycoinqty, QuestRating.Medium, $"Collect {mediumskycoinqty} Sky Fragments."),
-					new Quest(QuestsId.CollectQtySkyCoins, hardskycoinqty, QuestRating.Hard, $"Collect {hardskycoinqty} Sky Fragments."),
+					new Quest(QuestsId.CollectQtySkyCoins, easyskycoinqty, QuestRating.Easy, $"Collect {easyskycoinqty} Sky Fragments.\n"),
+					new Quest(QuestsId.CollectQtySkyCoins, mediumskycoinqty, QuestRating.Medium, $"Collect {mediumskycoinqty} Sky Fragments.\n"),
+					new Quest(QuestsId.CollectQtySkyCoins, hardskycoinqty, QuestRating.Hard, $"Collect {hardskycoinqty} Sky Fragments.\n"),
 				});
 			}
 
@@ -290,7 +288,7 @@ namespace FFMQLib
 		}
 		private void AddQuestsToGameInfoScreen(GameInfoScreen screen)
 		{
-			screen.Quests = Quests.Select(q => (q.Companion, q.Description)).ToList();
+			screen.Quests = Quests.Select(q => (q.Companion, q.Gameflag, q.Description)).ToList();
 		}
 		private void CreateCrystalQuests()
 		{
@@ -372,7 +370,7 @@ namespace FFMQLib
 				bfqtycompanion = (int)bfqtyquests[0].Companion;
 			}
 
-			var bfclearquests = Quests.Where(q => q.Name >= QuestsId.ClearLavaDomeBattlefield && q.Name <= QuestsId.ClearWindia2Battlefield).ToList();
+			var bfclearquests = Quests.Where(q => q.Name == QuestsId.ClearSpecificBattlefield).ToList();
 			int bfclearqty = 0xFF;
 			int bfclearflag = 0x00;
 			int bfclearcompanion = (int)CompanionsId.None;
@@ -384,19 +382,7 @@ namespace FFMQLib
 				bfclearflag = (int)bfclearquests[0].Gameflag;
 				bfclearqty = bfclearquests[0].Quantity;
 				bfclearcompanion = (int)bfclearquests[0].Companion;
-
-				if (bfclearquests[0].Name == QuestsId.ClearLavaDomeBattlefield)
-				{
-					targetbf = (int)LocationIds.VolcanoBattlefield01;
-				}
-				else if (bfclearquests[0].Name == QuestsId.ClearWindia1Battlefield)
-				{
-					targetbf = (int)LocationIds.WindiaBattlefield01;
-				}
-				else if (bfclearquests[0].Name == QuestsId.ClearWindia2Battlefield)
-				{
-					targetbf = (int)LocationIds.WindiaBattlefield02;
-				}
+				targetbf = bfclearquests[0].Quantity;
 			}
 
 			rom.PutInBank(0x10, 0xA3A0, Blob.FromHex($"08e230a9{bfqtyflag:X2}22769700d027a000a201bdd30fd001c8e8e01590f5c0{bfqtyqty:X2}9014a9{bfqtyflag:X2}22609700ad920ec9{bfqtycompanion:X2}d00422a0a31028386b286b08e230a9{bfclearflag:X2}22769700d01ba2{targetbf:X2}bdd30fd014a9{bfclearflag:X2}22609700ad920ec9{bfclearcompanion:X2}d00422a0a31028386b286b"));
@@ -522,9 +508,9 @@ namespace FFMQLib
 				$"0506{itemsqty:X2}[08]",                                             // if smaller, jump
 				$"23{itemsflag:X2}",                                                  // setflag
 				CompanionRoutines[itemscompanion],
-				(skyfragmentsflag != 0x00) ? $"2E{skyfragmentsflag:X2}[08]" : "00",   // skip all if already done
+				(skyfragmentsflag != 0x00) ? $"2E{skyfragmentsflag:X2}[13]" : "00",   // skip all if already done
 				"0F930E",                                                             // get sky fragment qty
-				$"0506{skyfragmentsqty:X2}[08]",                                      // if smaller, jump
+				$"0506{skyfragmentsqty:X2}[13]",                                      // if smaller, jump
 				$"23{skyfragmentsflag:X2}",                                           // setflag
 				CompanionRoutines[skyfragmentscompanion],
 				"00"
