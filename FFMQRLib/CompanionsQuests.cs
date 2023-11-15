@@ -163,7 +163,7 @@ namespace FFMQLib
 				Gameflag = NewGameFlagsList.KaeliQuest1,
 				Quantity = 0,
 				Companion = CompanionsId.Kaeli,
-				Description = "Give Elixir to poisoned Kaeli."
+				Description = "Give Elixir to\n  poisoned Kaeli."
 			});
 
 			Quests.Add(new Quest()
@@ -172,7 +172,7 @@ namespace FFMQLib
 				Gameflag = NewGameFlagsList.TristamQuest1,
 				Quantity = 0,
 				Companion = CompanionsId.Tristam,
-				Description = "Visit Bone Dungeon with Tristam and return to Fireburg."
+				Description = "Visit Bone Dungeon with\n  Tristam and go to Fireburg."
 			});
 
 			Quests.Add(new Quest()
@@ -181,7 +181,7 @@ namespace FFMQLib
 				Gameflag = NewGameFlagsList.PhoebeQuest1,
 				Quantity = 0,
 				Companion = CompanionsId.Phoebe,
-				Description = "Visit Wintry Cave with Phoebe and return to Windia."
+				Description = "Visit Wintry Cave with\n  Phoebe and go to Windia."
 			});
 
 			Quests.Add(new Quest()
@@ -190,7 +190,7 @@ namespace FFMQLib
 				Gameflag = NewGameFlagsList.ReubenQuest1,
 				Quantity = 0,
 				Companion = CompanionsId.Reuben,
-				Description = "Visit Mine with Reuben and return to Fireburg."
+				Description = "Visit Mine with Reuben and\n  return to Fireburg."
 			});
 		}
 		private void CreateExtendedQuests(bool skycoinfragment, bool darkkingshorcut, MT19337 rng)
@@ -276,7 +276,12 @@ namespace FFMQLib
 			{
 				foreach (var companion in companionslist)
 				{
-					var selectedquest = rng.PickFrom(availableQuests.Where(x => x.Rating == rating && (x.Companion == companion || x.Companion == CompanionsId.None)).ToList());
+					var validquests = availableQuests.Where(x => x.Rating == rating && (x.Companion == companion || x.Companion == CompanionsId.None)).ToList();
+					if (!validquests.Any())
+					{
+						validquests = availableQuests.Where(x => x.Rating == QuestRating.Medium && (x.Companion == companion || x.Companion == CompanionsId.None)).ToList();
+					}
+					var selectedquest = rng.PickFrom(validquests);
 					selectedquest.Companion = companion;
 					selectedquest.Gameflag = gameflagsList[companion][currentflag];
 					Quests.Add(selectedquest);
