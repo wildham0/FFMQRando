@@ -638,7 +638,7 @@ namespace FFMQLib
 		MysteriousManSealedTemple = 0x4C, 
 		FightMedusa = 0x4D,
 		GiantTree = 0x4E,
-		FightGidrah = 0x52,
+		FightGidrah = 0x51,
 		FightHeadlessKnight = 0x54,
 		WindiaChocobo = 0x5A,
 		KaeliWindia = 0x5B,

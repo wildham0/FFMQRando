@@ -365,10 +365,10 @@ namespace FFMQLib
 					"1A1BA0C5C55301B243D14AC1B8C96AB55E42C0B8D23066576741C3586A5A413DFF5A9EB4C53FCE",
 					"05E4210C",
 					"2A42FF1D25FFFF",
+					"2301",
 					Companions.GetQuestString(QuestsId.SaveCrystalofEarth),
 					Companions.GetQuestString(QuestsId.SaveQtyCrystals),
 					"2C29E6",
-					"2301",
 					"2B06",
 					(flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals) ? "050260C11200" : "",
 					"00"
@@ -686,10 +686,10 @@ namespace FFMQLib
 					"1A31B243FF3F477D44D1C54078A4C1524DBBC8BBCF019F63FF57CE30ADB4BE403FBCC6CE",
 					"05E44F13",
 					"2A42FF1E25FFFF",
+					"2312",
 					Companions.GetQuestString(QuestsId.SaveCrystalofWater),
 					Companions.GetQuestString(QuestsId.SaveQtyCrystals),
 					"2C29E6",
-					"2312",
 					"2B50",
 					"2B07",
 					"23CD",
@@ -1167,12 +1167,12 @@ namespace FFMQLib
 					"2364",
 					"2B08",
 					"2A42FF10501F25FFFF",
+					"2303",
 					Companions.GetQuestString(QuestsId.SaveCrystalofFire),
 					Companions.GetQuestString(QuestsId.SaveQtyCrystals),
 					"2A29E608270020052AFFFF",
 					"2BC7",
 					"23CC",
-					"2303",
 					(flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals) ? "050260C11200" : "00",
 					"00"
 				}));
@@ -1567,10 +1567,10 @@ namespace FFMQLib
 			var standardCrystalScript = new ScriptBuilder(new List<string>
 				{
 					"2A20500527205410575EFF4E01A057260161FF105300542025FFFF",
+					"2305",
 					Companions.GetQuestString(QuestsId.SaveCrystalofWind),
 					Companions.GetQuestString(QuestsId.SaveQtyCrystals),
 					"2C29E6",
-					"2305",
 					flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals ? "050260C11200" : "00",
 					"00"
 				});
@@ -1579,10 +1579,10 @@ namespace FFMQLib
 				{
 					"2E05[07]",
 					"2A61FF105310502025FFFF",
+					"2305",
 					Companions.GetQuestString(QuestsId.SaveCrystalofWind),
 					Companions.GetQuestString(QuestsId.SaveQtyCrystals),
 					"2C29E6",
-					"2305",
 					flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals ? "050260C11200" : "00",
 					"00"
 				});
