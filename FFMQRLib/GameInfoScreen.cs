@@ -170,11 +170,11 @@ namespace FFMQLib
 		}
 		private void GeneratePages(FFMQRom rom)
 		{
-            int lineoffset = 0x06;
+            int lineoffset = 0x04;
 
             List<string> pages = new();
 
-            if (FragmentsCount == 0 && !ShuffledElementsType.Any() && !SpellLearning.Any())
+            if (FragmentsCount == 0 && !ShuffledElementsType.Any() && !SpellLearning.Any() && !Quests.Any())
             {
                 string pagescript = $"250C1503{lineoffset:X2}19";
                 pagescript += rom.TextToHex("No info available.", true);
@@ -183,21 +183,28 @@ namespace FFMQLib
 
             if (FragmentsCount > 0 || ShuffledElementsType.Any())
             {
-                string pagescript = $"250C1503{lineoffset:X2}19";
+				string pagescript = ""; // $"250C1503{lineoffset:X2}19";
                 if (FragmentsCount > 0)
                 {
-                    pagescript += rom.TextToHex("Sky Fragments Required: " + FragmentsCount.ToString(), true);
-                    lineoffset += 3;
+					pagescript += $"250C2401{lineoffset:X2}1E0318";
+					pagescript += $"1502{lineoffset:X2}19";
+					pagescript += rom.TextToHex("Sky Fragments");
+					lineoffset++;
+					pagescript += $"1503{lineoffset:X2}19";
+					pagescript += $"0F930E07C4810305186C0002";
+					pagescript += rom.TextToHex("/" + FragmentsCount.ToString(), true);
+					pagescript += "0F0100"; // restore 9e to current page
+
+                    lineoffset += 2;
                 }
 
                 if (ShuffledElementsType.Any())
                 {
-                    pagescript += $"250C1503{lineoffset:X2}19";
-                    pagescript += rom.TextToHex("Resist/Weak Shuffling", true);
-                    lineoffset++;
-                    pagescript += $"25102404{lineoffset:X2}110618";
-                    lineoffset++;
-                    pagescript += $"1505{lineoffset:X2}19";
+					pagescript += $"25102401{lineoffset:X2}1E0618";
+					pagescript += $"1502{lineoffset:X2}19";
+					pagescript += rom.TextToHex("Resists & Weaknesses", true);
+					lineoffset++;
+					pagescript += $"1503{lineoffset:X2}19";
 
                     ShuffledElementsType.Reverse();
 
