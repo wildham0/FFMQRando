@@ -224,8 +224,8 @@ namespace FFMQLib
 			{
 				TileScripts.AddScript((int)TileScriptsList.FightMinotaur,
 				new ScriptBuilder(new List<string> {
-					"050B63[21]",
-					$"050f{(int)CompanionsId.Kaeli:X2}[22]",
+					"050B63[24]",
+					$"050f{(int)CompanionsId.Kaeli:X2}[24]",
 					"2A35460054105a0e2527275246022A05453055FFFF",
 					"1A0BAE63FF57FF57CE30ACC8C5C3C5BCC6B8CE36",
 					"2A1B278544105430555054FFFF",
@@ -548,7 +548,6 @@ namespace FFMQLib
 					"04",
 					"05E43110",
 					"2B24",
-					GameFlags[0xB2] ? "" : "23B2",
 					"2A61463B46FFFF",
 					"23E0",
 					Companions.GetQuestString(QuestsId.DefeatSquidite),
@@ -1465,9 +1464,10 @@ namespace FFMQLib
 				new ScriptBuilder(new List<string>
 				{
 					"2CD700",
-					$"2E{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}[07]",
+					$"050f{(int)CompanionsId.Kaeli:X2}[08]",
+					$"2E{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}[08]",
 					"2A3446144314443054FFFF",
-					"1A50" + TextToHex("Hearty, mate. This is straight from my ?%!& ditty-bag, but I want you to have it!") + "36",
+					"1A51" + TextToHex("Hearty, mate. This is straight from my ?%!& ditty-bag, but I want you to have it!") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliWindia]:X2}0162",
 					$"23{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}",
 					"2A14414446FFFF",

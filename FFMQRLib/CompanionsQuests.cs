@@ -172,7 +172,7 @@ namespace FFMQLib
 				Gameflag = NewGameFlagsList.TristamQuest1,
 				Quantity = 0,
 				Companion = CompanionsId.Tristam,
-				Description = "Visit Bone Dungeon with\n  Tristam and go to Fireburg."
+				Description = "Visit Bone Dungeon with\n  Tristam & go to Fireburg."
 			});
 
 			Quests.Add(new Quest()
@@ -214,7 +214,7 @@ namespace FFMQLib
 			List<Quest> availableQuests = new()
 			{
 				new Quest(QuestsId.CureKaeli, 0, QuestRating.Hard, CompanionsId.Kaeli, "Give Elixir to\n  poisoned Kaeli."),
-				new Quest(QuestsId.VisitBoneDungeon, 0, QuestRating.Medium, CompanionsId.Tristam, "Visit Bone Dungeon with\n  Tristam and go to Fireburg."),
+				new Quest(QuestsId.VisitBoneDungeon, 0, QuestRating.Medium, CompanionsId.Tristam, "Visit Bone Dungeon with\n  Tristam & go to Fireburg."),
 				new Quest(QuestsId.VisitWintryCave, 0, QuestRating.Medium, CompanionsId.Phoebe, "Visit Wintry Cave with\n  Phoebe and go to Windia."),
 				new Quest(QuestsId.VisitMine, 0, QuestRating.Easy, CompanionsId.Reuben, "Visit Mine with Reuben and\n  return to Fireburg."),
 				new Quest(QuestsId.SaveCrystalofEarth, 0, QuestRating.Easy, "Save the Crystal\n  of Earth."),
@@ -248,7 +248,7 @@ namespace FFMQLib
 				new Quest(QuestsId.VisitChocobo, 0, QuestRating.Medium, $"Visit the Chocobo\n  in Winda."),
 				new Quest(QuestsId.VisitLightTemple, 0, QuestRating.Medium, $"Visit the Light Temple.\n"),
 				new Quest(QuestsId.VisitPointlessLedge, 0, QuestRating.Medium, $"Visit the Pointless Ledge\n  in Lava Dome."),
-				new Quest(QuestsId.VisitTreeHouses, 0, QuestRating.Medium, $"Someone is hiding in\n  the Alive Forest treehouses."),
+				new Quest(QuestsId.VisitTreeHouses, 0, QuestRating.Medium, $"Someone is hiding in the\n  Alive Forest treehouses."),
 				new Quest(QuestsId.VisitMountGale, 0, QuestRating.Medium, $"Visit the upper right\n  ledge on Mount Gale."),
 			};
 
@@ -266,7 +266,7 @@ namespace FFMQLib
 			{
 				availableQuests.AddRange(new List<Quest>()
 				{
-					new Quest(QuestsId.BuildRainbowBridge, 0, QuestRating.Medium, $"Build the Rainbow Bridge."),
+					new Quest(QuestsId.BuildRainbowBridge, 0, QuestRating.Medium, $"Build the Rainbow Bridge.\n"),
 				});
 			}
 
@@ -390,7 +390,7 @@ namespace FFMQLib
 				targetbf = bfclearquests[0].Quantity;
 			}
 
-			rom.PutInBank(0x10, 0xA3A0, Blob.FromHex($"08e230a9{bfqtyflag:X2}22769700d027a000a201bdd30fd001c8e8e01590f5c0{bfqtyqty:X2}9014a9{bfqtyflag:X2}22609700ad920ec9{bfqtycompanion:X2}d00422a0a31028386b286b08e230a9{bfclearflag:X2}22769700d01ba2{targetbf:X2}bdd30fd014a9{bfclearflag:X2}22609700ad920ec9{bfclearcompanion:X2}d00422a0a31028386b286b"));
+			rom.PutInBank(0x10, 0xA3A0, Blob.FromHex($"08e230a9{bfqtyflag:X2}22769700d027a000a201bdd30fd001c8e8e01590f5c0{bfqtyqty:X2}9014a9{bfqtyflag:X2}22609700ad920ec9{bfqtycompanion:X2}d0042260a31028386b286b08e230a9{bfclearflag:X2}22769700d01ba2{targetbf:X2}bdd30fd014a9{bfclearflag:X2}22609700ad920ec9{bfclearcompanion:X2}d0042260a31028386b286b"));
 
 		}
 		private void GenerateQuestsScripts()
