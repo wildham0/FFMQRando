@@ -169,8 +169,9 @@ namespace FFMQLib
 			titleScreen.Write(this, Metadata.Version, seed, flags);
 
 			// Spoilers
-			spoilersText = itemsPlacement.GenerateSpoilers(flags, titleScreen.versionText, titleScreen.hashText, seed.ToHex());
-			spoilers = flags.EnableSpoilers;
+			Spoilers spoilersGenerator = new();
+			spoilersText = spoilersGenerator.GenerateSpoilers(flags, titleScreen, seed.ToHex(), itemsPlacement, GameInfoScreen, GameLogic);
+			spoilers = (flags.EnableSpoilers || preferences.DumpGameInfoScreen);
 
 			if (apconfigs.ApEnabled)
 			{

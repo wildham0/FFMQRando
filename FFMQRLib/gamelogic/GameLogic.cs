@@ -529,20 +529,93 @@ namespace FFMQLib
 				ProcessRoomForRequirements(reqcount + link.Access.Count, link.TargetRoom, accesslist, visitedrooms);
 			}
 		}
-		/*
-		public string CrawlForSpoilers(LocationIds location)
+		
+		public List<SpoilerRoom> CrawlForSpoilers(LocationIds location)
 		{
             var regionRooms = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
             var initialRoom = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).ToList().Find(l => l.Location == location).TargetRoom;
 
-            List<int> visitedRooms = regionRooms;
+			//List<AccessReqs> accessList = Rooms.Find(x => x.Id == initialRoom).Links.SelectMany(x => x.Access).ToList();
+			List<int> visitedRooms = regionRooms;
 
+			var initialspoilerroom = new SpoilerRoom()
+			{
+				RoomId = initialRoom,
+				ParentId = 0,
+				Access = new(),
+				Depth = 0,
+				DewyNumber = new() { 0 },
+				Description = Rooms.Find(x => x.Id == initialRoom).Name
+			};
 
-        }
+			List<SpoilerRoom> spoilerRooms = new();
+			spoilerRooms.Add(initialspoilerroom);
+
+			ProcessRoomForSpoilers(0, initialspoilerroom, spoilerRooms, visitedRooms);
+
+			return spoilerRooms;
+		}
 
 		
-		public List<string> ProcessRoomForSpoilers(int depth)
-		{ }*/
+		public void ProcessRoomForSpoilers(int depth, SpoilerRoom parent, List<SpoilerRoom> spoilerrooms, List<int> visitedrooms)
+		{
+			var currentRoom = Rooms.Find(x => x.Id == parent.RoomId);
 
+			visitedrooms.Add(parent.RoomId);
+
+			int dewynumber = 0;
+
+			foreach (var link in currentRoom.Links.Where(l => !visitedrooms.Contains(l.TargetRoom)))
+			{
+				var targetroom = Rooms.Find(x => x.Id == link.TargetRoom);
+
+				var currentspoilerroom = new SpoilerRoom()
+				{
+					RoomId = link.TargetRoom,
+					ParentId = parent.RoomId,
+					Access = link.Access,
+					Depth = depth + 1,
+					DewyNumber = parent.DewyNumber.Append(dewynumber++).ToList(),
+					Description = targetroom.Name
+				};
+
+				if (link.Access.Intersect(AccessReferences.CrestsAccess).Any() && (targetroom.Location != currentRoom.Location))
+				{
+					currentspoilerroom.Description = "To " + targetroom.Location.ToString();
+					spoilerrooms.Add(currentspoilerroom);
+				}
+				else
+				{
+					spoilerrooms.Add(currentspoilerroom);
+					ProcessRoomForSpoilers(depth + 1, currentspoilerroom, spoilerrooms, visitedrooms);
+				}
+			}
+		}
+	}
+
+	public class SpoilerRoom
+	{
+		public int RoomId { get; set; }
+		public int ParentId { get; set; }
+		public List<int> DewyNumber { get; set; }
+		public List<AccessReqs> Access { get; set; }
+		public int Depth { get; set; }
+		public string Description { get; set; }
+		public double ComputedDewy => ComputeDewy();
+
+		private double ComputeDewy()
+		{
+			double dewy = 0;
+			for (int i = 0; i < 9; i++)
+			{
+				if (i >= DewyNumber.Count)
+				{
+					break;
+				}
+				dewy += DewyNumber[i] * Math.Pow(10, (9 - i));
+			}
+
+			return dewy;
+		}
 	}
 }

@@ -262,7 +262,9 @@ namespace FFMQLib
 		public bool RandomMusic { get; set; } = false;
         public bool DarkKingTrueForm { get; set; } = false;
         public ushort WindowPalette { get; set; } = 0x5140;
+		public bool DumpGameInfoScreen { get; set; } = false;
 		public string PlayerSprite { get; set; } = "default";
+		
 		public byte[] CustomSprites { get; set; } = new byte[0];
 		public byte[] DarkKing3 { get; set; } = new byte[0];
         public byte[] DarkKing4 { get; set; } = new byte[0];

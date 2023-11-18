@@ -1587,14 +1587,20 @@ namespace FFMQLib
 					"00"
 				});
 
+			var jumpToCrystalScript = new ScriptBuilder(new List<string>
+				{
+					"0700C31200",
+				});
+
 			newResetflags.WriteAt(0x12, 0xC1A0, this);
 			newJumpInRoutineToReset.WriteAt(0x03, 0xFC6B, this);
 			jumpToResetFlagsShort.WriteAt(0x03, 0xFFD5, this);
 			newPazuzuScript.WriteAt(0x03, 0xFD8C, this);
+			jumpToCrystalScript.WriteAt(0x03, 0xFD98, this);
 
 			if (skip7fteleport)
 			{
-				floorCrystalScript.WriteAt(0x03, 0xFD98, this);
+				floorCrystalScript.WriteAt(0x12, 0xC300, this);
 
 				TileScripts.AddScript(0x26,
 					new ScriptBuilder(new List<string>{
@@ -1607,7 +1613,7 @@ namespace FFMQLib
 			}
 			else
 			{
-				standardCrystalScript.WriteAt(0x03, 0xFD98, this);
+				standardCrystalScript.WriteAt(0x12, 0xC300, this);
 			}
 
 			/*** Ship's Dock ***/

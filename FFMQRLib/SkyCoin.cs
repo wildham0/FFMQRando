@@ -142,7 +142,7 @@ namespace FFMQLib
 		}
 		public void UpdateMysteriousMan(string dialogue)
 		{
-			// Mysterious Man tell nomber of fragments
+			// Mysterious Man tell number of fragments
 			TalkScripts.AddScript(0x09,
 				new ScriptBuilder(new List<string> {
 						"04",
