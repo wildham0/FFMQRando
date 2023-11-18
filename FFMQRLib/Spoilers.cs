@@ -243,7 +243,7 @@ namespace FFMQLib
 					foreach (var location in locationslist)
 					{
 						var spoilerRooms = gamelogic.CrawlForSpoilers(location);
-						List<int> processedrooms = new();
+						//List<int> processedrooms = new();
 
 						spoilers += "[" + location.ToString() + "]\n";
 
@@ -294,19 +294,10 @@ namespace FFMQLib
 							}
 
 							//string actualindent = string.Join("", Enumerable.Repeat("  ", (room.Depth - 1)).ToList());
-							if (processedrooms.Contains(room.RoomId))
-							{
-								tempspoiler += indent;
-								tempspoiler += "...";
-								tempspoiler += "\n";
-							}
-							else
-							{
-								tempspoiler += indent;
-								tempspoiler += room.Access.Any() ? "[" + string.Join(", ", room.Access.Select(a => a.ToString())) + "] " + room.Description : room.Description;
-								tempspoiler += "\n";
-								processedrooms.Add(room.RoomId);
-							}
+							tempspoiler += indent;
+							tempspoiler += room.Access.Any() ? "[" + string.Join(", ", room.Access.Select(a => a.ToString())) + "] " + room.Description : room.Description;
+							tempspoiler += "\n";
+							//processedrooms.Add(room.RoomId);
 
 							locationspoiler.Add(tempspoiler);
 						}
