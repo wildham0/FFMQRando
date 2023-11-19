@@ -179,6 +179,7 @@ namespace FFMQLib
 		Kaeli1,
 		Kaeli2,
 		Tristam,
+		TristamBoneItemGiven,
 		Phoebe1,
 		Reuben1,
 		ReubenDadSaved,

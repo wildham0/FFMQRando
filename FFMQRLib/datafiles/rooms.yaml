@@ -883,6 +883,11 @@
     object_id: 2
     type: "NPC"
     access: ["Tristam"]
+  - name: "Tristam Bone Dungeon Item Given"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["TristamBoneItemGiven"]
+    access: ["Tristam"]
   links:
   - target_room: 25
     entrance: 59
@@ -1951,12 +1956,7 @@
   - name: "Fireburg - Tristam"
     object_id: 10
     type: "NPC"
-    access: []
-  - name: "Tristam Fireburg"
-    object_id: 0
-    type: "Trigger"
-    on_trigger: ["Tristam"]
-    access: []
+    access: ["Tristam", "TristamBoneItemGiven"]
   links:
   - target_room: 76
     entrance: 177

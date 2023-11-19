@@ -246,7 +246,7 @@ namespace FFMQLib
 				new Quest(QuestsId.SaveArion, 0, QuestRating.Medium, $"Save Arion.\n"),
 				new Quest(QuestsId.ThawAquaria, 0, QuestRating.Medium, $"Thaw Aquaria.\n"),
 				new Quest(QuestsId.VisitChocobo, 0, QuestRating.Medium, $"Visit the Chocobo\n  in Winda."),
-				new Quest(QuestsId.VisitLightTemple, 0, QuestRating.Medium, $"Visit the Light Temple.\n"),
+				new Quest(QuestsId.VisitLightTemple, 0, QuestRating.Medium, $"Visit the box in\n  the Light Temple.\n"),
 				new Quest(QuestsId.VisitPointlessLedge, 0, QuestRating.Medium, $"Visit the Pointless Ledge\n  in Lava Dome."),
 				new Quest(QuestsId.VisitTreeHouses, 0, QuestRating.Medium, $"Someone is hiding in the\n  Alive Forest treehouses."),
 				new Quest(QuestsId.VisitMountGale, 0, QuestRating.Medium, $"Visit the upper right\n  ledge on Mount Gale."),

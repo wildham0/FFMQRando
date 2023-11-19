@@ -184,9 +184,10 @@ namespace FFMQLib
 		}
 		public void UpdateCrests(Flags flags, GameScriptManager tileScripts, GameMaps gameMaps, GameLogic logic, List<Teleporter> teleportersLong, FFMQRom rom)
 		{
-			bool keepWintryTemple = (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Dungeons) && !flags.CrestShuffle;
+            //bool keepWintryTemple = (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Dungeons) && !flags.CrestShuffle;
+            bool keepWintryTemple = true;
 
-			List<CrestTile> crestsList = new()
+            List<CrestTile> crestsList = new()
 			{
 				new CrestTile(51, (0x21, 6), (67, 8), MapList.ForestaInterior),
 				new CrestTile(52, (0x22, 6), (68, 8), MapList.ForestaInterior),

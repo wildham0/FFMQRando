@@ -17,7 +17,7 @@ namespace FFMQLib
 			RemoveStrobing();
 			SmallFixes();
 			BugFixes();
-			CompanionRoutines();
+			CompanionRoutines(apenabled);
 			DummyRoom();
 			KeyItemWindow();
 			GameStateIndicator();
