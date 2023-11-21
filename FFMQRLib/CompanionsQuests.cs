@@ -617,7 +617,7 @@ namespace FFMQLib
 
 				foreach (var matchedquest in matchedquests)
 				{
-					script += $"23{matchedquest.Gameflag:X2}";
+					script += $"23{(int)matchedquest.Gameflag:X2}";
 				}
 
 				script += "07" + questsScripts.GetAddress(QuestScriptId.AnyCompanionLevelUp) + "10";
