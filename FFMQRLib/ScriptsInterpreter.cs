@@ -173,7 +173,7 @@ namespace FFMQLib
         public static ScriptCode Code0533 = new(0x0533, "UNUSED_33");
         public static ScriptCode Code0534 = new(0x0534, "UNUSED_34");
         public static ScriptCode Code0535 = new(0x0535, "UNKNOWN_35 arg0", new List<ScriptArgument>() { new ScriptArgument(ScriptArgumentType.Value, 1) });
-        public static ScriptCode Code0536 = new(0x0536, "UNKNOWN_36");
+        public static ScriptCode Code0536 = new(0x0536, "UNKNOWN_36 arg0 arg1 arg2 arg3", new List<ScriptArgument> { new ScriptArgument(ScriptArgumentType.Value, 2), new ScriptArgument(ScriptArgumentType.Value, 2), new ScriptArgument(ScriptArgumentType.Value, 2), new ScriptArgument(ScriptArgumentType.Value, 1) });
         public static ScriptCode Code0537 = new(0x0537, "BITINVERSE [9E]");
         public static ScriptCode Code0538 = new(0x0538, "UNUSED_38");
         public static ScriptCode Code0539 = new(0x0539, "UNUSED_39");

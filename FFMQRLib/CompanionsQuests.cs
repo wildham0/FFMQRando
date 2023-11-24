@@ -345,8 +345,8 @@ namespace FFMQLib
 			questsScripts.Write(rom);
 
 			// Main routine, check for no companion then level
-			rom.PutInBank(0x10, 0xA340, Blob.FromHex("08e220ad9010c9fff00c2000a0a9288d1e0022029b00286b"));
-			rom.PutInBank(0x10, 0xA360, Blob.FromHex("08e220ad9010c9fff00c2000a0286b")); // same but don't trigger screen refresh
+			rom.PutInBank(0x10, 0xA330, Blob.FromHex("08e220ad9010c9fff00c2000a0a9288d1e00ae1700ad190022029b008d19008e1700286b"));
+			rom.PutInBank(0x10, 0xA360, Blob.FromHex("08e220ad9010c9fff0032000a0286b")); // same but don't trigger screen refresh
 
 			// Companion routine, check for companion, then go to main routine
 			//rom.PutInBank(0x10, 0xA360, Blob.FromHex("08e220ad9e0ec901d0032240a310286b"));
@@ -414,7 +414,7 @@ namespace FFMQLib
 				"0F920E",
 				"050901[07]",
 				"2C2A27",
-				"0940A310",
+				"0930A310",
 				"00"
 			}));
 
@@ -427,7 +427,7 @@ namespace FFMQLib
 				"0F920E",
 				"050902[07]",
 				"2C2A27",
-				"0940A310",
+				"0930A310",
 				"00"
 			}));
 
@@ -440,7 +440,7 @@ namespace FFMQLib
 				"0F920E",
 				"050903[07]",
 				"2C2A27",
-				"0940A310",
+				"0930A310",
 				"00"
 			}));
 			// Script Reuben 0x03
@@ -452,7 +452,7 @@ namespace FFMQLib
 				"0F920E",
 				"050904[07]",
 				"2C2A27",
-				"0940A310",
+				"0930A310",
 				"00"
 			}));
 
@@ -473,7 +473,7 @@ namespace FFMQLib
 				"0F9010",
 				"0BFF[05]",
 				"2C2A27",
-				"0940A310",
+				"0930A310",
 				"00"
 			}));
 

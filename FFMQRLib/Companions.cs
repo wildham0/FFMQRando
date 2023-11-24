@@ -288,8 +288,8 @@ namespace FFMQLib
 			if (levelingType >= LevelingType.BenPlus0 && levelingType <= LevelingType.BenPlus10)
 			{
 				// Ben Levelup
-				rom.PutInBank(0x02, 0x8830, Blob.FromHex("2220a310"));
-				rom.PutInBank(0x10, 0xA320, Blob.FromHex("8b08e230ad9010c9fff0062000a020a0a222029b0028ab6b"));
+				rom.PutInBank(0x02, 0x8830, Blob.FromHex("2210a310"));
+				rom.PutInBank(0x10, 0xA310, Blob.FromHex("8b08e230ad9010c9fff0062000a020a0a222029b0028ab6b"));
 			}
 
 			// lut_CompanionLevel
@@ -359,13 +359,16 @@ namespace FFMQLib
 			rom.PutInBank(0x10, 0xA0B0, Blob.FromHex("08e220c210daa900ebad920e38e9010a0aa8186d920e38e901aa981869a94822769700f001e8681869014822769700f001e8681869014822769700f001e86818690122769700f001e8bf00a4108d9010fa2860"));
 
 			// ComputeStats
-			rom.PutInBank(0x010, 0xA120, Blob.FromHex("08c230ad90108d02422080a18d961020a0a1e2208dcc108da61020a0a1e2208dcd108da71020a0a1e2208dce108da81020a0a1e2208dcf108da910ad90104820b0a18d9b10684a4820b0a18d9c10684a20b0a18d9d102860"));
+			rom.PutInBank(0x010, 0xA120, Blob.FromHex("08c230ad90108d024220c0a18d961020a0a1e2208dcc108da61020a0a1e2208dcd108da71020a0a1e2208dce108da81020a0a1e2208dcf108da910ad90104820b0a18d9b10684a4820b0a18d9c10684a20b0a18d9d102860"));
 
 			// GetStats, GetStats99, GetMP
 			rom.PutInBank(0x10, 0xA180, Blob.FromHex("08e220c210bf00a5108d0342c230ebebe818ad16427f00a510e8e82860000000c2302080a1c963009003a96300600000187f00a510e8c9639002a96360"));
 
-			// SetEquipSpells, LoadEquipSpells
-			rom.PutInBank(0x10, 0xA200, Blob.FromHex("08e220c210ad9010df00a510b009e8e8e8e8e8e8e880eec230e88a186900a5aaa90400a0b510540010282030a260"));
+			// GetStatsHP
+            rom.PutInBank(0x10, 0xA1C0, Blob.FromHex("c2302080a1c968069003a9680660"));
+
+            // SetEquipSpells, LoadEquipSpells
+            rom.PutInBank(0x10, 0xA200, Blob.FromHex("08e220c210ad9010df00a510b009e8e8e8e8e8e8e880eec230e88a186900a5aaa90400a0b510540010282030a260"));
 
 			// HealUp
 			rom.PutInBank(0x10, 0xA280, Blob.FromHex("08e220c210ae96108e9410ae9b108e9810ad9d108d9a109ca1102860"));

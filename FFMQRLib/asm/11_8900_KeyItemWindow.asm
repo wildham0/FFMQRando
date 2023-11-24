@@ -47,16 +47,19 @@ END                        ; 00
 .ORG $118990
 
 [$9E] = [$0E00]                 ; 0f 000e  
-IF [$9E] = #$55 GOTO L_END      ; 0b 55 bc89
+IF [$9E] = #$55 GOTO L_END      ; 0b 55 bf89
 [$9E] = [$0E61]                 ; 10 610e  
 IF [$9E] != #$0000 GOTO L_DRAWBOX    ; 05 c1 0000 aa89
 [$9E] = [$10A0]                 ; 0f a010
-IF [$9E] = #$FF GOTO L_END      ; 0b ff bc89
-GOTO L_DRAWITEM                 ; 0a b889
+IF [$9E] = #$FF GOTO L_END      ; 0b ff bf89
+GOTO L_DRAWITEM                 ; 0a bb89
 L_DRAWBOX:
 [$18] = #$0504301B              ; 24 1b300405
 [$25] = #$311C                  ; 15 1c31
 DRAW_PLAIN_BOX                  ; 18
+PRINT [FE]                      ; fe
+PRINT [FE]                      ; fe
+LINEFEED                        ; 01
 PRINT [FE]                      ; fe
 PRINT [FE]                      ; fe
 LINEFEED                        ; 01

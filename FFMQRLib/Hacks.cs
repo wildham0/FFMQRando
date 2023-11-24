@@ -283,7 +283,7 @@ namespace FFMQLib
 
 			// Item action selector (w AP support)
 			PutInBank(0x00, 0xDB42, Blob.FromHex("5c008f11"));
-			PutInBank(0x11, 0x8F00, Blob.FromHex("c910b0045c82db00c914b0045c70db00c920b0045c8edb00c92fb0045c9cdb00c9ddb0045cbedb00c9deb0045c58db00c9dfb0045c64db005cd6db00"));
+			PutInBank(0x11, 0x8F00, Blob.FromHex("c910b0045c82db00c914b0045c70db00c920b0045c8edb00c92fb0045c9cdb00c9ddb0045cbedb00c9deb0045c58db00c9dfb0045c64db005c6bdb00"));
 
 			// Don't check quantity on item F0+ when opening chests
 			PutInBank(0x00, 0xDA68, Blob.FromHex("c9f0b0"));
@@ -413,7 +413,7 @@ namespace FFMQLib
 			PutInBank(0x11, 0x8980, Blob.FromHex("08908924012e1e0700"));
 
 			// Box drawing script
-			PutInBank(0x11, 0x8990, Blob.FromHex("0f000e0b55bc8910610e05c10000aa890fa0100bffbc890ab889241b300405151c3118fefe01fefe09298d0000"));
+			PutInBank(0x11, 0x8990, Blob.FromHex("0f000e0b55bf8910610e05c10000aa890fa0100bffbf890abb89241b300405151c3118fefe01fefe01fefe09298d0000"));
 
 			// Companion Weapon Drawing Routine
 			PutInBank(0x00, 0x8D33, Blob.FromHex("EA22C08911"));
