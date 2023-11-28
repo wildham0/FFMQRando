@@ -20,7 +20,12 @@ namespace FFMQLib
 	{
 		public void CompanionsShuffle(CompanionsLocationType shuffletype, bool kaelismom, bool apenabled, MT19337 rng)
 		{
-			List<GameObjectData> companions = new()
+            if (shuffletype == CompanionsLocationType.Standard || apenabled)
+            {
+                return;
+            }
+
+            List<GameObjectData> companions = new()
 			{ 
 				new GameObjectData()
 				{ 
@@ -59,6 +64,8 @@ namespace FFMQLib
 					Type = GameObjectType.Trigger,
 					Name = "Kaeli Companion",
 				});
+
+				Rooms.Find(r => r.Id == 17).GameObjects.Find(o => o.Name == "Kaeli Companion").Name = "Kaeli's Mom";
 			}
 
 			Rooms.ForEach(x => x.GameObjects.RemoveAll(o => o.OnTrigger.Intersect(companions.SelectMany(c => c.OnTrigger).ToList()).Any()));
@@ -70,15 +77,6 @@ namespace FFMQLib
 				(MapRegions.Aquaria, 39),    // Libra Temple
 				(MapRegions.Fireburg, 77)	 // Reuben's House
 			};
-
-            if (shuffletype == CompanionsLocationType.Standard || apenabled)
-            {
-                Rooms.Find(r => r.Id == 17).GameObjects.Add(companions[3]);
-                Rooms.Find(r => r.Id == 24).GameObjects.Add(companions[0]);
-                Rooms.Find(r => r.Id == 39).GameObjects.Add(companions[1]);
-                Rooms.Find(r => r.Id == 77).GameObjects.Add(companions[2]);
-                return;
-            }
 
             if (shuffletype == CompanionsLocationType.ShuffledExtended)
 			{
