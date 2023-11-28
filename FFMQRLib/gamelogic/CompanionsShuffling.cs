@@ -1,4 +1,5 @@
 ﻿using RomUtilities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -19,11 +20,6 @@ namespace FFMQLib
 	{
 		public void CompanionsShuffle(CompanionsLocationType shuffletype, bool kaelismom, bool apenabled, MT19337 rng)
 		{
-			if (shuffletype == CompanionsLocationType.Standard || apenabled)
-			{
-				return;
-			}
-
 			List<GameObjectData> companions = new()
 			{ 
 				new GameObjectData()
@@ -75,7 +71,16 @@ namespace FFMQLib
 				(MapRegions.Fireburg, 77)	 // Reuben's House
 			};
 
-			if (shuffletype == CompanionsLocationType.ShuffledExtended)
+            if (shuffletype == CompanionsLocationType.Standard || apenabled)
+            {
+                Rooms.Find(r => r.Id == 17).GameObjects.Add(companions[3]);
+                Rooms.Find(r => r.Id == 24).GameObjects.Add(companions[0]);
+                Rooms.Find(r => r.Id == 39).GameObjects.Add(companions[1]);
+                Rooms.Find(r => r.Id == 77).GameObjects.Add(companions[2]);
+                return;
+            }
+
+            if (shuffletype == CompanionsLocationType.ShuffledExtended)
 			{
 				validRooms.AddRange(new List<(MapRegions, int)>()
 				{
