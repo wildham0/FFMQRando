@@ -106,10 +106,6 @@ namespace FFMQLib
 
 	public partial class Companions
 	{
-		public bool KaeliEnabled { get; set; }
-		public bool TristamEnabled { get; set; }
-		public bool PhoebeEnabled { get; set; }
-		public bool ReubenEnabled { get; set; }
 		public int QuestQuantity { get; set; }
 		public List<Quest> Quests { get; set; }
 		private QuestScriptsManager questsScripts;
@@ -131,17 +127,13 @@ namespace FFMQLib
 		};
 		public void SetQuests(Flags flags, GameInfoScreen screen, MT19337 rng)
 		{
-			KaeliEnabled = true;
-			TristamEnabled = true;
-			PhoebeEnabled = true;
-			ReubenEnabled = true;
 			QuestQuantity = 1;
 			Quests = new();
 			questsScripts = new(0x10, 0xA700);
 
 			if (levelingType == LevelingType.Quests)
 			{
-				CreateStandardQuests();
+				CreateStandardQuests(flags.KaelisMomFightMinotaur);
 			}
 			else if (levelingType == LevelingType.SaveCrystals)
 			{
@@ -149,13 +141,16 @@ namespace FFMQLib
 			}
 			else if (levelingType == LevelingType.QuestsExtended)
 			{
-				CreateExtendedQuests(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin, flags.DoomCastleShortcut, rng);
+				CreateExtendedQuests(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin, flags.DoomCastleShortcut, flags.KaelisMomFightMinotaur, rng);
 			}
+
+            var availablecompanions = Available.Where(c => c.Value).Select(c => c.Key).ToList();
+			Quests = Quests.Where(q => availablecompanions.Contains(q.Companion)).ToList();
 
 			GenerateQuestsScripts();
 			AddQuestsToGameInfoScreen(screen);
 		}
-		private void CreateStandardQuests()
+		private void CreateStandardQuests(bool kaelismom)
 		{
 			Quests.Add(new Quest()
 			{
@@ -163,7 +158,7 @@ namespace FFMQLib
 				Gameflag = NewGameFlagsList.KaeliQuest1,
 				Quantity = 0,
 				Companion = CompanionsId.Kaeli,
-				Description = "Give Elixir to\n  poisoned Kaeli."
+				Description = kaelismom ? "Give Elixir to\n  poisoned Kaeli's Mom." : "Give Elixir to\n  poisoned Kaeli."
 			});
 
 			Quests.Add(new Quest()
@@ -193,7 +188,7 @@ namespace FFMQLib
 				Description = "Visit Mine with Reuben and\n  return to Fireburg."
 			});
 		}
-		private void CreateExtendedQuests(bool skycoinfragment, bool darkkingshorcut, MT19337 rng)
+		private void CreateExtendedQuests(bool skycoinfragment, bool darkkingshorcut, bool kaelismom, MT19337 rng)
 		{
 			int easyminibossesqty = rng.Between(2, 3);
 			int mediumminibossesqty = rng.Between(4, 5);
@@ -213,7 +208,7 @@ namespace FFMQLib
 
 			List<Quest> availableQuests = new()
 			{
-				new Quest(QuestsId.CureKaeli, 0, QuestRating.Hard, CompanionsId.Kaeli, "Give Elixir to\n  poisoned Kaeli."),
+				new Quest(QuestsId.CureKaeli, 0, QuestRating.Hard, CompanionsId.Kaeli, kaelismom ? "Give Elixir to\n  poisoned Kaeli's Mom." : "Give Elixir to\n  poisoned Kaeli."),
 				new Quest(QuestsId.VisitBoneDungeon, 0, QuestRating.Medium, CompanionsId.Tristam, "Visit Bone Dungeon with\n  Tristam & go to Fireburg."),
 				new Quest(QuestsId.VisitWintryCave, 0, QuestRating.Medium, CompanionsId.Phoebe, "Visit Wintry Cave with\n  Phoebe and go to Windia."),
 				new Quest(QuestsId.VisitMine, 0, QuestRating.Easy, CompanionsId.Reuben, "Visit Mine with Reuben and\n  return to Fireburg."),
@@ -245,7 +240,7 @@ namespace FFMQLib
 				new Quest(QuestsId.DefeatQtyMinibosses, hardminibossesqty, QuestRating.Hard, $"Defeat {hardminibossesqty} Minibosses.\n"),
 				new Quest(QuestsId.SaveArion, 0, QuestRating.Medium, $"Save Arion.\n"),
 				new Quest(QuestsId.ThawAquaria, 0, QuestRating.Medium, $"Thaw Aquaria.\n"),
-				new Quest(QuestsId.VisitChocobo, 0, QuestRating.Medium, $"Visit the Chocobo\n  in Winda."),
+				new Quest(QuestsId.VisitChocobo, 0, QuestRating.Medium, $"Visit the Chocobo\n  in Windia."),
 				new Quest(QuestsId.VisitLightTemple, 0, QuestRating.Medium, $"Visit the box in\n  the Light Temple.\n"),
 				new Quest(QuestsId.VisitPointlessLedge, 0, QuestRating.Medium, $"Visit the Pointless Ledge\n  in Lava Dome."),
 				new Quest(QuestsId.VisitTreeHouses, 0, QuestRating.Medium, $"Someone is hiding in the\n  Alive Forest treehouses."),

@@ -27,7 +27,41 @@ namespace FFMQLib
 		[Description("Benjamin Level + 10")]
 		BenPlus10,
 	}
-	public class LevelThreshold
+	public enum StartingCompanionType : int
+	{
+		[Description("None")]
+		None = 0,
+		[Description("Kaeli")]
+		Kaeli,
+		[Description("Tristam")]
+		Tristam,
+		[Description("Phoebe")]
+		Phoebe,
+		[Description("Reuben")]
+		Reuben,
+		[Description("Random")]
+		Random,
+		[Description("Random+None")]
+		RandomPlusNone,
+	}
+    public enum AvailableCompanionsType : int
+    {
+        [Description("0")]
+        Zero = 0,
+        [Description("1")]
+        One,
+        [Description("2")]
+        Two,
+        [Description("3")]
+        Three,
+        [Description("4")]
+        Four,
+        [Description("Random 1-4")]
+        Random14,
+        [Description("Random 0-4")]
+        Random04,
+    }
+    public class LevelThreshold
 	{ 
 		public int Level { get; set; }
 		public int OffenseSpellsCount => Spells.Count(s => s >= SpellFlags.QuakeBook);
@@ -167,15 +201,21 @@ namespace FFMQLib
 	{
 		private List<Companion> companions;
 		protected LevelingType levelingType;
+		public CompanionsId StartingCompanion { get; set; }
+		public Dictionary<CompanionsId, LocationIds> Locations { get; set; }
+        public Dictionary<CompanionsId, bool> Available { get; set; }
 
-		public Companion this[CompanionsId companion]
+        public Companion this[CompanionsId companion]
 		{
 			get => companions[((int)companion) - 1];
 		}
+		//private List<CompanionsId> companionslist = new() { CompanionsId.Kaeli, CompanionsId.Tristam, CompanionsId.Phoebe, CompanionsId.Reuben };
 		public Companions(LevelingType type)
 		{
 			levelingType = type;
 			companions = new();
+
+			StartingCompanion = CompanionsId.None;
 
 			Companion kaeli = new Companion
 			{
@@ -274,6 +314,114 @@ namespace FFMQLib
 			};
 
 			companions = new() { kaeli, tristam, phoebe, reuben };
+
+			Available = new()
+			{
+				{ CompanionsId.Kaeli, false },
+				{ CompanionsId.Tristam, false },
+				{ CompanionsId.Phoebe, false },
+				{ CompanionsId.Reuben, false },
+			};
+
+        }
+		public void SetStartingCompanion(StartingCompanionType companionoption, MT19337 rng)
+		{
+			List<CompanionsId> companions = new()
+			{
+				CompanionsId.Kaeli,
+				CompanionsId.Tristam,
+				CompanionsId.Phoebe,
+				CompanionsId.Reuben
+			};
+
+			Dictionary<StartingCompanionType, CompanionsId> selectedcompanions = new()
+			{
+				{ StartingCompanionType.Random, rng.PickFrom(companions) },
+				{ StartingCompanionType.RandomPlusNone, rng.PickFrom(companions.Append(CompanionsId.None).ToList()) },
+				{ StartingCompanionType.None, CompanionsId.None },
+				{ StartingCompanionType.Kaeli, CompanionsId.Kaeli },
+				{ StartingCompanionType.Tristam, CompanionsId.Tristam },
+				{ StartingCompanionType.Phoebe, CompanionsId.Phoebe },
+				{ StartingCompanionType.Reuben, CompanionsId.Reuben },
+			};
+
+			StartingCompanion = selectedcompanions[companionoption];
+		}
+        public void SetAvailableCompanions(AvailableCompanionsType companionoption, MT19337 rng)
+        {
+            List<CompanionsId> companions = new()
+            {
+                CompanionsId.Kaeli,
+                CompanionsId.Tristam,
+                CompanionsId.Phoebe,
+                CompanionsId.Reuben
+            };
+
+			Dictionary<AvailableCompanionsType, int> selectedcompanions = new()
+			{
+				{ AvailableCompanionsType.Zero, 0 },
+				{ AvailableCompanionsType.One, 1 },
+				{ AvailableCompanionsType.Two, 2 },
+				{ AvailableCompanionsType.Three, 3 },
+				{ AvailableCompanionsType.Four, 4 },
+				{ AvailableCompanionsType.Random14, rng.Between(1,4) },
+                { AvailableCompanionsType.Random04, rng.Between(0,4) },
+            };
+
+			int companionqty = selectedcompanions[companionoption];
+
+			List<CompanionsId> availablecompanions = new();
+
+			if (StartingCompanion != CompanionsId.None)
+			{
+				availablecompanions.Add(StartingCompanion);
+				companions.Remove(StartingCompanion);
+				companionqty--;
+            }
+
+			for (int i = 0; i < companionqty; i++)
+			{
+				availablecompanions.Add(rng.TakeFrom(companions));
+            }
+
+			foreach (var companion in availablecompanions)
+			{
+				Available[companion] = true;
+			}
+        }
+        public void SetCompanionsLocation(List<Room> rooms)
+		{
+			Locations = new();
+
+			Dictionary<int, LocationIds> locationRooms = new()
+            {
+				{ 17, LocationIds.Foresta },
+				{ 24, LocationIds.SandTemple },
+				{ 39, LocationIds.LibraTemple },
+				{ 77, LocationIds.Fireburg },	 // Reuben's House
+				{ 51, LocationIds.LifeTemple },
+                { 41, LocationIds.Aquaria },
+                { 92, LocationIds.SealedTemple },
+                { 75, LocationIds.WintryTemple },
+                { 123, LocationIds.RopeBridge },
+                { 153, LocationIds.KaidgeTemple },
+                { 154, LocationIds.WindholeTemple },
+                { 185, LocationIds.LightTemple },
+            };
+
+			List<(string name, CompanionsId id)> companions = new()
+			{
+				("Kaeli Companion", CompanionsId.Kaeli),
+                ("Tristam Companion", CompanionsId.Tristam),
+                ("Phoebe Companion", CompanionsId.Phoebe),
+                ("Reuben Companion", CompanionsId.Reuben),
+            };
+
+			foreach (var companion in companions)
+			{
+				var targetroom = rooms.Find(r => r.GameObjects.Select(o => o.Name).ToList().Contains(companion.name));
+				Locations.Add(companion.id, locationRooms[targetroom.Id]);
+            }
 		}
 		public void Write(FFMQRom rom)
 		{
@@ -365,10 +513,10 @@ namespace FFMQLib
 			rom.PutInBank(0x10, 0xA180, Blob.FromHex("08e220c210bf00a5108d0342c230ebebe818ad16427f00a510e8e82860000000c2302080a1c963009003a96300600000187f00a510e8c9639002a96360"));
 
 			// GetStatsHP
-            rom.PutInBank(0x10, 0xA1C0, Blob.FromHex("c2302080a1c968069003a9680660"));
+			rom.PutInBank(0x10, 0xA1C0, Blob.FromHex("c2302080a1c968069003a9680660"));
 
-            // SetEquipSpells, LoadEquipSpells
-            rom.PutInBank(0x10, 0xA200, Blob.FromHex("08e220c210ad9010df00a510b009e8e8e8e8e8e8e880eec230e88a186900a5aaa90400a0b510540010282030a260"));
+			// SetEquipSpells, LoadEquipSpells
+			rom.PutInBank(0x10, 0xA200, Blob.FromHex("08e220c210ad9010df00a510b009e8e8e8e8e8e8e880eec230e88a186900a5aaa90400a0b510540010282030a260"));
 
 			// HealUp
 			rom.PutInBank(0x10, 0xA280, Blob.FromHex("08e220c210ae96108e9410ae9b108e9810ad9d108d9a109ca1102860"));

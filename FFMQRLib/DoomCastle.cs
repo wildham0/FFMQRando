@@ -135,9 +135,7 @@ namespace FFMQLib
 					}
 				}
 
-				mapsritesindex = (byte)MapSpriteSets.MapSpriteSets.Count;
-
-				MapSpriteSets.MapSpriteSets.Add(new MapSpriteSet(
+				mapsritesindex = (byte)MapSpriteSets.Add(new MapSpriteSet(
 					new List<byte> { 0x52, 0x50, 0x56, 0x54, 0x1f, 0x1e },
 					new List<SpriteAddressor> {
 						new SpriteAddressor(1, 0, 0x13, SpriteSize.Tiles16),

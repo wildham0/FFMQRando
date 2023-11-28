@@ -36,7 +36,11 @@ namespace FFMQLib
 		public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
 		public LevelingType CompanionLevelingType { get; set; } = LevelingType.Quests;
 		public SpellbookType CompanionSpellbookType { get; set; } = SpellbookType.Standard;
-		public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;
+		public StartingCompanionType StartingCompanion { get; set; } = StartingCompanionType.None;
+        public AvailableCompanionsType AvailableCompanions { get; set; } = AvailableCompanionsType.Four;
+		public CompanionsLocationType CompanionsLocations { get; set; } = CompanionsLocationType.Standard;
+        public bool KaelisMomFightMinotaur { get; set; } = false;
+        public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;
 		public bool ShuffleBattlefieldRewards { get; set; } = false;
 		public bool RandomStartingWeapon { get; set; } = false;
 		public bool ProgressiveGear { get; set; } = false;

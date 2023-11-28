@@ -61,7 +61,15 @@ namespace FFMQLib
 	{
 		public void SetSpellbooks(SpellbookType spellbooktype, GameInfoScreen infoscreen, MT19337 rng)
 		{
-			List<(SpellFlags spell, List<(CompanionsId companion, int weight)>)> weightlist = new()
+            var availablecompanions = Available.Where(c => c.Value).Select(c => c.Key).ToList();
+            int companioncount = availablecompanions.Count;
+
+			if (companioncount == 0)
+			{
+				return;
+			}
+
+            List<(SpellFlags spell, List<(CompanionsId companion, int weight)> weights)> weightlist = new()
 			{
 				(SpellFlags.ExitBook, new() { (CompanionsId.Kaeli, 1), (CompanionsId.Tristam, 7), (CompanionsId.Reuben, 1), (CompanionsId.Phoebe, 1),}),
 				(SpellFlags.CureBook, new() { (CompanionsId.Kaeli, 3), (CompanionsId.Tristam, 2), (CompanionsId.Reuben, 1), (CompanionsId.Phoebe, 4),}),
@@ -76,10 +84,11 @@ namespace FFMQLib
 				(SpellFlags.FlareSeal, new() { (CompanionsId.Kaeli, 1), (CompanionsId.Tristam, 4), (CompanionsId.Reuben, 4), (CompanionsId.Phoebe, 1),}),
 			};
 
-			//List<(SpellFlags spell, List<int> levelrange, CompanionsId companion)> spelllist = new();
+			weightlist.ForEach(s => s.weights.RemoveAll(w => !availablecompanions.Contains(w.companion)));
+
 			List<(CompanionsId companion, SpellFlags spell, int level)> spelllist = new();
 
-			if (spellbooktype == SpellbookType.Standard || spellbooktype == SpellbookType.Extended)
+            if (spellbooktype == SpellbookType.Standard || spellbooktype == SpellbookType.Extended)
 			{
 				spelllist = new()
 				{
@@ -106,7 +115,10 @@ namespace FFMQLib
 						spelllist.Add((CompanionsId.Kaeli, SpellFlags.MeteorSeal, rng.Between(35, 41)));
 					}
 				}
-			}
+
+				// Remove spells for unavaiable companions
+				spelllist = spelllist.Where(s => availablecompanions.Contains(s.companion)).ToList();
+            }
 			else if(spellbooktype == SpellbookType.RandomBalanced || spellbooktype == SpellbookType.RandomChaos)
 			{
 				List<List<int>> levelrange = new()
@@ -125,21 +137,21 @@ namespace FFMQLib
 					new() { SpellFlags.ExitBook },
 				};
 
-				List<int> counts = new()
+                List<int> counts = new()
 				{
-					rng.Between(3, 6),
-					rng.Between(4, 8),
-					rng.Between(2, 4),
+					rng.Between(1 * companioncount, 2 * companioncount),
+                    rng.Between(1 * companioncount, 2 * companioncount),
+                    rng.Between(Max(1, (int)(0.5 * companioncount)), companioncount),
 					rng.Between(0, 1)
 				};
 				
 				List<(SpellFlags spell, List<CompanionsId> weight)> collapsedlist = weightlist.Select(x => (x.spell, x.Item2.SelectMany(c => Enumerable.Repeat(c.companion, c.weight)).ToList())).ToList();
 
-				if (spellbooktype == SpellbookType.RandomChaos)
+                if (spellbooktype == SpellbookType.RandomChaos)
 				{
 					levelrange = new() { Enumerable.Range(1, 41).Concat(Enumerable.Range(1, 35)).ToList() };
 					spells = new() { spells.SelectMany(s => s).ToList() };
-					counts = new() { rng.Between(6, 20)};
+					counts = new() { rng.Between((int)(2.5 * companioncount), 6 * companioncount) };
 					collapsedlist = weightlist.Select(x => (x.spell, x.Item2.Select(c => c.companion).ToList())).ToList();
 				}
 

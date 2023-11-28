@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.5.35";
+		public static string Version = "1.5.36";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -96,8 +96,12 @@ namespace FFMQLib
 			EnemiesStats.ShuffleResistWeakness(flags.ShuffleResWeakType, GameInfoScreen, rng);
 
 			// Companions
-			Companions.SetSpellbooks(flags.CompanionSpellbookType, GameInfoScreen, rng);
+			GameLogic.CompanionsShuffle(flags.CompanionsLocations, flags.KaelisMomFightMinotaur, apconfigs.ApEnabled, rng);
+            Companions.SetStartingCompanion(flags.StartingCompanion, rng);
+            Companions.SetAvailableCompanions(flags.AvailableCompanions, rng);
+            Companions.SetSpellbooks(flags.CompanionSpellbookType, GameInfoScreen, rng);
 			Companions.SetQuests(flags, GameInfoScreen, rng);
+            Companions.SetCompanionsLocation(GameLogic.Rooms);
 
 			// Overworld
 			Overworld.OpenNodes(flags);
@@ -120,7 +124,7 @@ namespace FFMQLib
 
 			SetStartingItems(itemsPlacement);
 			MapObjects.UpdateChests(itemsPlacement);
-			UpdateScripts(flags, itemsPlacement, Overworld.StartingLocation, rng);
+			UpdateScripts(flags, itemsPlacement, Overworld.StartingLocation, apconfigs.ApEnabled, rng);
 			ChestsHacks(flags, itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
 

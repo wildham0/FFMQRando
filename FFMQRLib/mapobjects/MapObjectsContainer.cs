@@ -29,6 +29,18 @@ namespace FFMQLib
 		[Description("0%")]
 		None,
 	}
+	public class AreaAttributes
+	{ 
+		// 0
+		// 1 - MapId
+		// 2 - SpriteSet
+		// 7 - Location Name
+
+	
+	
+	
+	}
+
 
 	public partial class ObjectList
 	{

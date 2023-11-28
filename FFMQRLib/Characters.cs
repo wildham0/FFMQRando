@@ -95,27 +95,29 @@ namespace FFMQLib
 
             var companionSwitch = new ScriptBuilder(new List<string>{
 				$"050f{(int)CompanionsId.Kaeli:X2}[06]",
-				$"2e{(int)NewGameFlagsList.KaeliCured:X2}[04]",                  // 01 is Elixir Quest done?
+                $"2e{(int)NewGameFlagsList.KaeliCured:X2}[04]",                  // 01 is Elixir Quest done?
 				$"2e{(int)NewGameFlagsList.ShowSickKaeli:X2}[05]",               // 02 No, is Kaeli Sick?
 				$"23{(int)NewGameFlagsList.ShowForestaKaeli:X2}00",              // 03 No, show Foresta
 				$"23{(int)NewGameFlagsList.ShowWindiaKaeli:X2}",                 // 04 then available in Windia
 				"00",															 // 05
 				$"050f{(int)CompanionsId.Tristam:X2}[11]",
-				tristamline1,
-				tristamline2,
-				tristamline3,
-				"00",												             // 10
+                tristamline1,
+                tristamline2,
+                tristamline3,
+                "00",												             // 10
 				$"050f{(int)CompanionsId.Phoebe:X2}[16]",
-				$"2e{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[14]",       // 12 is WintryCave Quest done?
+                $"2e{(int)NewGameFlagsList.PhoebeReturnedToWindia:X2}[14]",      // 12 is WintryCave Quest done?
 				$"23{(int)NewGameFlagsList.ShowLibraTemplePhoebe:X2}00",         // 13 No, show in Libra Temple
 				$"23{(int)NewGameFlagsList.ShowWindiaPhoebe:X2}",		         // 14 Yes, show in Windia
 				"00",												             // 15
-				$"050f{(int)CompanionsId.Reuben:X2}[18]",
-				$"23{(int)NewGameFlagsList.ShowFireburgReuben:X2}00",            // 17 Reuben is always in Fireburg
-				"00",
-				});
+				$"050f{(int)CompanionsId.Reuben:X2}[20]",
+                $"2e{(int)NewGameFlagsList.ReubenReturnedToFireburg:X2}[19]",    // 12 is Mine Quest done?
+                $"23{(int)NewGameFlagsList.ShowFireburgReuben1:X2}00",           // 17 Reuben is always in Fireburg
+				$"23{(int)NewGameFlagsList.ShowFireburgReuben2:X2}00",
+                "00",
+                });
 
-			companionSwitch.Update(0xFF80);
+            companionSwitch.Update(0xFF80);
 			companionSwitch.Write(this);
 
 			PutInBank(0x00, 0x9e8c, Blob.FromHex("00ff"));

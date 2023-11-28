@@ -87,28 +87,39 @@ namespace FFMQLib
 
 		// Kaeli new flags
 		ShowForestaKaeli = 0x62,
-		ShowSickKaeli = 0x7D,
-		ShowWindiaKaeli = 0x68,
-		KaeliCured = 0x1F,
+        ShowLevelForestKaeli = 0xBF,
+        EnableMinotaurFight = 0x63,
+        ShowSickKaeli = 0x7D,
+        KaeliCured = 0x1F,
+        ShowWindiaKaeli = 0x68,
 		KaeliSecondItemGiven = 0xE8,
+        KaeliOpenedPath = 0xE3,
+        ShowForestaKaelisMom = 0xBA,
+        ShowWindiaKaelisMom = 0xBD,
 
-		// Tristam new flags
-		ShowSandTempleTristam = 0x5A,
-		TristamBoneDungeonItemGiven = 0xC9,
+        // Tristam new flags
+        ShowSandTempleTristam = 0x5A,
+        ShowBoneDungeonTristam = 0xB9,
+        TristamBoneDungeonItemGiven = 0xC9,
 		ShowFireburgTristam = 0x53,
 		TristamFireburgItemGiven = 0xE9,
 
 		// Phoebe new flags
 		ShowLibraTemplePhoebe = 0x4E,
-		PhoebeWintryItemGiven = 0xEA,
-		ShowWindiaPhoebe = 0x7E,
+        ShowWintryCavePhoebe = 0xBE,
+        PhoebeWintryItemGiven = 0xEA,
+        PhoebeReturnedToWindia = 0xC0,
+        ShowWindiaPhoebe = 0x7E,
 
 		// Reuben new flags
-		ShowFireburgReuben = 0x5F,
-		ReubenMineItemGiven = 0xEB,
+		ShowFireburgReuben1 = 0x5F,
+        ShowMineReuben = 0xBB,
+        ReubenMineItemGiven = 0xEB,
+        ReubenReturnedToFireburg = 0xBF,
+        ShowFireburgReuben2 = 0xBC,
 
-		// Arion new flags
-		ArionItemGiven = 0xEC,
+        // Arion new flags
+        ArionItemGiven = 0xEC,
 
 		// Chests flags
 		TristamChestUnopened = 0xED,
@@ -562,10 +573,10 @@ namespace FFMQLib
 		LightTempleQuest,
 		MountGaleQuest,
 		EnterWindiaInnBedroom,
+        KaeliCuttingTree,
+    }
 
-	}
-
-	public enum TalkScriptsList : int
+    public enum TalkScriptsList : int
 	{
 		Unknown00 = 0, // Fight Skullrus Rex, probably  default?
 		Unknown01,
@@ -651,7 +662,13 @@ namespace FFMQLib
 		VenusChest = 0x7B,
 		// Extended Talk Scripts
 		TreeHouseQuestNPC = 0x80, 
-		KaeliCuttingTree
+		KaeliCuttingTree,
+		TristamBoneDungeon,
+		PhoebeWintryCave,
+		ReubenMine,
+		ReubenFireburg2,
+		KaelisMomQuest,
+		KaelisMomWindia
 	}
 	public enum BattlefieldRewardType : byte
 	{

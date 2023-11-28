@@ -110,7 +110,13 @@ namespace FFMQLib
 			Palette = palette;
 			AdressorList = adressors;
 		}
-		public List<byte> GetDataArray()
+        public MapSpriteSet(MapSpriteSet settocopyfrom)
+        {
+            LoadMonsterSprites = settocopyfrom.LoadMonsterSprites;
+            Palette = settocopyfrom.Palette.ToList();
+            AdressorList = settocopyfrom.AdressorList.Select(a => new SpriteAddressor(a.Row, a.RowOffset, a.SpriteGraphic, a.Size)).ToList();
+        }
+        public List<byte> GetDataArray()
 		{
 			List<byte> positionList = new() { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 			
@@ -129,21 +135,30 @@ namespace FFMQLib
 		}
 		public void DeleteAddressor(int position)
 		{
-			AdressorList.RemoveAll(x => x.Position == position);
+			AdressorList.RemoveAll(x => x.Row == position);
 		}
-		public void AddAddressor(int position, byte sprite, SpriteSize size)
+		public void MoveAddressor(int from, int to)
 		{
-			if (AdressorList.Where(x => x.Position == position).Any())
+			var targetAdressors = AdressorList.Where(x => x.Row == from).ToList();
+
+			if (targetAdressors.Any())
 			{
-				throw new Exception("Position " + position + " is already taken.");
+				targetAdressors.First().Row = to;
+			}
+        }
+		public void AddAddressor(int row, int offset, byte sprite, SpriteSize size)
+		{
+			if (AdressorList.Where(x => x.Row == row).Any())
+			{
+				throw new Exception("Position " + row + " is already taken.");
 			}
 
-			AdressorList.Add(new SpriteAddressor(position, sprite, size));
+			AdressorList.Add(new SpriteAddressor(row, offset, sprite, size));
 		}
 	}
 	public class MapSprites
 	{ 
-		public List<MapSpriteSet> MapSpriteSets { get; set; }
+		private List<MapSpriteSet> MapSpriteSets { get; set; }
 		
 		private int MapSpriteSetPointersAddress = 0x8892;
 		private int MapSpriteSetBaseAddress = 0x88FC;
@@ -166,7 +181,17 @@ namespace FFMQLib
 				MapSpriteSets.Add(new MapSpriteSet(rom.GetFromBank(MapSpriteSetBank, MapSpriteSetPointersAddress + (i * 2), 2).ToUShorts()[0], MapSpriteSetLongBaseAddress, rom));
 			}
 		}
-		public void Write(FFMQRom rom)
+        public MapSpriteSet this[int id]
+        {
+            get => MapSpriteSets[id];
+            set => MapSpriteSets[id] = value;
+        }
+		public int Add(MapSpriteSet newmapspriteset)
+		{
+			MapSpriteSets.Add(newmapspriteset);
+			return (MapSpriteSets.Count - 1);
+        }
+        public void Write(FFMQRom rom)
 		{
 			ushort currentPosition = 0;
 			List<ushort> pointers = new();

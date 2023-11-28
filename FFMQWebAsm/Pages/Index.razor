@@ -166,10 +166,14 @@
 
         <Container Class="flagBox">
             <Container Class="flagColumn">
-                <EnumFlag UsePreset=usePreset Name="Leveling Type" @bind-Value="flags.CompanionLevelingType" Tooltip="Set how companions gain levels.<br/><br/>Quest: Complete each companion's individual quest for them to promote to their second version.<br/><br/>Benjamin Level: Companions' level tracks Benjamin's." />
-                <EnumFlag UsePreset=usePreset Name="Spellbook Type" @bind-Value="flags.CompanionSpellbookType" Tooltip="Update companions' spellbook.<br/><br/>Standard: Original game spellbooks.<br/><br/>Standard Extended: Add some extra spells. Tristam gains Exit and Quake and Reuben gets Blizzard.<br/><br/>Random Balanced: Randomize the spellbooks with an appropriate mix of spells.<br/><br/>Random Chaos: Randomize the spellbooks in total free-for-all." />
+                <EnumFlag UsePreset=usePreset Name="Starting Companion" @bind-Value="flags.StartingCompanion" Tooltip="Set a companion to start with.<br/><br/>Random: Randomly select one companion.<br/><br/>Random+None: Randomly select a companion, with the possibility of none selected." />
+                <EnumFlag UsePreset=usePreset Name="Available Companions" @bind-Value="flags.AvailableCompanions" Tooltip="Select randomly which companions will join your party. Unavailable companions can still be reached to get their items and complete their quests if needed.<br/><br/>Note: If a Starting Companion is selected, it will always be available, regardless of this setting." />
+                <EnumFlag UsePreset=usePreset Name="Companions's Locations" @bind-Value="flags.CompanionsLocations" Tooltip="Set the primary location of companions. Their secondary location is always the same.<br/><br/>Standard: Companions will be at the same loations as in the original game.<br/><br/>Shuffled: Companions' locations are shuffled amongst themselves.<br/><br/>Shuffled Extended: Add all the Temples, as well as Phoebe's House and the Rope Bridge as possible locations." />
+                <BoolFlag UsePreset=usePreset Name="Kaeli's Mom Fight Minotaur" @bind-Value="flags.KaelisMomFightMinotaur" Tooltip="Transfer Kaeli's requirements (Tree Wither, Elixir) and the two items she's giving to her mom. Kaeli will be available to join the party right away without the Tree Wither." />
             </Container>
             <Container Class="flagColumn">
+                <EnumFlag UsePreset=usePreset Name="Leveling Type" @bind-Value="flags.CompanionLevelingType" Tooltip="Set how companions gain levels.<br/><br/>Quest: Complete each companion's individual quest for them to promote to their second version.<br/><br/>Benjamin Level: Companions' level tracks Benjamin's." />
+                <EnumFlag UsePreset=usePreset Name="Spellbook Type" @bind-Value="flags.CompanionSpellbookType" Tooltip="Update companions' spellbook.<br/><br/>Standard: Original game spellbooks.<br/><br/>Standard Extended: Add some extra spells. Tristam gains Exit and Quake and Reuben gets Blizzard.<br/><br/>Random Balanced: Randomize the spellbooks with an appropriate mix of spells.<br/><br/>Random Chaos: Randomize the spellbooks in total free-for-all." />
             </Container>
         </Container>
     </Container>
