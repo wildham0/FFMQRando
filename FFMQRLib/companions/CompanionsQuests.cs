@@ -350,7 +350,7 @@ namespace FFMQLib
 			//rom.PutInBank(0x10, 0xA390, Blob.FromHex("08e220ad9e0ec904d0032240a310286b"));
 
 			// Items Qty Script Handler
-			rom.PutInBank(0x10, 0xA370, Blob.FromHex("08e220c210a20000bd9e0ec913f00ce8e8e0080090f29c9e00286be8bd9e0e8d9e00286b"));
+			rom.PutInBank(0x10, 0xA370, Blob.FromHex("08e220c210a200008e9e008ea000bd9e0ec913f009e8e8e0080090f2286be8bd9e0e8d9e00286b"));
 			rom.PutInBank(0x03, 0x8A24, Blob.FromHex("07" + questsScripts.GetAddress(QuestScriptId.CollectQty) + "1000"));
 
 			// Battlefield Script Handler
