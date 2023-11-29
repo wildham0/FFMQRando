@@ -48,7 +48,7 @@ namespace FFMQLib
 						"057C02[13]",   // looking down
 						"057C03[14]",   // looking left
 						$"2C4{(int)reubendata.GameObject:X1}46",       // hide
-						"0880FF",       // update current companion flags
+						CompanionSwitchRoutine,       // update current companion flags
 						$"05E6{(int)CompanionsId.Reuben:X2}085B85", // join
 						$"2B{(int)NewGameFlagsList.ShowFireburgReuben1:X2}2B{(int)NewGameFlagsList.ShowFireburgReuben2:X2}", // update tristam flag
 						"00",
@@ -100,7 +100,7 @@ namespace FFMQLib
                     {
                         TextToHex(rng.PickFrom(reubenJoinDialogueList)) + "36",
                         $"2A1{reuben2id:X1}434{reuben2id:X1}46FFFF",
-                        "0880FF",
+                        CompanionSwitchRoutine,
                         $"05E6{(int)CompanionsId.Reuben:X2}075B8503",
                         $"2B{(int)NewGameFlagsList.ShowFireburgReuben2:X2}",
                         "00"

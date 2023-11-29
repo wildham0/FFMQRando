@@ -24,7 +24,7 @@ namespace FFMQLib
 						"057C02[13]",   // looking down
 						"057C03[14]",   // looking left
 						$"2C4{(int)phoebedata.GameObject:X1}46",       // hide
-						"0880FF",       // update current companion flags
+						CompanionSwitchRoutine,       // update current companion flags
 						$"05E6{(int)CompanionsId.Phoebe:X2}085B85", // join
 						$"2B{(int)NewGameFlagsList.ShowLibraTemplePhoebe:X2}", // update  flag
 						"00",
@@ -58,7 +58,7 @@ namespace FFMQLib
                         TextToHex("Finally, my quest to slay the Dark King is coming to an end! Come, my assistant.") + "36",
                         "2C1243",
                         "2C4246",
-                        "0880FF",
+                        CompanionSwitchRoutine,
                         $"05E6{(int)CompanionsId.Phoebe:X2}085B85",
                         $"2B{(int)NewGameFlagsList.ShowWindiaPhoebe:X2}",
                         "00"

@@ -212,10 +212,15 @@ namespace FFMQLib
 					else
 					{
 						MapSpriteSets[locationdata.MapSpritesSet].Palette[templepalette[templecount]] = companion.Palette;
-                        companionobject.Palette = (byte)templepalette[templecount];
+						companionobject.Palette = (byte)templepalette[templecount];
 						templecount++;
 					}
 				}
+				else if (Companions.Locations[companion.Name] == LocationIds.Fireburg && companion.Name != CompanionsId.Reuben)
+				{
+                    MapSpriteSets[locationdata.MapSpritesSet].Palette[3] = companion.Palette;
+					companionobject.Palette = 0x03;
+                }
 				else
 				{
 					MapSpriteSets[locationdata.MapSpritesSet].Palette[0] = companion.Palette;

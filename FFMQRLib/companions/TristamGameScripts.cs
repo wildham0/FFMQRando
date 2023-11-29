@@ -24,7 +24,7 @@ namespace FFMQLib
 						"057C02[13]",   // looking down
 						"057C03[14]",   // looking left
 						$"2C4{(int)tristamdata.GameObject:X1}46",       // hide
-						"0880FF",       // update current companion flags
+						CompanionSwitchRoutine,       // update current companion flags
 						$"05E6{(int)CompanionsId.Tristam:X2}085B85", // join
 						$"2B{(int)NewGameFlagsList.ShowSandTempleTristam:X2}2B{(int)NewGameFlagsList.ShowFireburgTristam:X2}", // update tristam flag
 						"00",
@@ -76,18 +76,19 @@ namespace FFMQLib
 					new ScriptBuilder(new List<string>
 					{
 						"2C1102",
-						$"050f{(int)CompanionsId.Tristam:X2}[18]",
+						$"050f{(int)CompanionsId.Tristam:X2}[19]",
 						 (tristamquest != NewGameFlagsList.None) ? $"2E{(int)tristamquest:X2}[10]" : "0A[10]",
-						$"050B{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[10]",
+						$"050B{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[09]",
 						"2A3B461B431B443054FFFF",
 						"1A50" + TextToHex("That was some good dungeon pillaging back there. Let's get some drinks!") + "36",
 						Companions.GetQuestString(QuestsId.VisitBoneDungeon),
-						"08[15]",
+						"08[16]",
 						"2A1B414B46FFFF",
 						"00",
-						$"2E{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}[18]",
-						"2A3B461B431B443054FFFF",
-						"08[15]",
+						$"2E{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}[19]",
+                        $"050B{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[19]",
+                        "2A3B461B431B443054FFFF",
+						"08[16]",
 						"2A1B414B46FFFF",
 						"00",
 						"1A50" + TextToHex("Tell you what, I'll give you this and you cover my tab, deal?") + "36",
@@ -118,7 +119,7 @@ namespace FFMQLib
 						"057C03[17]",
 						"057C00[18]",
 						"2C4146",
-						"0880FF",
+                        CompanionSwitchRoutine,
 						$"05E6{(int)CompanionsId.Tristam:X2}085B85",
 						$"2B{(int)NewGameFlagsList.ShowFireburgTristam:X2}",
 						"00",

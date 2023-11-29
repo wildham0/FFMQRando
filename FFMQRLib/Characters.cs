@@ -31,6 +31,7 @@ namespace FFMQLib
 	}
 	public partial class FFMQRom : SnesRom
 	{
+        public const string CompanionSwitchRoutine = "07408411";
 		public void SetLevelingCurve(LevelingCurve levelingcurve)
 		{
 			byte xpconst1 = 0x3d;
@@ -81,7 +82,7 @@ namespace FFMQLib
 			PutInBank(0x00, 0xff00, Blob.FromHex("2200841160"));
 
 			// Switch companion code
-			string tristamline1 = $"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[09]"; // 07 Tristam Quest done?
+			string tristamline1 = $"2e{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}[09]"; // 07 Tristam Quest done?
             string tristamline2 = $"23{(int)NewGameFlagsList.ShowSandTempleTristam:X2}00";         // 08 No, show at Sand Temple
             string tristamline3 = $"23{(int)NewGameFlagsList.ShowFireburgTristam:X2}";             // 09 Yes, show in Fireburg
 
@@ -117,8 +118,7 @@ namespace FFMQLib
                 "00",
                 });
 
-            companionSwitch.Update(0xFF80);
-			companionSwitch.Write(this);
+            companionSwitch.WriteAt(0x11, 0x8440, this);
 
 			PutInBank(0x00, 0x9e8c, Blob.FromHex("00ff"));
 		}

@@ -57,7 +57,7 @@ namespace FFMQLib
 						"057C02[17]",   // looking down
 						"057C03[18]",   // looking left
 						$"2C4{(int)kaelidata.GameObject:X1}46",       // hide					"2C4146",
-						"0880FF",
+						CompanionSwitchRoutine,
 						$"05E6{(int)CompanionsId.Kaeli:X2}085B85",
 						$"2B{(int)NewGameFlagsList.ShowForestaKaeli:X2}2B6C",
 						"00",
@@ -79,7 +79,7 @@ namespace FFMQLib
 						"057C02[13]",   // looking down
 						"057C03[14]",   // looking left
 						$"2C4{(int)kaelidata.GameObject:X1}46",       // hide					"2C4146",
-						"0880FF",
+						CompanionSwitchRoutine,
 						$"05E6{(int)CompanionsId.Kaeli:X2}085B85",
 						$"2B{(int)NewGameFlagsList.ShowForestaKaeli:X2}2B6C",
 						"00",
@@ -152,7 +152,7 @@ namespace FFMQLib
 		                "057C0C[14]",
 			            "057C0E[15]",
 				        "2C4246",
-					    "0880FF",
+                        CompanionSwitchRoutine,
 	                    $"05E6{(int)CompanionsId.Kaeli:X2}085B85",
 		                $"2B{(int)NewGameFlagsList.ShowSickKaeli:X2}23{(int)NewGameFlagsList.KaeliCured:X2}",
 			            "00",
@@ -174,7 +174,10 @@ namespace FFMQLib
                         "1A16" + TextToHex("Medicine? I can still serve The Void in this Plane. My pilgrimage to Windia begins.") + "36",
 						"2A72424246FFFF",
                         Companions.GetQuestString(QuestsId.CureKaeli),
-                        $"2B{(int)NewGameFlagsList.ShowSickKaeli:X2}23{(int)NewGameFlagsList.KaeliCured:X2}23{(int)NewGameFlagsList.ShowWindiaKaelisMom:X2}23{(int)NewGameFlagsList.ShowWindiaKaeli}2B{(int)NewGameFlagsList.ShowForestaKaeli:X2}",
+                        $"2B{(int)NewGameFlagsList.ShowSickKaeli:X2}23{(int)NewGameFlagsList.KaeliCured:X2}23{(int)NewGameFlagsList.ShowWindiaKaelisMom:X2}",
+                        $"050f{(int)CompanionsId.Kaeli:X2}[10]",
+						"00",
+                        $"23{(int)NewGameFlagsList.ShowWindiaKaeli:X2}2B{(int)NewGameFlagsList.ShowForestaKaeli:X2}",
                         "00",
                     }));
             }
@@ -247,7 +250,7 @@ namespace FFMQLib
                     kaelismom ? "" : "2C8544",
                     $"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliForesta]:X2}0162",
                     $"23{(int)NewGameFlagsList.ShowSickKaeli:X2}",
-                    (mode == KaeliMode.Standard) ? "0880FF61" : "",
+                    (mode == KaeliMode.Standard) ? CompanionSwitchRoutine + "61" : "",
                     kaelismom ? "2A65424546FFFF" : "2A1640454666424646FFFF",
                     "236D",
                     "231E",
@@ -305,7 +308,7 @@ namespace FFMQLib
 						"057C03[17]",
 						"057C01[18]",
 						"2C4046",
-						"0880FF",
+                        CompanionSwitchRoutine,
 						$"05E6{(int)CompanionsId.Kaeli:X2}085B85",
 						$"2B{(int)NewGameFlagsList.ShowWindiaKaeli:X2}",
 						"00",
@@ -362,7 +365,7 @@ namespace FFMQLib
 						"057C03[11]",
 						"057C01[12]",
 						"2C4046",
-						"0880FF",
+                        CompanionSwitchRoutine,
 						$"05E6{(int)CompanionsId.Kaeli:X2}085B85",
 						$"2B{(int)NewGameFlagsList.ShowWindiaKaeli:X2}",
 						"00",
