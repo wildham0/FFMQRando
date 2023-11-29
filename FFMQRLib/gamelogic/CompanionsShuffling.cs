@@ -18,9 +18,10 @@ namespace FFMQLib
 
 	public partial class GameLogic
 	{
-		public void CompanionsShuffle(CompanionsLocationType shuffletype, bool kaelismom, bool apenabled, MT19337 rng)
+		public void CompanionsShuffle(CompanionsLocationType shuffletype, bool kaelismom, ApConfigs apconfigs, MT19337 rng)
 		{
-            if (shuffletype == CompanionsLocationType.Standard || apenabled)
+            // [AP1.4] 1.4 temporary fix until api/apworld are updated
+            if ((shuffletype == CompanionsLocationType.Standard && !apconfigs.ApEnabled) || (apconfigs.ApEnabled && apconfigs.Version == "1.5"))
             {
                 return;
             }

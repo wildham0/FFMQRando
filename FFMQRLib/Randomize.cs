@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.5.41";
+		public static string Version = "1.5.42";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -96,7 +96,7 @@ namespace FFMQLib
 			EnemiesStats.ShuffleResistWeakness(flags.ShuffleResWeakType, GameInfoScreen, rng);
 
 			// Companions
-			GameLogic.CompanionsShuffle(flags.CompanionsLocations, flags.KaelisMomFightMinotaur, apconfigs.ApEnabled, rng);
+			GameLogic.CompanionsShuffle(flags.CompanionsLocations, flags.KaelisMomFightMinotaur, apconfigs, rng);
             Companions.SetStartingCompanion(flags.StartingCompanion, rng);
             Companions.SetAvailableCompanions(flags.AvailableCompanions, rng);
             Companions.SetSpellbooks(flags.CompanionSpellbookType, GameInfoScreen, rng);

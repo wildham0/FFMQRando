@@ -226,7 +226,7 @@ namespace FFMQLib
 
 			// Locations & Logic
 			Battlefields.ShuffleBattlefieldRewards(battlefieldshuffle, GameLogic, apconfigs, rng);
-			GameLogic.CompanionsShuffle((CompanionsLocationType)companionshuffling, kaelismom, false, rng);
+			GameLogic.CompanionsShuffle((CompanionsLocationType)companionshuffling, kaelismom, apconfigs, rng);
 			GameLogic.CrestShuffle(crestshuffle, false, rng);
 			GameLogic.FloorShuffle((MapShufflingMode)mapshuffling, false, rng);
 			Overworld.ShuffleOverworld((MapShufflingMode)mapshuffling, GameLogic, Battlefields, false, rng);
