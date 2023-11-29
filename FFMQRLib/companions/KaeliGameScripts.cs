@@ -34,7 +34,7 @@ namespace FFMQLib
 			{
 				mode = KaeliMode.QuestOnly;
 			}
-			else if (!kaelienabled && !kaelismom)
+			else if (!kaelienabled && kaelismom)
 			{
 				mode = KaeliMode.Potato;
 			}
