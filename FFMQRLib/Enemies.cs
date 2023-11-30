@@ -630,7 +630,12 @@ namespace FFMQLib
 
 			if (group != EnemizerGroups.MobsOnly)
 			{
-                iceGolemDesperateAttack = rng.PickFrom(possibleAttacks);
+				var icegolemattacks = possibleAttacks
+					.Except(new List<byte> { 0x49, 0x4A, 0xC1, 0xC2 })
+					.Except(Enumerable.Range(0xC8, 20).Select(x => (byte)x))
+					.ToList();
+
+                iceGolemDesperateAttack = rng.PickFrom(icegolemattacks);
             }
 		}
 		private void SafeRandom(EnemizerGroups group, MT19337 rng)

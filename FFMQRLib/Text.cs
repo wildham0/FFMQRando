@@ -261,8 +261,9 @@ namespace FFMQLib
 				"spellzapp\n" +
 				"caleb\n" +
 				"VampireKnight\n" +
-				"RoanMaster\n\n" +
-				"Special Thanks\n" +
+				"RoanMaster\n" +
+                "Hebinx\n\n" +
+                "Special Thanks\n" +
 				"Entroper\n" +
 				"nitz\n" +
 				"Septimus\n" +

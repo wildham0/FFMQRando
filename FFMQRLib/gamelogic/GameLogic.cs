@@ -118,6 +118,7 @@ namespace FFMQLib
 			// Process Logic Access
 			if (flags.LogicOptions != LogicOptions.Expert)
 			{
+				// Remove path between fireburg and the frozen field from logic if not expert
 				var volcanoBattlefieldRoom = Rooms.Find(x => x.Type == RoomType.Subregion && x.Region == SubRegions.VolcanoBattlefield);
 				volcanoBattlefieldRoom.Links.RemoveAll(l => l.Access.Contains(AccessReqs.SummerAquaria));
 
@@ -126,8 +127,21 @@ namespace FFMQLib
 			}
 			else if((flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Dungeons) && !flags.CrestShuffle)
 			{
-				var exitTrickRoom = Rooms.Find(x => x.Id == 75);
+                // Add Sealed Temple Exit trick to logic in Expert mode
+                var exitTrickRoom = Rooms.Find(x => x.Id == 75);
 				exitTrickRoom.Links.Add(new RoomLink(74, new() { AccessReqs.ExitBook }));
+			}
+
+            // Don't put progression on vendors if there's no enemies to fight to avoid gp softlock
+            if (flags.EnemiesDensity == EnemiesDensity.None)
+			{
+				List<int> vendorobjectlist = new() { 4, 11, 16 };
+				var vendorobjects = Rooms.SelectMany(r => r.GameObjects).Where(o => o.Type == GameObjectType.NPC && vendorobjectlist.Contains(o.ObjectId)).ToList();
+
+				foreach (var vendor in vendorobjects)
+				{ 
+					vendor.Access.AddRange(new List<AccessReqs>() { AccessReqs.SandCoin, AccessReqs.RiverCoin} );
+				}
 			}
 
 			var giantTreeLink = locationLinks.Find(l => l.Location == LocationIds.GiantTree);
