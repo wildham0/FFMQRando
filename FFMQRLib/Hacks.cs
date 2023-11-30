@@ -199,7 +199,34 @@ namespace FFMQLib
 			PutInBank(0x01, 0xD9D0, Blob.FromHex("ae9d198e3519eaeaeaeaeaea"));
 			PutInBank(0x01, 0xD9E2, Blob.FromHex("ad8b0e18690c"));
 			PutInBank(0x01, 0xD9EB, Blob.FromHex("20b08c"));
-		}
+
+			// Fix Scale HP spilling over when HP > 1640; simply cap the drawing to 1640, actual hp can go higher
+			var scaleHpScript = new ScriptBuilder(new List<string>{
+					"2EF0[10]",		// Check Figure HP flag, jump if set
+					"05F5FB0014",	// Load current hp
+					"05B86806[04]",	// If less than 1640, skip to writing to temp memory
+					"053C6806",		// Cap to 1640
+					"124A00",		// Write to temp memory
+					"05F5FB0016",	// Load max hp
+					"05B86806[08]",	// If less than 1640, skip to writing to temp memory
+					"053C6806",		// Cap to 1640
+					"124C00",		// Write to temp memory
+					"00",			// Exit
+					"05F5FB0014",	// Load current hp
+                    "124A00",		// Write to temp memory
+					"05F5FB0016",	// Load max hp
+                    "124C00",		// Write to temp memory
+					"00",			// Exit
+				});
+
+			var scaleHpJumpScript = new ScriptBuilder(new List<string>{
+					"07908611",
+                    "050e71b300"
+                });
+
+            scaleHpScript.WriteAt(0x11, 0x8690, this);
+            scaleHpJumpScript.WriteAt(0x03, 0xB32C, this);
+        }
 		public void FixMultiplyingDarkKing()
 		{
 			// Expand Battle to 3 if multiply is casted
