@@ -298,11 +298,11 @@ namespace FFMQLib
 					{
 						"04",
 						$"2E{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}[06]",
-						"1A5B" + TextToHex("Hearty, mate. This is straight from my ?%!& ditty-bag, but I want you to have it!") + "36",
+                        $"1A{(int)TalkScriptsList.KaeliWindia:X2}" + TextToHex("Hearty, mate. This is straight from my ?%!& ditty-bag, but I want you to have it!") + "36",
 						$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliWindia]:X2}0162",
 						$"23{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}",
 						"00",
-						"1A5B" + TextToHex("I'm tired to play &?&% harbour-watch. Let's loose for sea, mate!") + "36",
+						$"1A{(int)TalkScriptsList.KaeliWindia:X2}" + TextToHex("I'm tired to play &?&% harbour-watch. Let's loose for sea, mate!") + "36",
 						"0F8B0E",
 						"057C02[16]",
 						"057C03[17]",

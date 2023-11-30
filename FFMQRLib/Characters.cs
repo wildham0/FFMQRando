@@ -82,7 +82,7 @@ namespace FFMQLib
 			PutInBank(0x00, 0xff00, Blob.FromHex("2200841160"));
 
 			// Switch companion code
-			string tristamline1 = $"2e{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}[09]"; // 07 Tristam Quest done?
+			string tristamline1 = $"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[09]"; // 07 Tristam Quest done?
             string tristamline2 = $"23{(int)NewGameFlagsList.ShowSandTempleTristam:X2}00";         // 08 No, show at Sand Temple
             string tristamline3 = $"23{(int)NewGameFlagsList.ShowFireburgTristam:X2}";             // 09 Yes, show in Fireburg
 
@@ -107,12 +107,12 @@ namespace FFMQLib
                 tristamline3,
                 "00",												             // 10
 				$"050f{(int)CompanionsId.Phoebe:X2}[16]",
-                $"2e{(int)NewGameFlagsList.PhoebeReturnedToWindia:X2}[14]",      // 12 is WintryCave Quest done?
+                $"2e{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[14]",      // 12 is WintryCave Quest done?
 				$"23{(int)NewGameFlagsList.ShowLibraTemplePhoebe:X2}00",         // 13 No, show in Libra Temple
 				$"23{(int)NewGameFlagsList.ShowWindiaPhoebe:X2}",		         // 14 Yes, show in Windia
 				"00",												             // 15
 				$"050f{(int)CompanionsId.Reuben:X2}[20]",
-                $"2e{(int)NewGameFlagsList.ReubenReturnedToFireburg:X2}[19]",    // 12 is Mine Quest done?
+                $"2e{(int)NewGameFlagsList.ReubenMineItemGiven:X2}[19]",    // 12 is Mine Quest done?
                 $"23{(int)NewGameFlagsList.ShowFireburgReuben1:X2}00",           // 17 Reuben is always in Fireburg
 				$"23{(int)NewGameFlagsList.ShowFireburgReuben2:X2}00",
                 "00",

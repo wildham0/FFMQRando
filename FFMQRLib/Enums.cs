@@ -108,14 +108,14 @@ namespace FFMQLib
 		ShowLibraTemplePhoebe = 0x4E,
         ShowWintryCavePhoebe = 0xBE,
         PhoebeWintryItemGiven = 0xEA,
-        PhoebeReturnedToWindia = 0xC0,
+        //PhoebeReturnedToWindia = 0xC0,
         ShowWindiaPhoebe = 0x7E,
 
 		// Reuben new flags
 		ShowFireburgReuben1 = 0x5F,
         ShowMineReuben = 0xBB,
         ReubenMineItemGiven = 0xEB,
-        ReubenReturnedToFireburg = 0xBF,
+        //ReubenReturnedToFireburg = 0xBF,
         ShowFireburgReuben2 = 0xBC,
 
         // Arion new flags
@@ -616,7 +616,7 @@ namespace FFMQLib
 		AquariaPeople07,
 		AquariaPeople08,
 		PhoebeInAquaria, // Phoebe in her house?
-		KaeliInAquaria,
+        KaeliInAquaria,
 		AquariaPeople0a,
 		AquariaPeople0b,
 		AquariaSellerGirl,

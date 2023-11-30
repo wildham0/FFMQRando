@@ -51,7 +51,7 @@ namespace FFMQLib
 			}
 
 			// Reset flags
-			for (int i = (int)NewGameFlagsList.KaeliQuest1; i <= (int)NewGameFlagsList.PhoebeReturnedToWindia; i++)
+			for (int i = (int)NewGameFlagsList.KaeliQuest1; i <= (int)NewGameFlagsList.ShowWintryCavePhoebe; i++)
 			{
 				GameFlags[i] = false;
 			}
@@ -259,6 +259,10 @@ namespace FFMQLib
 					"2C7001",
 					"00"
 				}));
+
+			// Remove Kaeli's Script in Aquaria for space
+			TalkScripts.AddScript((int)TalkScriptsList.KaeliInAquaria,
+				new ScriptBuilder(new List<string> { "00" }));
 
 			// Take Tristam's script for the INN exit to account for aquaria winter/summer 
 			TileScripts.AddScript((int)TileScriptsList.TristamQuitPartyBoneDungeon,

@@ -261,7 +261,7 @@ namespace FFMQLib
 
             foreach (var script in _scripts)
 			{
-                var changedscripts = _newScripts.Where(x => _callIds.Where(x => x.scriptid == script.Id).Select(x => x.callid).Contains(x.Key)).Select(y => y.Value);
+                var changedscripts = _newScripts.Where(x => _callIds.Where(c => c.scriptid == script.Id).Select(c => c.callid).Contains(x.Key)).Select(y => y.Value);
 				int padTo = 0;
 
 				if (changedscripts.Any())

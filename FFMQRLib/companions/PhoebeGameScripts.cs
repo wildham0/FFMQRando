@@ -51,11 +51,18 @@ namespace FFMQLib
                     }));
 
                 // Windia INN
+                var phoebequest = Companions.GetQuestFlag(QuestsId.VisitWintryCave, CompanionsId.Phoebe);
+
                 MapObjects[0x52][0x02].Value = (byte)TalkScriptsList.PhoebeInAquaria;
                 TalkScripts.AddScript((int)TalkScriptsList.PhoebeInAquaria,
                     new ScriptBuilder(new List<string>
                     {
-                        TextToHex("Finally, my quest to slay the Dark King is coming to an end! Come, my assistant.") + "36",
+                        "04",
+                        (phoebequest != NewGameFlagsList.None) ? $"2E{(int)phoebequest:X2}[05]" : "0A[05]",
+                        $"1A{(int)TalkScriptsList.PhoebeInAquaria:X2}" + TextToHex("Well, you did survive the Wintry Cave, go rest a bit before we go to Doom Castle.") + "36",
+                        Companions.GetQuestString(QuestsId.VisitWintryCave),
+                        "00",
+                        $"1A{(int)TalkScriptsList.PhoebeInAquaria:X2}" + TextToHex("Finally, my quest to slay the Dark King is coming to an end! Come, my assistant.") + "36",
                         "2C1243",
                         "2C4246",
                         CompanionSwitchRoutine,
@@ -73,20 +80,18 @@ namespace FFMQLib
                 phoebeobject.X = 0x35;
                 phoebeobject.Y = 0x1B;
 
-                // Process Quest
-                var phoebequest = Companions.GetQuestFlag(QuestsId.VisitWintryCave, CompanionsId.Phoebe);
+                // Windia Inn Entrance
                 TileScripts.AddScript((int)TileScriptsList.EnterWindiaInn,
                     new ScriptBuilder(new List<string>
                     {
                         "2C1F02",
-                        (phoebequest != NewGameFlagsList.None) ? $"2E{(int)phoebequest:X2}[09]" : "00",
-                        $"050f{(int)CompanionsId.Phoebe:X2}[09]",
-                        $"050B{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[09]",
+                        (phoebequest != NewGameFlagsList.None) ? $"2E{(int)phoebequest:X2}[08]" : "00",
+                        $"050f{(int)CompanionsId.Phoebe:X2}[08]",
+                        $"050B{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[08]",
                         "2A3346134313443054FFFF",
                         "1A50" + TextToHex("Well, you did survive the Wintry Cave, you can rest a bit before we go to Doom Castle.") + "36",
                         Companions.GetQuestString(QuestsId.VisitWintryCave),
                         "2A13414346FFFF",
-                        $"23{(int)NewGameFlagsList.PhoebeReturnedToWindia:X2}",
                         "00",
                     }));
             }
@@ -125,7 +130,7 @@ namespace FFMQLib
                         $"2E{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[06]",
                         $"1a{(int)TalkScriptsList.PhoebeWintryCave:X2}" + TextToHex("Can you be slower? Here, I already found this while you were dallying around."),
                         $"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeWintryCave]:X2}0162",
-                        $"23{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}23{(int)NewGameFlagsList.ShowWindiaPhoebe:X2}2B{(int)NewGameFlagsList.ShowWintryCavePhoebe:X2}23{(int)NewGameFlagsList.PhoebeReturnedToWindia:X2}",
+                        $"23{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}23{(int)NewGameFlagsList.ShowWindiaPhoebe:X2}2B{(int)NewGameFlagsList.ShowWintryCavePhoebe:X2}",
                         "00",
                         $"1a{(int)TalkScriptsList.PhoebeWintryCave:X2}" + TextToHex("I'm ready to face Dark King, I'm going back to my base of operations in Windia.") + "3600",
                     }));
