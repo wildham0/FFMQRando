@@ -67,16 +67,6 @@ namespace FFMQLib
 
 	public class QuestScriptsManager
 	{
-		private const int QuestScriptsBank = 0x10;
-		private const int QuestScriptsPointers = 0xA700;
-		private const int TalkScriptOffset = 0xA700;
-		private const int TalkScriptEndOffset = 0xf811;
-		private const int TalkScriptQty = 0x7C;
-
-		private const int ExpansionBank = 0x14;
-		private const int ExpansionOffset = 0xA000;
-		private const int newTileScriptQty = 0x100;
-
 		private int Bank;
 		private int Offset;
 

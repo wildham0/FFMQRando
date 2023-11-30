@@ -57,23 +57,6 @@ namespace FFMQLib
 				walkscript += $"4{GameObject:X1}46FFFF";
 				return walkscript;
 			}
-			public string GetWalkInScript(int scriptposition)
-			{
-				string walkscript = "";
-				/*
-				"0F8B0E",
-				"057C01[13]",
-					"057C00[14]",
-				*/
-
-				foreach (var direction in WalkOut)
-				{
-					walkscript += $"{direction.steps:X1}{GameObject:X1}4{(int)direction.direction:X1}";
-				}
-
-				walkscript += $"4{GameObject:X1}46";
-				return walkscript;
-			}
 		}
 		public class CompanionScriptData
 		{ 
@@ -161,7 +144,7 @@ namespace FFMQLib
 
 			// Update Sprites
 			MapSpriteSets[0x31].MoveAddressor(10, 7);
-			MapObjects[0x10][0x03].Sprite = 0x44;
+			MapObjects[0x10][0x03].Sprite = 0x47;
 
 			List<int> setsToUpdate = new() { 0x02, sandtemplenewset, 0x09, 0x1C, 0x31, reubenhousenewset, floatingtempleset };
 

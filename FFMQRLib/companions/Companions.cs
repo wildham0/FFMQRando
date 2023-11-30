@@ -101,8 +101,6 @@ namespace FFMQLib
 	public class Companion
 	{ 
 		public Items Weapon { get; set; }
-		//public List<ArmorFlags> Armors { get; set; }
-		//public List<SpellFlags> Spells { get; set; }
 		public List<LevelThreshold> LoadOut { get; set; }
 		public List<ArmorFlags> ArmorSet1 { get; set; }
 		public List<ArmorFlags> ArmorSet2 { get; set; }
@@ -209,7 +207,6 @@ namespace FFMQLib
 		{
 			get => companions[((int)companion) - 1];
 		}
-		//private List<CompanionsId> companionslist = new() { CompanionsId.Kaeli, CompanionsId.Tristam, CompanionsId.Phoebe, CompanionsId.Reuben };
 		public Companions(LevelingType type)
 		{
 			levelingType = type;

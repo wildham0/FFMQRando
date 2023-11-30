@@ -10,16 +10,10 @@ namespace FFMQLib
 	{
 		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, LocationIds startinglocation, bool apenabled, MT19337 rng)
 		{
-			//const int GameStartScript = 0x01f811;
-
 			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
-
-			/*** Overworld ***/
-			// GameStart - Skip Mountain collapse
-			//0880FF$"05E6{(int)CompanionsId.Kaeli:X2}085B85",
-
-
-			Dictionary<CompanionsId, NewGameFlagsList> startingcompanionflags = new()
+            /*** Overworld ***/
+            // GameStart - Starting Companion + Skip Mountain collapse
+            Dictionary<CompanionsId, NewGameFlagsList> startingcompanionflags = new()
 			{
 				{ CompanionsId.Kaeli, NewGameFlagsList.ShowForestaKaeli },
 				{ CompanionsId.Tristam, NewGameFlagsList.ShowSandTempleTristam },
@@ -38,8 +32,8 @@ namespace FFMQLib
 
 			gamestartscript.WriteAt(0x03, 0xF811, this);
 
-			//Put(GameStartScript, Blob.FromHex($"23222b7a2a0b2700200470002ab0532050{((byte)startinglocation):X2}29ffff00"));
-
+			/*** Update GameFlags ***/
+			// Show Bridge to Pazuzu Tower
 			GameFlags[(int)GameFlagsList.ShowPazuzuBridge] = true;
 
 			// Set Pazuzu Initial Floor
@@ -50,7 +44,7 @@ namespace FFMQLib
 				GameFlags[(int)GameFlagsList.ShowPazuzu1F + i] = (pazuzuFloor == i);
 			}
 
-			// Reset flags
+			// Reset Quests and Companion flags
 			for (int i = (int)NewGameFlagsList.KaeliQuest1; i <= (int)NewGameFlagsList.ShowWintryCavePhoebe; i++)
 			{
 				GameFlags[i] = false;
@@ -71,7 +65,7 @@ namespace FFMQLib
 			// Put bridge to access temple
 			GameMaps[(int)MapList.Overworld].ModifyMap(0x0F, 0x0E, 0x56);
 
-            // Companions
+            // Companions Scripts
             UpdateCompanionScripts(flags, fullItemsPlacement, startinglocation, apenabled, rng);
 
             /*** Level Forest ***/
@@ -230,9 +224,6 @@ namespace FFMQLib
 					"00",
 				}));
 
-
-			//MapObjects[0x18].Add(new MapObject(Blob.FromHex("003F073816002C"))); // Put new map object to talk to
-			//MapObjects[0x18][0x06].Coord = (0x10, 0x0E);
 			MapObjects[0x18][0x04].Value = 0x3F;
 			MapObjects[0x18][0x04].Type = MapObjectType.Talk;
 
@@ -376,7 +367,6 @@ namespace FFMQLib
 					"04",
 					"05E43403",
 					"2B25",
-					//GameFlags[(int)GameFlagsList.ShowFallBasinChest] ? "" : "23B3",
 					"2A67463F46FFFF",
 					Companions.GetQuestString(QuestsId.DefeatSnowCrab),
 					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
@@ -1239,10 +1229,10 @@ namespace FFMQLib
 					"09A09411",
 					"09A09411",
 					"23F4",
-					"23F3",
+					"23F32B4A",
 					"2A2E251D0140511052305110501E051051605010531050FFFF",
 					"09A09411",
-                    $"23{(byte)NewGameFlagsList.ShowForestaKaelisMom:X2}", // "2362", don't show companion kaeli, but show kaeli's mom
+                    $"23{(byte)NewGameFlagsList.ShowForestaKaelisMom:X2}2B{(byte)NewGameFlagsList.ShowForestaKaeli:X2}2B{(byte)NewGameFlagsList.ShowLibraTemplePhoebe:X2}2B{(byte)NewGameFlagsList.ShowSandTempleTristam:X2}2B{(byte)NewGameFlagsList.ShowFireburgTristam:X2}2B{(byte)NewGameFlagsList.ShowFireburgReuben1:X2}", // "2362", don't show companion kaeli, but show kaeli's mom
 					"2A10537052105130520201105030532050000550502144E1453344FFFF",
 					"09A09411",
 					"2AB0541054FFFF",
