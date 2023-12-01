@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-
-using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using RomUtilities;
@@ -76,7 +74,7 @@ namespace FFMQLib
 		public void Write(FFMQRom rom)
 		{
 			GeneratePages(rom);
-            NewElementsIcons(rom);
+			NewElementsIcons(rom);
 
 			// Extend menu size
 			rom.PutInBank(0x03, 0xAB49, Blob.FromHex("88"));
@@ -149,43 +147,36 @@ namespace FFMQLib
 						"2401041e13",
 						"18",
 						"0f0100",         // check current page
-						//"057C000092",
-						//"057C010093",
-						//"057C020094",
-						//"057C030095",
-						//"057C040096",
-						//"058d",
-						//"00"
 				});
 
 			for(int i = 0; i < pageoffsets.Count; i++)
 			{
-                maindrawscript.Add("057C" + i.ToString().PadLeft(2, '0') + $"{(pageoffsets[i] % 0x100):X2}" + $"{(pageoffsets[i] / 0x100):X2}");
-            }
+				maindrawscript.Add("057C" + i.ToString().PadLeft(2, '0') + $"{(pageoffsets[i] % 0x100):X2}" + $"{(pageoffsets[i] / 0x100):X2}");
+			}
 
 			maindrawscript.Add("058d");
-            maindrawscript.Add("00");
+			maindrawscript.Add("00");
 
-            maindrawscript.WriteAt(0x10, 0x9180, rom);
+			maindrawscript.WriteAt(0x10, 0x9180, rom);
 		}
 		private void GeneratePages(FFMQRom rom)
 		{
-            int lineoffset = 0x04;
+			int lineoffset = 0x04;
 
-            List<string> pages = new();
+			List<string> pages = new();
 
-            if (FragmentsCount == 0 && !ShuffledElementsType.Any() && !SpellLearning.Any() && !Quests.Any())
-            {
-                string pagescript = $"250C1503{lineoffset:X2}19";
-                pagescript += rom.TextToHex("No info available.", true);
-                pages.Add(pagescript);
-            }
+			if (FragmentsCount == 0 && !ShuffledElementsType.Any() && !SpellLearning.Any() && !Quests.Any())
+			{
+				string pagescript = $"250C1503{lineoffset:X2}19";
+				pagescript += rom.TextToHex("No info available.", true);
+				pages.Add(pagescript);
+			}
 
-            if (FragmentsCount > 0 || ShuffledElementsType.Any())
-            {
+			if (FragmentsCount > 0 || ShuffledElementsType.Any())
+			{
 				string pagescript = ""; // $"250C1503{lineoffset:X2}19";
-                if (FragmentsCount > 0)
-                {
+				if (FragmentsCount > 0)
+				{
 					pagescript += $"250C2401{lineoffset:X2}1E0318";
 					pagescript += $"1502{lineoffset:X2}19";
 					pagescript += rom.TextToHex("Sky Fragments");
@@ -195,99 +186,89 @@ namespace FFMQLib
 					pagescript += rom.TextToHex("/" + FragmentsCount.ToString(), true);
 					pagescript += "0F0100"; // restore 9e to current page
 
-                    lineoffset += 2;
-                }
+					lineoffset += 2;
+				}
 
-                if (ShuffledElementsType.Any())
-                {
+				if (ShuffledElementsType.Any())
+				{
 					pagescript += $"25102401{lineoffset:X2}1E0618";
 					pagescript += $"1502{lineoffset:X2}19";
 					pagescript += rom.TextToHex("Resists & Weaknesses", true);
 					lineoffset++;
 					pagescript += $"1503{lineoffset:X2}19";
 
-                    ShuffledElementsType.Reverse();
+					ShuffledElementsType.Reverse();
 
-                    int xcount = 0;
-                    foreach (var elementgroup in ShuffledElementsType)
-                    {
-                        pagescript += elementsbytes[elementgroup.Item1] + "DC" + elementsbytes[elementgroup.Item2];
-                        xcount++;
-                        if (xcount >= 4)
-                        {
-                            pagescript += "01";
-                            xcount = 0;
-                        }
-                        else
-                        {
-                            pagescript += "FF";
-                        }
-                    }
-                    lineoffset += 5;
-                }
-                pages.Add(pagescript);
-            }
+					int xcount = 0;
+					foreach (var elementgroup in ShuffledElementsType)
+					{
+						pagescript += elementsbytes[elementgroup.Item1] + "DC" + elementsbytes[elementgroup.Item2];
+						xcount++;
+						if (xcount >= 4)
+						{
+							pagescript += "01";
+							xcount = 0;
+						}
+						else
+						{
+							pagescript += "FF";
+						}
+					}
+				}
+				pages.Add(pagescript);
+			}
 
 			List<CompanionsId> companions = new() { CompanionsId.Kaeli, CompanionsId.Tristam, CompanionsId.Phoebe, CompanionsId.Reuben };
-            if (SpellLearning.Any() || Quests.Any())
-            {
-                foreach (var companion in companions)
-                {
-                    pages.Add(CompanionPage(companion, rom));
-                }
-            }
+			if (SpellLearning.Any() || Quests.Any())
+			{
+				foreach (var companion in companions)
+				{
+					pages.Add(CompanionPage(companion, rom));
+				}
+			}
 
-            if (pages.Count > 1)
-            {
-                for (int i = 0; i < pages.Count; i++)
-                {
-                    pages[i] += "250C15191519";
-                    pages[i] += rom.TextToHex((i + 1).ToString() + "/" + pages.Count.ToString() + " ") + "DC";
-                }
-            }
+			if (pages.Count > 1)
+			{
+				for (int i = 0; i < pages.Count; i++)
+				{
+					pages[i] += "250C15191519";
+					pages[i] += rom.TextToHex((i + 1).ToString() + "/" + pages.Count.ToString() + " ") + "DC";
+				}
+			}
 
 			pagecount = pages.Count;
 
-            int pageoffset = 0x9200;
+			int pageoffset = 0x9200;
 
-            foreach (var page in pages)
-            {
-                var pagescript = new ScriptBuilder(
-                    new List<string> {
-                        page,
-                        "00"
-                    });
+			foreach (var page in pages)
+			{
+				var pagescript = new ScriptBuilder(
+					new List<string> {
+						page,
+						"00"
+					});
 
-                pagescript.WriteAt(0x10, pageoffset, rom);
+				pagescript.WriteAt(0x10, pageoffset, rom);
 				pageoffsets.Add(pageoffset);
-                pageoffset += pagescript.Size();
-            }
-        }
+				pageoffset += pagescript.Size();
+			}
+		}
 		private string CompanionPage(CompanionsId companion, FFMQRom rom)
 		{
-            string pagescript = "";
-            int lineoffset = 0x06;
+			string pagescript = "";
 
 			// name box
 			pagescript += $"240101{(companionnames[companion].Length+2):X2}0318";
-            pagescript += $"250C15020219";
-            pagescript += rom.TextToHex(companionnames[companion], true);
+			pagescript += $"250C15020219";
+			pagescript += rom.TextToHex(companionnames[companion], true);
 
-            // Spell window
+			// Spell window
 			pagescript += $"25102401041E0518";
-            pagescript += $"15020419";
-            pagescript += rom.TextToHex("Spells", true);
+			pagescript += $"15020419";
+			pagescript += rom.TextToHex("Spells", true);
 
-            // Position cursor
-            pagescript += $"15020519";
-
-			/*
-            pagescript += $"250C1503{lineoffset:X2}19";
-            pagescript += rom.TextToHex(companionnames[companion] + " - Spells");
-            lineoffset++;
-            pagescript += $"25102404{lineoffset:X2}1A0918";
-            lineoffset++;
-            pagescript += $"1505{lineoffset:X2}19";*/
+			// Position cursor
+			pagescript += $"15020519";
 
 			List<(int level, SpellFlags spell)> spellist = new();
 
@@ -296,45 +277,37 @@ namespace FFMQLib
 			{
 				spellist = SpellLearning.Find(s => s.Item1 == companion).Item2.OrderBy(s => s.level).ToList();
 			}
-
-			//var spellist = SpellLearning.Find(s => s.Item1 == companion).Item2.OrderBy(s => s.level).ToList();
-            
+			
 			int xcount = 0;
-            string line1 = "";
-            string line2 = "";
-            string line3 = "";
+			string line1 = "";
+			string line2 = "";
+			string line3 = "";
 
-            foreach (var spell in spellist)
-            {
-                var currentspellsprite = spellbooksbytes[spell.spell];
+			foreach (var spell in spellist)
+			{
+				var currentspellsprite = spellbooksbytes[spell.spell];
 
 				line1 += currentspellsprite[0];
 				line2 += currentspellsprite[1];
-                line3 += rom.TextToHex(spell.level.ToString().PadLeft(2), true);
+				line3 += rom.TextToHex(spell.level.ToString().PadLeft(2), true);
 
-
-                /*
-				line1 += "FF" + currentspellsprite[0] + "FF";
-                line2 += "FF" + currentspellsprite[1] + "FF";
-                line3 += rom.TextToHex("Lv" + spell.level.ToString().PadLeft(2));
-				*/
-                xcount++;
-                if (xcount >= 10)
-                {
-                    pagescript += line1 + "01" + line2 + "01" + line3 + "01";
-                    xcount = 0;
-                    line1 = "";
-                    line2 = "";
-                    line3 = "";
-                }
-                else
-                {
-                    line1 += "FF";
-                    line2 += "FF";
-                    line3 += "FF";
-                }
-            }
-            pagescript += line1 + "01" + line2 + "01" + line3 + "01";
+				xcount++;
+				if (xcount >= 10)
+				{
+					pagescript += line1 + "01" + line2 + "01" + line3 + "01";
+					xcount = 0;
+					line1 = "";
+					line2 = "";
+					line3 = "";
+				}
+				else
+				{
+					line1 += "FF";
+					line2 += "FF";
+					line3 += "FF";
+				}
+			}
+			pagescript += line1 + "01" + line2 + "01" + line3 + "01";
 
 			// Do Quests
 			var selectedquests = Quests.Where(x => x.companion == companion).ToList();
@@ -355,6 +328,6 @@ namespace FFMQLib
 			}
 			
 			return pagescript;
-        }
+		}
 	}
 }
