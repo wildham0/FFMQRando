@@ -135,11 +135,15 @@ namespace FFMQLib
 			{
 				CreateStandardQuests(flags.KaelisMomFightMinotaur);
 			}
-			else if (levelingType == LevelingType.SaveCrystals)
+			else if (levelingType == LevelingType.SaveCrystalsAll)
 			{
-				CreateCrystalQuests();
+				CreateCrystalQuestsAll();
 			}
-			else if (levelingType == LevelingType.QuestsExtended)
+            else if (levelingType == LevelingType.SaveCrystalsIndividual)
+            {
+                CreateCrystalQuestsIndividual(rng);
+            }
+            else if (levelingType == LevelingType.QuestsExtended)
 			{
 				CreateExtendedQuests(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin, flags.DoomCastleShortcut, flags.KaelisMomFightMinotaur, rng);
 			}
@@ -290,12 +294,12 @@ namespace FFMQLib
 		{
 			screen.Quests = Quests.Select(q => (q.Companion, q.Gameflag, q.Description)).ToList();
 		}
-		private void CreateCrystalQuests()
+		private void CreateCrystalQuestsAll()
 		{
 			Quests = new();
 			QuestQuantity = 4;
 
-			foreach (var companion in companionslist)
+            foreach (var companion in companionslist)
 			{
 				Quests.Add(new Quest()
 				{ 
@@ -334,7 +338,53 @@ namespace FFMQLib
 				});
 			}
 		}
-		private void QuestRoutines(FFMQRom rom)
+        private void CreateCrystalQuestsIndividual(MT19337 rng)
+        {
+            Quests = new();
+
+			List<CompanionsId> companionspicklist = new(companionslist);
+
+			var eathcompanion = rng.TakeFrom(companionspicklist);
+            Quests.Add(new Quest()
+			{
+				Name = QuestsId.SaveCrystalofEarth,
+                Gameflag = gameflagsList[eathcompanion][0],
+                Quantity = 0,
+                Companion = eathcompanion,
+                Description = "Save the Crystal of Earth"
+			});
+
+            var watercompanion = rng.TakeFrom(companionspicklist);
+            Quests.Add(new Quest()
+            {
+				Name = QuestsId.SaveCrystalofWater,
+                Gameflag = gameflagsList[watercompanion][0],
+                Quantity = 0,
+                Companion = watercompanion,
+                Description = "Save the Crystal of Water"
+            });
+
+            var firecompanion = rng.TakeFrom(companionspicklist);
+            Quests.Add(new Quest()
+            {
+                Name = QuestsId.SaveCrystalofFire,
+                Gameflag = gameflagsList[firecompanion][0],
+                Quantity = 0,
+                Companion = firecompanion,
+                Description = "Save the Crystal of Fire"
+            });
+
+            var windcompanion = rng.TakeFrom(companionspicklist);
+            Quests.Add(new Quest()
+            {
+                Name = QuestsId.SaveCrystalofWind,
+                Gameflag = gameflagsList[windcompanion][0],
+                Quantity = 0,
+                Companion = windcompanion,
+                Description = "Save the Crystal of Wind"
+            });
+        }
+        private void QuestRoutines(FFMQRom rom)
 		{
 			// Write Scripts
 			questsScripts.Write(rom);
@@ -600,7 +650,7 @@ namespace FFMQLib
 				return "";
 			}
 
-			if (levelingType == LevelingType.SaveCrystals)
+			if (levelingType == LevelingType.SaveCrystalsAll)
 			{
 				string script = "";
 

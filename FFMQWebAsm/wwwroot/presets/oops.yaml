@@ -91,7 +91,8 @@ Final Fantasy Mystic Quest:
   companion_leveling_type:
     Quests: 3
     QuestsExtended: 3
-    SaveCrystals: 2
+    SaveCrystalsIndividual: 2
+    SaveCrystalsAll: 2
     BenPlus0: 1
     BenPlus5: 1
     BenPlus10: 1

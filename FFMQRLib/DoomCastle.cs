@@ -142,8 +142,8 @@ namespace FFMQLib
 						new SpriteAddressor(3, 0, 0x14, SpriteSize.Tiles16),
 						new SpriteAddressor(5, 0, 0x15, SpriteSize.Tiles16),
 						new SpriteAddressor(8, 0, 0x16, SpriteSize.Tiles16),
-                        new SpriteAddressor(10, 0, 0x27, SpriteSize.Tiles16),
-                    },
+						new SpriteAddressor(10, 0, 0x27, SpriteSize.Tiles16),
+					},
 					true
 					));
 

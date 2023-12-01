@@ -18,9 +18,11 @@ namespace FFMQLib
 		Quests = 0,
 		[Description("Quests Extended")]
 		QuestsExtended,
-		[Description("Save the Crystals")]
-		SaveCrystals,
-		[Description("Benjamin Level")]
+		[Description("Save the Crystals (Individual)")]
+		SaveCrystalsIndividual,
+        [Description("Save the Crystals (All)")]
+        SaveCrystalsAll,
+        [Description("Benjamin Level")]
 		BenPlus0,
 		[Description("Benjamin Level + 5")]
 		BenPlus5,
@@ -446,7 +448,7 @@ namespace FFMQLib
 				23, 31, 31, 31, 31,
 			};
 
-			if (levelingType == LevelingType.SaveCrystals || levelingType == LevelingType.QuestsExtended)
+			if (levelingType == LevelingType.SaveCrystalsAll || levelingType == LevelingType.QuestsExtended)
 			{
 				levelsset = new()
 				{

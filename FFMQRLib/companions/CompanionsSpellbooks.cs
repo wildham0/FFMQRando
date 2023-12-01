@@ -109,7 +109,7 @@ namespace FFMQLib
 					spelllist.Add((CompanionsId.Tristam, SpellFlags.ExitBook, rng.Between(16, 23)));
 					spelllist.Add((CompanionsId.Tristam, SpellFlags.QuakeBook, rng.Between(8, 15)));
 					spelllist.Add((CompanionsId.Reuben, SpellFlags.BlizzardBook, rng.Between(8, 15)));
-					if (levelingType == LevelingType.QuestsExtended)
+					if (levelingType != LevelingType.Quests && levelingType != LevelingType.SaveCrystalsIndividual)
 					{
 						spelllist.Add((CompanionsId.Tristam, SpellFlags.FlareSeal, rng.Between(35, 41)));
 						spelllist.Add((CompanionsId.Kaeli, SpellFlags.MeteorSeal, rng.Between(35, 41)));
@@ -174,7 +174,7 @@ namespace FFMQLib
 			}
 
 			// update to appropriate level
-			List<LevelingType> cappedLevelingTypes = new() { LevelingType.Quests, LevelingType.QuestsExtended, LevelingType.SaveCrystals };
+			List<LevelingType> cappedLevelingTypes = new() { LevelingType.Quests, LevelingType.QuestsExtended, LevelingType.SaveCrystalsAll, LevelingType.SaveCrystalsIndividual };
 
 			if (cappedLevelingTypes.Contains(levelingType))
 			{
@@ -186,7 +186,7 @@ namespace FFMQLib
 					(CompanionsId.Phoebe, new() { 15, 34 } ),
 				};
 
-				if (levelingType == LevelingType.QuestsExtended || levelingType == LevelingType.SaveCrystals)
+				if (levelingType == LevelingType.QuestsExtended || levelingType == LevelingType.SaveCrystalsAll)
 				{
 					levelsbycompanion = new()
 					{
