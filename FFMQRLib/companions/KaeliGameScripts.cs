@@ -200,18 +200,18 @@ namespace FFMQLib
             // Alive Forest
             // Entrance
 
-
             string treecuttingdialogue = kaelismom ? "Tree, your death is a small sacrifice, but the path opened is great. Praise the Void!" : "There, griffin. Path is cleared. Let's find that decaying !&%? piece of lumber.";
 
-            TileScripts.AddScript((int)TileScriptsList.EnterLevelForest,
+			var kaeliquestcheck = (mode == KaeliMode.Standard) ? $"050f{(int)CompanionsId.Kaeli:X2}[11]" : $"050B{(int)NewGameFlagsList.ShowLevelForestKaeli:X2}[11]";
+
+			TileScripts.AddScript((int)TileScriptsList.EnterLevelForest,
 				new ScriptBuilder(new List<string>
 				{
 					"2C0101",
-                    $"2e{(int)NewGameFlagsList.KaeliOpenedPath:X2}[12]",						    // path opened?, true jump
-                    (mode == KaeliMode.Standard) ? $"050f{(int)CompanionsId.Kaeli:X2}[12]" : "",                    // is kaeli in party, false jump
-                    kaelienabled ? "" : $"050B{(int)NewGameFlagsList.ShowLevelForestKaeli:X2}[12]", // show in level forest?, false jump
+                    $"2e{(int)NewGameFlagsList.KaeliOpenedPath:X2}[11]",						    // path opened?, true jump
+                    kaeliquestcheck,                    // is kaeli in party, false jump
 					"2d" + ScriptItemFlags[Items.TreeWither].Item1,
-                    "050D" + ScriptItemFlags[Items.TreeWither].Item2 + "[12]",                      // do we have tree wither?, false jump
+                    "050D" + ScriptItemFlags[Items.TreeWither].Item2 + "[11]",                      // do we have tree wither?, false jump
 					"2A334663401343FFFF",
                     "2A2344505010530054FFFF",
 					"1A82" + TextToHex(treecuttingdialogue) + "36",
@@ -225,14 +225,15 @@ namespace FFMQLib
 
             string giveitemdialogue = kaelismom ? "Don't cry for my imminent demise. Take this material object, I won't need it inside The Void." : "You're a &?%! agonist, mate! Here, you earned it. Split a few skulls for me!";
 
-            // Minotaur
+			// Minotaur
+			var kaeliminotaurcheck = (mode == KaeliMode.Standard) ? $"050f{(int)CompanionsId.Kaeli:X2}[24]" : $"050B{(int)NewGameFlagsList.ShowLevelForestKaeli:X2}[24]";
+
             TileScripts.AddScript((int)TileScriptsList.FightMinotaur,
 				new ScriptBuilder(new List<string>
 				{
-                    "050B63[25]",
-                    $"050B{(int)NewGameFlagsList.KaeliOpenedPath:X2}[25]",						    // path opened?, false jump
-                    (mode == KaeliMode.Standard) ? $"050f{(int)CompanionsId.Kaeli:X2}[25]" : "",                    // is kaeli in party, false jump
-                    kaelienabled ? "" : $"050B{(int)NewGameFlagsList.ShowLevelForestKaeli:X2}[25]", // show in level forest?, false jump
+                    "050B63[24]",
+                    $"050B{(int)NewGameFlagsList.KaeliOpenedPath:X2}[24]",						    // path opened?, false jump
+                    kaeliminotaurcheck,
 					//"2C0344" + "09209511093d8c00" + "2C0825" + "09309511093d8c00" + "2C6822",
                     //"2A3546 0054 105a 0e25 2727 5246 022A 05453055FFFF",
 					"2A35460054105aFFFF" + "09209511093d8c00" + "2a63fb0e25ffff" + "09309511093d8c00" + "2A27275246022A05453055FFFF",

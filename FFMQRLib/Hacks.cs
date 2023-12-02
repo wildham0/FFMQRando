@@ -17,7 +17,7 @@ namespace FFMQLib
 			RemoveStrobing();
 			SmallFixes();
 			BugFixes();
-			CompanionRoutines(apenabled);
+			CompanionRoutines(flags.KaelisMomFightMinotaur, apenabled);
 			DummyRoom();
 			KeyItemWindow();
 			GameStateIndicator();

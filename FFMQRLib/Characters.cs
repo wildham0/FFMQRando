@@ -75,7 +75,7 @@ namespace FFMQLib
 			PutInBank(0x03, 0x9C11, new byte[] { xpconst1 });
 			PutInBank(0x03, 0x9C1F, new byte[] { xpconst2 });
 		}
-		public void CompanionRoutines(bool apenabled)
+		public void CompanionRoutines(bool kaelismom, bool apenabled)
 		{
 			// Check char opcode
 			PutInBank(0x11, 0x8400, Blob.FromHex("08E230A717E617AE9010E0FFF00DCD920EF00E186904CD920EF00628A71785176B28E617E6176B"));
@@ -97,7 +97,7 @@ namespace FFMQLib
             var companionSwitch = new ScriptBuilder(new List<string>{
 				$"050f{(int)CompanionsId.Kaeli:X2}[06]",
                 $"2e{(int)NewGameFlagsList.KaeliCured:X2}[04]",                  // 01 is Elixir Quest done?
-				$"2e{(int)NewGameFlagsList.ShowSickKaeli:X2}[05]",               // 02 No, is Kaeli Sick?
+				kaelismom ? "" : $"2e{(int)NewGameFlagsList.ShowSickKaeli:X2}[05]",               // 02 No, is Kaeli Sick?
 				$"23{(int)NewGameFlagsList.ShowForestaKaeli:X2}00",              // 03 No, show Foresta
 				$"23{(int)NewGameFlagsList.ShowWindiaKaeli:X2}",                 // 04 then available in Windia
 				"00",															 // 05

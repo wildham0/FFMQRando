@@ -45,7 +45,7 @@ namespace FFMQLib
 			}
 
 			// Reset Quests and Companion flags
-			for (int i = (int)NewGameFlagsList.KaeliQuest1; i <= (int)NewGameFlagsList.ShowWintryCavePhoebe; i++)
+			for (int i = (int)NewGameFlagsList.KaeliQuest1; i <= (int)NewGameFlagsList.ShowLevelForestKaeli; i++)
 			{
 				GameFlags[i] = false;
 			}
