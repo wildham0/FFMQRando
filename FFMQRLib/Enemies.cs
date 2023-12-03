@@ -252,7 +252,7 @@ namespace FFMQLib
 				e.HP = ScaleHP(e.HP, scaling, spread, rng);
 				e.AttackPower = ScaleStat(e.AttackPower, scaling, spread, rng);
 				e.DamageReduction = ScaleStat(e.DamageReduction, scaling, spread, rng);
-				e.Speed = ScaleStat(e.Speed, scaling, spread, rng);
+				e.Speed = Max((byte)0x03, ScaleStat(e.Speed, scaling, spread, rng));
 				e.MagicPower = ScaleStat(e.MagicPower, scaling, spread, rng);
 				e.Accuracy = ScaleStat(e.Accuracy, scaling, spread, rng);
 				e.Evasion = ScaleStat(e.Evasion, scaling, spread, rng);
