@@ -17,12 +17,13 @@ namespace FFMQLib
 			RemoveStrobing();
 			SmallFixes();
 			BugFixes();
-			CompanionRoutines();
+			CompanionRoutines(flags.KaelisMomFightMinotaur, apenabled);
 			DummyRoom();
 			KeyItemWindow();
 			GameStateIndicator();
 			ArchipelagoSupport(apenabled);
 			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
+			FixMultiplyingDarkKing();
 			PazuzuFixedFloorRng(rng);
 			Msu1Support();
 		}
@@ -137,7 +138,7 @@ namespace FFMQLib
 			PutInBank(0x00, 0xdb9d, Blob.FromHex("EAEAEAEA"));
 
 			// Phoebe1 start with Bow&Arrows
-			PutInBank(0x0C, 0xd1d1, Blob.FromHex("2D0004"));
+			//PutInBank(0x0C, 0xd1d1, Blob.FromHex("2D0004"));
 
 			// Start with 50 bombs so we don't need to update when acquiring them
 			PutInBank(0x0C, 0xd0e0, Blob.FromHex("32"));
@@ -177,12 +178,71 @@ namespace FFMQLib
 			fullbookscript.WriteAt(0x11, 0x9460, this);
 			jumpScript.WriteAt(0x03, 0xFFD0, this);
 			PutInBank(0x03, 0xFE80, Blob.FromHex("08D0FF"));
-		}
+
+			// Kaeli's Axe Sprite Fix, call 09209511 + 093d8c00 to initialize, 09309511 + 093d8c00 to restore
+			PutInBank(0x11, 0x9520, Blob.FromHex("08e230ad31108d3004a9238d3110286b"));
+			PutInBank(0x11, 0x9530, Blob.FromHex("08e230ad30048d3110286b"));
+
+			// Put a cap of 40k hp to hp scaled attacks
+			PutInBank(0x02, 0x9ABD, Blob.FromHex("20E0FE"));
+			PutInBank(0x02, 0x9AE9, Blob.FromHex("20E0FE"));
+			PutInBank(0x02, 0xFEE0, Blob.FromHex("0b20228fa516c9409c9003a9409c2b60"));
+
+			// Load resist message for bomb/axe/projectile
+			PutInBank(0x02, 0x9C79, Blob.FromHex("EAEA"));
+
+			// Apply resist to bombs
+			PutInBank(0x02, 0x905B, Blob.FromHex("20f0feeaeaea"));
+			PutInBank(0x02, 0xFEF0, Blob.FromHex("209d9920699a20ed9b60"));
+
+			// Transfer Reuben Megagrenade animation to benjamin
+			PutInBank(0x01, 0xD9D0, Blob.FromHex("ae9d198e3519eaeaeaeaeaea"));
+			PutInBank(0x01, 0xD9E2, Blob.FromHex("ad8b0e18690c"));
+			PutInBank(0x01, 0xD9EB, Blob.FromHex("20b08c"));
+
+			// Fix Scale HP spilling over when HP > 1640; simply cap the drawing to 1640, actual hp can go higher
+			var scaleHpScript = new ScriptBuilder(new List<string>{
+					"2EF0[10]",		// Check Figure HP flag, jump if set
+					"05F5FB0014",	// Load current hp
+					"05B86806[04]",	// If less than 1640, skip to writing to temp memory
+					"053C6806",		// Cap to 1640
+					"124A00",		// Write to temp memory
+					"05F5FB0016",	// Load max hp
+					"05B86806[08]",	// If less than 1640, skip to writing to temp memory
+					"053C6806",		// Cap to 1640
+					"124C00",		// Write to temp memory
+					"00",			// Exit
+					"05F5FB0014",	// Load current hp
+                    "124A00",		// Write to temp memory
+					"05F5FB0016",	// Load max hp
+                    "124C00",		// Write to temp memory
+					"00",			// Exit
+				});
+
+			var scaleHpJumpScript = new ScriptBuilder(new List<string>{
+					"07908611",
+                    "050e71b300"
+                });
+
+            scaleHpScript.WriteAt(0x11, 0x8690, this);
+            scaleHpJumpScript.WriteAt(0x03, 0xB32C, this);
+        }
+		public void FixMultiplyingDarkKing()
+		{
+			// Expand Battle to 3 if multiply is casted
+			PutInBank(0x02, 0xD169, Blob.FromHex("5C509511"));
+	  PutInBank(0x11, 0x9550, Blob.FromHex("a507f008c901f00b5c71d1022070955c8fd1022070955c92d102000000000000a513cdb3041015a9ff850d850e850fa500c901d007a90385008db40460"));
+
+			// Hard coded selectors when multiply is used, because dk is too big to share the screen
+			PutInBank(0x02, 0xD764, Blob.FromHex("22909511eaeab0"));
+	  PutInBank(0x11, 0x9590, Blob.FromHex("c950d014a500c901f012a200bfc095119d2d0ae8e00cd0f4386b386ba507d0fa186b00000000000000000000000000000c04080a0204080a1604080a"));
+	}
 		public void ExitHack(LocationIds startingLocation)
 		{
 			// Using exit on overworld send you back to home location
-			PutInBank(0x00, 0xC064, Blob.FromHex("22d08711eaeaeaeaea"));
-			PutInBank(0x11, 0x87D0, Blob.FromHex($"ad910e297f00f004c907006b08e220a9{(int)startingLocation:X2}8d880e28386b"));
+			PutInBank(0x00, 0xC06D, Blob.FromHex("eaea"));
+			PutInBank(0x00, 0xC074, Blob.FromHex("22d08711ea"));
+			PutInBank(0x11, 0x87D0, Blob.FromHex($"de1810e220ad910e297fd005a9{(int)startingLocation:X2}8d880e6b"));
 		}
 		public void ChestsHacks(Flags flags, ItemsPlacement itemsPlacement)
 		{
@@ -250,7 +310,7 @@ namespace FFMQLib
 
 			// Item action selector (w AP support)
 			PutInBank(0x00, 0xDB42, Blob.FromHex("5c008f11"));
-			PutInBank(0x11, 0x8F00, Blob.FromHex("c910b0045c82db00c914b0045c70db00c920b0045c8edb00c92fb0045c9cdb00c9ddb0045cbedb00c9deb0045c58db00c9dfb0045c64db005cd6db00"));
+			PutInBank(0x11, 0x8F00, Blob.FromHex("c910b0045c82db00c914b0045c70db00c920b0045c8edb00c92fb0045c9cdb00c9ddb0045cbedb00c9deb0045c58db00c9dfb0045c64db005c6bdb00"));
 
 			// Don't check quantity on item F0+ when opening chests
 			PutInBank(0x00, 0xDA68, Blob.FromHex("c9f0b0"));
@@ -380,7 +440,7 @@ namespace FFMQLib
 			PutInBank(0x11, 0x8980, Blob.FromHex("08908924012e1e0700"));
 
 			// Box drawing script
-			PutInBank(0x11, 0x8990, Blob.FromHex("0f000e0b55bc8910610e05c10000aa890fa0100bffbc890ab889241b300405151c3118fefe01fefe09298d0000"));
+			PutInBank(0x11, 0x8990, Blob.FromHex("0f000e0b55bf8910610e05c10000aa890fa0100bffbf890abb89241b300405151c3118fefe01fefe01fefe09298d0000"));
 
 			// Companion Weapon Drawing Routine
 			PutInBank(0x00, 0x8D33, Blob.FromHex("EA22C08911"));
@@ -388,7 +448,7 @@ namespace FFMQLib
 			PutInBank(0x11, 0x89C0, Blob.FromHex("08c230ae610ef005ae600e8003aeb11028e0ff6b"));
 			PutInBank(0x11, 0x89E0, Blob.FromHex("22c08911dabf0098040a0a8df700c210686b"));
 		}
-			public void BugFixes()
+		public void BugFixes()
 		{
 			// Fix vendor buy 0 bug
 			PutInBank(0x00, 0xB75B, Blob.FromHex("D0")); // Instead of BPL, BNE to skip 0
@@ -433,8 +493,8 @@ namespace FFMQLib
 			// Fix music instrument overflow
 			// If the instruments data is full ($620, $20 bytes), when loading a new track the instruments will overflow and crash the spc chip by loading garbage data; the fix force the instrument data to be flushed to make space
 			PutInBank(0x0D, 0x8340, Blob.FromHex("22708811b016eaeaeaeaeaeaea"));
-            PutInBank(0x11, 0x8870, Blob.FromHex("a20000c220b528f009e8e8e02000d0f5386b186b"));
-        }
+			PutInBank(0x11, 0x8870, Blob.FromHex("a20000c220b528f009e8e8e02000d0f5386b186b"));
+		}
 		public void Msu1Support()
 		{
 			// see 10_8000_MSUSupport.asm
@@ -460,12 +520,12 @@ namespace FFMQLib
 				tracks.Remove(0x04);
 				tracks.Remove(0x15);
 
-                tracks.Shuffle(rng);
-                tracks.Insert(0x00, 0x00);
-                tracks.Insert(0x04, 0x04);
-                tracks.Insert(0x15, 0x15);
-                tracks.Add(0x1A);
-                List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
+				tracks.Shuffle(rng);
+				tracks.Insert(0x00, 0x00);
+				tracks.Insert(0x04, 0x04);
+				tracks.Insert(0x15, 0x15);
+				tracks.Add(0x1A);
+				List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
 
 				PutInBank(0x10, 0x8240, completetracks.OrderBy(x => x.Item1).Select(x => x.Item2).ToArray());
 				PutInBank(0x00, 0x928A, Blob.FromHex("22008210eaeaeaea")); // normal track loading routine

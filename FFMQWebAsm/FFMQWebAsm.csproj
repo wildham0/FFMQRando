@@ -4,6 +4,8 @@
     <TargetFramework>net7.0</TargetFramework>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
     <TypeScriptModuleKind>system</TypeScriptModuleKind>
+    <Authors>wildham</Authors>
+    <Product>FFMQRando</Product>
   </PropertyGroup>
 
   <ItemGroup>

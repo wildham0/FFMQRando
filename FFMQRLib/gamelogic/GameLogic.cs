@@ -118,6 +118,7 @@ namespace FFMQLib
 			// Process Logic Access
 			if (flags.LogicOptions != LogicOptions.Expert)
 			{
+				// Remove path between fireburg and the frozen field from logic if not expert
 				var volcanoBattlefieldRoom = Rooms.Find(x => x.Type == RoomType.Subregion && x.Region == SubRegions.VolcanoBattlefield);
 				volcanoBattlefieldRoom.Links.RemoveAll(l => l.Access.Contains(AccessReqs.SummerAquaria));
 
@@ -126,8 +127,21 @@ namespace FFMQLib
 			}
 			else if((flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Dungeons) && !flags.CrestShuffle)
 			{
-				var exitTrickRoom = Rooms.Find(x => x.Id == 75);
+                // Add Sealed Temple Exit trick to logic in Expert mode
+                var exitTrickRoom = Rooms.Find(x => x.Id == 75);
 				exitTrickRoom.Links.Add(new RoomLink(74, new() { AccessReqs.ExitBook }));
+			}
+
+            // Don't put progression on vendors if there's no enemies to fight to avoid gp softlock
+            if (flags.EnemiesDensity == EnemiesDensity.None)
+			{
+				List<int> vendorobjectlist = new() { 4, 11, 16 };
+				var vendorobjects = Rooms.SelectMany(r => r.GameObjects).Where(o => o.Type == GameObjectType.NPC && vendorobjectlist.Contains(o.ObjectId)).ToList();
+
+				foreach (var vendor in vendorobjects)
+				{ 
+					vendor.Access.AddRange(new List<AccessReqs>() { AccessReqs.SandCoin, AccessReqs.RiverCoin} );
+				}
 			}
 
 			var giantTreeLink = locationLinks.Find(l => l.Location == LocationIds.GiantTree);
@@ -528,6 +542,121 @@ namespace FFMQLib
 				accesslist.AddRange(link.Access);
 				ProcessRoomForRequirements(reqcount + link.Access.Count, link.TargetRoom, accesslist, visitedrooms);
 			}
+		}
+		
+		public List<SpoilerRoom> CrawlForSpoilers(LocationIds location)
+		{
+            var regionRooms = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
+            var initialRoom = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).ToList().Find(l => l.Location == location).TargetRoom;
+
+			//List<AccessReqs> accessList = Rooms.Find(x => x.Id == initialRoom).Links.SelectMany(x => x.Access).ToList();
+			List<int> visitedRooms = new() { initialRoom };
+
+            var initialspoilerroom = new SpoilerRoom()
+			{
+				RoomId = initialRoom,
+				ParentId = 0,
+				Access = new(),
+				Depth = 0,
+				DewyNumber = new() { 0 },
+				Description = Rooms.Find(x => x.Id == initialRoom).Name
+			};
+
+			List<SpoilerRoom> spoilerRooms = new();
+			spoilerRooms.Add(initialspoilerroom);
+
+			ProcessRoomForSpoilers(0, initialspoilerroom, spoilerRooms, visitedRooms);
+
+			return spoilerRooms;
+		}
+
+		
+		public void ProcessRoomForSpoilers(int depth, SpoilerRoom parent, List<SpoilerRoom> spoilerrooms, List<int> visitedrooms)
+		{
+			var currentRoom = Rooms.Find(x => x.Id == parent.RoomId);
+			int dewynumber = 0;
+			List<SpoilerRoom> roomsToVisit = new();
+
+			foreach (var link in currentRoom.Links.Where(l => l.TargetRoom != parent.ParentId))
+			{
+                var targetroom = Rooms.Find(x => x.Id == link.TargetRoom);
+				SpoilerRoom currentspoilerroom;
+				if (targetroom.Type != RoomType.Dungeon)
+				{
+					continue;
+				}
+
+				if (visitedrooms.Contains(link.TargetRoom))
+				{
+					currentspoilerroom = new SpoilerRoom()
+					{
+						RoomId = link.TargetRoom,
+						ParentId = parent.RoomId,
+						Access = link.Access,
+						Depth = depth + 1,
+						DewyNumber = parent.DewyNumber.Append(dewynumber++).ToList(),
+						Description = targetroom.Name
+                    };
+
+                    spoilerrooms.Add(currentspoilerroom);
+                }
+				else
+				{
+                    currentspoilerroom = new SpoilerRoom()
+                    {
+                        RoomId = link.TargetRoom,
+                        ParentId = parent.RoomId,
+                        Access = link.Access,
+                        Depth = depth + 1,
+                        DewyNumber = parent.DewyNumber.Append(dewynumber++).ToList(),
+                        Description = targetroom.Name
+                    };
+
+					visitedrooms.Add(targetroom.Id);
+
+                    if (link.Access.Intersect(AccessReferences.CrestsAccess).Any() && (targetroom.Location != currentRoom.Location))
+                    {
+                        currentspoilerroom.Description = "To " + targetroom.Location.ToString();
+                        spoilerrooms.Add(currentspoilerroom);
+                    }
+                    else
+                    {
+                        roomsToVisit.Add(currentspoilerroom);
+                        spoilerrooms.Add(currentspoilerroom);
+                    }
+                }
+            }
+
+			foreach (var room in roomsToVisit)
+			{
+                ProcessRoomForSpoilers(depth + 1, room, spoilerrooms, visitedrooms);
+            }
+		}
+	}
+
+	public class SpoilerRoom
+	{
+		public int RoomId { get; set; }
+		public int ParentId { get; set; }
+		public List<int> DewyNumber { get; set; }
+		public List<AccessReqs> Access { get; set; }
+		public int Depth { get; set; }
+		public string Description { get; set; }
+		public double ComputedDewy => ComputeDewy();
+
+		private double ComputeDewy()
+		{
+			double dewy = 0;
+			for (int i = 0; i < 9; i++)
+			{
+				if (i >= DewyNumber.Count)
+				{
+					break;
+				}
+				dewy += DewyNumber[i] * Math.Pow(10, (9 - i));
+			}
+
+			return dewy;
 		}
 	}
 }
