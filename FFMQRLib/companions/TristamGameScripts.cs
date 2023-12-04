@@ -150,7 +150,8 @@ namespace FFMQLib
 				MapObjects[0x14][0x00].X++;
 				MapObjects[0x14][0x00].Behavior = 0x0A;
 				MapObjects[0x14][0x00].Orientation = 0x02;
-				GameFlags[(int)NewGameFlagsList.ShowBoneDungeonTristam] = false;
+                MapObjects[0x14][0x00].UnknownIndex = 0x02;
+                GameFlags[(int)NewGameFlagsList.ShowBoneDungeonTristam] = false;
 
                 TileScripts.AddScript((int)TileScriptsList.BoneDungeonTristamBomb,
 					new ScriptBuilder(new List<string>

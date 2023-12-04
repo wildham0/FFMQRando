@@ -128,7 +128,8 @@ namespace FFMQLib
 				MapObjects[0x34][0x00].X = 0x0D;
 				MapObjects[0x34][0x00].Y = 0x05;
 				MapObjects[0x34][0x00].Behavior = 0x0A;
-				MapObjects[0x34][0x00].Orientation = 0x02;
+                MapObjects[0x34][0x00].UnknownIndex = 0x02;
+                MapObjects[0x34][0x00].Orientation = 0x02;
 
 				TalkScripts.AddScript((int)TalkScriptsList.ReubenMine,
 					new ScriptBuilder(new List<string>
