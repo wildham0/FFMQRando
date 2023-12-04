@@ -87,12 +87,13 @@ namespace FFMQLib
             string tristamline3 = $"23{(int)NewGameFlagsList.ShowFireburgTristam:X2}";             // 09 Yes, show in Fireburg
 
 			// [AP1.4] remove when api/apworld are updated
+			/*
 			if (apenabled)
 			{
 				tristamline1 = $"23{(int)NewGameFlagsList.ShowFireburgTristam:X2}";             // 07 Tristam is at Fireburg
                 tristamline2 = $"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[10]"; // 08 Is bone quest done?
                 tristamline3 = $"23{(int)NewGameFlagsList.ShowSandTempleTristam:X2}";			// 09 No, show at Sand Temple
-            }
+            }*/
 
             var companionSwitch = new ScriptBuilder(new List<string>{
 				$"050f{(int)CompanionsId.Kaeli:X2}[06]",

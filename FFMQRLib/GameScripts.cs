@@ -51,10 +51,10 @@ namespace FFMQLib
 			}
 
 			// [AP1.4] remove when api/apworld are updated
-			if (!apenabled)
-			{
+			//if (!apenabled)
+			//{
 				GameFlags[(int)NewGameFlagsList.ShowFireburgTristam] = false;
-			}
+			//}
 
 			// Remove Mine Boulder
 			for (int i = 0; i < 6; i++)
