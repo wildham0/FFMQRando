@@ -3,7 +3,7 @@
 
 async function downloadFileFromStream(fileName, contentStreamReference) {
     const arrayBuffer = await contentStreamReference.arrayBuffer();
-    const blob = new Blob([arrayBuffer]);
+    const blob = new Blob([arrayBuffer], { type: "application/octet-stream" });
 
     const url = URL.createObjectURL(blob);
 

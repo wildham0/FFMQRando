@@ -120,6 +120,7 @@
         {
             string fileName = "";
             string fileNameSpoilers = "";
+            string fileNameInfoDump = "";
 
             if (ApConfigs.ApEnabled)
             {
@@ -127,6 +128,7 @@
                 romMessage = "Archipelago ROM file generated successfully.";
                 fileName = ApConfigs.FileName + ".sfc";
                 fileNameSpoilers = ApConfigs.FileName + "_Spoilers" + ".txt";
+                fileNameInfoDump = ApConfigs.FileName + "_GameInfo" + ".txt";
             }
             else
             {
@@ -135,6 +137,7 @@
                 romMessage = "ROM file generated successfully.";
                 fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".sfc";
                 fileNameSpoilers = "FFMQR_Spoilers_" + FFMQLib.Metadata.Version + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".txt";
+                fileNameInfoDump = "FFMQR_GameInfo_" + FFMQLib.Metadata.Version + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".txt";
             }
 
             var fs = rom.DataStream();
@@ -150,6 +153,14 @@
                 using var streamRefSpoilers = new DotNetStreamReference(stream: fsSpoilers);
 
                 await JS.InvokeVoidAsync("downloadFileFromStream", fileNameSpoilers, streamRefSpoilers);
+            }
+            else if (Preferences.DumpGameInfoScreen)
+            {
+                var fsSpoilers = rom.SpoilerStream();
+
+                using var streamRefSpoilers = new DotNetStreamReference(stream: fsSpoilers);
+
+                await JS.InvokeVoidAsync("downloadFileFromStream", fileNameInfoDump, streamRefSpoilers);
             }
         }
         catch (Exception ex)

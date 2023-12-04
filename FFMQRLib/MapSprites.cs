@@ -16,20 +16,58 @@ namespace FFMQLib
 	public class SpriteAddressor
 	{ 
 		public byte SpriteGraphic { get; set; }
-		public int Position { get; set; }
+		public int Position => GetPosition();
+		public int Row { get; set; }
+		public int RowOffset { get; set; }
 		public SpriteSize Size { get; set; }
-
-		public SpriteAddressor(int _position, byte _graphic, SpriteSize _size)
+		private List<(int index, byte bit)> rowToIndex = new() { (0, 0xF0), (0, 0x08), (0, 0x04), (1, 0xF0), (1, 0x0F), (2, 0xF0), (0, 0x02), (2, 0x0F), (3, 0xF0), (3, 0x0F), (0, 0x01), (4, 0xF0), (4, 0x0F), (5, 0xF0) };
+        private List<byte> offsetToIndex = new() { 0x88, 0x44, 0x22, 0x11 };
+		private List<int> fullRows = new() { 0x01, 0x02, 0x06, 0x0A };
+        public SpriteAddressor(int _position, byte _graphic, SpriteSize _size)
 		{
-			Position = _position;
+			//Position = _position;
 			Size = _size;
 			SpriteGraphic = _graphic;
 		}
-		public (int index, byte bit) GetPositionBytes()
+        public SpriteAddressor(int _row, int _offset, byte _graphic, SpriteSize _size)
+        {
+            Row = _row;
+			RowOffset = _offset;
+            Size = _size;
+            SpriteGraphic = _graphic;
+        }
+        public SpriteAddressor(int _index, int _bit, byte _graphic)
+        {
+			byte bitIndex = (byte)(0x80 / Math.Pow(2, _bit));
+            Row = rowToIndex.FindIndex(x => x.index == _index && (x.bit & bitIndex) > 0);
+            RowOffset = (_bit > 3) ? (_bit - 4) : _bit;
+            Size = ((_graphic & 0x80) > 0) ? SpriteSize.Tiles8 : SpriteSize.Tiles16;
+            SpriteGraphic = (byte)(_graphic & 0x7F);
+        }
+		/*
+        public (int index, byte bit) GetPositionBytes()
 		{
 			return (Position / 8, (byte)(0x80 / Math.Pow(2,Position % 8)));
-		}
-		public byte GetSprite()
+		}*/
+        public (int index, byte bit) GetPositionBytes()
+        {
+			if (fullRows.Contains(Row))
+			{
+				var targetIndex = rowToIndex[Row];
+				return (targetIndex.index, targetIndex.bit);
+			}
+			else
+			{
+                var targetIndex = rowToIndex[Row];
+				return (targetIndex.index, (byte)(offsetToIndex[RowOffset] & targetIndex.bit));
+            }
+        }
+		public int GetPosition()
+		{
+			var positionByte = GetPositionBytes();
+			return (positionByte.index * 8) + (int)Math.Log2(0x80 / positionByte.bit);
+        }
+        public byte GetSprite()
 		{
 			return (byte)(SpriteGraphic | ((Size == SpriteSize.Tiles8) ? 0x80 : 0x00));
 		}
@@ -52,11 +90,14 @@ namespace FFMQLib
 			{
 				for (int j = 0; j < (i < 5 ? 8 : 4); j++)
 				{
-					if ((spriteList[i] & (byte)(0x80 / Math.Pow(2, j))) > 0)
+					byte bitIndex = (byte)(spriteList[i] & (byte)(0x80 / Math.Pow(2, j)));
+
+					if (bitIndex > 0)
 					{
 						byte targetByte = rom.Get(_address + _pointer + 12 + spritecount, 1).ToBytes()[0];
-						AdressorList.Add(new SpriteAddressor(i * 8 + j, targetByte, (targetByte & 0x80) > 0 ? SpriteSize.Tiles8 : SpriteSize.Tiles16));
-						spritecount++;
+                        //AdressorList.Add(new SpriteAddressor(i * 8 + j, targetByte, (targetByte & 0x80) > 0 ? SpriteSize.Tiles8 : SpriteSize.Tiles16));
+                        AdressorList.Add(new SpriteAddressor(i, j, targetByte));
+                        spritecount++;
 					}
 				}
 			}
@@ -69,7 +110,13 @@ namespace FFMQLib
 			Palette = palette;
 			AdressorList = adressors;
 		}
-		public List<byte> GetDataArray()
+        public MapSpriteSet(MapSpriteSet settocopyfrom)
+        {
+            LoadMonsterSprites = settocopyfrom.LoadMonsterSprites;
+            Palette = settocopyfrom.Palette.ToList();
+            AdressorList = settocopyfrom.AdressorList.Select(a => new SpriteAddressor(a.Row, a.RowOffset, a.SpriteGraphic, a.Size)).ToList();
+        }
+        public List<byte> GetDataArray()
 		{
 			List<byte> positionList = new() { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 			
@@ -77,7 +124,9 @@ namespace FFMQLib
 
 			foreach (var addressor in orderedAddressors)
 			{
-				positionList[addressor.GetPositionBytes().index] |= addressor.GetPositionBytes().bit;
+				var positionByte = addressor.GetPositionBytes();
+
+                positionList[positionByte.index] |= positionByte.bit;
 			}
 
 			positionList[5] |= (byte)(LoadMonsterSprites ? 0x01 : 0x00);
@@ -86,21 +135,30 @@ namespace FFMQLib
 		}
 		public void DeleteAddressor(int position)
 		{
-			AdressorList.RemoveAll(x => x.Position == position);
+			AdressorList.RemoveAll(x => x.Row == position);
 		}
-		public void AddAddressor(int position, byte sprite, SpriteSize size)
+		public void MoveAddressor(int from, int to)
 		{
-			if (AdressorList.Where(x => x.Position == position).Any())
+			var targetAdressors = AdressorList.Where(x => x.Row == from).ToList();
+
+			if (targetAdressors.Any())
 			{
-				throw new Exception("Position " + position + " is already taken.");
+				targetAdressors.First().Row = to;
+			}
+        }
+		public void AddAddressor(int row, int offset, byte sprite, SpriteSize size)
+		{
+			if (AdressorList.Where(x => x.Row == row).Any())
+			{
+				throw new Exception("Position " + row + " is already taken.");
 			}
 
-			AdressorList.Add(new SpriteAddressor(position, sprite, size));
+			AdressorList.Add(new SpriteAddressor(row, offset, sprite, size));
 		}
 	}
 	public class MapSprites
 	{ 
-		public List<MapSpriteSet> MapSpriteSets { get; set; }
+		private List<MapSpriteSet> MapSpriteSets { get; set; }
 		
 		private int MapSpriteSetPointersAddress = 0x8892;
 		private int MapSpriteSetBaseAddress = 0x88FC;
@@ -123,7 +181,17 @@ namespace FFMQLib
 				MapSpriteSets.Add(new MapSpriteSet(rom.GetFromBank(MapSpriteSetBank, MapSpriteSetPointersAddress + (i * 2), 2).ToUShorts()[0], MapSpriteSetLongBaseAddress, rom));
 			}
 		}
-		public void Write(FFMQRom rom)
+        public MapSpriteSet this[int id]
+        {
+            get => MapSpriteSets[id];
+            set => MapSpriteSets[id] = value;
+        }
+		public int Add(MapSpriteSet newmapspriteset)
+		{
+			MapSpriteSets.Add(newmapspriteset);
+			return (MapSpriteSets.Count - 1);
+        }
+        public void Write(FFMQRom rom)
 		{
 			ushort currentPosition = 0;
 			List<ushort> pointers = new();

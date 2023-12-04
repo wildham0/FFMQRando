@@ -73,6 +73,10 @@ Final Fantasy Mystic Quest:
     Chaos: 0
     SelfDestruct: 0
     SimpleShuffle: 1
+  enemizer_groups:
+    MobsOnly: 1
+    MobsBosses: 0
+    MobsBossesDK: 0
   leveling_curve:
     Half: 0
     Normal: 0
