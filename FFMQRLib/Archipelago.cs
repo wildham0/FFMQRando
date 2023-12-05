@@ -220,10 +220,34 @@ namespace FFMQLib
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
 
+			bool ap14used = false;
+			if (companionshuffling == -1)
+			{
+				companionshuffling = 0;
+				ap14used = true;
+            }
+
 			Battlefields = new();
 			Overworld = new();
 			GameLogic = new();
 
+			if (ap14used)
+			{
+				var gameobjects = GameLogic.Rooms.SelectMany(r => r.GameObjects).ToList();
+				foreach (var gameobject in gameobjects)
+				{
+					if (gameobject.Access.Contains(AccessReqs.TristamBoneItemGiven))
+					{
+						gameobject.Access.Remove(AccessReqs.TristamBoneItemGiven);
+                        gameobject.Access.Add(AccessReqs.ReubenMine);
+                    }
+                    if (gameobject.OnTrigger.Contains(AccessReqs.TristamBoneItemGiven))
+                    {
+                        gameobject.OnTrigger.Remove(AccessReqs.TristamBoneItemGiven);
+                        gameobject.OnTrigger.Add(AccessReqs.ReubenMine);
+                    }
+                }
+			}
 			// Locations & Logic
 			Battlefields.ShuffleBattlefieldRewards(battlefieldshuffle, GameLogic, apconfigs, rng);
 			GameLogic.CompanionsShuffle((CompanionsLocationType)companionshuffling, kaelismom, apconfigs, rng);

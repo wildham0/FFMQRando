@@ -190,8 +190,9 @@ namespace FFMQLib
 		Kaeli1,
 		Kaeli2,
 		Tristam,
-		TristamBoneItemGiven,
-		Phoebe1,
+		TristamBoneItemGiven, 
+		ReubenMine, // is TristamBoneItemGiven, but we switch it for compat with ap 1.4 (this is awful)
+        Phoebe1,
 		Reuben1,
 		ReubenDadSaved,
 		Otto,
