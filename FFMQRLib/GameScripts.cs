@@ -322,7 +322,8 @@ namespace FFMQLib
 			MapChanges.Replace(0x03, Blob.FromHex("2a2534393960404040404040404040")); // Put script tile in after collapse
 
 			// Wintry Squid
-			MapObjects[0x1F][0x0B].Gameflag = 0xFE;
+			MapObjects[0x1F][0x0B].Gameflag = (int)NewGameFlagsList.ShowSquidChest;
+			GameFlags[(int)NewGameFlagsList.ShowSquidChest] = false;
 
 			TalkScripts.AddScript((int)TalkScriptsList.FightSquid,
 				new ScriptBuilder(new List<string>{
@@ -330,7 +331,7 @@ namespace FFMQLib
 					"05E43110",
 					"2B24",
 					"2A61463B46FFFF",
-					"23E0",
+                    $"23{(int)NewGameFlagsList.ShowSquidChest:X2}",
 					Companions.GetQuestString(QuestsId.DefeatSquidite),
 					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
 					"00"
@@ -360,14 +361,16 @@ namespace FFMQLib
 
 			MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
 			MapObjects[0x21][0x0F].Y = MapObjects[0x21][0x07].Y;
-			MapObjects[0x21][0x0F].Gameflag = 0xFE;
+			MapObjects[0x21][0x0F].Gameflag = (int)NewGameFlagsList.ShowCrabChest;
+            GameFlags[(int)NewGameFlagsList.ShowCrabChest] = false;
 
-			TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
+            TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
 				new ScriptBuilder(new List<string>{
 					"04",
 					"05E43403",
 					"2B25",
-					"2A67463F46FFFF",
+                    $"23{(int)NewGameFlagsList.ShowCrabChest:X2}",
+                    "2A67463F46FFFF",
 					Companions.GetQuestString(QuestsId.DefeatSnowCrab),
 					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
 					"00"
@@ -721,16 +724,16 @@ namespace FFMQLib
 			// Medusa - Put medusa over chest
 			MapObjects[0x37][0x00].X = MapObjects[0x37][0x0D].X;
 			MapObjects[0x37][0x00].Y = MapObjects[0x37][0x0D].Y;
-			MapObjects[0x37][0x0D].Gameflag = 0xFE;
+			MapObjects[0x37][0x0D].Gameflag = (int)NewGameFlagsList.ShowMedusaChest;
+            GameFlags[(int)NewGameFlagsList.ShowMedusaChest] = false;
 
-			TalkScripts.AddScript((int)TalkScriptsList.FightMedusa,
+            TalkScripts.AddScript((int)TalkScriptsList.FightMedusa,
 				new ScriptBuilder(new List<string>{
 					"04",
 					"05E45E04",
 					"2B27",
 					"2375",
-					"235D",
-					GameFlags[0xBB] ? "" : "23BB",
+                    $"23{(int)NewGameFlagsList.ShowMedusaChest:X2}",
 					"2A60463D46FFFF",
 					Companions.GetQuestString(QuestsId.DefeatMedusa),
 					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
@@ -1056,16 +1059,16 @@ namespace FFMQLib
 			// Headless Knight
 			MapObjects[0x4F][0x0C].X = MapObjects[0x4F][0x00].X;
 			MapObjects[0x4F][0x0C].Y = MapObjects[0x4F][0x00].Y;
-			MapObjects[0x4F][0x0C].Gameflag = 0xFE;
+			MapObjects[0x4F][0x0C].Gameflag = (int)NewGameFlagsList.ShowDullahanChest;
+            GameFlags[(int)NewGameFlagsList.ShowDullahanChest] = false;
 
-			TalkScripts.AddScript((int)TalkScriptsList.FightHeadlessKnight,
+            TalkScripts.AddScript((int)TalkScriptsList.FightHeadlessKnight,
 				new ScriptBuilder(new List<string>{
 					"04",
 					"1A54" + TextToHex("The horseman comes! And tonight he comes for you!\nWatch your head!"),
 					"05E49604",
 					"2B2A",
-					"232B",
-					GameFlags[0xC0] ? "" : "23C0",
+					$"23{(int)NewGameFlagsList.ShowDullahanChest:X2}",
 					"2A60463C46FFFF",
 					Companions.GetQuestString(QuestsId.DefeatDullahan),
 					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),

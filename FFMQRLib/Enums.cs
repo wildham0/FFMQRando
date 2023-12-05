@@ -151,6 +151,10 @@ namespace FFMQLib
         ReubenQuest3 = 0xB7,
         ReubenQuest4 = 0xB8,
 
+        ShowSquidChest = 0xE0,
+        ShowCrabChest = 0xC0,
+        ShowMedusaChest = 0x5D,
+        ShowDullahanChest = 0x2B,
 
         // Tentative removed enemy flag
         ShowEnemies = 0xF9,
