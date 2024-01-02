@@ -76,7 +76,7 @@ namespace FFMQLib
 		public void ShuffleEnemiesPosition(bool enable, GameMaps maps, MT19337 rng)
 		{
 			Dictionary<MapList, List<(int, int)>> excludedCoordinates = new Dictionary<MapList, List<(int, int)>> {
-				{ MapList.LevelAliveForest, new List<(int, int)> { (0x34, 0x10), (0x34, 0x0E) } },
+				{ MapList.LevelAliveForest, new List<(int, int)> { (0x34, 0x10), (0x34, 0x11), (0x34, 0x0E) } },
 				{ MapList.BoneDungeon, new List<(int, int)> { (0x0D, 0x3B), (0x27, 0x30) } },
 				{ MapList.WintryCave, new List<(int, int)> { (0x32, 0x39), (0x17, 0x06), (0x26, 0x11), (0x3A, 0x04) } },
 				{ MapList.MineExterior, new List<(int, int)> { (0x0B, 0x026), (0x23, 0x2A), (0x21, 0x0F), (0x3B, 0x30), (0x05, 0x1D) } },

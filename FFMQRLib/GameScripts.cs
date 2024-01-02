@@ -1090,8 +1090,9 @@ namespace FFMQLib
 
 			/*** Pazuzu's Tower ***/
 			bool skip7fteleport = flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld;
+			GameInfoScreen.PazuzuFloorWarning = skip7fteleport;
 
-			var newResetflags = new ScriptBuilder(new List<string> {
+            var newResetflags = new ScriptBuilder(new List<string> {
 						"2B47",
 						"2B48",
 						"2B49",
