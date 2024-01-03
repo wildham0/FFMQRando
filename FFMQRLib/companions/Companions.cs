@@ -20,9 +20,9 @@ namespace FFMQLib
 		QuestsExtended,
 		[Description("Save the Crystals (Individual)")]
 		SaveCrystalsIndividual,
-        [Description("Save the Crystals (All)")]
-        SaveCrystalsAll,
-        [Description("Benjamin Level")]
+		[Description("Save the Crystals (All)")]
+		SaveCrystalsAll,
+		[Description("Benjamin Level")]
 		BenPlus0,
 		[Description("Benjamin Level + 5")]
 		BenPlus5,
@@ -46,24 +46,24 @@ namespace FFMQLib
 		[Description("Random+None")]
 		RandomPlusNone,
 	}
-    public enum AvailableCompanionsType : int
-    {
-        [Description("0")]
-        Zero = 0,
-        [Description("1")]
-        One,
-        [Description("2")]
-        Two,
-        [Description("3")]
-        Three,
-        [Description("4")]
-        Four,
-        [Description("Random 1-4")]
-        Random14,
-        [Description("Random 0-4")]
-        Random04,
-    }
-    public class LevelThreshold
+	public enum AvailableCompanionsType : int
+	{
+		[Description("4")]
+		Four = 0,
+		[Description("3")]
+		Three,
+		[Description("2")]
+		Two,
+		[Description("1")]
+		One,
+		[Description("0")]
+		Zero,
+		[Description("Random 1-4")]
+		Random14,
+		[Description("Random 0-4")]
+		Random04,
+	}
+	public class LevelThreshold
 	{ 
 		public int Level { get; set; }
 		public int OffenseSpellsCount => Spells.Count(s => s >= SpellFlags.QuakeBook);
@@ -203,9 +203,9 @@ namespace FFMQLib
 		protected LevelingType levelingType;
 		public CompanionsId StartingCompanion { get; set; }
 		public Dictionary<CompanionsId, LocationIds> Locations { get; set; }
-        public Dictionary<CompanionsId, bool> Available { get; set; }
+		public Dictionary<CompanionsId, bool> Available { get; set; }
 
-        public Companion this[CompanionsId companion]
+		public Companion this[CompanionsId companion]
 		{
 			get => companions[((int)companion) - 1];
 		}
@@ -322,7 +322,7 @@ namespace FFMQLib
 				{ CompanionsId.Reuben, false },
 			};
 
-        }
+		}
 		public void SetStartingCompanion(StartingCompanionType companionoption, MT19337 rng)
 		{
 			List<CompanionsId> companions = new()
@@ -346,15 +346,15 @@ namespace FFMQLib
 
 			StartingCompanion = selectedcompanions[companionoption];
 		}
-        public void SetAvailableCompanions(AvailableCompanionsType companionoption, MT19337 rng)
-        {
-            List<CompanionsId> companions = new()
-            {
-                CompanionsId.Kaeli,
-                CompanionsId.Tristam,
-                CompanionsId.Phoebe,
-                CompanionsId.Reuben
-            };
+		public void SetAvailableCompanions(AvailableCompanionsType companionoption, MT19337 rng)
+		{
+			List<CompanionsId> companions = new()
+			{
+				CompanionsId.Kaeli,
+				CompanionsId.Tristam,
+				CompanionsId.Phoebe,
+				CompanionsId.Reuben
+			};
 
 			Dictionary<AvailableCompanionsType, int> selectedcompanions = new()
 			{
@@ -364,8 +364,8 @@ namespace FFMQLib
 				{ AvailableCompanionsType.Three, 3 },
 				{ AvailableCompanionsType.Four, 4 },
 				{ AvailableCompanionsType.Random14, rng.Between(1,4) },
-                { AvailableCompanionsType.Random04, rng.Between(0,4) },
-            };
+				{ AvailableCompanionsType.Random04, rng.Between(0,4) },
+			};
 
 			int companionqty = selectedcompanions[companionoption];
 
@@ -376,51 +376,51 @@ namespace FFMQLib
 				availablecompanions.Add(StartingCompanion);
 				companions.Remove(StartingCompanion);
 				companionqty--;
-            }
+			}
 
 			for (int i = 0; i < companionqty; i++)
 			{
 				availablecompanions.Add(rng.TakeFrom(companions));
-            }
+			}
 
 			foreach (var companion in availablecompanions)
 			{
 				Available[companion] = true;
 			}
-        }
-        public void SetCompanionsLocation(List<Room> rooms)
+		}
+		public void SetCompanionsLocation(List<Room> rooms)
 		{
 			Locations = new();
 
 			Dictionary<int, LocationIds> locationRooms = new()
-            {
+			{
 				{ 17, LocationIds.Foresta },
 				{ 24, LocationIds.SandTemple },
 				{ 39, LocationIds.LibraTemple },
 				{ 77, LocationIds.Fireburg },	 // Reuben's House
 				{ 51, LocationIds.LifeTemple },
-                { 41, LocationIds.Aquaria },
-                { 92, LocationIds.SealedTemple },
-                { 75, LocationIds.WintryTemple },
-                { 123, LocationIds.RopeBridge },
-                { 153, LocationIds.KaidgeTemple },
-                { 154, LocationIds.WindholeTemple },
-                { 185, LocationIds.LightTemple },
-            };
+				{ 41, LocationIds.Aquaria },
+				{ 92, LocationIds.SealedTemple },
+				{ 75, LocationIds.WintryTemple },
+				{ 123, LocationIds.RopeBridge },
+				{ 153, LocationIds.KaidgeTemple },
+				{ 154, LocationIds.WindholeTemple },
+				{ 185, LocationIds.LightTemple },
+			};
 
 			List<(string name, CompanionsId id)> companions = new()
 			{
 				("Kaeli Companion", CompanionsId.Kaeli),
-                ("Tristam Companion", CompanionsId.Tristam),
-                ("Phoebe Companion", CompanionsId.Phoebe),
-                ("Reuben Companion", CompanionsId.Reuben),
-            };
+				("Tristam Companion", CompanionsId.Tristam),
+				("Phoebe Companion", CompanionsId.Phoebe),
+				("Reuben Companion", CompanionsId.Reuben),
+			};
 
 			foreach (var companion in companions)
 			{
 				var targetroom = rooms.Find(r => r.GameObjects.Select(o => o.Name).ToList().Contains(companion.name));
 				Locations.Add(companion.id, locationRooms[targetroom.Id]);
-            }
+			}
 		}
 		public void Write(FFMQRom rom)
 		{
