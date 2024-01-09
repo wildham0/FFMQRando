@@ -128,7 +128,7 @@ namespace FFMQLib
                         "2d" + ScriptItemFlags[Items.TreeWither].Item1,
                         "050c" + ScriptItemFlags[Items.TreeWither].Item2 + "[04]",
                         $"1A{(int)TalkScriptsList.KaelisMomQuest:X2}" + TextToHex("The forest? Only The Void is my master, I await its wishes.") + "3600",
-                        $"1A{(int)TalkScriptsList.KaelisMomQuest:X2}" + TextToHex("A sign from The Void! We'll meet in Level Forest to brin inexistence to its enemies.") + "36",
+                        $"1A{(int)TalkScriptsList.KaelisMomQuest:X2}" + TextToHex("A sign from The Void! We'll meet in Level Forest to bring inexistence to its enemies.") + "36",
                         "2A4042204320424046FFFF",
                         $"23{(int)NewGameFlagsList.ShowLevelForestKaeli:X2}2B{(int)NewGameFlagsList.ShowForestaKaelisMom:X2}2B6C",
                         "00",

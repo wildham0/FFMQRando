@@ -73,7 +73,7 @@ namespace FFMQLib
 				List<string> mysteriousmanline = new()
 				{
 					$"To enter Doom Castle, you shall defeat the four demons, no more, no less! Once the fourth evil one is defeated, then you shall receive the Sky Coin.",
-					$"Defeat the fourd Fiends to light the four orbs... I mean, receive the Sky Coin.",
+					$"Defeat the four Fiends to light the four orbs... I mean, receive the Sky Coin.",
 					$"Only the one strong enough to restore the four Crystals will be blessed by the Sky Coin!",
 				};
 

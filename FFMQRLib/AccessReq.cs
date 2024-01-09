@@ -195,7 +195,6 @@ namespace FFMQLib
 			LocationIds.AliveForest,
 			LocationIds.Aquaria,
 			LocationIds.Fireburg,
-			LocationIds.Windia
 		};
 		public static List<(LocationIds, int)> LocationsByEntrances = new()
 		{

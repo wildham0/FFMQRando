@@ -10,7 +10,8 @@ namespace FFMQLib
 	public class GameInfoScreen
 	{
 		public int FragmentsCount { get; set; }
-		public List<(ElementsType, ElementsType)> ShuffledElementsType { get; set; }
+        public bool PazuzuFloorWarning { get; set; }
+        public List<(ElementsType, ElementsType)> ShuffledElementsType { get; set; }
 		public List<(CompanionsId, List<(int level, SpellFlags spell)>)> SpellLearning { get; set; }
 		public List<(CompanionsId companion, NewGameFlagsList flag, string description)> Quests { get; set; }
 		private int pagecount;
@@ -60,7 +61,8 @@ namespace FFMQLib
 		public GameInfoScreen()
 		{
 			FragmentsCount = 0;
-			ShuffledElementsType = new();
+			PazuzuFloorWarning = false;
+            ShuffledElementsType = new();
 			SpellLearning = new();
 			pagecount = 1;
 			pageoffsets = new();
@@ -165,14 +167,14 @@ namespace FFMQLib
 
 			List<string> pages = new();
 
-			if (FragmentsCount == 0 && !ShuffledElementsType.Any() && !SpellLearning.Any() && !Quests.Any())
+			if (FragmentsCount == 0 && !ShuffledElementsType.Any() && !SpellLearning.Any() && !Quests.Any() && !PazuzuFloorWarning)
 			{
 				string pagescript = $"250C1503{lineoffset:X2}19";
 				pagescript += rom.TextToHex("No info available.", true);
 				pages.Add(pagescript);
 			}
 
-			if (FragmentsCount > 0 || ShuffledElementsType.Any())
+			if (FragmentsCount > 0 || ShuffledElementsType.Any() || PazuzuFloorWarning)
 			{
 				string pagescript = ""; // $"250C1503{lineoffset:X2}19";
 				if (FragmentsCount > 0)
@@ -189,7 +191,19 @@ namespace FFMQLib
 					lineoffset += 2;
 				}
 
-				if (ShuffledElementsType.Any())
+                if (PazuzuFloorWarning)
+                {
+                    pagescript += $"250C2401{lineoffset:X2}1E0518";
+                    pagescript += $"1502{lineoffset:X2}19";
+                    pagescript += rom.TextToHex("Wind Crystal");
+                    lineoffset++;
+                    pagescript += $"1503{lineoffset:X2}19";
+                    pagescript += rom.TextToHex("Floors are shuffled.\nDefeating Pazuzu won't lift\nyou to the Wind Crystal.", true);
+
+                    lineoffset += 4;
+                }
+
+                if (ShuffledElementsType.Any())
 				{
 					pagescript += $"25102401{lineoffset:X2}1E0618";
 					pagescript += $"1502{lineoffset:X2}19";

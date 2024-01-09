@@ -2636,7 +2636,7 @@
     object_id: 0x9F
     type: "Box"
     access: []
-  - name: "Lava Dome - Hydra Room Southweast Box"
+  - name: "Lava Dome - Hydra Room Southweast Box" # Giga Otomia said to keep it, my hands are tied
     object_id: 0xA0
     type: "Box"
     access: []
