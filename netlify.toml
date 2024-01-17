@@ -20,3 +20,7 @@
   from = "/Archipelago"
   to = "/index.html"
   status = 200
+[[redirects]]
+  from = "/ImprovedVanilla"
+  to = "/index.html"
+  status = 200
