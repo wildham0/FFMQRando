@@ -172,6 +172,34 @@ namespace FFMQLib
 			get => _collections[_pointerCollectionPairs[floorid]];
 			set => _collections[_pointerCollectionPairs[floorid]] = value;
 		}
+		public string DumpXYLocations()
+		{
+			string tempstring = "";
+
+			for (int i = 0; i < _collections.Count; i++)
+			{
+                var tempmap = Enumerable.Repeat(0xFF, 64 * 64).ToArray();
+
+                for (int j = 0; j < _collections[i].Count; j++)
+				{
+					tempmap[_collections[i][j].Y * 64 + _collections[i][j].X] = j;
+                }
+
+                tempstring += i.ToString("X2") + ".\n";
+              
+				for (int y = 0; y < 64; y++)
+                {
+                    string myStringOutput = String.Join("", tempmap[(y * 64)..((y+1)*64)].Select(p => p == 0xFF ? "__" : p.ToString("X2")).ToArray());
+
+					tempstring += myStringOutput + "\n";
+                }
+
+				tempstring += "\n";
+
+            }
+
+			return tempstring;
+		}
 	}
 
 	public class MapObject

@@ -298,8 +298,12 @@ namespace FFMQLib
 			NewBattlefieldSprites(rom);
 			rom.PutInBank(0x0C, 0xD4D0, _battlesQty.ToArray());
 			rom.PutInBank(BattlefieldsRewardsBank, BattlefieldsRewardsOffset, battlefields.OrderBy(x => x.Location).SelectMany(x => x.GetBytes()).ToArray());
-           
         }
-	
-	}
+        public void WriteWithoutSprites(FFMQRom rom)
+        {
+            rom.PutInBank(0x0C, 0xD4D0, _battlesQty.ToArray());
+            rom.PutInBank(BattlefieldsRewardsBank, BattlefieldsRewardsOffset, battlefields.OrderBy(x => x.Location).SelectMany(x => x.GetBytes()).ToArray());
+        }
+
+    }
 }

@@ -41,11 +41,10 @@
             <div class="text-secondary">Experience the original game with the randomizer's quality of life improvements.</div>
             <ul class="text-secondary">
                 <li>200% XP gains</li>
-                <li>Half less enemies</li>
-                <li>Half less battlefield fights</li>
+                <li>Half as many enemies</li>
+                <li>Half as many battlefield fights</li>
                 <li>Double walking speed</li>
                 <li>Bug Fixes (Optional)</li>
-                <li>Fixed Pazuzu floor rng</li>
                 <li>MSU-1 Support</li>
             </ul>
     </Container>
@@ -63,7 +62,7 @@
             <ImproveButton EnableBugFixes="enableBugFixes" Preferences="preferences" Beta="@GetBetaStatus()" IsLoadFromMemoryDone="LoadFromMemoryDone" />
         </Container>
         <Container Class="flagColumn">
-            <BoolFlag UsePreset=false Name="Enable Bug Fixes" @bind-Value="enableBugFixes" Tooltip="Apply the randomizer's bug fixes, like no Cure overflow for the Dark King, fixed Companion Resistances, fixed Vendor Buy Zero Bug." />
+            <BoolFlag UsePreset=false Name="Enable Bug Fixes" @bind-Value="enableBugFixes" Tooltip="Apply the randomizer's bug fixes: no Cure overflow for the Dark King, fixed Companion Resistances, fixed Vendor Buy Zero Bug and fixed Life spell killing non-undead enemies." />
         </Container>
     </Container>
 </Container>
