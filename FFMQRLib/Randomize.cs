@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.6.02";
+		public static string Version = "1.6.03";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -100,7 +100,7 @@ namespace FFMQLib
             Companions.SetStartingCompanion(flags.StartingCompanion, rng);
             Companions.SetAvailableCompanions(flags.AvailableCompanions, rng);
             Companions.SetSpellbooks(flags.CompanionSpellbookType, GameInfoScreen, rng);
-			Companions.SetQuests(flags, GameInfoScreen, rng);
+			Companions.SetQuests(flags, Battlefields, GameInfoScreen, rng);
             Companions.SetCompanionsLocation(GameLogic.Rooms);
 
 			// Overworld

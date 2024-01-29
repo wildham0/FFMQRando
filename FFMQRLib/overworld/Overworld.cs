@@ -67,6 +67,11 @@ namespace FFMQLib
 						break;
 				}
 			}
+
+			if (battlefields.QuestBattlefield != LocationIds.None)
+			{
+                owSprites[(int)battlefields.QuestBattlefield - 1 + 0x11].Sprite = 0x64;
+            }
 		}
 		public void RemoveObject(int index)
 		{
