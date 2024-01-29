@@ -161,7 +161,7 @@ namespace FFMQLib
 			TalkScripts.Write(this);
 			GameFlags.Write(this);
 			EntrancesData.Write(this);
-			Battlefields.Write(this);
+			Battlefields.Write(flags.ShuffleBattlefieldRewards, this);
 			Overworld.Write(this);
 			MapObjects.Write(this);
 			MapSpriteSets.Write(this);

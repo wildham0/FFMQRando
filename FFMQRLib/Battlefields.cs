@@ -290,7 +290,7 @@ namespace FFMQLib
 				_battlesQty[i] = randomQty ? (byte)rng.Between(1, battleQty) : (byte)battleQty;
 			}
 		}
-		public void NewBattlefieldSprites(FFMQRom rom)
+		public void NewBattlefieldSprites(bool shuffleReward, FFMQRom rom)
 		{
 
 			string upperGpSprite = "00001F00341C6A38453C483A57306E20001F2345424548510000F8000C38461C823C025CC22C661400F8C4A242A2128A";
@@ -311,8 +311,12 @@ namespace FFMQLib
             if (QuestBattlefield != LocationIds.None)
 			{
 				var targetBattlefield = battlefields.Find(b => b.Location == QuestBattlefield);
-
-				if (targetBattlefield.RewardType == BattlefieldRewardType.Gold)
+				if (!shuffleReward)
+				{
+                    upperQuestSprite = upperQuestXpSprite;
+                    lowerQuestSprite = lowerXpSprite;
+                }
+				else if (targetBattlefield.RewardType == BattlefieldRewardType.Gold)
 				{
 					upperQuestSprite = upperQuestGpSprite;
 					lowerQuestSprite = lowerGpSprite;
@@ -341,9 +345,9 @@ namespace FFMQLib
             //DE24
             //DFA4
         }
-		public void Write(FFMQRom rom)
+		public void Write(bool shuffledReward, FFMQRom rom)
 		{
-			NewBattlefieldSprites(rom);
+			NewBattlefieldSprites(shuffledReward, rom);
 			rom.PutInBank(0x0C, 0xD4D0, _battlesQty.ToArray());
 			rom.PutInBank(BattlefieldsRewardsBank, BattlefieldsRewardsOffset, battlefields.OrderBy(x => x.Location).SelectMany(x => x.GetBytes()).ToArray());
         }
