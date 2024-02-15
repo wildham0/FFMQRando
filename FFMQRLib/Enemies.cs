@@ -571,8 +571,9 @@ namespace FFMQLib
 				}
 			}
 
-			var pazuzuScript = _EnemyAttackLinks.Find(e => e.Id == 0x4F);
-			pazuzuScript.Attacks[0x05] = 0xDA;
+			// Remove Strong Psychshield since it might get used
+			var zuhScript = _EnemyAttackLinks.Find(e => e.Id == 0x4F);
+			zuhScript.Attacks[0x05] = 0xDA;
 
 			foreach (var link in _EnemyAttackLinks)
 			{

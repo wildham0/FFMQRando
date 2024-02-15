@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.6.03";
+		public static string Version = "1.6.04";
 	}
 	public partial class FFMQRom : SnesRom
 	{
