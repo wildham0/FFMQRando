@@ -41,17 +41,16 @@ namespace FFMQLib
 		{
 			seed = apconfigs.ApEnabled ? apconfigs.GetSeed() : seed;
 			
-			MT19337 rng;				// Fixed RNG so the same seed with the same flagset generate the same results
-			MT19337 sillyrng;			// Fixed RNG so non impactful rng (preferences) matches for the same seed and the same flagset
+			MT19337 rng;                // Fixed RNG so the same seed with the same flagset generate the same results
+            MT19337 sillyrng;			// Fixed RNG so non impactful rng (preferences) matches for the same seed and the same flagset
 			MT19337 asyncrng;			// Free RNG so non impactful rng varies for the same seed and flagset
 			using (SHA256 hasher = SHA256.Create())
 			{
 				Blob hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 				sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
-			}
+            }
 			asyncrng = new MT19337((uint)Guid.NewGuid().GetHashCode());
-
 
 			Attacks = new(this);
 			EnemyAttackLinks = new(this);
@@ -140,11 +139,11 @@ namespace FFMQLib
 			ProgressiveFormation(flags.ProgressiveFormations, Overworld, rng);
 
 			// Preferences			
-			RandomizeTracks(preferences.RandomMusic, sillyrng);
-			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
+			RandomizeTracks(preferences.RandomMusic, new MT19337(sillyrng.Next()));
+			RandomBenjaminPalette(preferences.RandomBenjaminPalette, new MT19337(sillyrng.Next()));
 			WindowPalette(preferences.WindowPalette);
 			playerSprites.SetPlayerSprite(playerSprite, this);
-			darkKingTrueForm.RandomizeDarkKingTrueForm(preferences, sillyrng, this);
+			darkKingTrueForm.RandomizeDarkKingTrueForm(preferences, new MT19337(sillyrng.Next()), this);
 
 			// Credits
 			credits.Update(playerSprite, darkKingTrueForm.DarkKingSprite);

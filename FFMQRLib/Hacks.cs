@@ -513,8 +513,6 @@ namespace FFMQLib
 		}
 		public void RandomizeTracks(bool randomizesong, MT19337 rng)
 		{
-			var rngback = rng;
-
 			if (randomizesong)
 			{
 				List<byte> tracks = Enumerable.Range(0, 0x1A).Select(x => (byte)x).ToList();
@@ -537,9 +535,6 @@ namespace FFMQLib
 				PutInBank(0x10, 0x8210, Blob.FromHex("08e230aabf4082108d0b05a908286b"));
 				//PutInBank(0x10, 0x8140, completetracks.OrderBy(x => x.Item2).Select(x => x.Item1).ToArray());
 			}
-
-			rng = rngback;
-			rng.Next();
 		}
 	}
 }
