@@ -571,11 +571,14 @@ namespace FFMQLib
 				}
 			}
 
+			var pazuzuScript = _EnemyAttackLinks.Find(e => e.Id == 0x4F);
+			pazuzuScript.Attacks[0x05] = 0xDA;
+
 			foreach (var link in _EnemyAttackLinks)
 			{
 				if (switchList.TryGetValue(link.Id, out var newid))
 				{
-					link.Id = newid;
+                    link.Id = newid;
                 }
 			}
 		}
