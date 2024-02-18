@@ -769,7 +769,7 @@ namespace FFMQLib
 			//while (currentposition < _dimensions.Item1 * _dimensions.Item2 || writeChunkBuffer != false)
 			while (keepCompressing)
 			{
-				if (currentposition >= ((_dimensions.Item1 * _dimensions.Item2) - 1))
+				if (currentposition >= ((_dimensions.Item1 * _dimensions.Item2)))
 				{
 					keepCompressing = false;
 					if(tempChunkSize > 0 && !writeChunkBuffer)
