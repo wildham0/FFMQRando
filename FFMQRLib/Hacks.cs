@@ -311,7 +311,7 @@ namespace FFMQLib
 
 			// Item action selector (w AP support)
 			PutInBank(0x00, 0xDB42, Blob.FromHex("5c008f11"));
-			PutInBank(0x11, 0x8F00, Blob.FromHex("c910b0045c82db00c914b0045c70db00c920b0045c8edb00c92fb0045c9cdb00c9ddb0045cbedb00c9deb0045c58db00c9dfb0045c64db005c6bdb00"));
+			PutInBank(0x11, 0x8F00, Blob.FromHex("c910b0045c82db00c914b0045c70db00c920b0045c8edb00c92fb0045c9cdb00c9ddb0045cbedb00c9deb0045c58db00c9dfb0045c64db005c6edb00"));
 
 			// Don't check quantity on item F0+ when opening chests
 			PutInBank(0x00, 0xDA68, Blob.FromHex("c9f0b0"));
