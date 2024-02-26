@@ -223,8 +223,6 @@
 
 	private byte[] savedRom = new byte[0];
 
-	ElementReference TopElement;
-
 	private string flagString
 	{
 		get
@@ -366,16 +364,6 @@
 
 
 		NavigationManager.NavigateTo(NavigationManager.BaseUri + sectionNavigation + "?s=" + showSeed + "&f=" + flags.GenerateFlagString());
-		
-		/*
-		if (updatedUrl.IndexOf('#') == -1 && sectionNavigation != "")
-		{
-			NavigationManager.NavigateTo(updatedUrl.Insert(updatedUrl.IndexOf("?"), "#" + sectionNavigation));
-		}
-		else
-		{ 
-			NavigationManager.NavigateTo(updatedUrl);
-		}*/
 	}
 
 	private string MakeParsableUriString(string uristring)
