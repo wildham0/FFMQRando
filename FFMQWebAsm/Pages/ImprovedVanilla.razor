@@ -77,7 +77,6 @@
 }
 
 @code{
-    private long maxFileSize = 0x80200;
     private bool loadingDone = false;
     private int titleHeight = 80;
     private bool betaStatus = false;
@@ -88,10 +87,6 @@
     private ApConfigs apconfigs = new();
     private Blob seed = new byte[4];
     private List<string> titleLetters = new List<string> { "logo/mqlogoM.png", "logo/mqlogoy.png", "logo/mqlogos.png", "logo/mqlogot.png", "logo/mqlogoi.png", "logo/mqlogoc.png", "logo/mqlogoQ.png", "logo/mqlogou.png", "logo/mqlogoe.png", "logo/mqlogos2.png", "logo/mqlogot2.png" };
-
-    private string yamlPreset = "";
-    private string yamlMessage = "";
-    private string yamlName = "default";
 
     private bool GetBetaStatus()
     {
