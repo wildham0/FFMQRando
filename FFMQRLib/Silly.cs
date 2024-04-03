@@ -16,12 +16,9 @@ namespace FFMQLib
 		{
 			if (!enable)
 			{
-				rng.Next();
 				return;
 			}
 			
-			var rngback = rng;
-
 			List<(int red, int green, int blue)> skinTones = new()
 			{
 				(17, 10, 4),
@@ -73,9 +70,6 @@ namespace FFMQLib
 			};
 
 			PutInBank(0x07, 0xD828, palette.ToArray());
-			
-			rng = rngback;
-			rng.Next();
 		}
 	}
 }

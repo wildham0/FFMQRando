@@ -36,7 +36,7 @@
 
 <div id="fileSection"><br /><br /></div>
 
-<PresetsSection Name="Presets" SetPresetAction="@OnPresetAction" SetExportFile="@OnExportYaml"/>
+<PresetsSection Name="Presets" SetPresetAction="OnPresetAction" SetExportFile="OnExportYaml"/>
 
 <div><br /></div>
 }
@@ -199,221 +199,243 @@
 <div><br /><br /><br /><br /><br /></div>
 }
 @code{
-    private long maxFileSize = 0x80200;
-    private bool loadingDone = false;
-    private bool usePreset = false;
-    private int titleHeight = 80;
-    private bool betaStatus = false;
+	private long maxFileSize = 0x80200;
+	private bool loadingDone = false;
+	private bool usePreset = false;
+	private int titleHeight = 80;
+	private bool betaStatus = false;
 
 
-    private Blob seed = new byte[4];
-    private string showSeed;
-    private Flags flags = new();
-    private Preferences preferences = new();
-    private ApConfigs apConfigs = new();
-    private string seedMessage = "";
-    private string flagsMessage = "";
-    private List<string> titleLetters = new List<string> { "logo/mqlogoM.png", "logo/mqlogoy.png", "logo/mqlogos.png", "logo/mqlogot.png", "logo/mqlogoi.png", "logo/mqlogoc.png", "logo/mqlogoQ.png", "logo/mqlogou.png", "logo/mqlogoe.png", "logo/mqlogos2.png", "logo/mqlogot2.png" };
-    private bool updateFlagString = true;
-    private string tempFlagString;
+	private Blob seed = new byte[4];
+	private string showSeed;
+	private Flags flags = new();
+	private Preferences preferences = new();
+	private ApConfigs apConfigs = new();
+	private string seedMessage = "";
+	private string flagsMessage = "";
+	private List<string> titleLetters = new List<string> { "logo/mqlogoM.png", "logo/mqlogoy.png", "logo/mqlogos.png", "logo/mqlogot.png", "logo/mqlogoi.png", "logo/mqlogoc.png", "logo/mqlogoQ.png", "logo/mqlogou.png", "logo/mqlogoe.png", "logo/mqlogos2.png", "logo/mqlogot2.png" };
+	private bool updateFlagString = true;
+	private string tempFlagString;
 
-    private string yamlPreset = "";
-    private string yamlMessage = "";
-    private string yamlName = "default";
+	private string yamlPreset = "";
+	private string yamlMessage = "";
+	private string yamlName = "default";
 
-    private byte[] savedRom = new byte[0];
+	private byte[] savedRom = new byte[0];
 
-    private string flagString
-    {
-        get
-        {
-            if (updateFlagString)
-            {
-                tempFlagString = flags.GenerateFlagString();                
-                UpdateUrl();
-            }
-            return tempFlagString;
-        }
-        set
-        {
-            if (updateFlagString)
-            {
-                SetFlags(value);
-                UpdateUrl();
-            }
-        }
-    }
+	private string flagString
+	{
+		get
+		{
+			if (updateFlagString)
+			{
+				tempFlagString = flags.GenerateFlagString();                
+				UpdateUrl();
+			}
+			return tempFlagString;
+		}
+		set
+		{
+			if (updateFlagString)
+			{
+				SetFlags(value);
+				UpdateUrl();
+			}
+		}
+	}
 
-    private bool GetBetaStatus()
-    {
-        var uri = new Uri(NavigationManager.Uri);
+	private bool GetBetaStatus()
+	{
+		var uri = new Uri(NavigationManager.Uri);
 
-        string fullUrl = uri.OriginalString;
-        int index = fullUrl.IndexOf("dev");
-        if (index >= 0)
-        {
-            return true;
-        }
+		string fullUrl = uri.OriginalString;
+		int index = fullUrl.IndexOf("dev");
+		if (index >= 0)
+		{
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    private async Task LoadYamlFromUpload(FileChangedEventArgs e)
-    {
-        try
-        {
-            using (StreamReader streamReader = new StreamReader(e.Files.First().OpenReadStream(maxFileSize), Encoding.UTF8))
-            {
-                await LoadYamlFromStreamReader(streamReader);
-            }
-        }
-        catch (Exception ex)
-        {
-            yamlMessage = ex.Message;
-            Console.WriteLine(ex.Message);
-        }
-    }
+	private async Task LoadYamlFromUpload(FileChangedEventArgs e)
+	{
+		try
+		{
+			using (StreamReader streamReader = new StreamReader(e.Files.First().OpenReadStream(maxFileSize), Encoding.UTF8))
+			{
+				await LoadYamlFromStreamReader(streamReader);
+			}
+		}
+		catch (Exception ex)
+		{
+			yamlMessage = ex.Message;
+			Console.WriteLine(ex.Message);
+		}
+	}
 
-    private async Task LoadYamlFromFile(string presetname)
-    {
-        try
-        {
-            var stream = await Http.GetStreamAsync("presets/" + presetname + ".yaml");
+	private async Task LoadYamlFromFile(string presetname)
+	{
+		try
+		{
+			var stream = await Http.GetStreamAsync("presets/" + presetname + ".yaml");
 
-            using (StreamReader streamReader = new StreamReader(stream, Encoding.UTF8))
-            {
-                await LoadYamlFromStreamReader(streamReader);
-            }
-        }
-        catch (Exception ex)
-        {
-            yamlMessage = ex.Message;
-            Console.WriteLine(ex.Message);
-        }
-    }
+			using (StreamReader streamReader = new StreamReader(stream, Encoding.UTF8))
+			{
+				await LoadYamlFromStreamReader(streamReader);
+			}
+		}
+		catch (Exception ex)
+		{
+			yamlMessage = ex.Message;
+			Console.WriteLine(ex.Message);
+		}
+	}
 
-    private async Task LoadYamlFromStreamReader(StreamReader streamReader)
-    {
-        try
-        {
-            using (streamReader)
-            {
-                yamlPreset = await streamReader.ReadToEndAsync();
-            }
+	private async Task LoadYamlFromStreamReader(StreamReader streamReader)
+	{
+		try
+		{
+			using (streamReader)
+			{
+				yamlPreset = await streamReader.ReadToEndAsync();
+			}
 
-            yamlName = flags.ReadYaml(yamlPreset, seed);
-            flagsMessage = "Preset loaded succesfully.";
-        }
-        catch (Exception ex)
-        {
-            yamlMessage = ex.Message;
-            Console.WriteLine(ex.Message);
-        }
-    }
+			yamlName = flags.ReadYaml(yamlPreset, seed);
+			flagsMessage = "Preset loaded succesfully.";
+		}
+		catch (Exception ex)
+		{
+			yamlMessage = ex.Message;
+			Console.WriteLine(ex.Message);
+		}
+	}
 
-    private async void OnExportYaml(string yamlname)
-    {
-        var yamlStream = flags.YamlStream(yamlname);
-        var filenameYaml = yamlname + ".yaml";
-        using var streamRefSpoilers = new DotNetStreamReference(stream: yamlStream);
-        {
-            await JS.InvokeVoidAsync("downloadFileFromStream", filenameYaml, streamRefSpoilers);
-        }
-    }
+	private async void OnExportYaml(string yamlname)
+	{
+		var yamlStream = flags.YamlStream(yamlname);
+		var filenameYaml = yamlname + ".yaml";
+		using var streamRefSpoilers = new DotNetStreamReference(stream: yamlStream);
+		{
+			await JS.InvokeVoidAsync("downloadFileFromStream", filenameYaml, streamRefSpoilers);
+		}
+	}
 
-    private async void OnPresetAction((Stream file, string filename, string action, bool usepreset, bool loadfromfile) action)
-    {
-        if (!action.usepreset && !action.loadfromfile)
-        {
-            usePreset = false;
-            StateHasChanged();
-        }
-        else
-        {
-            await LoadYamlFromStreamReader(new StreamReader(action.file, Encoding.UTF8));
-            usePreset = action.usepreset;
-            StateHasChanged();
-        }
-    }
+	private async void OnPresetAction((Stream file, string filename, string action, bool usepreset, bool loadfromfile) action)
+	{
+		if (!action.usepreset && !action.loadfromfile)
+		{
+			usePreset = false;
+			StateHasChanged();
+		}
+		else
+		{
+			await LoadYamlFromStreamReader(new StreamReader(action.file, Encoding.UTF8));
+			usePreset = action.usepreset;
+			StateHasChanged();
+		}
+	}
 
-    private void RollSeed()
-    {
-        var rng = new Random();
-        rng.NextBytes(seed);
-        MT19337 rng2 = new MT19337((uint)seed.ToUInts().Sum(x => x));
-        titleLetters.Shuffle(rng2);
-        showSeed = seed.ToHex();
+	private void RollSeed()
+	{
+		var rng = new Random();
+		rng.NextBytes(seed);
+		MT19337 rng2 = new MT19337((uint)seed.ToUInts().Sum(x => x));
+		titleLetters.Shuffle(rng2);
+		showSeed = seed.ToHex();
 
-        if (usePreset)
-        {
-            flags.ReadYaml(yamlPreset, seed);
-        }
+		if (usePreset)
+		{
+			flags.ReadYaml(yamlPreset, seed);
+		}
 
-        UpdateUrl();
-    }
+		UpdateUrl();
+	}
 
-    private void UpdateUrl()
-    { 
-        var uri = new Uri(NavigationManager.Uri);
+	private void UpdateUrl()
+	{ 
+		string sectionNavigation = GetNavigationSection(NavigationManager.Uri, true);
 
-        var test = NavigationManager.GetUriWithQueryParameters(new Dictionary<string, object>
+		string updatedUrl = NavigationManager.GetUriWithQueryParameters(new Dictionary<string, object>
         {
          { "s", showSeed },
          { "f", flags.GenerateFlagString() }
         });
 
-        NavigationManager.NavigateTo(test);
-    }
 
-    private string MakeParsableUriString(string uristring)
-    {
-        var qmarkIndex = uristring.IndexOf('?');
-        var hashIndex = uristring.IndexOf('#');
+		NavigationManager.NavigateTo(NavigationManager.BaseUri + sectionNavigation + "?s=" + showSeed + "&f=" + flags.GenerateFlagString());
+	}
 
-        if (qmarkIndex == -1)
-        {
-            return ""; 
-        }
-        else if (qmarkIndex > hashIndex)
-        {
-            return uristring.Remove(0, qmarkIndex);
-        }
-        else
-        { 
-            return uristring.Remove(hashIndex).Remove(0, qmarkIndex);
-        }
-    }
+	private string MakeParsableUriString(string uristring)
+	{
+		var qmarkIndex = uristring.IndexOf('?');
+		var hashIndex = uristring.IndexOf('#');
 
-    protected override async Task OnInitializedAsync()
-    {
-        betaStatus = GetBetaStatus();
+		if (qmarkIndex == -1)
+		{
+			return ""; 
+		}
+		else if (qmarkIndex > hashIndex)
+		{
+			return uristring.Remove(0, qmarkIndex);
+		}
+		else
+		{ 
+			return uristring.Remove(hashIndex).Remove(0, qmarkIndex);
+		}
+	}
+	private string GetNavigationSection(string uristring, bool withhash)
+	{
+		var qmarkIndex = uristring.IndexOf('?');
+		var hashIndex = uristring.IndexOf('#');
 
-        var uri = new Uri(NavigationManager.Uri);
+		int hashOffset = withhash ? 0 : 1;
 
-        string parsableUri = MakeParsableUriString(uri.OriginalString);
 
-        var seedParameter = HttpUtility.ParseQueryString(parsableUri).Get("s");
-        if (seedParameter != null)
-        {
-            SetSeed(seedParameter);
-        }
-        else
-        {
-            RollSeed();            
-        }
+		if (hashIndex == -1)
+		{
+			return "";
+		}
+		else if (hashIndex > qmarkIndex)
+		{
+			return uristring.Remove(0, hashIndex + hashOffset);
+		}
+		else
+		{
+			return uristring.Remove(qmarkIndex).Remove(0, hashIndex + hashOffset);
+		}
+	}
 
-        var flagsParameter = HttpUtility.ParseQueryString(parsableUri).Get("f");
-        if (flagsParameter != null)
-        {
-            flagString = flagsParameter;
-        }
-        else
-        {
-            await LoadYamlFromFile("sgl2022");
-            StateHasChanged();
-            flagsMessage = "Using default flags (SGL2022).";
-        }
-    }
+	protected override async Task OnInitializedAsync()
+	{
+		betaStatus = GetBetaStatus();
+
+		var uri = new Uri(NavigationManager.Uri);
+
+		string parsableUri = MakeParsableUriString(uri.OriginalString);
+
+		var seedParameter = HttpUtility.ParseQueryString(parsableUri).Get("s");
+		if (seedParameter != null)
+		{
+			SetSeed(seedParameter);
+		}
+		else
+		{
+			RollSeed();            
+		}
+
+		var flagsParameter = HttpUtility.ParseQueryString(parsableUri).Get("f");
+		if (flagsParameter != null)
+		{
+			flagString = flagsParameter;
+		}
+		else
+		{
+			await LoadYamlFromFile("sgl2022");
+			StateHasChanged();
+			flagsMessage = "Using default flags (SGL2022).";
+		}
+	}
 
     // Seed Field Functions
     Task SeedOnChanged(string value)
@@ -525,6 +547,15 @@
     {
         loadingDone = true;
         JS.InvokeVoidAsync("hideLoadingBox");
+		
+		var uri = new Uri(NavigationManager.Uri);
+		string navigateTo = GetNavigationSection(uri.OriginalString, false);
         StateHasChanged();
+
+		if (navigateTo != "")
+		{
+			JS.InvokeVoidAsync("blazorScrollToId", navigateTo);
+		}
+
     }
 }

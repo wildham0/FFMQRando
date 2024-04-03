@@ -38,7 +38,12 @@ namespace FFMQLib
 		{
 			if (!flags.ShuffleBattlefieldRewards && (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Dungeons))
 			{
-				return;
+                if (battlefields.QuestBattlefield != LocationIds.None)
+                {
+                    owSprites[(int)battlefields.QuestBattlefield - 1 + 0x11].Sprite = 0x64;
+                }
+
+                return;
 			}
 			
 			const byte gpColor = 3;
@@ -67,6 +72,11 @@ namespace FFMQLib
 						break;
 				}
 			}
+
+			if (battlefields.QuestBattlefield != LocationIds.None)
+			{
+                owSprites[(int)battlefields.QuestBattlefield - 1 + 0x11].Sprite = 0x64;
+            }
 		}
 		public void RemoveObject(int index)
 		{

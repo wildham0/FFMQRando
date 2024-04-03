@@ -1,7 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavManager
 
-@if (GetPage() == "/Archipelago")
+@if (GetPage() != "/")
 { 
 <Layout Sider="true">
     <LayoutSider>
@@ -89,6 +89,12 @@ else
                 Text = " Archipelago",
                 Icon = "ap-icon",
                 To = "/Archipelago",
+            },
+            new SidebarItemInfo
+            {
+                Text = " Improved Vanilla",
+                Icon = IconName.ArrowUp,
+                To = "/ImprovedVanilla",
             },
             new SidebarItemInfo
             {

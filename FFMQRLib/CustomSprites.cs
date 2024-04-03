@@ -121,13 +121,10 @@ namespace FFMQLib
 
 			if (!pref.DarkKingTrueForm && !debugmode)
 			{
-				rng.Next();
 				DarkKingSprite = new();
 				DarkKingSprite.author = "";
 				return;
 			}
-
-			var rngback = rng;
 
 			GetRandomDKfromMetadata(rng);
 
@@ -186,9 +183,6 @@ namespace FFMQLib
 				finalname += "03";
 			}
 			rom.PutInBank(0x10, 0xB0A0, Blob.FromHex(finalname));
-
-			rng = rngback;
-			rng.Next();
 		}
 	}
 

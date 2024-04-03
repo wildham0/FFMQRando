@@ -1,0 +1,117 @@
+﻿@page "/ImprovedVanilla"
+@using Microsoft.AspNetCore.Components.Forms
+@using System.IO;
+@using System.IO.Compression;
+@using System;
+@using System.Web
+@using System.Net.Http
+@using System.Text;
+@using FFMQLib;
+@using Microsoft.JSInterop;
+@using Microsoft.JSInterop.WebAssembly;
+@using Blazorise.Components;
+@using RomUtilities;
+@using Microsoft.AspNetCore.Components
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+@inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
+@inject HttpClient Http
+
+
+<style>
+    body {
+
+        background: linear-gradient(rgba(27,42,81,1),rgba(85,109,171,1)) no-repeat center fixed;
+        background-size: cover;
+    }
+</style>
+
+@if (loadingDone)
+{
+    <div class="@("center-logo")">
+        <img height=@titleHeight src="@titleLetters[0]" /><img height=@titleHeight src="@titleLetters[1]" /><img height=@titleHeight src="@titleLetters[2]" /><img height=@titleHeight src="@titleLetters[3]" /><img height=@titleHeight src="@titleLetters[4]" /><img height=@titleHeight src="@titleLetters[5]" /><img height=@titleHeight src="logo/mqlogo_.png" /><img height=@titleHeight src="@titleLetters[6]" /><img height=@titleHeight src="@titleLetters[7]" /><img height=@titleHeight src="@titleLetters[8]" /><img height=@titleHeight src="@titleLetters[9]" /><img height=@titleHeight src="@titleLetters[10]" />
+    </div>
+<h1 class="text-secondary text-center" style="font-size: 1em">A FFMQ Randomizer<br />@("v" + @FFMQLib.Metadata.Version + (@betaStatus ? "-beta" : ""))</h1>
+
+<div><br /></div>
+
+<Container class="sectionBox">
+    <div class="box-title text-secondary">Improved Vanilla</div>
+    <Container Class="infoBox">
+            <div class="text-secondary">Experience the original game with the randomizer's quality of life improvements.</div>
+            <ul class="text-secondary">
+                <li>200% XP gains</li>
+                <li>Half as many enemies</li>
+                <li>Half as many battlefield fights</li>
+                <li>Double walking speed</li>
+                <li>Bug Fixes (Optional)</li>
+                <li>MSU-1 Support</li>
+            </ul>
+    </Container>
+</Container>
+
+<div><br /></div>
+}
+<Container class="sectionBox" Style=@(loadingDone ? "" : "display: none")>
+    <div class="box-title text-secondary">
+        Generation       
+    </div> 
+
+    <Container Class="flagBox">
+        <Container Class="flagColumn">
+            <ImproveButton EnableBugFixes="enableBugFixes" Preferences="preferences" Beta="@GetBetaStatus()" IsLoadFromMemoryDone="LoadFromMemoryDone" />
+        </Container>
+        <Container Class="flagColumn">
+            <BoolFlag UsePreset=false Name="Enable Bug Fixes" @bind-Value="enableBugFixes" Tooltip="Apply the randomizer's bug fixes: no Cure overflow for the Dark King, fixed Companion Resistances, fixed Vendor Buy Zero Bug and fixed Life spell killing non-undead enemies." />
+        </Container>
+    </Container>
+</Container>
+
+@if (loadingDone)
+{
+    <div><br /></div>
+
+<PreferencesSection preferences="@preferences" />
+
+<div><br /><br /><br /><br /><br /></div>
+}
+
+@code{
+    private bool loadingDone = false;
+    private int titleHeight = 80;
+    private bool betaStatus = false;
+    private bool enableBugFixes = true;
+
+    private Flags flags = new();
+    private Preferences preferences = new();
+    private ApConfigs apconfigs = new();
+    private Blob seed = new byte[4];
+    private List<string> titleLetters = new List<string> { "logo/mqlogoM.png", "logo/mqlogoy.png", "logo/mqlogos.png", "logo/mqlogot.png", "logo/mqlogoi.png", "logo/mqlogoc.png", "logo/mqlogoQ.png", "logo/mqlogou.png", "logo/mqlogoe.png", "logo/mqlogos2.png", "logo/mqlogot2.png" };
+
+    private bool GetBetaStatus()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+
+        string fullUrl = uri.OriginalString;
+        int index = fullUrl.IndexOf("dev");
+        if (index >= 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    protected override void OnInitialized()
+    {
+        betaStatus = GetBetaStatus();
+    }
+
+    void LoadFromMemoryDone(bool result)
+    {
+        loadingDone = true;
+        JS.InvokeVoidAsync("hideLoadingBox");
+        StateHasChanged();
+    }
+
+}

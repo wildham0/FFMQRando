@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.5.01";
+		public static string Version = "1.6.06";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -39,9 +39,15 @@ namespace FFMQLib
 		public string spoilersText;
 		public void Randomize(Blob seed, Flags flags, Preferences preferences, ApConfigs apconfigs)
 		{
+			// Convert 1.0 rom to 1.1 for compatibility
+			if (ConvertTo11)
+			{
+				Data = Patcher.PatchRom(this).DataReadOnly;
+			}
+			
 			seed = apconfigs.ApEnabled ? apconfigs.GetSeed() : seed;
 			
-			MT19337 rng;				// Fixed RNG so the same seed with the same flagset generate the same results
+			MT19337 rng;                // Fixed RNG so the same seed with the same flagset generate the same results
 			MT19337 sillyrng;			// Fixed RNG so non impactful rng (preferences) matches for the same seed and the same flagset
 			MT19337 asyncrng;			// Free RNG so non impactful rng varies for the same seed and flagset
 			using (SHA256 hasher = SHA256.Create())
@@ -51,7 +57,6 @@ namespace FFMQLib
 				sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
 			asyncrng = new MT19337((uint)Guid.NewGuid().GetHashCode());
-
 
 			Attacks = new(this);
 			EnemyAttackLinks = new(this);
@@ -97,11 +102,11 @@ namespace FFMQLib
 
 			// Companions
 			GameLogic.CompanionsShuffle(flags.CompanionsLocations, flags.KaelisMomFightMinotaur, apconfigs, rng);
-            Companions.SetStartingCompanion(flags.StartingCompanion, rng);
-            Companions.SetAvailableCompanions(flags.AvailableCompanions, rng);
-            Companions.SetSpellbooks(flags.CompanionSpellbookType, GameInfoScreen, rng);
-			Companions.SetQuests(flags, GameInfoScreen, rng);
-            Companions.SetCompanionsLocation(GameLogic.Rooms);
+			Companions.SetStartingCompanion(flags.StartingCompanion, rng);
+			Companions.SetAvailableCompanions(flags.AvailableCompanions, rng);
+			Companions.SetSpellbooks(flags.CompanionSpellbookType, GameInfoScreen, rng);
+			Companions.SetQuests(flags, Battlefields, GameInfoScreen, rng);
+			Companions.SetCompanionsLocation(GameLogic.Rooms);
 
 			// Overworld
 			Overworld.OpenNodes(flags);
@@ -140,11 +145,11 @@ namespace FFMQLib
 			ProgressiveFormation(flags.ProgressiveFormations, Overworld, rng);
 
 			// Preferences			
-			RandomizeTracks(preferences.RandomMusic, sillyrng);
-			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
+			RandomizeTracks(preferences.RandomMusic, new MT19337(sillyrng.Next()));
+			RandomBenjaminPalette(preferences.RandomBenjaminPalette, new MT19337(sillyrng.Next()));
 			WindowPalette(preferences.WindowPalette);
 			playerSprites.SetPlayerSprite(playerSprite, this);
-			darkKingTrueForm.RandomizeDarkKingTrueForm(preferences, sillyrng, this);
+			darkKingTrueForm.RandomizeDarkKingTrueForm(preferences, new MT19337(sillyrng.Next()), this);
 
 			// Credits
 			credits.Update(playerSprite, darkKingTrueForm.DarkKingSprite);
@@ -161,7 +166,7 @@ namespace FFMQLib
 			TalkScripts.Write(this);
 			GameFlags.Write(this);
 			EntrancesData.Write(this);
-			Battlefields.Write(this);
+			Battlefields.Write(flags.ShuffleBattlefieldRewards, this);
 			Overworld.Write(this);
 			MapObjects.Write(this);
 			MapSpriteSets.Write(this);

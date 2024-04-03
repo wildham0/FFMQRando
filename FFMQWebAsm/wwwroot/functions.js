@@ -68,3 +68,14 @@ function randomLoadingIcon() {
     ]
     document.getElementById('loadingimg').value = "loading/" + paths[Math.floor(Math.random() * paths.length)];
 }
+
+function blazorScrollToId(id) {
+    const element = document.getElementById(id);
+    if (element instanceof HTMLElement) {
+        element.scrollIntoView({
+            behavior: "auto",
+            block: "start",
+            inline: "nearest"
+        });
+    }
+}

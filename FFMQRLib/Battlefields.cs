@@ -131,12 +131,13 @@ namespace FFMQLib
 		private List<Blob> _rewards;
 
 		private List<Battlefield> battlefields;
-
+		public LocationIds QuestBattlefield { get; set; }
 		public Battlefields(FFMQRom rom)
 		{
 			_battlesQty = rom.GetFromBank(0x0C, 0xD4D0, BattlefieldsQty).Chunk(1).Select(x => x[0]).ToList();
 			_rewards = rom.GetFromBank(BattlefieldsRewardsBank, BattlefieldsRewardsOffset, BattlefieldsQty * 2).Chunk(2);
 			battlefields = _rewards.Select((x, i) => new Battlefield((LocationIds)(i + 1), x)).ToList();
+			QuestBattlefield = LocationIds.None;
 		}
 		public Battlefields()
 		{
@@ -163,7 +164,9 @@ namespace FFMQLib
 				new Battlefield(LocationIds.WindiaBattlefield01, Items.Xp2808),
 				new Battlefield(LocationIds.WindiaBattlefield02, Items.Xp2700),
 			};
-		}
+
+            QuestBattlefield = LocationIds.None;
+        }
 		public void PlaceItems(ItemsPlacement itemsPlacement)
 		{
 			var battlefieldsWithItem = itemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.BattlefieldItem && x.Content != Items.None).ToList();
@@ -287,19 +290,72 @@ namespace FFMQLib
 				_battlesQty[i] = randomQty ? (byte)rng.Between(1, battleQty) : (byte)battleQty;
 			}
 		}
-		public void NewBattlefieldSprites(FFMQRom rom)
+		public void NewBattlefieldSprites(bool shuffleReward, FFMQRom rom)
 		{
-			rom.PutInBank(0x07, 0xDDC4, Blob.FromHex("00001F00341C6A38453C483A57306E20001F2345424548510000F8000C38461C823C025CC22C661400F8C4A242A2128A00001F00301F6020492D492D4D2D6020001F205F5252525F0000F8000CF8060422B422B4B2B4060400F804FA4A4A4AFA"));
+
+			string upperGpSprite = "00001F00341C6A38453C483A57306E20001F2345424548510000F8000C38461C823C025CC22C661400F8C4A242A2128A";
+            string lowerGpSprite = "6C216C21662853144808403F7F0000005252516877407F002694A69446348A68121002FCFE0000004A4A8A16EE02FE00";
+            string upperItemSprite = "00001F00301F6020492D492D4D2D6020001F205F5252525F0000F8000CF8060422B422B4B2B4060400F804FA4A4A4AFA";
+            string lowerItemSprite = "612A6228612C682E6020403F7F000000545552515F407F008654461486341674060402FCFE0000002AAA4A8AFA02FE00";
+			string upperBrokenSprite = "00001F00201F713F7F02433C413E7D3C001F20407D4341430000F8008478827C06FC8EF8FA44CE0C00F884820206BAF2";
+            string lowerBrokenSprite = "6E2077077F3E7D3C7E3C423D7F0000005F78414343427F00BE1CDE44F6F0FEFCFEFC02FCFE000000E2BA0E020202FE00";
+			string upperXpSprite = rom.GetFromBank(0x07, 0xDEE4, 48).ToHex();
+            string lowerXpSprite = rom.GetFromBank(0x07, 0xE064, 48).ToHex();
+			string upperQuestGpSprite = "00001F00341C6A38453C483A57306E20001F2345424548513E00FF007F007F00FF007F00FE007E043EC1C9C941C926AA";
+            string upperQuestItemSprite = "00001F00301F6020492D492D4D2D6020001F205F5252525F3E00FF007F807F007F807F80BE803A003EC149C9414966EE";
+            string upperQuestXpSprite = "00001F00200148244C22563049386221001F3E535149465C3E00FF007F80FF807F00FF00BE403A803EC14949C149266E";
+
+			var upperQuestSprite = "";
+            var lowerQuestSprite = "";
+
+            if (QuestBattlefield != LocationIds.None)
+			{
+				var targetBattlefield = battlefields.Find(b => b.Location == QuestBattlefield);
+				if (!shuffleReward)
+				{
+                    upperQuestSprite = upperQuestXpSprite;
+                    lowerQuestSprite = lowerXpSprite;
+                }
+				else if (targetBattlefield.RewardType == BattlefieldRewardType.Gold)
+				{
+					upperQuestSprite = upperQuestGpSprite;
+					lowerQuestSprite = lowerGpSprite;
+				}
+				else if (targetBattlefield.RewardType == BattlefieldRewardType.Item)
+				{
+					upperQuestSprite = upperQuestItemSprite;
+                    lowerQuestSprite = lowerItemSprite;
+                }
+				else
+				{
+					upperQuestSprite = upperQuestXpSprite;
+                    lowerQuestSprite = lowerXpSprite;
+                }
+			}
+
+			rom.PutInBank(0x07, 0xDDC4, Blob.FromHex(upperGpSprite + upperItemSprite + upperQuestSprite));
+            rom.PutInBank(0x07, 0xDF14, Blob.FromHex(upperBrokenSprite + lowerGpSprite + lowerItemSprite + lowerQuestSprite));
+            rom.PutInBank(0x07, 0xE094, Blob.FromHex(lowerBrokenSprite));
+
+            /*
+            rom.PutInBank(0x07, 0xDDC4, Blob.FromHex("00001F00341C6A38453C483A57306E20001F2345424548510000F8000C38461C823C025CC22C661400F8C4A242A2128A00001F00301F6020492D492D4D2D6020001F205F5252525F0000F8000CF8060422B422B4B2B4060400F804FA4A4A4AFA"));
             rom.PutInBank(0x07, 0xDF14, Blob.FromHex("00001F00201F713F7F02433C413E7D3C001F20407D4341430000F8008478827C06FC8EF8FA44CE0C00F884820206BAF26C216C21662853144808403F7F0000005252516877407F002694A69446348A68121002FCFE0000004A4A8A16EE02FE00612A6228612C682E6020403F7F000000545552515F407F008654461486341674060402FCFE0000002AAA4A8AFA02FE00"));
 			rom.PutInBank(0x07, 0xE094, Blob.FromHex("6E2077077F3E7D3C7E3C423D7F0000005F78414343427F00BE1CDE44F6F0FEFCFEFC02FCFE000000E2BA0E020202FE00"));
+			*/
+            //DE24
+            //DFA4
         }
-		public void Write(FFMQRom rom)
+		public void Write(bool shuffledReward, FFMQRom rom)
 		{
-			NewBattlefieldSprites(rom);
+			NewBattlefieldSprites(shuffledReward, rom);
 			rom.PutInBank(0x0C, 0xD4D0, _battlesQty.ToArray());
 			rom.PutInBank(BattlefieldsRewardsBank, BattlefieldsRewardsOffset, battlefields.OrderBy(x => x.Location).SelectMany(x => x.GetBytes()).ToArray());
-           
         }
-	
-	}
+        public void WriteWithoutSprites(FFMQRom rom)
+        {
+            rom.PutInBank(0x0C, 0xD4D0, _battlesQty.ToArray());
+            rom.PutInBank(BattlefieldsRewardsBank, BattlefieldsRewardsOffset, battlefields.OrderBy(x => x.Location).SelectMany(x => x.GetBytes()).ToArray());
+        }
+
+    }
 }

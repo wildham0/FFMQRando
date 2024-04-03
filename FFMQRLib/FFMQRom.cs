@@ -10,6 +10,7 @@ namespace FFMQLib
 {
 	public partial class FFMQRom : SnesRom
 	{
+		private bool ConvertTo11 = false;
 		public async Task<bool> ValidateRom()
 		{
 			using (SHA256 hasher = SHA256.Create())
@@ -41,6 +42,12 @@ namespace FFMQLib
 
 				if (hash == Blob.FromHex("92F625478568B1BE262E3F9D62347977CE7EE345E9FF353B4778E8560E16C7CA"))
 				{
+					ConvertTo11 = false;
+					return true;
+				}
+				else if (hash == Blob.FromHex("BC41ECCD6D8A61031E67F98DB4836432DB912165914347D340F65585193557E6"))
+				{
+					ConvertTo11 = true;
 					return true;
 				}
 				else
@@ -74,12 +81,18 @@ namespace FFMQLib
 				}
 
 				Blob hash = hasher.ComputeHash(dataToHash);
-
+				//string test = Convert.ToHexString(hash);
 				//Console.WriteLine(BitConverter.ToString(hash).Replace("-", ""));
 				// if (hash == Blob.FromHex("F71817F55FEBD32FD1DCE617A326A77B6B062DD0D4058ECD289F64AF1B7A1D05")) unadultered SHA256 hash
 
 				if (hash == Blob.FromHex("92F625478568B1BE262E3F9D62347977CE7EE345E9FF353B4778E8560E16C7CA"))
 				{
+					ConvertTo11 = false;
+					return true;
+				}
+				else if (hash == Blob.FromHex("BC41ECCD6D8A61031E67F98DB4836432DB912165914347D340F65585193557E6"))
+				{
+					ConvertTo11 = true;
 					return true;
 				}
 				else
@@ -160,6 +173,11 @@ namespace FFMQLib
 		{
 			Data = new byte[0x80000];
 			Array.Copy(originalData, Data, 0x80000);
+		}
+		public void CopyData(byte[] data)
+		{
+			Data = new byte[0x80000];
+			Array.Copy(data, Data, 0x80000);
 		}
 	}
 }

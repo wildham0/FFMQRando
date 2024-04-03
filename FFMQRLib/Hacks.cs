@@ -17,7 +17,8 @@ namespace FFMQLib
 			RemoveStrobing();
 			SmallFixes();
 			BugFixes();
-			CompanionRoutines(flags.KaelisMomFightMinotaur, apenabled);
+            SystemBugFixes();
+            CompanionRoutines(flags.KaelisMomFightMinotaur, apenabled);
 			DummyRoom();
 			KeyItemWindow();
 			GameStateIndicator();
@@ -310,7 +311,7 @@ namespace FFMQLib
 
 			// Item action selector (w AP support)
 			PutInBank(0x00, 0xDB42, Blob.FromHex("5c008f11"));
-			PutInBank(0x11, 0x8F00, Blob.FromHex("c910b0045c82db00c914b0045c70db00c920b0045c8edb00c92fb0045c9cdb00c9ddb0045cbedb00c9deb0045c58db00c9dfb0045c64db005c6bdb00"));
+			PutInBank(0x11, 0x8F00, Blob.FromHex("c910b0045c82db00c914b0045c70db00c920b0045c8edb00c92fb0045c9cdb00c9ddb0045cbedb00c9deb0045c58db00c9dfb0045c64db005c6edb00"));
 
 			// Don't check quantity on item F0+ when opening chests
 			PutInBank(0x00, 0xDA68, Blob.FromHex("c9f0b0"));
@@ -483,18 +484,20 @@ namespace FFMQLib
 			// Fix Skullrus Rex and Stone Golem not counting as boss for hp based attacks
 			PutInBank(0x02, 0x9B07, Blob.FromHex("22508811"));
 			PutInBank(0x11, 0x8850, Blob.FromHex("a53bc940f008c941f004c9449001386b"));
+        }
+		public void SystemBugFixes()
+		{
+            // Fix crashing when transitioning from door and switching weapon at the same time (experimental)
+            // We skip a PHA/PLP in an interrupt routine that seems to use vertical scanline location (OPVCT) to compute the status register ???
+            //  vertscanline x3 + $0f (or + $9a)
+            PutInBank(0x00, 0xB8C0, Blob.FromHex("EAEA"));
+            PutInBank(0x00, 0xB852, Blob.FromHex("EAEA"));
 
-			// Fix crashing when transitioning from door and switching weapon at the same time (experimental)
-			// We skip a PHA/PLP in an interrupt routine that seems to use vertical scanline location (OPVCT) to compute the status register ???
-			//  vertscanline x3 + $0f (or + $9a)
-			PutInBank(0x00, 0xB8C0, Blob.FromHex("EAEA"));
-			PutInBank(0x00, 0xB852, Blob.FromHex("EAEA"));
-
-			// Fix music instrument overflow
-			// If the instruments data is full ($620, $20 bytes), when loading a new track the instruments will overflow and crash the spc chip by loading garbage data; the fix force the instrument data to be flushed to make space
-			PutInBank(0x0D, 0x8340, Blob.FromHex("22708811b016eaeaeaeaeaeaea"));
-			PutInBank(0x11, 0x8870, Blob.FromHex("a20000c220b528f009e8e8e02000d0f5386b186b"));
-		}
+            // Fix music instrument overflow
+            // If the instruments data is full ($620, $20 bytes), when loading a new track the instruments will overflow and crash the spc chip by loading garbage data; the fix force the instrument data to be flushed to make space
+            PutInBank(0x0D, 0x8340, Blob.FromHex("22708811b016eaeaeaeaeaeaea"));
+            PutInBank(0x11, 0x8870, Blob.FromHex("a20000c220b528f009e8e8e02000d0f5386b186b"));
+        }
 		public void Msu1Support()
 		{
 			// see 10_8000_MSUSupport.asm
@@ -510,8 +513,6 @@ namespace FFMQLib
 		}
 		public void RandomizeTracks(bool randomizesong, MT19337 rng)
 		{
-			var rngback = rng;
-
 			if (randomizesong)
 			{
 				List<byte> tracks = Enumerable.Range(0, 0x1A).Select(x => (byte)x).ToList();
@@ -534,9 +535,6 @@ namespace FFMQLib
 				PutInBank(0x10, 0x8210, Blob.FromHex("08e230aabf4082108d0b05a908286b"));
 				//PutInBank(0x10, 0x8140, completetracks.OrderBy(x => x.Item2).Select(x => x.Item1).ToArray());
 			}
-
-			rng = rngback;
-			rng.Next();
 		}
 	}
 }

@@ -125,7 +125,7 @@ namespace FFMQLib
 			{ CompanionsId.Phoebe, new List<NewGameFlagsList> { NewGameFlagsList.PhoebeQuest1, NewGameFlagsList.PhoebeQuest2, NewGameFlagsList.PhoebeQuest3, NewGameFlagsList.PhoebeQuest4, } },
 			{ CompanionsId.Reuben, new List<NewGameFlagsList> { NewGameFlagsList.ReubenQuest1, NewGameFlagsList.ReubenQuest2, NewGameFlagsList.ReubenQuest3, NewGameFlagsList.ReubenQuest4, } },
 		};
-		public void SetQuests(Flags flags, GameInfoScreen screen, MT19337 rng)
+		public void SetQuests(Flags flags, Battlefields battlefields, GameInfoScreen screen, MT19337 rng)
 		{
 			QuestQuantity = 1;
 			Quests = new();
@@ -146,7 +146,8 @@ namespace FFMQLib
             else if (levelingType == LevelingType.QuestsExtended)
 			{
 				CreateExtendedQuests(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin, flags.DoomCastleShortcut, flags.KaelisMomFightMinotaur, rng);
-			}
+				battlefields.QuestBattlefield = GetBattlefieldQuestLocation();
+            }
 
             var availablecompanions = Available.Where(c => c.Value).Select(c => c.Key).ToList();
 			Quests = Quests.Where(q => availablecompanions.Contains(q.Companion)).ToList();
@@ -290,7 +291,20 @@ namespace FFMQLib
 				currentflag++;
 			}
 		}
-		private void AddQuestsToGameInfoScreen(GameInfoScreen screen)
+		private LocationIds GetBattlefieldQuestLocation()
+		{
+            var battlefieldQuest = Quests.FindIndex(q => q.Name == QuestsId.ClearSpecificBattlefield);
+			if (battlefieldQuest >= 0)
+			{
+				return (LocationIds)Quests[battlefieldQuest].Quantity;
+			}
+			else
+			{
+				return LocationIds.None;
+			}
+        }
+
+        private void AddQuestsToGameInfoScreen(GameInfoScreen screen)
 		{
 			screen.Quests = Quests.Select(q => (q.Companion, q.Gameflag, q.Description)).ToList();
 		}
