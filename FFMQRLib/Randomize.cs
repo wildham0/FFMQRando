@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.6.05";
+		public static string Version = "1.6.06";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -39,6 +39,12 @@ namespace FFMQLib
 		public string spoilersText;
 		public void Randomize(Blob seed, Flags flags, Preferences preferences, ApConfigs apconfigs)
 		{
+			// Convert 1.0 rom to 1.1 for compatibility
+			if (ConvertTo11)
+			{
+				Data = Patcher.PatchRom(this).DataReadOnly;
+			}
+			
 			seed = apconfigs.ApEnabled ? apconfigs.GetSeed() : seed;
 			
 			MT19337 rng;                // Fixed RNG so the same seed with the same flagset generate the same results
