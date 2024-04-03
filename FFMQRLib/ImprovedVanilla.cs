@@ -13,6 +13,12 @@ namespace FFMQLib
 	{
 		public void Improve(bool enablebugfix, Preferences preferences)
 		{
+			// Convert 1.0 rom to 1.1 for compatibility
+			if (ConvertTo11)
+			{
+				Data = Patcher.PatchRom(this).DataReadOnly;
+			}
+
 			var seed = Blob.FromHex("FFFFFFFF");
 			
 			MT19337 rng;				// Fixed RNG so the same seed with the same flagset generate the same results
