@@ -26,6 +26,7 @@ namespace FFMQLib
 			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
 			FixMultiplyingDarkKing();
 			PazuzuFixedFloorRng(rng);
+			ShuffledFloorVanillaMonstersFix(flags);
 			Msu1Support();
 		}
 		
@@ -498,6 +499,14 @@ namespace FFMQLib
             PutInBank(0x0D, 0x8340, Blob.FromHex("22708811b016eaeaeaeaeaeaea"));
             PutInBank(0x11, 0x8870, Blob.FromHex("a20000c220b528f009e8e8e02000d0f5386b186b"));
         }
+		public void ShuffledFloorVanillaMonstersFix(Flags flags)
+		{
+			// Remove enemy on Pazuzu 6F blocking the way to avoid softlock when the floors are shuffled, but enemies' positions aren't
+			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld && !flags.ShuffleEnemiesPosition)
+			{
+				MapObjects[0x58][0x0A].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+			}
+		}
 		public void Msu1Support()
 		{
 			// see 10_8000_MSUSupport.asm
