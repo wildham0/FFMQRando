@@ -83,7 +83,7 @@ h2 {
     flex: 1;
     border-radius: 0px;
     gap: 0px 20px;
-    align-content: center;
+    align-content: flex-start;
 }
 
 .box-title {
