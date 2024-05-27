@@ -296,7 +296,14 @@ namespace FFMQLib
             var battlefieldQuest = Quests.FindIndex(q => q.Name == QuestsId.ClearSpecificBattlefield);
 			if (battlefieldQuest >= 0)
 			{
-				return (LocationIds)Quests[battlefieldQuest].Quantity;
+				if (Available[Quests[battlefieldQuest].Companion])
+				{
+					return (LocationIds)Quests[battlefieldQuest].Quantity;
+				}
+				else
+				{
+					return LocationIds.None;
+				}
 			}
 			else
 			{
