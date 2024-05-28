@@ -527,6 +527,7 @@ namespace FFMQLib
 
 			if (group != EnemizerGroups.MobsOnly)
 			{
+				
 				bool includedk = (group == EnemizerGroups.MobsBossesDK);
 				
 				var bosses = Bosses.Concat(DarkCastleBosses).ToList();
@@ -535,13 +536,13 @@ namespace FFMQLib
 				if (includedk)
 				{
 					bosses = bosses.Concat(DarkKing).ToList();
-                    tooShortBosses.Add(0x50);
+                    //tooShortBosses.Add(0x50);
 				}
 
-				bosses.RemoveAll(tooShortBosses.Contains);
+				//bosses.RemoveAll(tooShortBosses.Contains);
 				
 				// Do hydra/wyvern first since it requires a minimum 4 attacks pattern
-				var hydra = 0x4C;
+				/*var hydra = 0x4C;
 				var wyvern = 0x4D;
 
 				bosses.Remove(hydra);
@@ -560,7 +561,7 @@ namespace FFMQLib
 				}
 
 				bosses.AddRange(tooShortBosses);
-
+				*/
 				while (bosses.Count > 1)
 				{
 					var tempbossA = rng.TakeFrom(bosses);
@@ -574,6 +575,17 @@ namespace FFMQLib
 			// Remove Strong Psychshield since it might get used
 			var zuhScript = _EnemyAttackLinks.Find(e => e.Id == 0x4F);
 			zuhScript.Attacks[0x05] = 0xDA;
+
+			// Extend Behemoth, Minotaur and DK1 attack list to avoid softlock
+			var behemothScript = _EnemyAttackLinks.Find(e => e.Id == 0x42);
+			behemothScript.Attacks = new byte[] { 0x7C, 0x7C, 0x7C, 0x7C, 0x7C, 0x7C };
+
+			var minotaurScript = _EnemyAttackLinks.Find(e => e.Id == 0x43);
+			minotaurScript.Attacks = new byte[] { 0x44, 0x64, 0x54, 0x44, 0x64, 0x54 };
+
+			var dk1Script = _EnemyAttackLinks.Find(e => e.Id == 0x50);
+			minotaurScript.Attacks[0x04] = rng.PickFrom(new List<byte>() { 0xCA, 0x53, 0x52 });
+
 
 			foreach (var link in _EnemyAttackLinks)
 			{

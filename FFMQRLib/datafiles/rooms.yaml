@@ -2296,7 +2296,8 @@
     teleporter: [107, 0]
     access: []
   - target_room: 100
-    access: ["Claw"]
+    access: ["DragonClaw", "MegaGrenade", "Sword", "Axe", "SandCoin", "RiverCoin", "SunCoin", "LibraCrest", "GeminiCrest", "MobiusCrest"]
+ #  access: ["Claw"] # the one ways are blocked off so progression doesn't end up behind them with no way to come back
 - name: Lava Dome Inner Ring Plate Ledge
   id: 102
   game_objects:
@@ -2325,7 +2326,8 @@
   - target_room: 104
     access: ["Claw"]
   - target_room: 100
-    access: ["Claw"]
+    access: ["DragonClaw", "MegaGrenade", "Sword", "Axe", "SandCoin", "RiverCoin", "SunCoin", "LibraCrest", "GeminiCrest", "MobiusCrest"]
+ #  access: ["Claw"] # the one ways are blocked off so progression doesn't end up behind them with no way to come back  
 - name: Lava Dome Inner Ring Upper Ledge East
   id: 104
   game_objects: []
@@ -3376,7 +3378,8 @@
     teleporter: [186, 0]
     access: []
   - target_room: 166
-    access: ["DragonClaw"]
+    access: ["DragonClaw", "MegaGrenade", "Sword", "Axe", "SandCoin", "RiverCoin", "SunCoin", "LibraCrest", "GeminiCrest", "MobiusCrest"]
+#   access: ["DragonClaw"] # the one ways are blocked off so progression doesn't end up behind them with no way to come back  
 - name: Pazuzu 2F
   id: 169
   game_objects:
@@ -3449,7 +3452,8 @@
     teleporter: [194, 0]
     access: []
   - target_room: 170
-    access: ["DragonClaw"]
+    access: ["DragonClaw", "MegaGrenade", "Sword", "Axe", "SandCoin", "RiverCoin", "SunCoin", "LibraCrest", "GeminiCrest", "MobiusCrest"]
+#   access: ["DragonClaw"] # the one ways are blocked off so progression doesn't end up behind them with no way to come back  
   - target_room: 172
     access: ["DragonClaw"]
 - name: Pazuzu 3F Southern Island
