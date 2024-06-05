@@ -107,6 +107,7 @@ namespace FFMQLib
 	public partial class Companions
 	{
 		public int QuestQuantity { get; set; }
+		public List<LocationIds> QuestEasyWinLocations { get; set; } = new();
 		public List<Quest> Quests { get; set; }
 		private QuestScriptsManager questsScripts;
 		private List<CompanionsId> companionslist = new() { CompanionsId.Kaeli, CompanionsId.Tristam, CompanionsId.Phoebe, CompanionsId.Reuben };
@@ -145,7 +146,7 @@ namespace FFMQLib
             }
             else if (levelingType == LevelingType.QuestsExtended)
 			{
-				CreateExtendedQuests(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin, flags.DoomCastleShortcut, flags.KaelisMomFightMinotaur, rng);
+				CreateExtendedQuests(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin, flags.DoomCastleShortcut, flags.KaelisMomFightMinotaur, flags.MapShuffling == MapShufflingMode.Overworld, rng);
 				battlefields.QuestBattlefield = GetBattlefieldQuestLocation();
             }
 
@@ -193,7 +194,7 @@ namespace FFMQLib
 				Description = "Visit Mine with Reuben and\n  return to Fireburg."
 			});
 		}
-		private void CreateExtendedQuests(bool skycoinfragment, bool darkkingshorcut, bool kaelismom, MT19337 rng)
+		private void CreateExtendedQuests(bool skycoinfragment, bool darkkingshorcut, bool kaelismom, bool questEasyWins, MT19337 rng)
 		{
 			int easyminibossesqty = rng.Between(2, 3);
 			int mediumminibossesqty = rng.Between(4, 5);
@@ -203,11 +204,11 @@ namespace FFMQLib
 			int mediumcollectqty = rng.Between(26, 35);
 			int hardcollectqty = rng.Between(40, 50);
 
-			int easyskycoinqty = rng.Between(15, 20);
+			int easyskycoinqty = rng.Between(10, 15);
 			int mediumskycoinqty = rng.Between(25, 30);
 			int hardskycoinqty = rng.Between(35, 38);
 
-			int easybattlefieldsqty = rng.Between(5, 9);
+			int easybattlefieldsqty = rng.Between(4, 7);
 			int mediumbattlefieldsqty = rng.Between(10, 14);
 			int hardbattlefieldsqty = rng.Between(14, 18);
 
@@ -216,12 +217,13 @@ namespace FFMQLib
 				new Quest(QuestsId.CureKaeli, 0, QuestRating.Hard, CompanionsId.Kaeli, kaelismom ? "Give Elixir to\n  poisoned Kaeli's Mom." : "Give Elixir to\n  poisoned Kaeli."),
 				new Quest(QuestsId.VisitBoneDungeon, 0, QuestRating.Medium, CompanionsId.Tristam, "Visit Bone Dungeon with\n  Tristam & go to Fireburg."),
 				new Quest(QuestsId.VisitWintryCave, 0, QuestRating.Medium, CompanionsId.Phoebe, "Visit Wintry Cave with\n  Phoebe and go to Windia."),
-				new Quest(QuestsId.VisitMine, 0, QuestRating.Easy, CompanionsId.Reuben, "Visit Mine with Reuben and\n  return to Fireburg."),
+				new Quest(QuestsId.VisitMine, 0, QuestRating.Medium, CompanionsId.Reuben, "Visit Mine with Reuben and\n  return to Fireburg."),
 				new Quest(QuestsId.SaveCrystalofEarth, 0, QuestRating.Easy, "Save the Crystal\n  of Earth."),
 				new Quest(QuestsId.SaveCrystalofWater, 0, QuestRating.Medium, "Save the Crystal\n  of Water."),
 				new Quest(QuestsId.SaveCrystalofFire, 0, QuestRating.Medium, "Save the Crystal of Fire.\n"),
 				new Quest(QuestsId.SaveCrystalofWind, 0, QuestRating.Hard, "Save the Crystal of Wind.\n"),
-				new Quest(QuestsId.SaveQtyCrystals, 2, QuestRating.Easy, "Save 2 Crystals.\n"),
+				new Quest(QuestsId.SaveQtyCrystals, 1, QuestRating.Easy, "Save 1 Crystal.\n"),
+				new Quest(QuestsId.SaveQtyCrystals, 2, QuestRating.Medium, "Save 2 Crystals.\n"),
 				new Quest(QuestsId.SaveQtyCrystals, 3, QuestRating.Medium, "Save 3 Crystals.\n"),
 				new Quest(QuestsId.SaveQtyCrystals, 4, QuestRating.Hard, "Save All 4 Crystals.\n"),
 				new Quest(QuestsId.CollectQtyItems, easycollectqty, QuestRating.Easy, $"Collect {easycollectqty} Refreshers.\n"),
@@ -230,6 +232,8 @@ namespace FFMQLib
 				new Quest(QuestsId.ClearQtyBattlefields, easybattlefieldsqty, QuestRating.Easy, $"Clear {easybattlefieldsqty} Battlefields.\n"),
 				new Quest(QuestsId.ClearQtyBattlefields, mediumbattlefieldsqty, QuestRating.Medium, $"Clear {mediumbattlefieldsqty} Battlefields.\n"),
 				new Quest(QuestsId.ClearQtyBattlefields, hardbattlefieldsqty, QuestRating.Hard, $"Clear {hardbattlefieldsqty} Battlefields.\n"),
+				new Quest(QuestsId.ClearSpecificBattlefield, (int)LocationIds.PyramidBattlefield01, QuestRating.Easy, $"Clear Ice Pyramid\n  Battlefield."),
+				new Quest(QuestsId.ClearSpecificBattlefield, (int)LocationIds.MineBattlefield02, QuestRating.Easy, $"Clear Mine\n  Battlefield."),
 				new Quest(QuestsId.ClearSpecificBattlefield, (int)LocationIds.VolcanoBattlefield01, QuestRating.Medium, $"Clear Lava Dome\n  Battlefield."),
 				new Quest(QuestsId.ClearSpecificBattlefield, (int)LocationIds.WindiaBattlefield01, QuestRating.Medium, $"Clear Windia Small\n  Area Battlefield."),
 				new Quest(QuestsId.ClearSpecificBattlefield, (int)LocationIds.WindiaBattlefield02, QuestRating.Medium, $"Clear Windia Large\n  Area Battlefield."),
@@ -270,11 +274,11 @@ namespace FFMQLib
 				});
 			}
 
-			List<QuestRating> questratings = new() { QuestRating.Easy, QuestRating.Medium, QuestRating.Medium, QuestRating.Hard };
+			List<QuestRating> questratings = (Available.Count(c => c.Value) > 2) ? new() { QuestRating.Easy, QuestRating.Medium, QuestRating.Medium, QuestRating.Hard } : new() { QuestRating.Easy, QuestRating.Easy, QuestRating.Medium, QuestRating.Hard };
 			int currentflag = 0;
 			foreach (var rating in questratings)
 			{
-				foreach (var companion in companionslist)
+				foreach (var companion in companionslist.Where(c => Available[c]))
 				{
 					var validquests = availableQuests.Where(x => x.Rating == rating && (x.Companion == companion || x.Companion == CompanionsId.None)).ToList();
 					if (!validquests.Any())
@@ -289,6 +293,30 @@ namespace FFMQLib
 					availableQuests = availableQuests.Where(x => x.Name != selectedquest.Name).ToList();
 				}
 				currentflag++;
+			}
+
+			if (questEasyWins)
+			{
+				foreach (var easyquest in Quests.Where(q => q.Rating == QuestRating.Easy && Available[q.Companion]))
+				{
+					if (easyquest.Name == QuestsId.SaveCrystalofEarth || easyquest.Name == QuestsId.SaveQtyCrystals)
+					{
+						QuestEasyWinLocations.Add(LocationIds.BoneDungeon);
+					}
+					else if (easyquest.Name == QuestsId.ClearSpecificBattlefield)
+					{
+						QuestEasyWinLocations.Add((LocationIds)easyquest.Quantity);
+					}
+					else if (easyquest.Name == QuestsId.DefeatMinotaur)
+					{
+						QuestEasyWinLocations.Add(LocationIds.Foresta);
+						QuestEasyWinLocations.Add(LocationIds.LevelForest);
+					}
+					else if (easyquest.Name == QuestsId.DefeatSquidite)
+					{
+						QuestEasyWinLocations.Add(LocationIds.WintryCave);
+					}
+				}
 			}
 		}
 		private LocationIds GetBattlefieldQuestLocation()
