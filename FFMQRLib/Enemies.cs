@@ -597,16 +597,18 @@ namespace FFMQLib
 		}
 		private void ChaosRandom(EnemizerGroups group, MT19337 rng)
 		{
-            var possibleAttacks = new List<byte>();
+            var possibleNonDKAttacks = new List<byte>();
             for (byte i = 0x40; i <= 0xDB; i++)
             {
-                possibleAttacks.Add(i);
+                possibleNonDKAttacks.Add(i);
             }
+            var possibleDKAttacks = possibleNonDKAttacks.Where(i => i != 0xC2).ToList(); // multiply
 
 			var validenemies = GetValidEnemies(group);
 
             foreach (var link in validenemies)
 			{
+				var possibleAttacks = (DarkKing.Contains(link)) ? possibleDKAttacks : possibleNonDKAttacks;
 				var ea = _EnemyAttackLinks[link];
 				
 				uint noOfAttacks = (rng.Next() % 5) + 1;
@@ -646,7 +648,7 @@ namespace FFMQLib
 
 			if (group != EnemizerGroups.MobsOnly)
 			{
-				var icegolemattacks = possibleAttacks
+				var icegolemattacks = possibleNonDKAttacks
 					.Except(new List<byte> { 0x49, 0x4A, 0xC1, 0xC2 })
 					.Except(Enumerable.Range(0xC8, 20).Select(x => (byte)x))
 					.ToList();
