@@ -1008,6 +1008,11 @@
   area: 55
   coordinates: [52, 24]
   teleporter: [79, 8]  # Original Value [26, 8]
+- name: Volcano Top - Visit Quest Script 1
+  id: 495
+  area: 55
+  coordinates: [43, 12]
+  teleporter: [104, 8]
 - name: Volcano Right Path - To Volcano Base Script
   id: 201
   area: 56

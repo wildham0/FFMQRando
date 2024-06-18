@@ -43,6 +43,7 @@ namespace FFMQLib
 		VisitBoneDungeon,
 		VisitWintryCave,
 		VisitMine,
+		VisitTopOfVolcano
 	}
 	public enum QuestRating
 	{ 
@@ -249,6 +250,7 @@ namespace FFMQLib
 				new Quest(QuestsId.DefeatQtyMinibosses, hardminibossesqty, QuestRating.Hard, $"Defeat {hardminibossesqty} Minibosses.\n"),
 				new Quest(QuestsId.SaveArion, 0, QuestRating.Medium, $"Save Arion.\n"),
 				new Quest(QuestsId.ThawAquaria, 0, QuestRating.Medium, $"Thaw Aquaria.\n"),
+				new Quest(QuestsId.VisitTopOfVolcano, 0, QuestRating.Easy, $"Visit the Summit\n  of Volcano."),
 				new Quest(QuestsId.VisitChocobo, 0, QuestRating.Medium, $"Visit the Chocobo\n  in Windia."),
 				new Quest(QuestsId.VisitLightTemple, 0, QuestRating.Medium, $"Visit the box in\n  the Light Temple.\n"),
 				new Quest(QuestsId.VisitPointlessLedge, 0, QuestRating.Medium, $"Visit the Pointless Ledge\n  in Lava Dome."),
@@ -307,14 +309,13 @@ namespace FFMQLib
 					{
 						QuestEasyWinLocations.Add((LocationIds)easyquest.Quantity);
 					}
-					else if (easyquest.Name == QuestsId.DefeatMinotaur)
-					{
-						QuestEasyWinLocations.Add(LocationIds.Foresta);
-						QuestEasyWinLocations.Add(LocationIds.LevelForest);
-					}
 					else if (easyquest.Name == QuestsId.DefeatSquidite)
 					{
 						QuestEasyWinLocations.Add(LocationIds.WintryCave);
+					}
+					else if (easyquest.Name == QuestsId.VisitTopOfVolcano)
+					{
+						QuestEasyWinLocations.Add(LocationIds.Volcano);
 					}
 				}
 			}

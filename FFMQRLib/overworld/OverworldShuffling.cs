@@ -100,13 +100,9 @@ namespace FFMQLib
 			earlyLocations.AddRange(guaranteedChestLocations); // 2 extra locations
 			questEasyWins = questEasyWins.Except(earlyLocations).ToList();
 
-			if (questEasyWins.Count >= 2)
+			if (questEasyWins.Count >= 1)
 			{
 				questEasyWins.Shuffle(rng);
-				earlyLocations.AddRange(questEasyWins.GetRange(0, 2));
-			}
-			else if (questEasyWins.Count == 1)
-			{
 				earlyLocations.Add(questEasyWins.First());
 			}
 

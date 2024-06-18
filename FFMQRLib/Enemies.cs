@@ -598,6 +598,8 @@ namespace FFMQLib
 		private void ChaosRandom(EnemizerGroups group, MT19337 rng)
 		{
             var possibleAttacks = new List<byte>();
+			bool meandDK = rng.Between(1, 6) == 1;
+
             for (byte i = 0x40; i <= 0xDB; i++)
             {
                 possibleAttacks.Add(i);
@@ -609,7 +611,7 @@ namespace FFMQLib
 			{
 				var ea = _EnemyAttackLinks[link];
 				
-				uint noOfAttacks = (rng.Next() % 5) + 1;
+				uint noOfAttacks = (rng.Next() % 4) + 2;
 
 				for(uint i = 0; i < 6; i++)
 				{
@@ -618,7 +620,15 @@ namespace FFMQLib
 
 				for(uint i = 0; i < noOfAttacks; i++)
 				{
-					ea.Attacks[i] = possibleAttacks[(int)(rng.Next() % possibleAttacks.Count)]; 
+					if (DarkKing.Contains(link) && !meandDK)
+					{
+						ea.Attacks[i] = possibleAttacks.Except(new List<byte> { 0x49, 0x4A, 0xC1, 0xC2 }).ToList()[(int)(rng.Next() % possibleAttacks.Count)];
+					}
+					else
+					{
+						ea.Attacks[i] = possibleAttacks[(int)(rng.Next() % possibleAttacks.Count)];
+					}
+					
 				}
 
 				// Some values of AttackPattern (e.g. 0x0B) result in the third (or other) attack slot being used
@@ -631,7 +641,7 @@ namespace FFMQLib
 				// Similarly, most AttackPattern values do not use attack slots 5 and 6, but 0x0D and 0x0C do.
 				if(noOfAttacks >= 4)
 				{
-					ea.AttackPattern = 0x0D;
+					ea.AttackPattern = 0x04;
 				}
 
 				// Some enemies require certain slots to be filled, or the game locks up

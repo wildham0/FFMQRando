@@ -740,6 +740,18 @@ namespace FFMQLib
 					"00"
 				}));
 
+			GameMaps[(int)MapList.VolcanoTop].ModifyMap(0x2B, 0x0C, 0x1F);
+
+			var volcanosummitflag = Companions.GetQuestFlag(QuestsId.VisitTopOfVolcano);
+
+			TileScripts.AddScript((int)TileScriptsList.VolcanoSummitQuest,
+				new ScriptBuilder(new List<string> {
+					(volcanosummitflag != NewGameFlagsList.None) ? $"2E{(int)volcanosummitflag:X2}[03]" : "00",
+					"1A00" + TextToHex("That was a fun climb.\nI'm glad there's no nasty Medusa to ruin it.") + "36",
+					Companions.GetQuestString(QuestsId.VisitTopOfVolcano),
+					"00"
+				}));
+
 			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld)
 			{
 				var volcanoTeleporter = EntrancesData.Entrances.Find(x => x.Id == 464).Teleporter;

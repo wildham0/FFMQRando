@@ -579,6 +579,7 @@ namespace FFMQLib
 		MountGaleQuest,
 		EnterWindiaInnBedroom,
         KaeliCuttingTree,
+		VolcanoSummitQuest,
     }
 
     public enum TalkScriptsList : int
