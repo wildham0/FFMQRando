@@ -253,7 +253,7 @@ namespace FFMQLib
 			GameLogic.CompanionsShuffle((CompanionsLocationType)companionshuffling, kaelismom, apconfigs, rng);
 			GameLogic.CrestShuffle(crestshuffle, false, rng);
 			GameLogic.FloorShuffle((MapShufflingMode)mapshuffling, false, rng);
-			Overworld.ShuffleOverworld((MapShufflingMode)mapshuffling, GameLogic, Battlefields, false, rng);
+			Overworld.ShuffleOverworld((MapShufflingMode)mapshuffling, GameLogic, Battlefields, new List<LocationIds>(),false, rng);
 
 			return GameLogic.OutputRooms();
 		}

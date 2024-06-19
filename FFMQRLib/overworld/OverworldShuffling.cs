@@ -9,7 +9,7 @@ namespace FFMQLib
 {
 	public partial class Overworld
 	{
-		public void ShuffleOverworld(MapShufflingMode mapshufflingmode, GameLogic gamelogic, Battlefields battlefields, bool apenabled, MT19337 rng)
+		public void ShuffleOverworld(MapShufflingMode mapshufflingmode, GameLogic gamelogic, Battlefields battlefields, List<LocationIds> questEasyWins, bool apenabled, MT19337 rng)
 		{
 			bool shuffleOverworld = mapshufflingmode != MapShufflingMode.None && mapshufflingmode != MapShufflingMode.Dungeons;
 			
@@ -96,8 +96,15 @@ namespace FFMQLib
 			}
 
 			// Create the early locations, these are always placed in Foresta
-			List<LocationIds> earlyLocations = new() { companionLocation, safeGoldBattlefield };
-			earlyLocations.AddRange(guaranteedChestLocations);
+			List<LocationIds> earlyLocations = new() { companionLocation, safeGoldBattlefield }; // 2 locations
+			earlyLocations.AddRange(guaranteedChestLocations); // 2 extra locations
+			questEasyWins = questEasyWins.Except(earlyLocations).ToList();
+
+			if (questEasyWins.Count >= 1)
+			{
+				questEasyWins.Shuffle(rng);
+				earlyLocations.Add(questEasyWins.First());
+			}
 
 			// Place guaranteed locations
 			var loc1 = LocationIds.None;
