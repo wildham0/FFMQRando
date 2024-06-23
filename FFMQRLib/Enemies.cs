@@ -611,7 +611,7 @@ namespace FFMQLib
 			{
 				var ea = _EnemyAttackLinks[link];
 				
-				uint noOfAttacks = (rng.Next() % 4) + 2;
+				uint noOfAttacks = (uint)rng.Between(2, 6);
 
 				for(uint i = 0; i < 6; i++)
 				{
@@ -622,11 +622,11 @@ namespace FFMQLib
 				{
 					if (DarkKing.Contains(link) && !meandDK)
 					{
-						ea.Attacks[i] = possibleAttacks.Except(new List<byte> { 0x49, 0x4A, 0xC1, 0xC2 }).ToList()[(int)(rng.Next() % possibleAttacks.Count)];
+						ea.Attacks[i] = rng.PickFrom(possibleAttacks.Except(new List<byte> { 0x49, 0x4A, 0xC1, 0xC2 }).ToList());
 					}
 					else
 					{
-						ea.Attacks[i] = possibleAttacks[(int)(rng.Next() % possibleAttacks.Count)];
+						ea.Attacks[i] = rng.PickFrom(possibleAttacks);
 					}
 					
 				}
@@ -649,7 +649,7 @@ namespace FFMQLib
 				{
 					if(ea.Attacks[slot] == 0xFF)
 					{
-						ea.Attacks[slot] = possibleAttacks[(int)(rng.Next() % possibleAttacks.Count)];
+						ea.Attacks[slot] = rng.PickFrom(possibleAttacks);
 					}
 				}
 			}
