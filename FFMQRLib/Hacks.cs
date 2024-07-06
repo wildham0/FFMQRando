@@ -17,8 +17,8 @@ namespace FFMQLib
 			RemoveStrobing();
 			SmallFixes();
 			BugFixes();
-            SystemBugFixes();
-            CompanionRoutines(flags.KaelisMomFightMinotaur, apenabled);
+			SystemBugFixes();
+			CompanionRoutines(flags.KaelisMomFightMinotaur, apenabled);
 			DummyRoom();
 			KeyItemWindow();
 			GameStateIndicator();
@@ -215,30 +215,30 @@ namespace FFMQLib
 					"124C00",		// Write to temp memory
 					"00",			// Exit
 					"05F5FB0014",	// Load current hp
-                    "124A00",		// Write to temp memory
+					"124A00",		// Write to temp memory
 					"05F5FB0016",	// Load max hp
-                    "124C00",		// Write to temp memory
+					"124C00",		// Write to temp memory
 					"00",			// Exit
 				});
 
 			var scaleHpJumpScript = new ScriptBuilder(new List<string>{
 					"07908611",
-                    "050e71b300"
-                });
+					"050e71b300"
+				});
 
-            scaleHpScript.WriteAt(0x11, 0x8690, this);
-            scaleHpJumpScript.WriteAt(0x03, 0xB32C, this);
-        }
+			scaleHpScript.WriteAt(0x11, 0x8690, this);
+			scaleHpJumpScript.WriteAt(0x03, 0xB32C, this);
+		}
 		public void FixMultiplyingDarkKing()
 		{
 			// Expand Battle to 3 if multiply is casted
 			PutInBank(0x02, 0xD169, Blob.FromHex("5C509511"));
-	  PutInBank(0x11, 0x9550, Blob.FromHex("a507f008c901f00b5c71d1022070955c8fd1022070955c92d102000000000000a513cdb3041015a9ff850d850e850fa500c901d007a90385008db40460"));
+			PutInBank(0x11, 0x9550, Blob.FromHex("a507f008c901f00b5c71d1022070955c8fd1022070955c92d102000000000000a513cdb3041015a9ff850d850e850fa500c901d007a90385008db40460"));
 
 			// Hard coded selectors when multiply is used, because dk is too big to share the screen
 			PutInBank(0x02, 0xD764, Blob.FromHex("22909511eaeab0"));
-	  PutInBank(0x11, 0x9590, Blob.FromHex("c950d014a500c901f012a200bfc095119d2d0ae8e00cd0f4386b386ba507d0fa186b00000000000000000000000000000c04080a0204080a1604080a"));
-	}
+			PutInBank(0x11, 0x9590, Blob.FromHex("c950d014a500c901f012a200bfc095119d2d0ae8e00cd0f4386b386ba507d0fa186b00000000000000000000000000000c04080a0204080a1604080a"));
+		}
 		public void ExitHack(LocationIds startingLocation)
 		{
 			// Using exit on overworld send you back to home location
@@ -474,8 +474,8 @@ namespace FFMQLib
 
 			// Fix Cure Overflow Bug
 			// see 11_8600_CureOverflow.asm
-			PutInBank(0x02, 0x95CA, Blob.FromHex("22008611eaea"));
-			PutInBank(0x11, 0x8600, Blob.FromHex("a514186d77049008a51638e5148d7704c900809006a9fe7f8d77046b")); // Check for overflow and cap healing to positive value
+			PutInBank(0x02, 0x95CA, Blob.FromHex("220086112860"));
+			PutInBank(0x11, 0x8600, Blob.FromHex("a514186d7704b004c5169008a51638e5148d7704ad77041006a9fe7f8d77046b")); // Check for overflow and cap healing to positive value
 
 			// Fix Dark King's crit loop
 			// see 11_87A0_CritCheck.asm
@@ -485,20 +485,20 @@ namespace FFMQLib
 			// Fix Skullrus Rex and Stone Golem not counting as boss for hp based attacks
 			PutInBank(0x02, 0x9B07, Blob.FromHex("22508811"));
 			PutInBank(0x11, 0x8850, Blob.FromHex("a53bc940f008c941f004c9449001386b"));
-        }
+		}
 		public void SystemBugFixes()
 		{
-            // Fix crashing when transitioning from door and switching weapon at the same time (experimental)
-            // We skip a PHA/PLP in an interrupt routine that seems to use vertical scanline location (OPVCT) to compute the status register ???
-            //  vertscanline x3 + $0f (or + $9a)
-            PutInBank(0x00, 0xB8C0, Blob.FromHex("EAEA"));
-            PutInBank(0x00, 0xB852, Blob.FromHex("EAEA"));
+			// Fix crashing when transitioning from door and switching weapon at the same time (experimental)
+			// We skip a PHA/PLP in an interrupt routine that seems to use vertical scanline location (OPVCT) to compute the status register ???
+			//  vertscanline x3 + $0f (or + $9a)
+			PutInBank(0x00, 0xB8C0, Blob.FromHex("EAEA"));
+			PutInBank(0x00, 0xB852, Blob.FromHex("EAEA"));
 
-            // Fix music instrument overflow
-            // If the instruments data is full ($620, $20 bytes), when loading a new track the instruments will overflow and crash the spc chip by loading garbage data; the fix force the instrument data to be flushed to make space
-            PutInBank(0x0D, 0x8340, Blob.FromHex("22708811b016eaeaeaeaeaeaea"));
-            PutInBank(0x11, 0x8870, Blob.FromHex("a20000c220b528f009e8e8e02000d0f5386b186b"));
-        }
+			// Fix music instrument overflow
+			// If the instruments data is full ($620, $20 bytes), when loading a new track the instruments will overflow and crash the spc chip by loading garbage data; the fix force the instrument data to be flushed to make space
+			PutInBank(0x0D, 0x8340, Blob.FromHex("22708811b016eaeaeaeaeaeaea"));
+			PutInBank(0x11, 0x8870, Blob.FromHex("a20000c220b528f009e8e8e02000d0f5386b186b"));
+		}
 		public void ShuffledFloorVanillaMonstersFix(Flags flags)
 		{
 			// Remove enemy on Pazuzu 6F blocking the way to avoid softlock when the floors are shuffled, but enemies' positions aren't
