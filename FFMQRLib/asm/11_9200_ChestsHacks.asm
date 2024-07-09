@@ -35,11 +35,11 @@ key_item:
   lda #$00
   bra finalize_nocount
 consumable:
-  lda #$02
+  lda #$03
   sta $0166
   bra finalize
 projectile:
-  lda $#09
+  lda $#0A
   sta $0166
 finalize:
   lda #$80
