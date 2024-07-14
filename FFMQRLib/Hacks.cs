@@ -260,7 +260,7 @@ namespace FFMQLib
 			PutInBank(0x00, 0xDB5F, Blob.FromHex("eaeaea")); // don't increment bomb quantity
 			PutInBank(0x00, 0xDB6B, Blob.FromHex("eaeaea")); // don't increment companion projectile quantity
 			PutInBank(0x00, 0xDB7D, Blob.FromHex("eaeaea")); // don't increment quantity, when adding a new consumable
-			PutInBank(0x11, 0x9050, Blob.FromHex("e220ad910ec96ad012ad5f01c9f2900bc9f6b007a9188d66018026ad9e00c910900cc914900fc9dd9004c9f0900e9c6601a9808012a9038d66018005a90a8d6601a9800c65016b1c65016b"));
+			PutInBank(0x11, 0x9050, Blob.FromHex("e220ad910ec96ad012ad5f01c9f2900bc9f6b007a9198d66018026ad9e00c910900cc914900fc9dd9004c9f0900e9c6601a9808012a9038d66018005a90a8d6601a9800c65016b1c65016b"));
 			
 
 			// Generate lut of boxes & chests quantity

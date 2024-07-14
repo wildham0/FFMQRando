@@ -17,7 +17,7 @@ ItemQuantityRoutine:
   bcc normal_box 
   cmp #$F6
   bcs normal_box
-  lda #$18
+  lda #$19
   sta $0166
   bra finalize
 normal_box:  
