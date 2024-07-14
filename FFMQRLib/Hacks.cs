@@ -474,8 +474,10 @@ namespace FFMQLib
 			PutInBank(0x03, 0xFFC0, Blob.FromHex("0508051ED0000100")); // Copy armor command + moved original command
 
 			// Fix Life Insta Kill Bug
-			PutInBank(0x02, 0x9238, Blob.FromHex("A5562B2908F0E5")); // Load weakness instead of resistance, and beq insteand of bne
-			PutInBank(0x02, 0x9CAA, Blob.FromHex("EAEA")); // Don't branch if resistant to fatal
+			PutInBank(0x02, 0x9238, Blob.FromHex("A5562B2908F0E5")); // Load weakness instead of counter attack, and beq instead of bne
+			PutInBank(0x02, 0xFF00, Blob.FromHex("202f8f6b")); // Long jump to gettargetzeropage
+			PutInBank(0x11, 0x8640, Blob.FromHex("0b2200ff02a5562b2908d00c0b2200ff02a53d2b2980d002a9006b")); // If undead, don't check resist when dooming
+			PutInBank(0x02, 0x9CA1, Blob.FromHex("22408611eaeaeaeaea")); // Jump to new resist check
 
 			// Fix Cure Overflow Bug
 			// see 11_8600_CureOverflow.asm
