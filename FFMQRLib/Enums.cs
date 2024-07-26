@@ -47,16 +47,16 @@ namespace FFMQLib
 		GiantTreeUnset = 0x3A,
 		ShowPazuzuBridge = 0x3D,
 		ShowPazuzu1F = 0x40,
-        ShowPazuzu2F = 0x41,
-        ShowPazuzu3F = 0x42,
-        ShowPazuzu4F = 0x43,
-        ShowPazuzu5F = 0x44,
-        ShowPazuzu6F = 0x45,
-        ShowPazuzu7F = 0x46,
+		ShowPazuzu2F = 0x41,
+		ShowPazuzu3F = 0x42,
+		ShowPazuzu4F = 0x43,
+		ShowPazuzu5F = 0x44,
+		ShowPazuzu6F = 0x45,
+		ShowPazuzu7F = 0x46,
 		PazuzuSwitch2F = 0x47,
-        PazuzuSwitch4F = 0x48,
-        PazuzuSwitch6F = 0x49,
-        PhoebeHouseVisited = 0x4D,
+		PazuzuSwitch4F = 0x48,
+		PazuzuSwitch6F = 0x49,
+		PhoebeHouseVisited = 0x4D,
 		UseWakeWater = 0x4F,
 		UseRiverCoin = 0x5B,
 		BoulderRolled = 0x5C,
@@ -87,39 +87,39 @@ namespace FFMQLib
 
 		// Kaeli new flags
 		ShowForestaKaeli = 0x62,
-        ShowLevelForestKaeli = 0xBF,
-        EnableMinotaurFight = 0x63,
-        ShowSickKaeli = 0x7D,
-        KaeliCured = 0x1F,
-        ShowWindiaKaeli = 0x68,
+		ShowLevelForestKaeli = 0xBF,
+		EnableMinotaurFight = 0x63,
+		ShowSickKaeli = 0x7D,
+		KaeliCured = 0x1F,
+		ShowWindiaKaeli = 0x68,
 		KaeliSecondItemGiven = 0xE8,
-        KaeliOpenedPath = 0xE3,
-        ShowForestaKaelisMom = 0xBA,
-        ShowWindiaKaelisMom = 0xBD,
+		KaeliOpenedPath = 0xE3,
+		ShowForestaKaelisMom = 0xBA,
+		ShowWindiaKaelisMom = 0xBD,
 
-        // Tristam new flags
-        ShowSandTempleTristam = 0x5A,
-        ShowBoneDungeonTristam = 0xB9,
-        TristamBoneDungeonItemGiven = 0xC9,
+		// Tristam new flags
+		ShowSandTempleTristam = 0x5A,
+		ShowBoneDungeonTristam = 0xB9,
+		TristamBoneDungeonItemGiven = 0xC9,
 		ShowFireburgTristam = 0x53,
 		TristamFireburgItemGiven = 0xE9,
 
 		// Phoebe new flags
 		ShowLibraTemplePhoebe = 0x4E,
-        ShowWintryCavePhoebe = 0xBE,
-        PhoebeWintryItemGiven = 0xEA,
-        //PhoebeReturnedToWindia = 0xC0,
-        ShowWindiaPhoebe = 0x7E,
+		ShowWintryCavePhoebe = 0xBE,
+		PhoebeWintryItemGiven = 0xEA,
+		//PhoebeReturnedToWindia = 0xC0,
+		ShowWindiaPhoebe = 0x7E,
 
 		// Reuben new flags
 		ShowFireburgReuben1 = 0x5F,
-        ShowMineReuben = 0xBB,
-        ReubenMineItemGiven = 0xEB,
-        //ReubenReturnedToFireburg = 0xBF,
-        ShowFireburgReuben2 = 0xBC,
+		ShowMineReuben = 0xBB,
+		ReubenMineItemGiven = 0xEB,
+		//ReubenReturnedToFireburg = 0xBF,
+		ShowFireburgReuben2 = 0xBC,
 
-        // Arion new flags
-        ArionItemGiven = 0xEC,
+		// Arion new flags
+		ArionItemGiven = 0xEC,
 
 		// Chests flags
 		TristamChestUnopened = 0xED,
@@ -135,29 +135,29 @@ namespace FFMQLib
 
 		// Quests flags
 		KaeliQuest1 = 0xA9,
-        KaeliQuest2 = 0xAA,
-        KaeliQuest3 = 0xAB,
-        KaeliQuest4 = 0xAC,
-        TristamQuest1 = 0xAD,
-        TristamQuest2 = 0xAE,
-        TristamQuest3 = 0xAF,
-        TristamQuest4 = 0xB0,
-        PhoebeQuest1 = 0xB1,
-        PhoebeQuest2 = 0xB2,
-        PhoebeQuest3 = 0xB3,
-        PhoebeQuest4 = 0xB4,
-        ReubenQuest1 = 0xB5,
-        ReubenQuest2 = 0xB6,
-        ReubenQuest3 = 0xB7,
-        ReubenQuest4 = 0xB8,
+		KaeliQuest2 = 0xAA,
+		KaeliQuest3 = 0xAB,
+		KaeliQuest4 = 0xAC,
+		TristamQuest1 = 0xAD,
+		TristamQuest2 = 0xAE,
+		TristamQuest3 = 0xAF,
+		TristamQuest4 = 0xB0,
+		PhoebeQuest1 = 0xB1,
+		PhoebeQuest2 = 0xB2,
+		PhoebeQuest3 = 0xB3,
+		PhoebeQuest4 = 0xB4,
+		ReubenQuest1 = 0xB5,
+		ReubenQuest2 = 0xB6,
+		ReubenQuest3 = 0xB7,
+		ReubenQuest4 = 0xB8,
 
-        ShowSquidChest = 0xE0,
-        ShowCrabChest = 0xC0,
-        ShowMedusaChest = 0x5D,
-        ShowDullahanChest = 0x2B,
+		ShowSquidChest = 0xE0,
+		ShowCrabChest = 0xC0,
+		ShowMedusaChest = 0x5D,
+		ShowDullahanChest = 0x2B,
 
-        // Tentative removed enemy flag
-        ShowEnemies = 0xF9,
+		// Tentative removed enemy flag
+		ShowEnemies = 0xF9,
 
 		// Invalid flag
 		None = 0x100,
@@ -196,7 +196,7 @@ namespace FFMQLib
 		Tristam,
 		TristamBoneItemGiven, 
 		ReubenMine, // is TristamBoneItemGiven, but we switch it for compat with ap 1.4 (this is awful)
-        Phoebe1,
+		Phoebe1,
 		Reuben1,
 		ReubenDadSaved,
 		Otto,
@@ -248,11 +248,16 @@ namespace FFMQLib
 		WoodHouseMobiusCrestTile,
 		
 		BarrelPushed,
-		
+
+		BoneWaterwayBombed,
 		LongSpineBombed, 
 		ShortSpineBombed, 
 		Skull1Bombed, 
-		Skull2Bombed, 
+		Skull2Bombed,
+		Skull3Bombed,
+
+		Wintry3FBombed,
+		Wintry2FBombed,
 
 		IcePyramid1FStatue, //
 		IcePyramid3FStatue,
@@ -260,6 +265,10 @@ namespace FFMQLib
 		IcePyramid5FStatue,
 
 		SpencerCaveLibraBlockBombed,
+
+		MineParallelBombed,
+		MineClimbingBombed,
+		MineCrescentBombed,
 
 		LavaDomePlate,
 
@@ -578,11 +587,11 @@ namespace FFMQLib
 		LightTempleQuest,
 		MountGaleQuest,
 		EnterWindiaInnBedroom,
-        KaeliCuttingTree,
+		KaeliCuttingTree,
 		VolcanoSummitQuest,
-    }
+	}
 
-    public enum TalkScriptsList : int
+	public enum TalkScriptsList : int
 	{
 		Unknown00 = 0, // Fight Skullrus Rex, probably  default?
 		Unknown01,
@@ -622,7 +631,7 @@ namespace FFMQLib
 		AquariaPeople07,
 		AquariaPeople08,
 		PhoebeInAquaria, // Phoebe in her house?
-        KaeliInAquaria,
+		KaeliInAquaria,
 		AquariaPeople0a,
 		AquariaPeople0b,
 		AquariaSellerGirl,
