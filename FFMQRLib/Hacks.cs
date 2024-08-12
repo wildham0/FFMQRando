@@ -20,7 +20,7 @@ namespace FFMQLib
 			SystemBugFixes();
 			CompanionRoutines(flags.KaelisMomFightMinotaur, apenabled);
 			DummyRoom();
-			KeyItemWindow();
+			KeyItemWindow(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin);
 			GameStateIndicator();
 			ArchipelagoSupport(apenabled);
 			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
@@ -425,7 +425,7 @@ namespace FFMQLib
 
 			newPazuzuRng.WriteAt(0x03, 0xFC7E, this);
 		}
-		public void KeyItemWindow()
+		public void KeyItemWindow(bool skyfragmentsEnabled)
 		{
 			// Timer Hack
 			PutInBank(0x00, 0x8968, Blob.FromHex("22008911eaeaeaeaeaeaeaea"));
@@ -447,13 +447,14 @@ namespace FFMQLib
 			PutInBank(0x11, 0x8980, Blob.FromHex("08908924012e1e0700"));
 
 			// Box drawing script
-			PutInBank(0x11, 0x8990, Blob.FromHex("0f000e0b55bf8910610e05c10000aa890fa0100bffbf890abb89241b300405151c3118fefe01fefe01fefe09298d0000"));
+			string skyFragmentIndicator = skyfragmentsEnabled ? "05090fd989" : "0ad989ffff";
+			PutInBank(0x11, 0x8990, Blob.FromHex($"0f000e0b55dc8910610e05c10000aa890fa0100bffdc890ad989241b300405151c3118fefe01fefe01fefe0f600e{skyFragmentIndicator}010f930e0c6c0031056d106c000548101005189e000209298d00"));
 
 			// Companion Weapon Drawing Routine
-			PutInBank(0x00, 0x8D33, Blob.FromHex("EA22C08911"));
+			PutInBank(0x00, 0x8D33, Blob.FromHex("EA22008a11"));
 			PutInBank(0x00, 0x8D6C, Blob.FromHex("22e08911eaeaeaeaeaeaeaeaeaeaeaeaea"));
-			PutInBank(0x11, 0x89C0, Blob.FromHex("08c230ae610ef005ae600e8003aeb11028e0ff6b"));
-			PutInBank(0x11, 0x89E0, Blob.FromHex("22c08911dabf0098040a0a8df700c210686b"));
+			PutInBank(0x11, 0x8A00, Blob.FromHex("08c230ae610ef005ae600e8003aeb11028e0ff6b"));
+			PutInBank(0x11, 0x89E0, Blob.FromHex("22008a11dabf0098040a0a8df700c210686b"));
 		}
 		public void BugFixes()
 		{
