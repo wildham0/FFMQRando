@@ -679,6 +679,7 @@ namespace FFMQLib
 			if (group == EnemizerGroups.MobsBossesDK)
 			{
 				dkattacks.AddRange(_EnemyAttackLinks.Where(l => DarkKing.Contains(l.Id)).SelectMany(l => l.Attacks).Distinct().ToList());
+				dkattacks.Remove(0xFF);
 			}
 
 			List<byte> invalidattacks = new() { 0x49, 0x4A, 0xC1, 0xC2, 0xC8, 0xC9, 0xFF };
@@ -702,6 +703,13 @@ namespace FFMQLib
 				}
 
 				newattacks.Sort();
+
+				// Split hydra's and wyvern attacks to make them less backended
+				if (link == 0x4C || link == 0x4D)
+				{
+					newattacks = newattacks.Where((a, i) => i % 2 == 0).Concat(newattacks.Where((a, i) => i % 2 == 1)).ToList();
+				}
+
 				while (newattacks.Count < 6)
 				{
 					newattacks.Add(0xFF);
@@ -1124,6 +1132,5 @@ namespace FFMQLib
 			Rare = rare;
 			Opener = opener;
 		}
-
 	}
 }

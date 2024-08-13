@@ -65,10 +65,10 @@ PRINT [FE]                      ; fe
 LINEFEED                        ; 01
 PRINT [FE]                      ; fe
 PRINT [FE]                      ; fe
-[9E] = b[0E60]					; 0f 600e
+[9E] = b[0E60]                  ; 0f 600e
 IF [9E] != #$0F GOTO L_DRAWITEM ; 05090f d989 > changed to GOTO L_DRAWITEM 0ad989 if not sky fragment
-LINEFEED						; 01
-[9E] = b[0E93]					; 0f 930e
+LINEFEED                        ; 01
+[9E] = b[0E93]                  ; 0f 930e
 [006C] = #$31                   ; 0c 6c00 31
 UNKNOWN_6D                      ; 056d
 [9E] = w[006C]                  ; 10 6c00
