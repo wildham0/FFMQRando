@@ -286,6 +286,14 @@ namespace FFMQLib
 		TwinheadWyvern,
 		Zuh,
 		
+		Gp150,
+		Gp200,
+		Gp300,
+		Gp500,
+		Gp600,
+		Gp900,
+		Gp1200,
+
 		Barred,
 	}
 	public enum TreasureType : int

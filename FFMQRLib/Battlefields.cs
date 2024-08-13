@@ -31,6 +31,7 @@ namespace FFMQLib
 		public BattlefieldRewardType RewardType { get => GetRewardType(); }
 		public ushort Value { get; set; }
 		public Items Reward { get; set; }
+		public AccessReqs RewardAccess => GpItemToAccess[Reward];
 
 		public static Dictionary<Items, ushort> XpBattlefieldRewardValues = new()
 		{
@@ -51,6 +52,14 @@ namespace FFMQLib
 			{ Items.Gp600, 0x00C8 },
 			{ Items.Gp900, 0x012C },
 			{ Items.Gp1200, 0x0190 },
+		};
+		public static Dictionary<Items, AccessReqs> GpItemToAccess = new()
+		{
+			{ Items.Gp150, AccessReqs.Gp150 },
+			{ Items.Gp300, AccessReqs.Gp300 },
+			{ Items.Gp600, AccessReqs.Gp600 },
+			{ Items.Gp900, AccessReqs.Gp900 },
+			{ Items.Gp1200, AccessReqs.Gp1200 },
 		};
 
 		public Battlefield(LocationIds location, byte[] rawvalues)
@@ -262,8 +271,20 @@ namespace FFMQLib
 					};
 
 			List<GameObjectType> battlefieldObjectTypes = new() { GameObjectType.BattlefieldGp, GameObjectType.BattlefieldXp, GameObjectType.BattlefieldItem };
-			var battlefieldsObject = gamelogic.Rooms.SelectMany(r => r.GameObjects.Where(o => battlefieldObjectTypes.Contains(o.Type))).ToList();
-			battlefieldsObject.ForEach(x => x.Type = battlefieldTypeConverter[battlefields.ToList().Find(b => (int)b.Location == x.ObjectId).RewardType]);
+			var battlefieldsObjects = gamelogic.Rooms.SelectMany(r => r.GameObjects.Where(o => battlefieldObjectTypes.Contains(o.Type))).ToList();
+
+			foreach (var targetbattlefield in battlefieldsObjects)
+			{
+				var sourcebattlefield = battlefields.ToList().Find(b => (int)b.Location == targetbattlefield.ObjectId);
+
+				targetbattlefield.Type = battlefieldTypeConverter[sourcebattlefield.RewardType];
+
+				if (sourcebattlefield.RewardType == BattlefieldRewardType.Gold)
+				{
+					targetbattlefield.OnTrigger.Add(sourcebattlefield.RewardAccess);
+				}
+			}
+			//battlefieldsObject.ForEach(x => x.Type = battlefieldTypeConverter[battlefields.ToList().Find(b => (int)b.Location == x.ObjectId).RewardType]);
 		}
 		public List<BattlefieldRewardType> GetAllRewardType()
 		{

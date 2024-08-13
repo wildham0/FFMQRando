@@ -132,7 +132,8 @@ namespace FFMQLib
 				exitTrickRoom.Links.Add(new RoomLink(74, new() { AccessReqs.ExitBook }));
 			}
 
-            // Don't put progression on vendors if there's no enemies to fight to avoid gp softlock
+			// Don't put progression on vendors if there's no enemies to fight to avoid gp softlock
+			/*
             if (flags.EnemiesDensity == EnemiesDensity.None)
 			{
 				List<int> vendorobjectlist = new() { 4, 11, 16 };
@@ -142,8 +143,17 @@ namespace FFMQLib
 				{ 
 					vendor.Access.AddRange(new List<AccessReqs>() { AccessReqs.SandCoin, AccessReqs.RiverCoin} );
 				}
-			}
+			}*/
 
+			var aquariaVendor = Rooms.SelectMany(r => r.GameObjects).ToList().Find(o => o.Type == GameObjectType.NPC && o.ObjectId == 4);
+			var fireburgVendor = Rooms.SelectMany(r => r.GameObjects).ToList().Find(o => o.Type == GameObjectType.NPC && o.ObjectId == 11);
+			var windiaVendor = Rooms.SelectMany(r => r.GameObjects).ToList().Find(o => o.Type == GameObjectType.NPC && o.ObjectId == 16);
+
+			aquariaVendor.Access.AddRange(new List<AccessReqs> { AccessReqs.Gp200 });
+			fireburgVendor.Access.AddRange(new List<AccessReqs> { AccessReqs.Gp500 });
+			windiaVendor.Access.AddRange(new List<AccessReqs> { AccessReqs.Gp300 });
+
+			// Giant Tree
 			var giantTreeLink = locationLinks.Find(l => l.Location == LocationIds.GiantTree);
 			Rooms.Find(x => x.Type == RoomType.Subregion && x.Region == SubRegions.Windia).Links.Remove(giantTreeLink);
 
@@ -201,7 +211,7 @@ namespace FFMQLib
 
 				foreach (var gamedata in room.GameObjects)
 				{ 
-					if (gamedata.Type == GameObjectType.BattlefieldXp || gamedata.Type == GameObjectType.BattlefieldGp)
+					if (gamedata.Type == GameObjectType.BattlefieldXp)
 					{
 						continue;
 					}
@@ -209,6 +219,13 @@ namespace FFMQLib
 					{
 						var bflocation = overworld.Locations.Find(l => l.LocationId == gamedata.Location);
 						GameObjects.Add(new GameObject(gamedata, bflocation, finalAccess));
+					}
+					else if (gamedata.Type == GameObjectType.BattlefieldGp)
+					{
+						var bflocation = overworld.Locations.Find(l => l.LocationId == gamedata.Location);
+						var battlefieldTrigger = new GameObject(gamedata, bflocation, finalAccess);
+						battlefieldTrigger.Type = GameObjectType.Trigger;
+						GameObjects.Add(battlefieldTrigger);
 					}
 					else
 					{
