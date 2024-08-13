@@ -222,6 +222,7 @@ namespace FFMQLib
 					GameObject targetLocation = rng.PickFrom(validLocations);
 					targetLocation.Content = itemToPlace;
 					targetLocation.IsPlaced = true;
+					RemoveGp(targetLocation);
 					regionsWeight.Find(x => x.Region == targetLocation.Region).Weight++;
 
 					if (targetLocation.Type == GameObjectType.Chest || targetLocation.Type == GameObjectType.Box)
@@ -357,13 +358,50 @@ namespace FFMQLib
 		private void AddGp(List<AccessReqs> accessReqToProcess)
 		{
 			var gpAccessList = AccessToGp.Keys.ToList();
-
 			var gpAccessReqToProcess = accessReqToProcess.Intersect(gpAccessList).ToList();
+
+			if (!gpAccessReqToProcess.Any()) return;
 
 			foreach (var access in gpAccessReqToProcess)
 			{
 				GpCount += AccessToGp[access];
 				accessReqToProcess.Remove(access);
+			}
+
+			var gpAccessLocations = ItemsLocations.Where(l => l.AccessRequirements.SelectMany(a => a).Intersect(gpAccessList).Any()).ToList();
+
+			foreach (var gpLocation in gpAccessLocations)
+			{
+				if (gpLocation.AccessRequirements.Count(a => !a.Except(gpAccessList).Any()) > 0)
+				{
+					var gpRequirement = AccessToGp[gpLocation.AccessRequirements.SelectMany(a => a).Intersect(gpAccessList).First()];
+					gpLocation.Accessible = gpRequirement <= GpCount;
+				}
+			}
+		}
+		private void RemoveGp(GameObject vendor)
+		{
+			var gpAccessList = AccessToGp.Keys.ToList();
+			var gpRequirements = vendor.AccessRequirements.SelectMany(a => a).Intersect(gpAccessList).ToList();
+
+			if (!gpRequirements.Any())
+			{
+				return;
+			}
+
+			var gpCost = AccessToGp[gpRequirements.First()];
+
+			GpCount -= gpCost;
+
+			var gpAccessLocations = ItemsLocations.Where(l => l.AccessRequirements.SelectMany(a => a).Intersect(gpAccessList).Any()).ToList();
+
+			foreach (var gpLocation in gpAccessLocations)
+			{
+				if (gpLocation.AccessRequirements.Count(a => !a.Except(gpAccessList).Any()) > 0)
+				{
+					var gpRequirement = AccessToGp[gpLocation.AccessRequirements.SelectMany(a => a).Intersect(gpAccessList).First()];
+					gpLocation.Accessible = gpRequirement <= GpCount;
+				}
 			}
 		}
 		public void WriteChests(FFMQRom rom)

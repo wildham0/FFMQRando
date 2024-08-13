@@ -211,7 +211,7 @@ namespace FFMQLib
 
 				foreach (var gamedata in room.GameObjects)
 				{ 
-					if (gamedata.Type == GameObjectType.BattlefieldXp || gamedata.Type == GameObjectType.BattlefieldGp)
+					if (gamedata.Type == GameObjectType.BattlefieldXp)
 					{
 						continue;
 					}
@@ -219,6 +219,13 @@ namespace FFMQLib
 					{
 						var bflocation = overworld.Locations.Find(l => l.LocationId == gamedata.Location);
 						GameObjects.Add(new GameObject(gamedata, bflocation, finalAccess));
+					}
+					else if (gamedata.Type == GameObjectType.BattlefieldGp)
+					{
+						var bflocation = overworld.Locations.Find(l => l.LocationId == gamedata.Location);
+						var battlefieldTrigger = new GameObject(gamedata, bflocation, finalAccess);
+						battlefieldTrigger.Type = GameObjectType.Trigger;
+						GameObjects.Add(battlefieldTrigger);
 					}
 					else
 					{
