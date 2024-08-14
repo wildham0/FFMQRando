@@ -255,14 +255,24 @@ namespace FFMQLib
 			PutInBank(0x11, 0x9000, Blob.FromHex("08c230ad9e00aabf0091118d6601e230c901f004a9808002a9008d6501286b"));
 
 			// Newer routine to set item quantity, supersed previous (to remove)
-			PutInBank(0x00, 0xDACC, Blob.FromHex("22509011ea")); // jump to new routine, skip decreasing quantity
-			PutInBank(0x00, 0xDB01, Blob.FromHex("eaeaea")); // don't increment quantity, when giving an item
-			PutInBank(0x00, 0xDB5F, Blob.FromHex("eaeaea")); // don't increment bomb quantity
-			PutInBank(0x00, 0xDB6B, Blob.FromHex("eaeaea")); // don't increment companion projectile quantity
-			PutInBank(0x00, 0xDB7D, Blob.FromHex("eaeaea")); // don't increment quantity, when adding a new consumable
+			//PutInBank(0x00, 0xDACC, Blob.FromHex("22509011ea")); // jump to new routine, skip decreasing quantity
+			//PutInBank(0x00, 0xDB01, Blob.FromHex("eaeaea")); // don't increment quantity, when giving an item
+			//PutInBank(0x00, 0xDB5F, Blob.FromHex("eaeaea")); // don't increment bomb quantity
+			//PutInBank(0x00, 0xDB6B, Blob.FromHex("eaeaea")); // don't increment companion projectile quantity
+			//PutInBank(0x00, 0xDB7D, Blob.FromHex("eaeaea")); // don't increment quantity, when adding a new consumable
+			
+			// GiveItem Part 1
+			PutInBank(0x00, 0xDACC, Blob.FromHex("08c230da5ae23022308e11a59ec914900cc920900bc92f900ac9dd90094cd6db4c8edb4c9cdb4cbedb")); 
+			PutInBank(0x00, 0xDB31, Blob.FromHex("9005")); // branch to rts when checking quantity
+
+			// Copy Ammo Compute
+			PutInBank(0x11, 0x8e00, Blob.FromHex("c963900b9c6601a9801c6501a963606d6601c964900ce96349ff6d66018d6601a96360"));
+			// Give Item Part 2
+			PutInBank(0x11, 0x8e30, Blob.FromHex("22509011e230a59ec910902dc9149016c9dd9029f004a2808002a200bd301020008e9d30106b2265da00a59e9d9e0ebd9f0e20008e9d9f0e6b220092116b"));
+
+			// Item Quantity Routine
 			PutInBank(0x11, 0x9050, Blob.FromHex("e220ad910ec96ad012ad5f01c9f2900bc9f6b007a9198d66018026ad9e00c910900cc914900fc9dd9004c9f0900e9c6601a9808012a9038d66018005a90a8d6601a9800c65016b1c65016b"));
 			
-
 			// Generate lut of boxes & chests quantity
 			byte[] lutResetBox = new byte[0x20];
 
@@ -313,7 +323,7 @@ namespace FFMQLib
 
 			// see 11_9200_ChestHacks.asm
 			PutInBank(0x11, 0x9200, Blob.FromHex("48c905f014c906f02dc90ff046680bf4a60e2b224e97002b6bad880ec929d0edad910ef0e80bf4d0002ba992224e97002bad9e0080d7ad880ec921d0d0ad910ef0cb0bf4d0002ba992224e97002bad9e0080baee930e80b56b"));
-			PutInBank(0x00, 0xDB82, Blob.FromHex("22009211EAEAEAEAEAEA"));
+			//PutInBank(0x00, 0xDB82, Blob.FromHex("22009211EAEAEAEAEAEA"));
 
 			// Item action selector (w AP support)
 			PutInBank(0x00, 0xDB42, Blob.FromHex("5c008f11"));
