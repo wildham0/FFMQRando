@@ -200,6 +200,7 @@ namespace FFMQLib
 		{
 			if (!enable)
 			{
+				UpdateLogic(gamelogic);
 				return;
 			}
 
