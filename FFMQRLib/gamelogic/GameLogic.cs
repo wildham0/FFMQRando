@@ -249,6 +249,11 @@ namespace FFMQLib
 			otherBosses.AddRange(windiaBosses);
 			List<AccessReqs> progressCoin = new() { AccessReqs.SandCoin, AccessReqs.RiverCoin };
 
+			if (flags.MapShuffling != MapShufflingMode.None)
+			{
+				windiaBosses.Add(AccessReqs.DualheadHydra);
+			}
+
 			foreach (var gameobject in GameObjects)
 			{
 				foreach (var requirements in gameobject.AccessRequirements)
