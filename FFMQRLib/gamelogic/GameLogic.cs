@@ -132,18 +132,7 @@ namespace FFMQLib
 				exitTrickRoom.Links.Add(new RoomLink(74, new() { AccessReqs.ExitBook }));
 			}
 
-            // Don't put progression on vendors if there's no enemies to fight to avoid gp softlock
-            if (flags.EnemiesDensity == EnemiesDensity.None)
-			{
-				List<int> vendorobjectlist = new() { 4, 11, 16 };
-				var vendorobjects = Rooms.SelectMany(r => r.GameObjects).Where(o => o.Type == GameObjectType.NPC && vendorobjectlist.Contains(o.ObjectId)).ToList();
-
-				foreach (var vendor in vendorobjects)
-				{ 
-					vendor.Access.AddRange(new List<AccessReqs>() { AccessReqs.SandCoin, AccessReqs.RiverCoin} );
-				}
-			}
-
+			// Giant Tree
 			var giantTreeLink = locationLinks.Find(l => l.Location == LocationIds.GiantTree);
 			Rooms.Find(x => x.Type == RoomType.Subregion && x.Region == SubRegions.Windia).Links.Remove(giantTreeLink);
 
@@ -178,6 +167,13 @@ namespace FFMQLib
 			
 			accessQueue = accessToKeep;
 
+			Dictionary<int, int> vendorCost = new()
+			{
+				{ 4, 200 },
+				{ 11, 500 },
+				{ 16, 300 },
+			};
+
 			// Process Game Objects
 			foreach (var room in Rooms)
 			{
@@ -201,7 +197,7 @@ namespace FFMQLib
 
 				foreach (var gamedata in room.GameObjects)
 				{ 
-					if (gamedata.Type == GameObjectType.BattlefieldXp || gamedata.Type == GameObjectType.BattlefieldGp)
+					if (gamedata.Type == GameObjectType.BattlefieldXp)
 					{
 						continue;
 					}
@@ -209,6 +205,20 @@ namespace FFMQLib
 					{
 						var bflocation = overworld.Locations.Find(l => l.LocationId == gamedata.Location);
 						GameObjects.Add(new GameObject(gamedata, bflocation, finalAccess));
+					}
+					else if (gamedata.Type == GameObjectType.BattlefieldGp)
+					{
+						var bflocation = overworld.Locations.Find(l => l.LocationId == gamedata.Location);
+						var battlefieldTrigger = new GameObject(gamedata, bflocation, finalAccess);
+						battlefieldTrigger.Type = GameObjectType.Trigger;
+						GameObjects.Add(battlefieldTrigger);
+					}
+					else if (gamedata.Type == GameObjectType.NPC && vendorCost.ContainsKey(gamedata.ObjectId))
+					{
+						// Set Gp Value for Vendors
+						var vendorObject = new GameObject(gamedata, targetLocation, finalAccess);
+						vendorObject.Cost = vendorCost[vendorObject.ObjectId];
+						GameObjects.Add(vendorObject);
 					}
 					else
 					{
@@ -231,6 +241,11 @@ namespace FFMQLib
 			List<AccessReqs> otherBosses = new() { AccessReqs.FreezerCrab, AccessReqs.IceGolem, AccessReqs.Jinn, AccessReqs.Medusa, AccessReqs.DualheadHydra };
 			otherBosses.AddRange(windiaBosses);
 			List<AccessReqs> progressCoin = new() { AccessReqs.SandCoin, AccessReqs.RiverCoin };
+
+			if (flags.MapShuffling != MapShufflingMode.None)
+			{
+				windiaBosses.Add(AccessReqs.DualheadHydra);
+			}
 
 			foreach (var gameobject in GameObjects)
 			{

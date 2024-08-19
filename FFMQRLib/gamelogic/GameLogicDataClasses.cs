@@ -89,6 +89,7 @@ namespace FFMQLib
 		public List<List<AccessReqs>> AccessRequirements { get; set; }
 		public bool Accessible { get; set; }
 		public bool Reset { get; set; }
+		public int Cost { get; set; }
 		public GameObject()
 		{
 			Location = LocationIds.None;
@@ -103,6 +104,7 @@ namespace FFMQLib
 			AccessRequirements = new();
 			Accessible = false;
 			Reset = false;
+			Cost = 0;
 		}
 
 		public GameObject(GameObjectData data)
@@ -122,6 +124,7 @@ namespace FFMQLib
 			AccessRequirements = new();
 			Accessible = false;
 			Reset = false;
+			Cost = 0;
 		}
 		public GameObject(GameObjectData data, Location location, List<List<AccessReqs>> roomAccess)
 		{
@@ -140,6 +143,7 @@ namespace FFMQLib
 			Exclude = false;
 			Accessible = false;
 			Reset = false;
+			Cost = 0;
 
 			AccessRequirements = new();
 
@@ -166,6 +170,7 @@ namespace FFMQLib
 			AccessRequirements = gameobject.AccessRequirements.ToList();
 			Accessible = gameobject.Accessible;
 			Reset = gameobject.Reset;
+			Cost = gameobject.Cost;
 		}
 	}
 

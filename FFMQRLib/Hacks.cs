@@ -20,7 +20,7 @@ namespace FFMQLib
 			SystemBugFixes();
 			CompanionRoutines(flags.KaelisMomFightMinotaur, apenabled);
 			DummyRoom();
-			KeyItemWindow();
+			KeyItemWindow(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin);
 			GameStateIndicator();
 			ArchipelagoSupport(apenabled);
 			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
@@ -255,9 +255,24 @@ namespace FFMQLib
 			PutInBank(0x11, 0x9000, Blob.FromHex("08c230ad9e00aabf0091118d6601e230c901f004a9808002a9008d6501286b"));
 
 			// Newer routine to set item quantity, supersed previous (to remove)
-			PutInBank(0x00, 0xDACC, Blob.FromHex("22509011ea"));
-			PutInBank(0x11, 0x9050, Blob.FromHex("e220ad910ec96ad012ad5f01c9f2900bc9f6b007a9188d66018026ad9e00c910900cc914900fc9dd9004c9f0900e9c6601a9808012a9028d66018005a9098d6601a9800c65016b1c65016b"));
+			//PutInBank(0x00, 0xDACC, Blob.FromHex("22509011ea")); // jump to new routine, skip decreasing quantity
+			//PutInBank(0x00, 0xDB01, Blob.FromHex("eaeaea")); // don't increment quantity, when giving an item
+			//PutInBank(0x00, 0xDB5F, Blob.FromHex("eaeaea")); // don't increment bomb quantity
+			//PutInBank(0x00, 0xDB6B, Blob.FromHex("eaeaea")); // don't increment companion projectile quantity
+			//PutInBank(0x00, 0xDB7D, Blob.FromHex("eaeaea")); // don't increment quantity, when adding a new consumable
+			
+			// GiveItem Part 1
+			PutInBank(0x00, 0xDACC, Blob.FromHex("08c230da5ae23022308e11a59ec914900cc920900bc92f900ac9dd90094cd6db4c8edb4c9cdb4cbedb")); 
+			PutInBank(0x00, 0xDB31, Blob.FromHex("9005")); // branch to rts when checking quantity
 
+			// Copy Ammo Compute
+			PutInBank(0x11, 0x8e00, Blob.FromHex("c963900b9c6601a9801c6501a963606d6601c964900ce96349ff6d66018d6601a96360"));
+			// Give Item Part 2
+			PutInBank(0x11, 0x8e30, Blob.FromHex("22509011e230a59ec910902dc9149016c9dd9029f004a2808002a200bd301020008e9d30106b2265da00a59e9d9e0ebd9f0e20008e9d9f0e6b220092116b"));
+
+			// Item Quantity Routine
+			PutInBank(0x11, 0x9050, Blob.FromHex("e220ad910ec96ad012ad5f01c9f2900bc9f6b007a9198d66018026ad9e00c910900cc914900fc9dd9004c9f0900e9c6601a9808012a9038d66018005a90a8d6601a9800c65016b1c65016b"));
+			
 			// Generate lut of boxes & chests quantity
 			byte[] lutResetBox = new byte[0x20];
 
@@ -308,7 +323,7 @@ namespace FFMQLib
 
 			// see 11_9200_ChestHacks.asm
 			PutInBank(0x11, 0x9200, Blob.FromHex("48c905f014c906f02dc90ff046680bf4a60e2b224e97002b6bad880ec929d0edad910ef0e80bf4d0002ba992224e97002bad9e0080d7ad880ec921d0d0ad910ef0cb0bf4d0002ba992224e97002bad9e0080baee930e80b56b"));
-			PutInBank(0x00, 0xDB82, Blob.FromHex("22009211EAEAEAEAEAEA"));
+			//PutInBank(0x00, 0xDB82, Blob.FromHex("22009211EAEAEAEAEAEA"));
 
 			// Item action selector (w AP support)
 			PutInBank(0x00, 0xDB42, Blob.FromHex("5c008f11"));
@@ -420,7 +435,7 @@ namespace FFMQLib
 
 			newPazuzuRng.WriteAt(0x03, 0xFC7E, this);
 		}
-		public void KeyItemWindow()
+		public void KeyItemWindow(bool skyfragmentsEnabled)
 		{
 			// Timer Hack
 			PutInBank(0x00, 0x8968, Blob.FromHex("22008911eaeaeaeaeaeaeaea"));
@@ -442,13 +457,14 @@ namespace FFMQLib
 			PutInBank(0x11, 0x8980, Blob.FromHex("08908924012e1e0700"));
 
 			// Box drawing script
-			PutInBank(0x11, 0x8990, Blob.FromHex("0f000e0b55bf8910610e05c10000aa890fa0100bffbf890abb89241b300405151c3118fefe01fefe01fefe09298d0000"));
+			string skyFragmentIndicator = skyfragmentsEnabled ? "05090fd989" : "0ad989ffff";
+			PutInBank(0x11, 0x8990, Blob.FromHex($"0f000e0b55dc8910610e05c10000aa890fa0100bffdc890ad989241b300405151c3118fefe01fefe01fefe0f600e{skyFragmentIndicator}010f930e0c6c0031056d106c000548101005189e000209298d00"));
 
 			// Companion Weapon Drawing Routine
-			PutInBank(0x00, 0x8D33, Blob.FromHex("EA22C08911"));
+			PutInBank(0x00, 0x8D33, Blob.FromHex("EA22008a11"));
 			PutInBank(0x00, 0x8D6C, Blob.FromHex("22e08911eaeaeaeaeaeaeaeaeaeaeaeaea"));
-			PutInBank(0x11, 0x89C0, Blob.FromHex("08c230ae610ef005ae600e8003aeb11028e0ff6b"));
-			PutInBank(0x11, 0x89E0, Blob.FromHex("22c08911dabf0098040a0a8df700c210686b"));
+			PutInBank(0x11, 0x8A00, Blob.FromHex("08c230ae610ef005ae600e8003aeb11028e0ff6b"));
+			PutInBank(0x11, 0x89E0, Blob.FromHex("22008a11dabf0098040a0a8df700c210686b"));
 		}
 		public void BugFixes()
 		{
@@ -469,8 +485,10 @@ namespace FFMQLib
 			PutInBank(0x03, 0xFFC0, Blob.FromHex("0508051ED0000100")); // Copy armor command + moved original command
 
 			// Fix Life Insta Kill Bug
-			PutInBank(0x02, 0x9238, Blob.FromHex("A5562B2908F0E5")); // Load weakness instead of resistance, and beq insteand of bne
-			PutInBank(0x02, 0x9CAA, Blob.FromHex("EAEA")); // Don't branch if resistant to fatal
+			PutInBank(0x02, 0x9238, Blob.FromHex("A5562B2908F0E5")); // Load weakness instead of counter attack, and beq instead of bne
+			PutInBank(0x02, 0xFF00, Blob.FromHex("202f8f6b")); // Long jump to gettargetzeropage
+			PutInBank(0x11, 0x8640, Blob.FromHex("0b2200ff02a5562b2908d00c0b2200ff02a53d2b2980d002a9006b")); // If undead, don't check resist when dooming
+			PutInBank(0x02, 0x9CA1, Blob.FromHex("22408611eaeaeaeaea")); // Jump to new resist check
 
 			// Fix Cure Overflow Bug
 			// see 11_8600_CureOverflow.asm

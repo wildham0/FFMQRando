@@ -17,7 +17,7 @@ ItemQuantityRoutine:
   bcc normal_box 
   cmp #$F6
   bcs normal_box
-  lda #$18
+  lda #$19
   sta $0166
   bra finalize
 normal_box:  
@@ -35,11 +35,11 @@ key_item:
   lda #$00
   bra finalize_nocount
 consumable:
-  lda #$02
+  lda #$03
   sta $0166
   bra finalize
 projectile:
-  lda $#09
+  lda $#0A
   sta $0166
 finalize:
   lda #$80
@@ -100,3 +100,39 @@ Mirror:
 SkyFragments:
   INC $0E93
   BRA NormalGiveItem
+
+
+
+
+GiveItem
+ ItemQuantityRoutine  ; 22509011
+ sep #$20             ; e2
+ lda $9e              ; a59e
+ CMP #$10             ; c910
+ BCC iskeyitem        ; 90ff
+ CMP #$14             ; c914
+ BCC IsConsumable     ; 90ff
+ CMP #$DD             ; c9dd
+ BCC IsKeyItem        ; 90ff
+ BEQ isBenAmmo        ; f0ff
+isCompanionAmmo:  (dae1  
+ LDX #$80             ; a280
+ BRA doAmmo           ; 8002
+isbenammo:
+ Ldx #$00             ; a200
+doAmmo:
+ lda $1030, x         ; bd3010
+ JSR ComputeAmmoQty   ; 2005db
+ sta $1030, x         ; 9d3010
+ rts                  ; 60
+isconsumable:
+ JSL code_00da65      ; 2265da00
+ lda $9e              ; a59e
+ sta $0e9e,x          ; 9d9e0e
+ lda $0e9f,x          ; bd9e0f
+ JSR computeammo      ; 2005db
+ sta $0e9f,x          ; 9d9e0f
+ rts
+iskeyitem:
+ JSL KeyItemRoutine   ; 22009211
+ rts                  ; 60

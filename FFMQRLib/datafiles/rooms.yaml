@@ -888,6 +888,11 @@
     type: "Trigger"
     on_trigger: ["TristamBoneItemGiven"]
     access: ["Tristam"]
+  - name: "Waterway Entrance Bombed"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["BoneWaterwayBombed"]
+    access: ["Bomb"]
   links:
   - target_room: 25
     entrance: 59
@@ -896,7 +901,7 @@
   - target_room: 28
     entrance: 57
     teleporter: [3, 2]
-    access: ["Bomb"]
+    access: ["BoneWaterwayBombed"]
 - name: Bone Dungeon B1 - Checker Room
   id: 28
   game_objects:
@@ -908,7 +913,7 @@
   - target_room: 26
     entrance: 61
     teleporter: [89, 3]
-    access: []
+    access: ["BoneWaterwayBombed"]
   - target_room: 30
     entrance: 60
     teleporter: [4, 2]
@@ -924,7 +929,7 @@
   - target_room: 31
     entrance: 62
     teleporter: [91, 3]
-    access: []
+    access: ["LongSpineBombed"]
 - name: Bone Dungeon B2 - Exploding Skull Room - First Room
   id: 30
   game_objects:
@@ -1037,7 +1042,12 @@
     access: ["Skull1Bombed"]
 - name: Bone Dungeon B2 - Two Skulls Room - Third Room
   id: 37
-  game_objects: []
+  game_objects:
+  - name: "Skull 3"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["Skull3Bombed"]
+    access: ["Bomb"]
   links:
   - target_room: 34
     entrance: 69
@@ -1046,7 +1056,7 @@
   - target_room: 38
     entrance: 70
     teleporter: [9, 2]
-    access: ["Bomb"]
+    access: ["Skull3Bombed"]
   - target_room: 36
     access: ["Skull2Bombed"]
 - name: Bone Dungeon B2 - Boss Room
@@ -1077,7 +1087,7 @@
   - target_room: 37
     entrance: 74
     teleporter: [95, 3]
-    access: []
+    access: ["Skull3Bombed"]
 - name: Libra Temple
   id: 39
   game_objects:
@@ -1203,6 +1213,11 @@
     object_id: 5
     type: "NPC"
     access: ["Phoebe1"]
+  - name: "Wintry Cave 1F - 3F Entrance Bombed"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["Wintry3FBombed"]
+    access: ["Bomb"]
   links:
   - target_room: 221
     entrance: 99
@@ -1211,7 +1226,7 @@
   - target_room: 49
     entrance: 100
     teleporter: [14, 2]
-    access: ["Bomb"]
+    access: ["Wintry3FBombed"]
   - target_room: 46
     access: ["Claw"]
 - name: Wintry Cave 1F - Central Space
@@ -1228,12 +1243,17 @@
     access: ["Claw"]
 - name: Wintry Cave 1F - West Ledge
   id: 47
-  game_objects: []
+  game_objects:
+  - name: "Wintry Cave 1F - 2F Entrance Bombed"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["Wintry2FBombed"]
+    access: ["Bomb"]
   links:
   - target_room: 48
     entrance: 101
     teleporter: [15, 2]
-    access: ["Bomb"]
+    access: ["Wintry2FBombed"]
   - target_room: 46
     access: ["Claw"]
 - name: Wintry Cave 2F
@@ -1259,7 +1279,7 @@
   - target_room: 47
     entrance: 104
     teleporter: [97, 3]
-    access: []
+    access: ["Wintry2FBombed"]
   - target_room: 50
     entrance: 103
     teleporter: [50, 0]
@@ -1279,7 +1299,7 @@
   - target_room: 45
     entrance: 105
     teleporter: [96, 3]
-    access: []
+    access: ["Wintry3FBombed"]
 - name: Wintry Cave 3F Bottom
   id: 50
   game_objects:
@@ -1976,7 +1996,12 @@
     access: []
 - name: Mine Exterior North West Platforms
   id: 84
-  game_objects: []
+  game_objects:
+  - name: "Mine Parallel Room Entrance Bombed"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["MineParallelBombed"]
+    access: ["Bomb"]
   links:
   - target_room: 224
     entrance: 179
@@ -1985,7 +2010,7 @@
   - target_room: 88
     entrance: 181
     teleporter: [20, 2]
-    access: ["Bomb"]
+    access: ["MineParallelBombed"]
   - target_room: 85
     access: ["Claw"]
   - target_room: 86
@@ -1994,22 +2019,32 @@
     access: ["Claw"]
 - name: Mine Exterior Central Ledge
   id: 85
-  game_objects: []
+  game_objects:
+  - name: "Mine Climbing Room Entrance Bombed"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["MineClimbingBombed"]
+    access: ["Bomb"]
   links:
   - target_room: 90
     entrance: 183
     teleporter: [22, 2]
-    access: ["Bomb"]
+    access: ["MineClimbingBombed"]
   - target_room: 84
     access: ["Claw"]
 - name: Mine Exterior North Ledge
   id: 86
-  game_objects: []
+  game_objects:
+  - name: "Mine Crescent Room Entrance Bombed"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["MineCrescentBombed"]
+    access: ["Bomb"]
   links:
   - target_room: 89
     entrance: 182
     teleporter: [21, 2]
-    access: ["Bomb"]
+    access: ["MineCrescentBombed"]
   - target_room: 85
     access: ["Claw"]
 - name: Mine Exterior South East Platforms
@@ -2044,7 +2079,7 @@
   - target_room: 84
     entrance: 185
     teleporter: [100, 3]
-    access: []
+    access: ["MineParallelBombed"]
 - name: Mine Crescent Room
   id: 89
   game_objects:
@@ -2056,7 +2091,7 @@
   - target_room: 86
     entrance: 186
     teleporter: [101, 3]
-    access: []
+    access: ["MineCrescentBombed"]
 - name: Mine Climbing Room
   id: 90
   game_objects:
@@ -2068,7 +2103,7 @@
   - target_room: 85
     entrance: 187
     teleporter: [102, 3]
-    access: []
+    access: ["MineClimbingBombed"]
 - name: Mine Cliff
   id: 91
   game_objects:
@@ -2646,7 +2681,7 @@
   - target_room: 105
     entrance: 250
     teleporter: [105, 3]
-    access: []
+    access: ["LavaDomePlate"]
   - target_room: 122
     entrance: 251
     teleporter: [138, 0]

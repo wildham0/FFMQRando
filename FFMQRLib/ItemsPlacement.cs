@@ -42,10 +42,22 @@ namespace FFMQLib
 	}
 	public partial class ItemsPlacement
 	{
+		private Dictionary<AccessReqs, int> AccessToGp = new()
+		{
+			{ AccessReqs.Gp150, 150 },
+			{ AccessReqs.Gp200, 200 },
+			{ AccessReqs.Gp300, 300 },
+			{ AccessReqs.Gp500, 500 },
+			{ AccessReqs.Gp600, 600 },
+			{ AccessReqs.Gp900, 900 },
+			{ AccessReqs.Gp1200, 1200 },
+		};
+
 		public List<Items> StartingItems { get; set; }
 		public List<GameObject> ItemsLocations { get; set;  }
 		
 		private const int TreasuresOffset = 0x8000;
+		private int GpCount;
 
 		private class RegionWeight
 		{ 
@@ -77,6 +89,7 @@ namespace FFMQLib
 			int prioritizedLocationsCount = 0;
 			int prioritizedItemsCount = 0;
 			int looseItemsCount = 0;
+			GpCount = 0;
 
 			List<Items> consumableList = rom.GetFromBank(0x01, 0x801E, 0xDD).ToBytes().Select(x => (Items)x).ToList();
 			List<Items> finalConsumables = rom.GetFromBank(0x01, 0x80F2, 0x04).ToBytes().Select(x => (Items)x).ToList();
@@ -136,6 +149,7 @@ namespace FFMQLib
 						x.Accessible &&
 						x.IsPlaced == false &&
 						x.Exclude == false &&
+						x.Cost <= GpCount &&
                         (itemsList.NoMoreProgression ? true : x.Location != LocationIds.DoomCastle)
                         ).ToList();
 
@@ -209,6 +223,7 @@ namespace FFMQLib
 					GameObject targetLocation = rng.PickFrom(validLocations);
 					targetLocation.Content = itemToPlace;
 					targetLocation.IsPlaced = true;
+					GpCount += targetLocation.Cost;
 					regionsWeight.Find(x => x.Region == targetLocation.Region).Weight++;
 
 					if (targetLocation.Type == GameObjectType.Chest || targetLocation.Type == GameObjectType.Box)
@@ -311,6 +326,13 @@ namespace FFMQLib
 		{
 			while (accessReqToProcess.Any())
 			{
+				AddGp(accessReqToProcess);
+
+				if (!accessReqToProcess.Any())
+				{
+					break;
+				}
+
 				var currentReq = accessReqToProcess.First();
 
 				// Update Locations
@@ -332,6 +354,19 @@ namespace FFMQLib
 				}
 
 				accessReqToProcess.Remove(currentReq);
+			}
+		}
+		private void AddGp(List<AccessReqs> accessReqToProcess)
+		{
+			var gpAccessList = AccessToGp.Keys.ToList();
+			var gpAccessReqToProcess = accessReqToProcess.Intersect(gpAccessList).ToList();
+
+			if (!gpAccessReqToProcess.Any()) return;
+
+			foreach (var access in gpAccessReqToProcess)
+			{
+				GpCount += AccessToGp[access];
+				accessReqToProcess.Remove(access);
 			}
 		}
 		public void WriteChests(FFMQRom rom)

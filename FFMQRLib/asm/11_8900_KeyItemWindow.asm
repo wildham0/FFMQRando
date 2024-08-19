@@ -47,12 +47,12 @@ END                        ; 00
 .ORG $118990
 
 [$9E] = [$0E00]                 ; 0f 000e  
-IF [$9E] = #$55 GOTO L_END      ; 0b 55 bf89
+IF [$9E] = #$55 GOTO L_END      ; 0b 55 dc89
 [$9E] = [$0E61]                 ; 10 610e  
 IF [$9E] != #$0000 GOTO L_DRAWBOX    ; 05 c1 0000 aa89
 [$9E] = [$10A0]                 ; 0f a010
-IF [$9E] = #$FF GOTO L_END      ; 0b ff bf89
-GOTO L_DRAWITEM                 ; 0a bb89
+IF [$9E] = #$FF GOTO L_END      ; 0b ff dc89
+GOTO L_DRAWITEM                 ; 0a d989
 L_DRAWBOX:
 [$18] = #$0504301B              ; 24 1b300405
 [$25] = #$311C                  ; 15 1c31
@@ -65,13 +65,22 @@ PRINT [FE]                      ; fe
 LINEFEED                        ; 01
 PRINT [FE]                      ; fe
 PRINT [FE]                      ; fe
+[9E] = b[0E60]                  ; 0f 600e
+IF [9E] != #$0F GOTO L_DRAWITEM ; 05090f d989 > changed to GOTO L_DRAWITEM 0ad989 if not sky fragment
+LINEFEED                        ; 01
+[9E] = b[0E93]                  ; 0f 930e
+[006C] = #$31                   ; 0c 6c00 31
+UNKNOWN_6D                      ; 056d
+[9E] = w[006C]                  ; 10 6c00
+[9E] -= #$1010                  ; 0548 1010
+UNKNOWN_18 #$02009E             ; 0518 9e0002
 L_DRAWITEM:
 RUN $008D29                     ; 09 298d00
 L_END:
 END                             ; 00
 
 ; Companion Weapon Drawing Routine (asm)
-.ORG $1189C0
+.ORG $118A00
 
 SelectIconToDraw:
   PHP
