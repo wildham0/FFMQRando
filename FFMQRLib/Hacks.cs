@@ -3,9 +3,20 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using RomUtilities;
+using System.ComponentModel;
 
 namespace FFMQLib
 {
+	public enum MusicMode : int
+	{
+		[Description("Normal")]
+		Normal,
+		[Description("Shuffle Tracks")]
+		Shuffle,
+		[Description("Mute Music")]
+		Mute,
+	}
+	
 	public partial class FFMQRom : SnesRom
 	{
 		public void GeneralModifications(Flags flags, bool apenabled, MT19337 rng)
@@ -538,30 +549,37 @@ namespace FFMQLib
 
 			PutInBank(0x10, 0x8000, Blob.FromHex($"{loadrandomtrack}A501C505D0045C8A810D20C2809044AFF0FF7FC501D00664015C8A810D9C0620A5018FF0FF7F8D04209C0520A9012C002070F9AD00202908D01DA9FF8D0620A501C915D004A9018005201081A9038D072064015CED810DA9008FF0FF7F5CED810D8D4021C9F0D0079C07205CD9850D5CED850DA6064820C2809009AD00202908D002686BAFF0FF7FF00D68A501201081A9008FF0FF7F6B682012816BA501D01620C280900FAFF0FF7FF0099C41219C024285056BA5018D412185058D02426BAD0220C953D025AD0320C92DD01EAD0420C94DD017AD0520C953D010AD0620C955D009AD0720C931D00238601860DA08E230A501AABF208110291F850128FA60DA08E230AABF408110291F28FA60A501{saverandomtrack}850960"));
 		}
-		public void RandomizeTracks(bool randomizesong, MT19337 rng)
+		public void SetMusicMode(MusicMode mode, MT19337 rng)
 		{
-			if (randomizesong)
+			if (mode == MusicMode.Normal)
 			{
-				List<byte> tracks = Enumerable.Range(0, 0x1A).Select(x => (byte)x).ToList();
-				List<byte> goodordertracks = Enumerable.Range(0, 0x1B).Select(x => (byte)x).ToList();
-				tracks.Remove(0x00);
-				tracks.Remove(0x04);
-				tracks.Remove(0x15);
-
-				tracks.Shuffle(rng);
-				tracks.Insert(0x00, 0x00);
-				tracks.Insert(0x04, 0x04);
-				tracks.Insert(0x15, 0x15);
-				tracks.Add(0x1A);
-				List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
-
-				PutInBank(0x10, 0x8240, completetracks.OrderBy(x => x.Item1).Select(x => x.Item2).ToArray());
-				PutInBank(0x00, 0x928A, Blob.FromHex("22008210eaeaeaea")); // normal track loading routine
-				PutInBank(0x10, 0x8200, Blob.FromHex("aabf4082108d0106a6018e02066b"));
-				PutInBank(0x02, 0xDAC3, Blob.FromHex("22108210ea")); // battle track loading routine
-				PutInBank(0x10, 0x8210, Blob.FromHex("08e230aabf4082108d0b05a908286b"));
-				//PutInBank(0x10, 0x8140, completetracks.OrderBy(x => x.Item2).Select(x => x.Item1).ToArray());
+				return;
 			}
+
+			List<byte> tracks = Enumerable.Range(0, 0x1A).Select(x => (byte)x).ToList();
+			List<byte> goodordertracks = Enumerable.Range(0, 0x1B).Select(x => (byte)x).ToList();
+			tracks.Remove(0x00);
+			tracks.Remove(0x04);
+			tracks.Remove(0x15);
+
+			tracks.Shuffle(rng);
+			tracks.Insert(0x00, 0x00);
+			tracks.Insert(0x04, 0x04);
+			tracks.Insert(0x15, 0x15);
+			tracks.Add(0x1A);
+			List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
+
+			if (mode == MusicMode.Mute)
+			{
+				completetracks = Enumerable.Repeat((byte)0x00, 0x1B).Select(x => (x, x)).ToList();
+			}
+
+			PutInBank(0x10, 0x8240, completetracks.OrderBy(x => x.Item1).Select(x => x.Item2).ToArray());
+			PutInBank(0x00, 0x928A, Blob.FromHex("22008210eaeaeaea")); // normal track loading routine
+			PutInBank(0x10, 0x8200, Blob.FromHex("aabf4082108d0106a6018e02066b"));
+			PutInBank(0x02, 0xDAC3, Blob.FromHex("22108210ea")); // battle track loading routine
+			PutInBank(0x10, 0x8210, Blob.FromHex("08e230aabf4082108d0b05a908286b"));
+			//PutInBank(0x10, 0x8140, completetracks.OrderBy(x => x.Item2).Select(x => x.Item1).ToArray());
 		}
 	}
 }

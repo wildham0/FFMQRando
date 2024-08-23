@@ -58,7 +58,7 @@ namespace FFMQLib
 			SetLevelingCurve(LevelingCurve.Double);
 
 			// Preferences			
-			RandomizeTracks(preferences.RandomMusic, sillyrng);
+			SetMusicMode(preferences.MusicMode, sillyrng);
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			WindowPalette(preferences.WindowPalette);
 			playerSprites.SetPlayerSprite(playerSprite, this);

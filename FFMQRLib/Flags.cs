@@ -263,7 +263,7 @@ namespace FFMQLib
 	public class Preferences
 	{
 		public bool RandomBenjaminPalette { get; set; } = false;
-		public bool RandomMusic { get; set; } = false;
+		public MusicMode MusicMode { get; set; } = MusicMode.Normal;
         public bool DarkKingTrueForm { get; set; } = false;
         public ushort WindowPalette { get; set; } = 0x5140;
 		public bool DumpGameInfoScreen { get; set; } = false;

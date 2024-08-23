@@ -65,7 +65,8 @@
 					<FieldHelp>@dkMessage</FieldHelp>
 				</Field>
 			}
-			<BoolFlag UsePreset=false Name="Randomize Music" @bind-Value="preferences.RandomMusic" Tooltip="Shuffle the music tracks." />
+
+			<EnumFlag UsePreset=false Name="Music Mode" @bind-Value="preferences.MusicMode" Tooltip="Set Music mode.<br/><br/>Normal: Normal game music is played.<br/><br/>Shuffle: Music tracks are shuffled.<br/><br/>Mute: Music is muted." />
 			<Field>
 				<Text TextColor="TextColor.Secondary" class="fw-bold">Default Window Palette</Text>
 				<Tooltip Text="Set the Window starting palette.<br/><br/>Default blue is RGB 0, 80, 160 (#0050A0)." Inline Multiline Placement="TooltipPlacement.Right">
@@ -211,6 +212,21 @@
 					pref.SetValue(preferences, value);
 				}
 
+			}
+			else if (pref.PropertyType.IsEnum)
+			{
+				int? value = localStorage.GetItem<int?>(pref.Name);
+				if (value != null)
+				{
+					var enumValues = pref.PropertyType.GetEnumValues();
+					foreach (var enumValue in enumValues)
+					{
+						if (Convert.ToInt32(enumValue) == value)
+						{
+							pref.SetValue(preferences, enumValue);
+						}
+					}
+				}
 			}
 			else if (pref.PropertyType == typeof(string))
 			{
