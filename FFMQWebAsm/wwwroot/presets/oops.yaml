@@ -162,7 +162,7 @@ Final Fantasy Mystic Quest:
     High32: 1
     RandomNarrow: 1
     RandomWide: 1
-  enable_spoilers:
+  disable_spoilers:
     true: 0
     false: 1
   progressive_formations:

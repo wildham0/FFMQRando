@@ -17,151 +17,180 @@
 @inject HttpClient Http
 @inject FFMQRom rom
 
+@if(!romLoaded)
+{
+	<Field class="romFlag">
+		<FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel>
+		<FileEdit Filter=".sfc" AutoReset="false" Changed="@LoadRomFromFile"></FileEdit>
+		<FieldHelp>@romMessage</FieldHelp>
+	</Field>
+}
+else if (!generatedRom)
+{
+	<Field class="romFlag">
+		<FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel>
+		<Button Color="Color.Primary" Loading="@isGenerating" Clicked="@OnGenerate" Disabled="@generateDisabled" class="romBtn">Generate</Button>
+		<FieldHelp>@romMessage</FieldHelp>
+		<div class="text-secondary"><a href="" @onclick="@UnloadRom" @onclick:preventDefault class="text-secondary" style="text-decoration: underline">Use a different ROM file</a></div>
+	</Field>
+}
+else
+{
+	<Field class="romFlag">
+		<FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel>
+		<FieldHelp>@fileName generated successfully.</FieldHelp>
+		<div class="text-secondary"><a href="" @onclick="@DownloadRom" @onclick:preventDefault class="text-secondary" style="text-decoration: underline">Download ROM file</a></div>
+		@if (!Flags.DisableSpoilers)
+		{
+			<div class="text-secondary"><a href="" @onclick="@DownloadSpoilers" @onclick:preventDefault class="text-secondary" style="text-decoration: underline">Download Spoilers file</a></div>
+		}
+		else
+		{
+			<div class="text-secondary"><a href="" @onclick="@DownloadGameInfo" @onclick:preventDefault class="text-secondary" style="text-decoration: underline">Download GameInfo Screen file</a></div>
+		}
+		<div class="text-secondary"><a href="" @onclick="@ResetRom" @onclick:preventDefault class="text-secondary" style="text-decoration: underline">Generate new seed</a></div>
+	</Field>
+}
 
-    @if(!romLoaded)
-    {
-    <Field class="romFlag">
-            <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel>
-            <FileEdit Filter=".sfc" AutoReset="false" Changed="@LoadRomFromFile"></FileEdit>
-            <FieldHelp>@romMessage</FieldHelp>
-        </Field>
-    }
-    else
-    {
-        <Field class="romFlag">
-            <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel>
-        <Button Color="Color.Primary" Loading="@isGenerating" Clicked="@OnGenerate" Disabled="@generateDisabled" class="romBtn">Generate</Button>
-            <FieldHelp>@romMessage</FieldHelp>
-        <a href="" @onclick="@UnloadRom" @onclick:preventDefault>Use a different ROM file</a>
-        </Field>
-    }
 
 @code{
-    [Parameter]
-    public Flags Flags { get; set; }
+	[Parameter]
+	public Flags Flags { get; set; }
 
-    [Parameter]
-    public Blob Seed { get; set; }
+	[Parameter]
+	public Blob Seed { get; set; }
 
-    [Parameter]
-    public Preferences Preferences { get; set; }
+	[Parameter]
+	public Preferences Preferences { get; set; }
 
-    [Parameter]
-    public ApConfigs ApConfigs { get; set; }
+	[Parameter]
+	public ApConfigs ApConfigs { get; set; }
 
-    [Parameter]
-    public bool Beta { get; set; }
+	[Parameter]
+	public bool Beta { get; set; }
 
-    [Parameter]
-    public Action<bool> IsLoadFromMemoryDone { get; set; }
+	[Parameter]
+	public Action<bool> IsLoadFromMemoryDone { get; set; }
 
-    private long maxFileSize = 0x80200;
-    private bool isLoadingRom = false;
-    private bool generateDisabled { get => (isLoadingRom | (ApEnabled() & !ApConfigs.ApEnabled)); }
-    private bool isGenerating = false;
-    private bool romLoaded = false;
+	private long maxFileSize = 0x80200;
+	private bool isLoadingRom = false;
+	private bool generateDisabled { get => (isLoadingRom | (ApEnabled() & !ApConfigs.ApEnabled)); }
+	private bool isGenerating = false;
+	private bool romLoaded = false;
 
-    private bool generatedRom = false;
-    private string romMessage = "";
+	private bool generatedRom = false;
+	private string romMessage = "";
 
-    private byte[] savedRom = new byte[0];
+	private string fileName = "";
+	private string fileNameSpoilers = "";
+	private string fileNameInfoDump = "";
 
-    bool ApEnabled()
-    {
-        var uri = new Uri(NavigationManager.Uri);
+	private byte[] savedRom = new byte[0];
 
-        string fullUrl = uri.OriginalString;
-        int index = fullUrl.IndexOf("Archipelago");
-        if (index >= 0)
-        {
-            return true;
-        }
+	private async void DownloadRom()
+	{
+		var fs = rom.DataStream();
+		using var streamRef = new DotNetStreamReference(stream: fs);
+		await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+	}
+	private async void DownloadSpoilers()
+	{
+		var fsSpoilers = rom.SpoilerStream();
+		using var streamRefSpoilers = new DotNetStreamReference(stream: fsSpoilers);
+		await JS.InvokeVoidAsync("downloadFileFromStream", fileNameSpoilers, streamRefSpoilers);
+	}
+	private async void DownloadGameInfo()
+	{
+		var fsSpoilers = rom.SpoilerStream();
+		using var streamRefSpoilers = new DotNetStreamReference(stream: fsSpoilers);
+		await JS.InvokeVoidAsync("downloadFileFromStream", fileNameInfoDump, streamRefSpoilers);
+	}
+	private void ResetRom()
+	{
+		rom.RestoreOriginalData();
+		generatedRom = false;
+	}
 
-        return false;
-    }
+	bool ApEnabled()
+	{
+		var uri = new Uri(NavigationManager.Uri);
+
+		string fullUrl = uri.OriginalString;
+		int index = fullUrl.IndexOf("Archipelago");
+		if (index >= 0)
+		{
+			return true;
+		}
+
+		return false;
+	}
 
 
-    private async Task OnGenerate()
-    {
-        isGenerating = true;
-        romMessage = "Generating...";
+	private async Task OnGenerate()
+	{
+		isGenerating = true;
+		romMessage = "Generating...";
 
-        await Generate();
+		await Generate();
 
-        isGenerating = false;
-    }
+		isGenerating = false;
+	}
 
-    private async Task Generate()
-    {
-        // await here so we can yield and update interface since Randomize isn't async
-        await Task.Delay(TimeSpan.FromMilliseconds(1));
+	private async Task Generate()
+	{
+		// await here so we can yield and update interface since Randomize isn't async
+		await Task.Delay(TimeSpan.FromMilliseconds(1));
 
-        if (rom.IsEmpty())
-        {
-            romMessage = "No file.";
-            return;
-        }
+		if (rom.IsEmpty())
+		{
+			romMessage = "No file.";
+			return;
+		}
 
-        if (generatedRom)
-        {
-            rom.RestoreOriginalData();
-            generatedRom = false;
-        }
+		if (generatedRom)
+		{
+			rom.RestoreOriginalData();
+			generatedRom = false;
+		}
 
-        if (!rom.Validate())
-        {
-            romMessage = "Invalid ROM file.";
-            return;
-        }
+		if (!rom.Validate())
+		{
+			romMessage = "Invalid ROM file.";
+			return;
+		}
 
-        rom.beta = Beta;
+		rom.beta = Beta;
 
-        try
-        {
-            string fileName = "";
-            string fileNameSpoilers = "";
-            string fileNameInfoDump = "";
+		try
+		{
+			fileName = "";
+			fileNameSpoilers = "";
+			fileNameInfoDump = "";
 
-            if (ApConfigs.ApEnabled)
-            {
-                rom.Randomize(Seed, Flags, Preferences, ApConfigs);
-                romMessage = "Archipelago ROM file generated successfully.";
-                fileName = ApConfigs.FileName + ".sfc";
-                fileNameSpoilers = ApConfigs.FileName + "_Spoilers" + ".txt";
-                fileNameInfoDump = ApConfigs.FileName + "_GameInfo" + ".txt";
-            }
-            else
-            {
-                rom.Randomize(Seed, Flags, Preferences, ApConfigs);
+			if (ApConfigs.ApEnabled)
+			{
+				rom.Randomize(Seed, Flags, Preferences, ApConfigs);
+				romMessage = "Archipelago ROM file generated successfully.";
+				fileName = ApConfigs.FileName + ".sfc";
+				fileNameSpoilers = ApConfigs.FileName + "_Spoilers" + ".txt";
+				fileNameInfoDump = ApConfigs.FileName + "_GameInfo" + ".txt";
+			}
+			else
+			{
+				rom.Randomize(Seed, Flags, Preferences, ApConfigs);
 
-                romMessage = "ROM file generated successfully.";
-                fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".sfc";
-                fileNameSpoilers = "FFMQR_Spoilers_" + FFMQLib.Metadata.Version + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".txt";
-                fileNameInfoDump = "FFMQR_GameInfo_" + FFMQLib.Metadata.Version + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".txt";
-            }
+				romMessage = "ROM file generated successfully.";
+				fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".sfc";
+				fileNameSpoilers = "FFMQR_Spoilers_" + FFMQLib.Metadata.Version + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".txt";
+				fileNameInfoDump = "FFMQR_GameInfo_" + FFMQLib.Metadata.Version + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".txt";
+			}
 
-            var fs = rom.DataStream();
-
-            using var streamRef = new DotNetStreamReference(stream: fs);
-
-            await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
-
-            if (Flags.EnableSpoilers)
-            {
-                var fsSpoilers = rom.SpoilerStream();
-
-                using var streamRefSpoilers = new DotNetStreamReference(stream: fsSpoilers);
-
-                await JS.InvokeVoidAsync("downloadFileFromStream", fileNameSpoilers, streamRefSpoilers);
-            }
-            else if (Preferences.DumpGameInfoScreen)
-            {
-                var fsSpoilers = rom.SpoilerStream();
-
-                using var streamRefSpoilers = new DotNetStreamReference(stream: fsSpoilers);
-
-                await JS.InvokeVoidAsync("downloadFileFromStream", fileNameInfoDump, streamRefSpoilers);
-            }
+			if (Preferences.AutoDownloadRom)
+			{
+				var fs = rom.DataStream();
+				using var streamRef = new DotNetStreamReference(stream: fs);
+				await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+			}
         }
         catch (Exception ex)
         {

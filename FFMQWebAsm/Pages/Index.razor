@@ -179,7 +179,7 @@
     <Container Class="flagBox">
         <Container Class="flagColumn">
             <EnumFlag UsePreset=usePreset Name="Leveling Curve" @bind-Value="flags.LevelingCurve" Tooltip="Adjust the quantity of XP needed to gain levels.<br/><br/>A curve of 2x means that leveling will be twice faster." />
-            <BoolFlag UsePreset=usePreset Name="Generate Spoilers File" @bind-Value="flags.EnableSpoilers" Tooltip="Generate a .txt file with each Key Item's locations." />
+            <BoolFlag UsePreset=usePreset Name="Disable Spoilers File" @bind-Value="flags.DisableSpoilers" Tooltip="Prevent the generation of a spoilers file with each Key Item's locations, only the GameInfo screen data will be included." />
         </Container>
         <Container Class="flagColumn">
             <BoolFlag UsePreset=usePreset Name="Shuffle Battlefields Rewards" @bind-Value="flags.ShuffleBattlefieldRewards" Tooltip="Shuffle the type of reward (Item, XP, GP) given by battlefields and color code them by reward type.<br/><br/>Blue: Give an item.<br/><br/>Grey: Give XP.<br/><br/>Green: Give GP." />

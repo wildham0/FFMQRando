@@ -129,20 +129,13 @@ namespace FFMQLib
 		public byte[] DataReadOnly { get => Data; }
 		public Stream SpoilerStream()
 		{
-			if (spoilers)
-			{
-				var stream = new MemoryStream();
-				var writer = new StreamWriter(stream);
+			var stream = new MemoryStream();
+			var writer = new StreamWriter(stream);
 				
-				writer.Write(spoilersText);
-				writer.Flush();
-				stream.Position = 0;
-				return stream;
-			}
-			else
-			{
-				return null;
-			}
+			writer.Write(spoilersText);
+			writer.Flush();
+			stream.Position = 0;
+			return stream;
 		}
 		public void PutInBank(int bank, int address, Blob data)
 		{

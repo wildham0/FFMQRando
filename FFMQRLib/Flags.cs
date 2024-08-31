@@ -51,7 +51,7 @@ namespace FFMQLib
 		public SkyCoinFragmentsQty SkyCoinFragmentsQty {
 			get => SkyCoinMode == SkyCoinModes.ShatteredSkyCoin ? internalSkyCoinFragmentsQty : SkyCoinFragmentsQty.Mid24;
 			set => internalSkyCoinFragmentsQty = value; }
-		public bool EnableSpoilers { get; set; } = false;
+		public bool DisableSpoilers { get; set; } = false;
 		public ProgressiveFormationsModes ProgressiveFormations { get; set; } = ProgressiveFormationsModes.Disabled;
 		public MapShufflingMode MapShuffling { get; set; } = MapShufflingMode.None;
 		public bool CrestShuffle { get; set; } = false;
@@ -267,6 +267,7 @@ namespace FFMQLib
         public bool DarkKingTrueForm { get; set; } = false;
         public ushort WindowPalette { get; set; } = 0x5140;
 		public bool DumpGameInfoScreen { get; set; } = false;
+		public bool AutoDownloadRom { get; set; } = false;
 		public string PlayerSprite { get; set; } = "default";	
 		public byte[] CustomSprites { get; set; } = new byte[0];
 		public byte[] DarkKing3 { get; set; } = new byte[0];

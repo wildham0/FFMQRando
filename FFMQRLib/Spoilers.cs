@@ -14,7 +14,7 @@ namespace FFMQLib
 		{
 			string spoilers = "";
 			spoilers += GenerateRomData(flags, titlescreen.versionText, titlescreen.hashText, seed) + "\n";
-			if (flags.EnableSpoilers)
+			if (!flags.DisableSpoilers)
 			{
 				spoilers += GenerateItemsPlacementSpoiler(flags, itemsplacement) + "\n";
 				if (flags.MapShuffling != MapShufflingMode.None)
