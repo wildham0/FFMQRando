@@ -28,18 +28,18 @@
 
 @if(loadingDone)
 {
-<div class="@("center-logo")">
-        <img height=@titleHeight src="@titleLetters[0]" /><img height=@titleHeight src="@titleLetters[1]" /><img height=@titleHeight src="@titleLetters[2]" /><img height=@titleHeight src="@titleLetters[3]" /><img height=@titleHeight src="@titleLetters[4]" /><img height=@titleHeight src="@titleLetters[5]" /><img height=@titleHeight src="logo/mqlogo_.png" /><img height=@titleHeight src="@titleLetters[6]" /><img height=@titleHeight src="@titleLetters[7]" /><img height=@titleHeight src="@titleLetters[8]" /><img height=@titleHeight src="@titleLetters[9]" /><img height=@titleHeight src="@titleLetters[10]" />
-    </div>
-<h1 class="text-secondary text-center" style="font-size: 1em">A FFMQ Randomizer<br />@("v" + @FFMQLib.Metadata.Version + (@betaStatus ? "-beta" : ""))</h1>
+	<div class="@("center-logo")">
+		<img style="max-width:100%; height:140px; position: relative; margin-top:-40px" alt="FFMQ Randomizer Logo" src="logo/FFMQRLogo-Final-Web.svg" />
+		<h1 class="text-secondary" style="font-size: 1em; text-align: right">@("v" + @FFMQLib.Metadata.Version + (@betaStatus ? "-beta" : ""))</h1>
+	</div>
 
+	<div id="fileSection"><br /><br /></div>
 
-<div id="fileSection"><br /><br /></div>
+	<PresetsSection Name="Presets" SetPresetAction="OnPresetAction" SetExportFile="OnExportYaml"/>
 
-<PresetsSection Name="Presets" SetPresetAction="OnPresetAction" SetExportFile="OnExportYaml"/>
-
-<div><br /></div>
+	<div><br /></div>
 }
+
 <Container class="sectionBox" Style=@(loadingDone ? "" : "display: none")>
     <div class="box-title text-secondary">
         Generation       
@@ -196,7 +196,8 @@
 
 <Information />
 
-<div><br /><br /><br /><br /><br /></div>
+	<div><br /><br /><br /></div>
+	<LogoCredit />
 }
 @code{
 	private long maxFileSize = 0x80200;

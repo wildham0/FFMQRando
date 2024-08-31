@@ -1,6 +1,6 @@
 ﻿.center-logo {
-    height: 100px;
-    display: flex;
+    height: 90px;
+    display: grid;
     align-items: center;
     justify-content: center;
 }
