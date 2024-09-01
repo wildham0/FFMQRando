@@ -28,8 +28,26 @@ DoLeveling:
   JSR SetLevel           ; change given settings
   JSR ComputeStats
   JSR SetEquipSpells
+  JSR UpdateActiveStats
   PLP
   RTS
+
+UpdateActiveStats:
+  PHP
+  SEP #$20
+  REP #$10
+  LDX #$0003
+UpdateLoop:
+  LDA $10CC,X
+  STA $10A6,X
+  CLC
+  ADC $10AA,X
+  STA $10A2,X
+  DEX
+  BPL UpdateLoop
+  PLP
+  RTS
+
 
 GetCompanionOffset:
   PHP

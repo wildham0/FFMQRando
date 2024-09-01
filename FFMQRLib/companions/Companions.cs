@@ -493,13 +493,15 @@ namespace FFMQLib
 			}
 
 			// DoLeveling
-			rom.PutInBank(0x10, 0xA000, Blob.FromHex($"08c2302080a020{levelingroutine}2020a12000a22860"));
-			
+			rom.PutInBank(0x10, 0xA000, Blob.FromHex($"08c2302080a020{levelingroutine}2020a12000a22040a02860"));
+
+			// UpdateCompanionStats
+			rom.PutInBank(0x10, 0xA040, Blob.FromHex($"08e220c210a20300bdcc109da610187daa109da210ca10f02860"));
+
 			// GetCompanionOffset
 			rom.PutInBank(0x10, 0xA080, Blob.FromHex("08e230a900ebad920e38e901c2300a0a0a0a0a0a0aaa2860"));
 
 			// SetLevel_Ben
-
 			rom.PutInBank(0x10, 0xA0A0, Blob.FromHex($"08e220ad10101869{benlevelbonus}8d90102860"));
 
 			// SetLevel_Quest; flush to ComputeStats, maybe move one or the other
