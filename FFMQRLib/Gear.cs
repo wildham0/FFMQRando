@@ -17,7 +17,7 @@ namespace FFMQLib
 			
 			// Replace cat claw check routine when giving weapons and jump to new routine to figure out what's the next weapon in line
 			PutInBank(0x00, 0xDB9C, Blob.FromHex("22009311eaeaeaeaeaeaeaeaeaeaeaeaeaeaea"));
-			PutInBank(0x11, 0x9300, Blob.FromHex("0b202093f432102b98224e9700981869208d60018d9e008d600e02b6b"));
+			PutInBank(0x11, 0x9300, Blob.FromHex("0b202093f432102b98224e9700981869208d60018d9e008d600e2b6b"));
 			PutInBank(0x11, 0x9320, Blob.FromHex("c923900ac9269019c92990288039a900200094f043a901200094f03ca902a88037a903200094f030a904200094f029a905a88024a906200094f01da907200094f016a908a88011a909200094f00aa90a200094f003a90ba860"));
 			PutInBank(0x11, 0x9400, Blob.FromHex("a8f432102b225a970060"));
 
