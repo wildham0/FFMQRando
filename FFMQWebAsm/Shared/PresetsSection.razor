@@ -5,125 +5,131 @@
 @using FFMQLib;
 
 <Container class="sectionBox">
-    <div class="box-title text-secondary">Presets</div> 
-    <Container Class="flagBox">
-        <Container Class="flagColumn">
-            <Field Class="dropFlag">
-                <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Preset Selection</FieldLabel> 
-                <Select TValue="string" @bind-SelectedValue="@presetSelection" @onchange="@OnChange">
-                    <SelectGroup Label="Config">
-                        <SelectItem Value="@("custom")">Custom</SelectItem>
-                        <SelectItem Value="@("import")">Import from File</SelectItem>
-                        <SelectItem Value="@("export")">Export to File</SelectItem>
-                    </SelectGroup>
-                    <SelectGroup Label="Presets">
-                        <SelectItem Value=@("beginner")>Beginner</SelectItem>
-                        <SelectItem Value=@("sgl2022")>Standard / SGL2022</SelectItem>
-                        <SelectItem Value=@("sgl2023")>SGL2023</SelectItem>
+	<div class="box-title text-secondary">Presets</div> 
+	<Container Class="flagBox">
+		<Container Class="flagColumn">
+			<Field Class="dropFlag">
+				<FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Preset Selection</FieldLabel> 
+				<Select TValue="string" @bind-SelectedValue="@presetSelection" @onchange="@OnChange">
+					<SelectGroup Label="Config">
+						<SelectItem Value="@("custom")">Custom</SelectItem>
+						<SelectItem Value="@("import")">Import from File</SelectItem>
+						@if (!DisableExport)
+						{ 
+							<SelectItem Value="@("export")">Export to File</SelectItem>
+						}
+					</SelectGroup>
+					<SelectGroup Label="Presets">
+						<SelectItem Value=@("beginner")>Beginner</SelectItem>
+						<SelectItem Value=@("sgl2022")>Standard / SGL2022</SelectItem>
+						<SelectItem Value=@("sgl2023")>SGL2023</SelectItem>
 						<SelectItem Value=@("sgl2024")>SGL2024</SelectItem>
-                        <SelectItem Value=@("overworldshuffle")>Overworld Shuffle</SelectItem>
-                        <SelectItem Value=@("solocompanion")>Solo Companion</SelectItem>
-                        <SelectItem Value=@("zerodensity")>Zero Encounters</SelectItem>
-                        <SelectItem Value=@("oops")>Oops All Random</SelectItem>
-                    </SelectGroup>
-                </Select>
-            </Field>
-        </Container>
-        <Container Class="flagColumn">
-        @if (presetSelection == "import")
-            {
-                <Field Class="dropFlag">
-                    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">
-                        Load File
-                        <Tooltip Text="Load the flags selection from a Yaml configuration file.<br/><br/>With a text editor, each options can be manually weighted. If a Yaml file is loaded, each time a seed is rolled, the flags will be configured randomly using the weighted values. Exporting to file reset the weighting." Inline Multiline Placement="TooltipPlacement.Right">
-                            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
-                        </Tooltip>     
-                    </FieldLabel> 
-                    <FileEdit Filter=".yaml" AutoReset="false" Changed="@LoadYamlFromUpload"></FileEdit>
-                    <FieldHelp>@yamlMessage</FieldHelp>
-                </Field>
-            }
-            else if (presetSelection == "export")
-            {
-                <Field Class="dropFlag">
-                    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Name</FieldLabel> 
-                    <TextEdit @bind-Text="@yamlName"></TextEdit>
-                </Field>
-                <Field Class="dropFlag">
-                    <Button Color="Color.Primary" Clicked="@ExportFile">Export</Button>
-                </Field>      
-            }
-        </Container>
-    </Container>
+						<SelectItem Value=@("overworldshuffle")>Overworld Shuffle</SelectItem>
+						<SelectItem Value=@("solocompanion")>Solo Companion</SelectItem>
+						<SelectItem Value=@("zerodensity")>Zero Encounters</SelectItem>
+						<SelectItem Value=@("oops")>Oops All Random</SelectItem>
+					</SelectGroup>
+				</Select>
+			</Field>
+		</Container>
+		<Container Class="flagColumn">
+			@if (presetSelection == "import")
+			{
+				<Field Class="dropFlag">
+					<FieldLabel TextColor="TextColor.Secondary" class="fw-bold">
+					Load File
+					<Tooltip Text="Load the flags selection from a Yaml configuration file.<br/><br/>With a text editor, each options can be manually weighted. If a Yaml file is loaded, each time a seed is rolled, the flags will be configured randomly using the weighted values. Exporting to file reset the weighting." Inline Multiline Placement="TooltipPlacement.Right">
+						<Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small /> 
+					</Tooltip>     
+					</FieldLabel> 
+					<FileEdit Filter=".yaml" AutoReset="false" Changed="@LoadYamlFromUpload"></FileEdit>
+					<FieldHelp>@yamlMessage</FieldHelp>
+				</Field>
+			}
+			else if (presetSelection == "export")
+			{
+				<Field Class="dropFlag">
+					<FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Name</FieldLabel> 
+					<TextEdit @bind-Text="@yamlName"></TextEdit>
+				</Field>
+				<Field Class="dropFlag">
+					<Button Color="Color.Primary" Clicked="@ExportFile">Export</Button>
+				</Field>      
+			}
+		</Container>
+	</Container>
 </Container>
 
 @code
 {
-    [Parameter]
-    public string Name { get; set; }
+	[Parameter]
+	public string Name { get; set; }
 
-    [Parameter]
-    public string Tooltip { get; set; }
+	[Parameter]
+	public string Tooltip { get; set; }
 
-    [Parameter]
-    public string Value { get; set; }
+	[Parameter]
+	public string Value { get; set; }
 
-    [Parameter] public Action<(Stream file, string filename, string action, bool usepreset, bool loadfromfile)> SetPresetAction { get; set; }
+	[Parameter] public Action<(Stream file, string filename, string action, bool usepreset, bool loadfromfile)> SetPresetAction { get; set; }
 
-    [Parameter] public Action<string> SetExportFile { get; set; }
+	[Parameter] public Action<string> SetExportFile { get; set; }
 
-    [Parameter]
-    public bool UsePreset { get; set; }
+	[Parameter]
+	public bool UsePreset { get; set; }
 
-    private string presetSelection = "custom";
-    //private string yamlPreset = "";
-    private string yamlMessage = "";
-    private string yamlName = "default";
+	[Parameter]
+	public bool DisableExport { get; set; }
 
-    async Task OnChange(ChangeEventArgs e)
-    {
-        presetSelection = e.Value.ToString();
-        if (presetSelection == "custom" || presetSelection == "import" || presetSelection == "export")
-        {
-            SetPresetAction.Invoke((null, "", "", false, false));
-        }
-        else
-        {
-            yamlName = e.Value.ToString();
-            SetPresetAction.Invoke((await LoadYamlFromFile(e.Value.ToString()), "", e.Value.ToString(), true, false));
-        }
-    }
+	private string presetSelection = "custom";
+	//private string yamlPreset = "";
+	private string yamlMessage = "";
+	private string yamlName = "default";
 
-    void ExportFile()
-    {
-        SetExportFile.Invoke(yamlName);
-    }
+	async Task OnChange(ChangeEventArgs e)
+	{
+		presetSelection = e.Value.ToString();
+		if (presetSelection == "custom" || presetSelection == "import" || presetSelection == "export")
+		{
+			SetPresetAction.Invoke((null, "", "", false, false));
+		}
+		else
+		{
+			yamlName = e.Value.ToString();
+			SetPresetAction.Invoke((await LoadYamlFromFile(e.Value.ToString()), "", e.Value.ToString(), true, false));
+		}
+	}
 
-    void LoadYamlFromUpload(FileChangedEventArgs e)
-    {
-        try
-        {
-            SetPresetAction.Invoke((e.Files.First().OpenReadStream(), e.Files.First().Name.Split('.')[0], presetSelection, true, true));
-            yamlName = e.Files.First().Name.Split('.')[0];
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
-    }
+	void ExportFile()
+	{
+		SetExportFile.Invoke(yamlName);
+	}
 
-    async Task<Stream> LoadYamlFromFile(string presetname)
-    {
-        try
-        {
-            var stream = await Http.GetStreamAsync("presets/" + presetname + ".yaml");
+	void LoadYamlFromUpload(FileChangedEventArgs e)
+	{
+		try
+		{
+			SetPresetAction.Invoke((e.Files.First().OpenReadStream(), e.Files.First().Name.Split('.')[0], presetSelection, true, true));
+			yamlName = e.Files.First().Name.Split('.')[0];
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex.Message);
+		}
+	}
 
-            return stream;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            return null;
-        }
-    }
+	async Task<Stream> LoadYamlFromFile(string presetname)
+	{
+		try
+		{
+			var stream = await Http.GetStreamAsync("presets/" + presetname + ".yaml");
+
+			return stream;
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex.Message);
+			return null;
+		}
+	}
 }
