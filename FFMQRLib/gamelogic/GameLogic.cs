@@ -535,13 +535,13 @@ namespace FFMQLib
 		}
 		public List<(CompanionsId, LocationIds, List<string>)> CrawlForCompanionSpoiler()
 		{
-			List<(AccessReqs access, CompanionsId id)> companionList = new() { (AccessReqs.Kaeli1, CompanionsId.Kaeli), (AccessReqs.Tristam, CompanionsId.Tristam), (AccessReqs.Phoebe1, CompanionsId.Phoebe), (AccessReqs.Reuben1, CompanionsId.Reuben) };
+			List<(CompanionsId id, string name)> companionList = new() { (CompanionsId.Kaeli, "Kaeli Companion"), (CompanionsId.Tristam, "Tristam Companion"), (CompanionsId.Phoebe, "Phoebe Companion"), (CompanionsId.Reuben, "Reuben Companion") };
 			List<(CompanionsId, LocationIds, List<string>)> resultingPaths = new();
 			List<LocationIds> barredLocations = new() { LocationIds.LifeTemple, LocationIds.LightTemple, LocationIds.ShipDock };
 
 			foreach (var companion in companionList)
 			{
-				if (Rooms.TryFind(r => r.GameObjects.Where(o => o.OnTrigger.Contains(companion.access)).Any(), out var originRoom))
+				if (Rooms.TryFind(r => r.GameObjects.Where(o => o.Name == companion.name).Any(), out var originRoom))
 				{
 					List<(LocationIds location, List<int> rooms)> validPaths = new();
 					List<int> visitedRooms = new();
