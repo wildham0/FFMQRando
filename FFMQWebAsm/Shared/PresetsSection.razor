@@ -20,14 +20,11 @@
 						}
 					</SelectGroup>
 					<SelectGroup Label="Presets">
-						<SelectItem Value=@("beginner")>Beginner</SelectItem>
-						<SelectItem Value=@("sgl2022")>Standard / SGL2022</SelectItem>
-						<SelectItem Value=@("sgl2023")>SGL2023</SelectItem>
-						<SelectItem Value=@("sgl2024")>SGL2024</SelectItem>
-						<SelectItem Value=@("overworldshuffle")>Overworld Shuffle</SelectItem>
-						<SelectItem Value=@("solocompanion")>Solo Companion</SelectItem>
-						<SelectItem Value=@("zerodensity")>Zero Encounters</SelectItem>
-						<SelectItem Value=@("oops")>Oops All Random</SelectItem>
+						@foreach (var preset in presetNames)
+						{
+							<SelectItem Value=@(preset.Key)>@preset.Value</SelectItem>
+							
+						}
 					</SelectGroup>
 				</Select>
 			</Field>
@@ -85,6 +82,18 @@
 	//private string yamlPreset = "";
 	private string yamlMessage = "";
 	private string yamlName = "default";
+
+	private Dictionary<string, string> presetNames = new()
+	{
+		{ "beginner", "Beginner" },
+		{ "sgl2022", "Standard / SGL2022" },
+		{ "sgl2023", "SGL2023" },
+		{ "sgl2024", "SGL2024" },
+		{ "overworldshuffle", "Overworld Shuffle" },
+		{ "solocompanion", "Solo Companion" },
+		{ "zerodensity", "Zero Encounters" },
+		{ "oops", "Oops All Random" },
+	};
 
 	async Task OnChange(ChangeEventArgs e)
 	{

@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.6.19";
+		public static string Version = "1.6.20";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -179,7 +179,7 @@ namespace FFMQLib
 
 			// Spoilers
 			Spoilers spoilersGenerator = new();
-			spoilersText = spoilersGenerator.GenerateSpoilers(flags, titleScreen, seed.ToHex(), itemsPlacement, GameInfoScreen, GameLogic);
+			spoilersText = spoilersGenerator.GenerateSpoilers(flags, titleScreen, seed.ToHex(), itemsPlacement, GameInfoScreen, GameLogic, Battlefields);
 
 			if (apconfigs.ApEnabled)
 			{

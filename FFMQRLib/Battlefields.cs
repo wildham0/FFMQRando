@@ -291,6 +291,10 @@ namespace FFMQLib
 		{
 			return battlefields.OrderBy(x => x.Location).Select(x => x.RewardType).ToList();
 		}
+		public Dictionary<LocationIds, Items> RewardByLocation()
+		{
+			return battlefields.OrderBy(x => x.Location).ToDictionary(b => b.Location, b => b.Reward);
+		}
 		public void SetBattlesQty(BattlesQty battlesqty, MT19337 rng)
 		{
 			int battleQty = 10;

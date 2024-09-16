@@ -1,4 +1,5 @@
 ﻿using FFMQLib;
+using RomUtilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,22 +11,25 @@ namespace FFMQLib
 {
 	class Spoilers
 	{
-		public string GenerateSpoilers(Flags flags, TitleScreen titlescreen, string seed, ItemsPlacement itemsplacement, GameInfoScreen gameinfo, GameLogic gamelogic)
+		public string GenerateSpoilers(Flags flags, TitleScreen titlescreen, string seed, ItemsPlacement itemsplacement, GameInfoScreen gameinfo, GameLogic gamelogic, Battlefields battlefields)
 		{
 			string spoilers = "";
 			spoilers += GenerateRomData(flags, titlescreen.versionText, titlescreen.hashText, seed) + "\n";
 			if (!flags.DisableSpoilers)
 			{
 				spoilers += GenerateItemsPlacementSpoiler(flags, itemsplacement) + "\n";
+				spoilers += GenerateInfoScreenSpoiler(gameinfo);
+				spoilers += GenerateCompanionSpoilers(gameinfo, gamelogic, flags.CompanionsLocations != CompanionsLocationType.Standard || (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld));
 				if (flags.MapShuffling != MapShufflingMode.None)
 				{
 					spoilers += GenerateMapSpoiler(flags, gamelogic) + "\n";
 				}
-				spoilers += GenerateInfoScreenSpoiler(gameinfo);
+				spoilers += GenerateAllItemsPlacementSpoiler(flags, itemsplacement, gamelogic, battlefields);
 			}
 			else
 			{
 				spoilers += GenerateInfoScreenSpoiler(gameinfo);
+				spoilers += GenerateCompanionSpoilers(gameinfo, gamelogic, false);
 			}
 
 			return spoilers;
@@ -83,7 +87,7 @@ namespace FFMQLib
 				spoilers += "  " + item + "\n";
 			}
 
-			spoilers += "\n--- Placed Items ---\n";
+			spoilers += "\n--- Key Items Placement ---\n";
 			var keyItems = placement.ItemsLocations.Where(x => !invalidItems.Contains(x.Content) && validType.Contains(x.Type)).ToList();
 			var forestaKi = keyItems.Where(x => x.Region == MapRegions.Foresta).OrderBy(x => x.Location).ToList();
 			var aquariaKi = keyItems.Where(x => x.Region == MapRegions.Aquaria).OrderBy(x => x.Location).ToList();
@@ -137,29 +141,100 @@ namespace FFMQLib
 
 			return spoilers;
 		}
-		private string GenerateInfoScreenSpoiler(GameInfoScreen screen)
+		private string GenerateAllItemsPlacementSpoiler(Flags flags, ItemsPlacement placement, GameLogic gameLogic, Battlefields battlefields)
+		{
+			List<GameObjectType> validType = new() { GameObjectType.BattlefieldItem, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
+			List<SubRegions> subregions = new() { SubRegions.Foresta, SubRegions.Aquaria, SubRegions.AquariaFrozenField, SubRegions.SpencerCave, SubRegions.Fireburg, SubRegions.VolcanoBattlefield, SubRegions.Windia, SubRegions.MacShip, SubRegions.DoomCastle };
+			List<(Items, string)> progressiveItems = new()
+			{
+				(Items.SteelSword, "Progressive Sword"),
+				(Items.KnightSword, "Progressive Sword"),
+				(Items.Excalibur, "Progressive Sword"),
+				(Items.Axe, "Progressive Axe"),
+				(Items.BattleAxe, "Progressive Axe"),
+				(Items.GiantsAxe, "Progressive Axe"),
+				(Items.CatClaw, "Progressive Claw"),
+				(Items.CharmClaw, "Progressive Claw"),
+				(Items.DragonClaw, "Progressive Claw"),
+				(Items.Bomb, "Progressive Bomb"),
+				(Items.JumboBomb, "Progressive Bomb"),
+				(Items.MegaGrenade, "Progressive Bomb"),
+				(Items.SteelHelm, "Progressive Helmet"),
+				(Items.MoonHelm, "Progressive Helmet"),
+				(Items.ApolloHelm, "Progressive Helmet"),
+				(Items.SteelShield, "Progressive Shield"),
+				(Items.VenusShield, "Progressive Shield"),
+				(Items.AegisShield, "Progressive Shield"),
+				(Items.SteelArmor, "Progressive Armor"),
+				(Items.NobleArmor, "Progressive Armor"),
+				(Items.GaiasArmor, "Progressive Armor"),
+				(Items.Charm, "Progressive Accessory"),
+				(Items.MagicRing, "Progressive Accessory"),
+				(Items.CupidLocket, "Progressive Accessory"),
+			};
+
+			string spoilers = "";
+
+			spoilers += "--- Full Item Placement ---\n";
+
+			foreach (var subregion in subregions)
+			{
+				spoilers += "*** " + subregion.ToString() + " ***\n";
+				var regionObjects = gameLogic.GameObjects.Where(o => o.SubRegion == subregion).ToList();
+
+				var locationList = regionObjects.Select(o => o.Location).Distinct().ToList();
+
+				foreach (var location in locationList)
+				{
+					spoilers += "[" + location.ToString() + "]\n";
+					var locationObjects = regionObjects.Where(o => o.Location == location && o.Type != GameObjectType.Trigger).ToList();
+					if (battlefields.RewardByLocation().TryGetValue(location, out var battlefieldReward))
+					{
+						string itemname = battlefieldReward.ToString();
+						if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == battlefieldReward) > 0))
+						{
+							itemname = progressiveItems.Find(x => x.Item1 == battlefieldReward).Item2;
+						}
+						spoilers += "  " + regionObjects.Find(o => o.Location == location).Name + " -> " + itemname + "\n";
+					}
+					else if (locationObjects.Any())
+					{
+						foreach (var locObject in locationObjects)
+						{
+							if (placement.ItemsLocations.TryFind(l => l.Type == locObject.Type && l.ObjectId == locObject.ObjectId, out var foundObject))
+							{
+								string itemname = foundObject.Content.ToString();
+								if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == foundObject.Content) > 0))
+								{
+									itemname = progressiveItems.Find(x => x.Item1 == foundObject.Content).Item2;
+								}
+
+								spoilers += "  " + foundObject.Name + " -> " + itemname + "\n";
+							}
+						}
+					}
+					else
+					{
+						spoilers += "  None\n";
+					}
+
+					spoilers += "\n";
+				}
+			}
+
+			return spoilers;
+		}
+		private string GenerateCompanionSpoilers(GameInfoScreen screen, GameLogic gamelogic, bool spoilLocations)
 		{
 			string spoilers = "";
 
-			if (screen.FragmentsCount > 0)
-			{ 
-				spoilers += "--- Sky Fragments ---\n";
-				spoilers += "  Required Count: " + screen.FragmentsCount;
-				spoilers += "\n\n";
-			}
+			List<(CompanionsId companion, LocationIds location, List<string> path)> locationSpoilers = new();
 
-			if (screen.ShuffledElementsType.Any())
+			if (spoilLocations)
 			{
-				spoilers += "--- Shuffled Resists & Weaknesses ---\n";
-
-				foreach (var elementgroup in screen.ShuffledElementsType)
-				{
-					spoilers += "  " + elementgroup.Item1.ToString() + " > " + elementgroup.Item2.ToString() + "\n";
-				}
-
-				spoilers += "\n";
+				locationSpoilers = gamelogic.CrawlForCompanionSpoiler();
 			}
-
+			
 			spoilers += "--- Companions ---\n";
 			List<CompanionsId> companions = new() { CompanionsId.Kaeli, CompanionsId.Tristam, CompanionsId.Phoebe, CompanionsId.Reuben };
 			foreach (var companion in companions)
@@ -189,7 +264,7 @@ namespace FFMQLib
 				{
 					spoilers += "None";
 				}
-					
+
 				spoilers += "\n\n";
 
 				if (companionquest.Any())
@@ -202,6 +277,47 @@ namespace FFMQLib
 
 					spoilers += "\n";
 				}
+
+				if (spoilLocations)
+				{
+					var currentLocation = locationSpoilers.Find(l => l.companion == companion);
+					
+					spoilers += "  Location:\n";
+					spoilers += "    " + currentLocation.location.ToString() + "\n";
+					
+					string indent = "    ";
+
+					foreach (var room in currentLocation.path)
+					{
+						spoilers += indent + "╚>" + room + "\n";
+						indent += "  ";
+					}
+					spoilers += "\n";
+				}
+			}
+			return spoilers;
+		}
+		private string GenerateInfoScreenSpoiler(GameInfoScreen screen)
+		{
+			string spoilers = "";
+
+			if (screen.FragmentsCount > 0)
+			{ 
+				spoilers += "--- Sky Fragments ---\n";
+				spoilers += "  Required Count: " + screen.FragmentsCount;
+				spoilers += "\n\n";
+			}
+
+			if (screen.ShuffledElementsType.Any())
+			{
+				spoilers += "--- Shuffled Resists & Weaknesses ---\n";
+
+				foreach (var elementgroup in screen.ShuffledElementsType)
+				{
+					spoilers += "  " + elementgroup.Item1.ToString() + " > " + elementgroup.Item2.ToString() + "\n";
+				}
+
+				spoilers += "\n";
 			}
 
 			return spoilers;
@@ -211,7 +327,7 @@ namespace FFMQLib
 		{
 			string spoilers = "--- Map Shuffling ---\n";
 
-			List<SubRegions> subregions = new() { SubRegions.Foresta, SubRegions.Aquaria, SubRegions.LifeTemple, SubRegions.AquariaFrozenField, SubRegions.SpencerCave, SubRegions.Fireburg, SubRegions.VolcanoBattlefield, SubRegions.Windia, SubRegions.LifeTemple, SubRegions.ShipDock, SubRegions.MacShip, SubRegions.DoomCastle };
+			List<SubRegions> subregions = new() { SubRegions.Foresta, SubRegions.Aquaria, SubRegions.LifeTemple, SubRegions.AquariaFrozenField, SubRegions.SpencerCave, SubRegions.Fireburg, SubRegions.VolcanoBattlefield, SubRegions.Windia, SubRegions.LightTemple, SubRegions.ShipDock, SubRegions.MacShip, SubRegions.DoomCastle };
 
 			foreach (var subregion in subregions)
 			{

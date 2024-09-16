@@ -199,7 +199,10 @@ namespace FFMQLib
 				{ 
 					if (gamedata.Type == GameObjectType.BattlefieldXp)
 					{
-						continue;
+						var bflocation = overworld.Locations.Find(l => l.LocationId == gamedata.Location);
+						var battlefieldTrigger = new GameObject(gamedata, bflocation, finalAccess);
+						battlefieldTrigger.Type = GameObjectType.Trigger;
+						GameObjects.Add(battlefieldTrigger);
 					}
 					else if (gamedata.Type == GameObjectType.BattlefieldItem)
 					{
@@ -530,7 +533,47 @@ namespace FFMQLib
 				ProcessRoomForCompanions(reqcount + link.Access.Count, link.TargetRoom, companionlist, visitedrooms);
 			}
 		}
+		public List<(CompanionsId, LocationIds, List<string>)> CrawlForCompanionSpoiler()
+		{
+			List<(AccessReqs access, CompanionsId id)> companionList = new() { (AccessReqs.Kaeli1, CompanionsId.Kaeli), (AccessReqs.Tristam, CompanionsId.Tristam), (AccessReqs.Phoebe1, CompanionsId.Phoebe), (AccessReqs.Reuben1, CompanionsId.Reuben) };
+			List<(CompanionsId, LocationIds, List<string>)> resultingPaths = new();
+			List<LocationIds> barredLocations = new() { LocationIds.LifeTemple, LocationIds.LightTemple, LocationIds.ShipDock };
 
+			foreach (var companion in companionList)
+			{
+				if (Rooms.TryFind(r => r.GameObjects.Where(o => o.OnTrigger.Contains(companion.access)).Any(), out var originRoom))
+				{
+					List<(LocationIds location, List<int> rooms)> validPaths = new();
+					List<int> visitedRooms = new();
+
+					ProcessCompanionSpoiler(originRoom.Id, validPaths, visitedRooms);
+
+					validPaths = validPaths.Where(p => !barredLocations.Contains(p.location)).OrderBy(p => p.rooms.Count).ToList();
+					resultingPaths.Add((companion.id, validPaths.First().location, validPaths.First().rooms.Select(r => Rooms.Find(t => t.Id == r).Name).Reverse().ToList()));
+				}
+			}
+
+			return resultingPaths;
+		}
+		public void ProcessCompanionSpoiler(int roomid, List<(LocationIds, List<int>)> validpaths, List<int> visitedrooms)
+		{
+			var currentRoom = Rooms.Find(x => x.Id == roomid);
+
+			if (currentRoom.Type == RoomType.Subregion)
+			{
+				if (currentRoom.Links.TryFind(l => l.TargetRoom == visitedrooms.Last(), out var locationLink))
+				{
+					validpaths.Add((locationLink.Location, new(visitedrooms)));
+				}
+			}
+			else
+			{
+				foreach (var link in currentRoom.Links.Where(l => !visitedrooms.Contains(l.TargetRoom)))
+				{
+					ProcessCompanionSpoiler(link.TargetRoom, validpaths, visitedrooms.Append(roomid).ToList());
+				}
+			}
+		}
 		public List<AccessReqs> CrawlForRequirements(LocationIds location)
 		{
 
