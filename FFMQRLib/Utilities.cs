@@ -41,7 +41,22 @@ namespace FFMQLib
                 return value.ToString();
         }
 
-        public static Blob Reverse(this Blob orderedBlob)
+		[DebuggerStepThrough]
+		public static bool TryFind<T>(this IList<T> fromList, Predicate<T> query, out T result)
+		{
+			int resultIndex = fromList.ToList().FindIndex(query);
+			if (resultIndex < 0)
+			{
+				result = default;
+				return false;
+			}
+			else
+			{
+				result = fromList[resultIndex];
+				return true;
+			}
+		}
+		public static Blob Reverse(this Blob orderedBlob)
         {
             Blob _reversedBlob = new byte[orderedBlob.Length];
             for (int i = 0; i < orderedBlob.Length; i++)

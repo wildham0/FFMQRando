@@ -19,11 +19,11 @@
 
 
 <style>
-    body {
+	body {
 
-        background: linear-gradient(rgba(27,42,81,1),rgba(85,109,171,1)) no-repeat center fixed;
-        background-size: cover;
-    }
+		background: linear-gradient(rgba(27,42,81,1),rgba(85,109,171,1)) no-repeat center fixed;
+		background-size: cover;
+	}
 </style>
 
 @if(loadingDone)
@@ -35,161 +35,184 @@
 
 	<div id="fileSection"><br /><br /></div>
 
-	<PresetsSection Name="Presets" SetPresetAction="OnPresetAction" SetExportFile="OnExportYaml"/>
+	<PresetsSection Name="Presets" SetPresetAction="OnPresetAction" SetExportFile="OnExportYaml" DisableExport="@flags.HiddenFlags"/>
 
 	<div><br /></div>
 }
 
 <Container class="sectionBox" Style=@(loadingDone ? "" : "display: none")>
-    <div class="box-title text-secondary">
-        Generation       
-    </div> 
+	<div class="box-title text-secondary">
+		Generation       
+	</div> 
 
-    <Container Class="flagBox">
-        <Container Class="flagColumn">
-            <GenerateButton Flags="flags" Seed="seed" ApConfigs="apConfigs" Preferences="preferences" Beta="@GetBetaStatus()" IsLoadFromMemoryDone="LoadFromMemoryDone" />
+	<Container Class="flagBox">
+		<Container Class="flagColumn">
+			<GenerateButton Flags="flags" Seed="seed" ApConfigs="apConfigs" Preferences="preferences" Beta="@GetBetaStatus()" IsLoadFromMemoryDone="LoadFromMemoryDone" />
 
-            <Fields class="dropFlag">
-                <Field>
-                    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Seed</FieldLabel> 
-                        <TextEdit Placeholder="Seed" Text="@showSeed" FocusOut="@SeedOnLoseFocus" KeyUp="@SeedOnKeyUp" TextChanged="@SeedOnChanged"/>
-                    <FieldHelp>@seedMessage</FieldHelp>
-                </Field>
-                <Field>
-                    <FieldLabel Visibility="Visibility.Invisible">None</FieldLabel>
-                        <Button Color="Color.Primary" Clicked="@RollSeed" class="field-button romBtn">Roll Seed</Button>
-                </Field>
-            </Fields>
-        </Container>
-        <Container Class="flagColumn">
-            <Fields class="dropFlag">
-                <Field>
-                    <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Flag String</FieldLabel> 
-                        <TextEdit Placeholder="Flag string" Text="@flagString" FocusOut="@FlagsOnLoseFocus" KeyUp="@FlagsOnKeyUp" TextChanged="@FlagsOnChanged"/>
-                    <FieldHelp>@flagsMessage</FieldHelp>
-                </Field>
-            </Fields>
-        </Container>
-    </Container>
+			<Fields class="dropFlag">
+				<Field>
+					<FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Seed</FieldLabel> 
+						<TextEdit Placeholder="Seed" Text="@showSeed" FocusOut="@SeedOnLoseFocus" KeyUp="@SeedOnKeyUp" TextChanged="@SeedOnChanged"/>
+					<FieldHelp>@seedMessage</FieldHelp>
+				</Field>
+				<Field>
+					<FieldLabel Visibility="Visibility.Invisible">None</FieldLabel>
+						<Button Color="Color.Primary" Clicked="@RollSeed" class="field-button romBtn">Roll Seed</Button>
+				</Field>
+			</Fields>
+		</Container>
+		<Container Class="flagColumn">
+			<Fields class="dropFlag">
+				<Field>
+					<FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Flag String</FieldLabel> 
+						<TextEdit Placeholder="Flag string" Text="@flagString" FocusOut="@FlagsOnLoseFocus" KeyUp="@FlagsOnKeyUp" TextChanged="@FlagsOnChanged"/>
+					<FieldHelp>@flagsMessage</FieldHelp>
+				</Field>
+			</Fields>
+		</Container>
+	</Container>
 </Container>
-@if (loadingDone)
+
+@if (loadingDone && !flags.HiddenFlags)
 {
 
-    <div id="optionsSection"><br /></div>
-    <h2 class="text-secondary">Customization</h2>
-    <div><br /></div>
+	<div id="optionsSection"><br /></div>
+	<h2 class="text-secondary">Customization</h2>
+	<div><br /></div>
 
-    <Container class="sectionBox">
-        <div class="box-title text-secondary">
-            Items
-            <Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations.<br /><br />When some locations aren't prioritized (either included or excluded), Quest Items may land in brown boxes, in which case these locations will show up as Chests." 
-        Inline
+	<Container class="sectionBox">
+		<div class="box-title text-secondary">
+			Items
+			<Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations.<br /><br />When some locations aren't prioritized (either included or excluded), Quest Items may land in brown boxes, in which case these locations will show up as Chests." 
+		Inline
 
-        Multiline Placement="TooltipPlacement.Right">
-            <Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small style="font-size: 0.600em"/> 
-            </Tooltip>       
-        </div> 
+		Multiline Placement="TooltipPlacement.Right">
+			<Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small style="font-size: 0.600em"/> 
+			</Tooltip>       
+		</div> 
 
-        <Container Class="flagBox">
-        <Container Class="flagColumn">
-            <EnumFlag UsePreset=usePreset Name="Logic" @bind-Value="flags.LogicOptions" Tooltip="Placement logic sets the rules that will be applied when placing items.<br /><br />Friendly: Required Items to clear a dungeon will never be placed in that dungeon to avoid the need to revisit it. Also, the Magic Mirror and the Mask will always be available before Ice Pyramid and Volcano, respectively. Note: If Dungeons are shuffled, Friendly logic will only ensure the availability of the Mirror and the Mask.<br /><br />Standard: Items are randomly placed and logic merely verifies that they're all accessible. As for Region access, only the Coins are considered.<br /><br />Expert: Same as Standard, but Items Placement logic also includes other routes than Coins: the Crests Teleporters, the Fireburg-Aquaria Lava bridge and the Sealed Temple Exit trick." />
-            <EnumFlag UsePreset=usePreset Name="Original Chests" @bind-Value="flags.ChestsShuffle" Tooltip="Original Chests are all the red chests locations in the original game, except the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave, which count as NPCs.<br /><br />If a chest doesn't contain a Quest Item, it will show up as a brown box." />
-            <EnumFlag UsePreset=usePreset Name="NPCs" @bind-Value="flags.NpcsShuffle" Tooltip="NPCs are all the NPC locations in the original game, as well as the new Reuben item in Mine, the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave." />
-            <EnumFlag UsePreset=usePreset Name="Battlefields" @bind-Value="flags.BattlefieldsShuffle" Tooltip="Battlefields are all the battlefields that gave a Quest Item in the original game; if Shuffle Battlefields Rewards is enabled, the locations will change, but the same number of battlefields will offer an item." />
-        </Container>
-        <Container Class="flagColumn">
-            <EnumFlag UsePreset=usePreset Name="Sky Coin Mode" @bind-Value="flags.SkyCoinMode" Tooltip="Configure how the Sky Coin is acquired.<br /><br />Standard: The Sky Coin will be found in a chest.<br /><br />Start With: The Sky Coin will be in your inventory at the start of the game.<br /><br />Save the Crystals: The Sky Coin will be acquired once you save all 4 crystals.<br /><br />Shattered: The Sky Coin is split in 40 fragments; you can enter Doom Castle once the required amount is found." />
-            @if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
-                {
-                    <EnumFlag UsePreset=usePreset Name="Sky Fragments Quantity" @bind-Value="flags.SkyCoinFragmentsQty" Tooltip="Set the number of Sky Coin Fragments required to enter Doom Castle.<br /><br />Random select one of the 3 previous options at random." />
-                }
-                <BoolFlag UsePreset=usePreset Name="Shuffle Brown Boxes' Content" @bind-Value="flags.ShuffleBoxesContent" Tooltip="If enabled, the content of brown boxes will be shuffled amongst themselves." />
-            <BoolFlag UsePreset=usePreset Name="Random Starting Weapon" @bind-Value="flags.RandomStartingWeapon" Tooltip="Replace the usual starting weapon with the Steel Sword, the Axe, the Cat Claw or the Bomb." />
-            <BoolFlag UsePreset=usePreset Name="Progressive Gear" @bind-Value="flags.ProgressiveGear" Tooltip="Pieces of gear are always acquired from weakest to strongest in a set.<br/><br/>Eg. you'll always received the Steel Sword first, then the Knight Sword and finally Excalibur, irrespective of the order the chests are opened." />
-        </Container>
-    </Container>
+		<Container Class="flagBox">
+			<Container Class="flagColumn">
+				<EnumFlag UsePreset=usePreset Name="Logic" @bind-Value="flags.LogicOptions" Tooltip="Placement logic sets the rules that will be applied when placing items.<br /><br />Friendly: Required Items to clear a dungeon will never be placed in that dungeon to avoid the need to revisit it. Also, the Magic Mirror and the Mask will always be available before Ice Pyramid and Volcano, respectively. Note: If Dungeons are shuffled, Friendly logic will only ensure the availability of the Mirror and the Mask.<br /><br />Standard: Items are randomly placed and logic merely verifies that they're all accessible. As for Region access, only the Coins are considered.<br /><br />Expert: Same as Standard, but Items Placement logic also includes other routes than Coins: the Crests Teleporters, the Fireburg-Aquaria Lava bridge and the Sealed Temple Exit trick." />
+				<EnumFlag UsePreset=usePreset Name="Original Chests" @bind-Value="flags.ChestsShuffle" Tooltip="Original Chests are all the red chests locations in the original game, except the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave, which count as NPCs.<br /><br />If a chest doesn't contain a Quest Item, it will show up as a brown box." />
+				<EnumFlag UsePreset=usePreset Name="NPCs" @bind-Value="flags.NpcsShuffle" Tooltip="NPCs are all the NPC locations in the original game, as well as the new Reuben item in Mine, the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave." />
+				<EnumFlag UsePreset=usePreset Name="Battlefields" @bind-Value="flags.BattlefieldsShuffle" Tooltip="Battlefields are all the battlefields that gave a Quest Item in the original game; if Shuffle Battlefields Rewards is enabled, the locations will change, but the same number of battlefields will offer an item." />
+			</Container>
+			<Container Class="flagColumn">
+				<EnumFlag UsePreset=usePreset Name="Sky Coin Mode" @bind-Value="flags.SkyCoinMode" Tooltip="Configure how the Sky Coin is acquired.<br /><br />Standard: The Sky Coin will be found in a chest.<br /><br />Start With: The Sky Coin will be in your inventory at the start of the game.<br /><br />Save the Crystals: The Sky Coin will be acquired once you save all 4 crystals.<br /><br />Shattered: The Sky Coin is split in 40 fragments; you can enter Doom Castle once the required amount is found." />
+				@if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
+				{
+					<EnumFlag UsePreset=usePreset Name="Sky Fragments Quantity" @bind-Value="flags.SkyCoinFragmentsQty" Tooltip="Set the number of Sky Coin Fragments required to enter Doom Castle.<br /><br />Random select one of the 3 previous options at random." />
+				}
+				<BoolFlag UsePreset=usePreset Name="Shuffle Brown Boxes' Content" @bind-Value="flags.ShuffleBoxesContent" Tooltip="If enabled, the content of brown boxes will be shuffled amongst themselves." />
+				<BoolFlag UsePreset=usePreset Name="Random Starting Weapon" @bind-Value="flags.RandomStartingWeapon" Tooltip="Replace the usual starting weapon with the Steel Sword, the Axe, the Cat Claw or the Bomb." />
+				<BoolFlag UsePreset=usePreset Name="Progressive Gear" @bind-Value="flags.ProgressiveGear" Tooltip="Pieces of gear are always acquired from weakest to strongest in a set.<br/><br/>Eg. you'll always received the Steel Sword first, then the Knight Sword and finally Excalibur, irrespective of the order the chests are opened." />
+			</Container>
+		</Container>
+	</Container>
+	<div><br /></div>
+
+<Container class="sectionBox">
+	<div class="box-title text-secondary">Enemies</div> 
+
+	<Container Class="flagBox">
+		<Container Class="flagColumn">
+			<DoubleEnumFlag UsePreset=usePreset Name="Standard Enemies Scaling" @bind-Value="flags.EnemiesScalingLower" @bind-Value2="flags.EnemiesScalingUpper" Tooltip="Randomly adjust enemies stats by the selected range percentage.<br/><br/>Include mini-bosses' weaker clones." />
+			<DoubleEnumFlag UsePreset=usePreset Name="Bosses Scaling" @bind-Value="flags.BossesScalingLower" @bind-Value2="flags.BossesScalingUpper" Tooltip="Randomly adjust bosses stats by the selected range percentage.<br/><br/>Include Mini-Bosses, Bosses, Bosses' refights and the Dark King." />
+			<EnumFlag UsePreset=usePreset Name="Enemizer Attacks" @bind-Value="flags.EnemizerAttacks" Tooltip="Shuffles enemy attacks.<br /><br />Disabled: No shuffle.<br /><br />Safe Randomization: Randomize every attack, but remove self-destruct and multiply; only the Dark Castle's bosses can get Dark King attacks.<br /><br />Chaos Randomization: Randomize every attack. Any attack is possible.<br /><br />Self-destruct: Every enemy self destructs<br /><br />Script Shuffle: Shuffle the whole attack script between each enemies." />
+				@if (flags.EnemizerAttacks != EnemizerAttacks.Normal)
+				{
+					<EnumFlag UsePreset=usePreset Name="Enemizer Groups" @bind-Value="flags.EnemizerGroups" Tooltip="Set which enemies groups will be affected by Enemizer." />
+				}
+			<BoolFlag UsePreset=usePreset Name="Shuffle Resist/Weakness Types" @bind-Value="flags.ShuffleResWeakType" Tooltip="Resistance and weakness types are shuffled for all enemies." />
+		</Container>
+		<Container Class="flagColumn">
+			<EnumFlag UsePreset=usePreset Name="Enemies Density" @bind-Value="flags.EnemiesDensity" Tooltip="Set how many enemies are on each maps." />
+			<BoolFlag UsePreset=usePreset Name="Shuffle Enemies' Positions" @bind-Value="flags.ShuffleEnemiesPosition" Tooltip="Instead of their original position in a given map, enemies are randomly placed." />
+			<EnumFlag UsePreset=usePreset Name="Progressive Formations" @bind-Value="flags.ProgressiveFormations" Tooltip="Enemies' formations are selected by regions, with the weakest formations always selected in Foresta and the strongest in Windia.<br /><br />Disabled: Standard formations are used.<br /><br />By Regions (Strict): Formations will come exclusively from the current region, whatever the map is.<br /><br />By Regions (Keep Type): Formations will keep the original formation type and match with the nearest power level." />
+		</Container>
+	</Container>
 </Container>
 
 <div><br /></div>
 
 <Container class="sectionBox">
-    <div class="box-title text-secondary">Enemies</div> 
+	<div class="box-title text-secondary">Maps</div> 
 
-    <Container Class="flagBox">
-        <Container Class="flagColumn">
-            <DoubleEnumFlag UsePreset=usePreset Name="Standard Enemies Scaling" @bind-Value="flags.EnemiesScalingLower" @bind-Value2="flags.EnemiesScalingUpper" Tooltip="Randomly adjust enemies stats by the selected range percentage.<br/><br/>Include mini-bosses' weaker clones." />
-            <DoubleEnumFlag UsePreset=usePreset Name="Bosses Scaling" @bind-Value="flags.BossesScalingLower" @bind-Value2="flags.BossesScalingUpper" Tooltip="Randomly adjust bosses stats by the selected range percentage.<br/><br/>Include Mini-Bosses, Bosses, Bosses' refights and the Dark King." />
-            <EnumFlag UsePreset=usePreset Name="Enemizer Attacks" @bind-Value="flags.EnemizerAttacks" Tooltip="Shuffles enemy attacks.<br /><br />Disabled: No shuffle.<br /><br />Safe Randomization: Randomize every attack, but remove self-destruct and multiply; only the Dark Castle's bosses can get Dark King attacks.<br /><br />Chaos Randomization: Randomize every attack. Any attack is possible.<br /><br />Self-destruct: Every enemy self destructs<br /><br />Script Shuffle: Shuffle the whole attack script between each enemies." />
-                @if (flags.EnemizerAttacks != EnemizerAttacks.Normal)
-                {
-                    <EnumFlag UsePreset=usePreset Name="Enemizer Groups" @bind-Value="flags.EnemizerGroups" Tooltip="Set which enemies groups will be affected by Enemizer." />
-                }
-            <BoolFlag UsePreset=usePreset Name="Shuffle Resist/Weakness Types" @bind-Value="flags.ShuffleResWeakType" Tooltip="Resistance and weakness types are shuffled for all enemies." />
-        </Container>
-        <Container Class="flagColumn">
-            <EnumFlag UsePreset=usePreset Name="Enemies Density" @bind-Value="flags.EnemiesDensity" Tooltip="Set how many enemies are on each maps." />
-            <BoolFlag UsePreset=usePreset Name="Shuffle Enemies' Positions" @bind-Value="flags.ShuffleEnemiesPosition" Tooltip="Instead of their original position in a given map, enemies are randomly placed." />
-            <EnumFlag UsePreset=usePreset Name="Progressive Formations" @bind-Value="flags.ProgressiveFormations" Tooltip="Enemies' formations are selected by regions, with the weakest formations always selected in Foresta and the strongest in Windia.<br /><br />Disabled: Standard formations are used.<br /><br />By Regions (Strict): Formations will come exclusively from the current region, whatever the map is.<br /><br />By Regions (Keep Type): Formations will keep the original formation type and match with the nearest power level." />
-        </Container>
-    </Container>
+	<Container Class="flagBox">
+		<Container Class="flagColumn">
+			<EnumFlag UsePreset=usePreset Name="Doom Castle" @bind-Value="flags.DoomCastleMode" Tooltip="Change how you reach the Dark King.<br/><br/>Standard: You need to defeat all four bosses and their floors to reach the Dark King.<br/><br/>Boss Rush: Only the bosses are blocking your way in the corridor to the Dark King's room.<br/><br/>Dark King Only: The way to the Dark King is free of any obstacle." />
+			<BoolFlag UsePreset=usePreset Name="Doom Castle Shortcut" @bind-Value="flags.DoomCastleShortcut" Tooltip="Create a shortcut granting access from the start to Doom Castle at Focus Tower's entrance.<br/><br/>Also modify the Desert floor so it can be navigated without the Mega Grenades and the Dragon Claw." />
+		</Container>
+		<Container Class="flagColumn">
+			<BoolFlag UsePreset=usePreset Name="Tweak Frustrating Dungeons" @bind-Value="flags.TweakedDungeons" Tooltip="Make some small changes to a few of the most annoying dungeons.<br/><br/>Ice Pyramid: Add 3 shortcuts on the 1st floor.<br/><br/>Giant Tree: Add shortcuts on the 1st and 4th floors and curtail mushrooms population.<br/><br/>Pazuzu's Tower: Staircases are devoid of enemies (regardless of Enemies Density settings)." />
+			<EnumFlag UsePreset=usePreset Name="Maps Shuffle" @bind-Value="flags.MapShuffling" Tooltip="Shuffle locations.<br /><br />None: No shuffle.<br /><br />Overworld: Only shuffle the Overworld locations.<br /><br />Dungeons: Only shuffle the dungeons' floors amongst themselves. Temples and Towns aren't included.<br /><br />Overworld+Dungeons: Shuffle the Overworld and dungeons at the same time.<br /><br />Everything: Shuffle the Overworld, dungeons, temples and towns all amongst each others.<br/><br/>When dungeons are shuffled, defeating Pazuzu won't teleport you to the 7th floor, you have to get there normally to save the Crystal and get Pazuzu's Chest." />
+			<BoolFlag UsePreset=usePreset Name="Crests Shuffle" @bind-Value="flags.CrestShuffle" Tooltip="Shuffle the Crest tiles amongst themselves." />        
+		</Container>
+	</Container>
 </Container>
 
 <div><br /></div>
+
+	<Container class="sectionBox">
+		<div class="box-title text-secondary">Companions</div>
+
+		<Container Class="flagBox">
+			<Container Class="flagColumn">
+				<EnumFlag UsePreset=usePreset Name="Starting Companion" @bind-Value="flags.StartingCompanion" Tooltip="Set a companion to start with.<br/><br/>Random: Randomly select one companion.<br/><br/>Random+None: Randomly select a companion, with the possibility of none selected." />
+				<EnumFlag UsePreset=usePreset Name="Available Companions" @bind-Value="flags.AvailableCompanions" Tooltip="Select randomly which companions will join your party. Unavailable companions can still be reached to get their items and complete their quests if needed.<br/><br/>Note: If a Starting Companion is selected, it will always be available, regardless of this setting." />
+				<EnumFlag UsePreset=usePreset Name="Companions' Locations" @bind-Value="flags.CompanionsLocations" Tooltip="Set the primary location of companions. Their secondary location is always the same.<br/><br/>Standard: Companions will be at the same locations as in the original game.<br/><br/>Shuffled: Companions' locations are shuffled amongst themselves.<br/><br/>Shuffled Extended: Add all the Temples, as well as Phoebe's House and the Rope Bridge as possible locations." />
+				<BoolFlag UsePreset=usePreset Name="Kaeli's Mom Fight Minotaur" @bind-Value="flags.KaelisMomFightMinotaur" Tooltip="Transfer Kaeli's requirements (Tree Wither, Elixir) and the two items she's giving to her mom. Kaeli will be available to join the party right away without the Tree Wither." />
+			</Container>
+			<Container Class="flagColumn">
+				<EnumFlag UsePreset=usePreset Name="Leveling Type" @bind-Value="flags.CompanionLevelingType" Tooltip="Set how companions gain levels.<br/><br/>Quests: Complete each companion's individual quest for them to promote to their second version.<br/><br/>Quests Extended: Each companion has four exclusive quests, leveling each time a quest is completed.<br/><br/>Save the Crystals (All): Each time a Crystal is saved, all companions gain levels.<br/><br/>Save the Crystals (Individual): Each companion will level to their second version when a specific Crystal is saved.<br/><br/>Benjamin Level: Companions' level tracks Benjamin's." />
+				<EnumFlag UsePreset=usePreset Name="Spellbook Type" @bind-Value="flags.CompanionSpellbookType" Tooltip="Update companions' spellbook.<br/><br/>Standard: Original game spellbooks.<br/><br/>Standard Extended: Add some extra spells. Tristam gains Exit and Quake and Reuben gets Blizzard. For some leveling settings, Kaeli also gains Meteor and Tristam receives Flare.<br/><br/>Random Balanced: Randomize the spellbooks with an appropriate mix of spells.<br/><br/>Random Chaos: Randomize the spellbooks in total free-for-all." />
+			</Container>
+		</Container>
+	</Container>
+
+	<div><br /></div>
 
 <Container class="sectionBox">
-    <div class="box-title text-secondary">Maps</div> 
+	<div class="box-title text-secondary">Other</div> 
 
-    <Container Class="flagBox">
-        <Container Class="flagColumn">
-            <EnumFlag UsePreset=usePreset Name="Doom Castle" @bind-Value="flags.DoomCastleMode" Tooltip="Change how you reach the Dark King.<br/><br/>Standard: You need to defeat all four bosses and their floors to reach the Dark King.<br/><br/>Boss Rush: Only the bosses are blocking your way in the corridor to the Dark King's room.<br/><br/>Dark King Only: The way to the Dark King is free of any obstacle." />
-            <BoolFlag UsePreset=usePreset Name="Doom Castle Shortcut" @bind-Value="flags.DoomCastleShortcut" Tooltip="Create a shortcut granting access from the start to Doom Castle at Focus Tower's entrance.<br/><br/>Also modify the Desert floor so it can be navigated without the Mega Grenades and the Dragon Claw." />
-        </Container>
-        <Container Class="flagColumn">
-            <BoolFlag UsePreset=usePreset Name="Tweak Frustrating Dungeons" @bind-Value="flags.TweakedDungeons" Tooltip="Make some small changes to a few of the most annoying dungeons.<br/><br/>Ice Pyramid: Add 3 shortcuts on the 1st floor.<br/><br/>Giant Tree: Add shortcuts on the 1st and 4th floors and curtail mushrooms population.<br/><br/>Pazuzu's Tower: Staircases are devoid of enemies (regardless of Enemies Density settings)." />
-            <EnumFlag UsePreset=usePreset Name="Maps Shuffle" @bind-Value="flags.MapShuffling" Tooltip="Shuffle locations.<br /><br />None: No shuffle.<br /><br />Overworld: Only shuffle the Overworld locations.<br /><br />Dungeons: Only shuffle the dungeons' floors amongst themselves. Temples and Towns aren't included.<br /><br />Overworld+Dungeons: Shuffle the Overworld and dungeons at the same time.<br /><br />Everything: Shuffle the Overworld, dungeons, temples and towns all amongst each others.<br/><br/>When dungeons are shuffled, defeating Pazuzu won't teleport you to the 7th floor, you have to get there normally to save the Crystal and get Pazuzu's Chest." />
-            <BoolFlag UsePreset=usePreset Name="Crests Shuffle" @bind-Value="flags.CrestShuffle" Tooltip="Shuffle the Crest tiles amongst themselves." />        
-        </Container>
-    </Container>
-</Container>
+	<Container Class="flagBox">
+		<Container Class="flagColumn">
+			<EnumFlag UsePreset=usePreset Name="Leveling Curve" @bind-Value="flags.LevelingCurve" Tooltip="Adjust the quantity of XP needed to gain levels.<br/><br/>A curve of 2x means that leveling will be twice faster." />
+			<BoolFlag UsePreset=usePreset Name="Disable Spoilers File" @bind-Value="flags.DisableSpoilers" Tooltip="Prevent the generation of a spoilers file with each Key Item's locations, only the GameInfo screen data will be included." />
+			<BoolFlag UsePreset=usePreset Name="Mystery Flags" @bind-Value="flags.HiddenFlags" Tooltip="Hide the flags options. This flag cannot be undone; it is recommended to backup or export your flags before enabling this option." />
+		</Container>
+		<Container Class="flagColumn">
+			<BoolFlag UsePreset=usePreset Name="Shuffle Battlefields Rewards" @bind-Value="flags.ShuffleBattlefieldRewards" Tooltip="Shuffle the type of reward (Item, XP, GP) given by battlefields and color code them by reward type.<br/><br/>Blue: Give an item.<br/><br/>Grey: Give XP.<br/><br/>Green: Give GP." />
+			<EnumFlag UsePreset=usePreset Name="Battlefields Battles Quantity" @bind-Value="flags.BattlesQuantity" Tooltip="Adjust the number of battles that need to be fought to get a battlefield's reward." />
+		</Container>
+	</Container>
+		</Container>
+	<div><br /></div>
+}
+else if(loadingDone)
+{
+	<div id="optionsSection"><br /></div>
+	<h2 class="text-secondary">Customization</h2>
+	<div><br /></div>
 
-<div><br /></div>
+	<Container class="sectionBox">
+		<div class="box-title text-secondary">Mystery Flags</div>
+		<Container Class="infoBox">
+			<div class="text-secondary">Flags have been hidden. Resetting flags will permanently erase them.</div>
+			<div><br /></div>
+			<Button Color="Color.Primary" Clicked="@ResetFromHiddenFlags" class="field-button romBtn">Reset Flags</Button>
+		</Container>
+	</Container>
+	<div><br /></div>
 
-    <Container class="sectionBox">
-        <div class="box-title text-secondary">Companions</div>
+}
 
-        <Container Class="flagBox">
-            <Container Class="flagColumn">
-                <EnumFlag UsePreset=usePreset Name="Starting Companion" @bind-Value="flags.StartingCompanion" Tooltip="Set a companion to start with.<br/><br/>Random: Randomly select one companion.<br/><br/>Random+None: Randomly select a companion, with the possibility of none selected." />
-                <EnumFlag UsePreset=usePreset Name="Available Companions" @bind-Value="flags.AvailableCompanions" Tooltip="Select randomly which companions will join your party. Unavailable companions can still be reached to get their items and complete their quests if needed.<br/><br/>Note: If a Starting Companion is selected, it will always be available, regardless of this setting." />
-                <EnumFlag UsePreset=usePreset Name="Companions' Locations" @bind-Value="flags.CompanionsLocations" Tooltip="Set the primary location of companions. Their secondary location is always the same.<br/><br/>Standard: Companions will be at the same locations as in the original game.<br/><br/>Shuffled: Companions' locations are shuffled amongst themselves.<br/><br/>Shuffled Extended: Add all the Temples, as well as Phoebe's House and the Rope Bridge as possible locations." />
-                <BoolFlag UsePreset=usePreset Name="Kaeli's Mom Fight Minotaur" @bind-Value="flags.KaelisMomFightMinotaur" Tooltip="Transfer Kaeli's requirements (Tree Wither, Elixir) and the two items she's giving to her mom. Kaeli will be available to join the party right away without the Tree Wither." />
-            </Container>
-            <Container Class="flagColumn">
-                <EnumFlag UsePreset=usePreset Name="Leveling Type" @bind-Value="flags.CompanionLevelingType" Tooltip="Set how companions gain levels.<br/><br/>Quests: Complete each companion's individual quest for them to promote to their second version.<br/><br/>Quests Extended: Each companion has four exclusive quests, leveling each time a quest is completed.<br/><br/>Save the Crystals (All): Each time a Crystal is saved, all companions gain levels.<br/><br/>Save the Crystals (Individual): Each companion will level to their second version when a specific Crystal is saved.<br/><br/>Benjamin Level: Companions' level tracks Benjamin's." />
-                <EnumFlag UsePreset=usePreset Name="Spellbook Type" @bind-Value="flags.CompanionSpellbookType" Tooltip="Update companions' spellbook.<br/><br/>Standard: Original game spellbooks.<br/><br/>Standard Extended: Add some extra spells. Tristam gains Exit and Quake and Reuben gets Blizzard. For some leveling settings, Kaeli also gains Meteor and Tristam receives Flare.<br/><br/>Random Balanced: Randomize the spellbooks with an appropriate mix of spells.<br/><br/>Random Chaos: Randomize the spellbooks in total free-for-all." />
-            </Container>
-        </Container>
-    </Container>
 
-    <div><br /></div>
 
-<Container class="sectionBox">
-    <div class="box-title text-secondary">Other</div> 
 
-    <Container Class="flagBox">
-        <Container Class="flagColumn">
-            <EnumFlag UsePreset=usePreset Name="Leveling Curve" @bind-Value="flags.LevelingCurve" Tooltip="Adjust the quantity of XP needed to gain levels.<br/><br/>A curve of 2x means that leveling will be twice faster." />
-            <BoolFlag UsePreset=usePreset Name="Disable Spoilers File" @bind-Value="flags.DisableSpoilers" Tooltip="Prevent the generation of a spoilers file with each Key Item's locations, only the GameInfo screen data will be included." />
-        </Container>
-        <Container Class="flagColumn">
-            <BoolFlag UsePreset=usePreset Name="Shuffle Battlefields Rewards" @bind-Value="flags.ShuffleBattlefieldRewards" Tooltip="Shuffle the type of reward (Item, XP, GP) given by battlefields and color code them by reward type.<br/><br/>Blue: Give an item.<br/><br/>Grey: Give XP.<br/><br/>Green: Give GP." />
-            <EnumFlag UsePreset=usePreset Name="Battlefields Battles Quantity" @bind-Value="flags.BattlesQuantity" Tooltip="Adjust the number of battles that need to be fought to get a battlefield's reward." />
-        </Container>
-    </Container>
-</Container>
-
-<div><br /></div>
-
+@if(loadingDone)
+{
 <PreferencesSection preferences="@preferences" />
 
 <div id="infoSection"><br /></div>
@@ -358,10 +381,10 @@
 		string sectionNavigation = GetNavigationSection(NavigationManager.Uri, true);
 
 		string updatedUrl = NavigationManager.GetUriWithQueryParameters(new Dictionary<string, object>
-        {
-         { "s", showSeed },
-         { "f", flags.GenerateFlagString() }
-        });
+		{
+		 { "s", showSeed },
+		 { "f", flags.GenerateFlagString() }
+		});
 
 
 		NavigationManager.NavigateTo(NavigationManager.BaseUri + sectionNavigation + "?s=" + showSeed + "&f=" + flags.GenerateFlagString());
@@ -438,125 +461,132 @@
 		}
 	}
 
-    // Seed Field Functions
-    Task SeedOnChanged(string value)
-    {
-        showSeed = value;
-        EvaluateSeed(showSeed);
-        return Task.CompletedTask;
-    }
+	// Seed Field Functions
+	Task SeedOnChanged(string value)
+	{
+		showSeed = value;
+		EvaluateSeed(showSeed);
+		return Task.CompletedTask;
+	}
 
-    Task SeedOnKeyUp(KeyboardEventArgs value)
-    {
-        if (value.Key == "Enter")
-        {
-            EvaluateSeed(showSeed);
-            SetSeed(showSeed);
-            UpdateUrl();
-        }
+	Task SeedOnKeyUp(KeyboardEventArgs value)
+	{
+		if (value.Key == "Enter")
+		{
+			EvaluateSeed(showSeed);
+			SetSeed(showSeed);
+			UpdateUrl();
+		}
 
-        return Task.CompletedTask;
-    }
+		return Task.CompletedTask;
+	}
 
-    Task SeedOnLoseFocus()
-    {
-        EvaluateSeed(showSeed);
-        SetSeed(showSeed);
-        UpdateUrl();
-        return Task.CompletedTask;
-    }
+	Task SeedOnLoseFocus()
+	{
+		EvaluateSeed(showSeed);
+		SetSeed(showSeed);
+		UpdateUrl();
+		return Task.CompletedTask;
+	}
 
-    private void EvaluateSeed(string value)
-    {
-        if (value.Length < 8)
-        {
-            seedMessage = "Invalid Seed: Seed string is too short (min 8 digits).";
-        }
-        else if (value.Length > 8)
-        {
-            seedMessage = "Invalid Seed: Seed string is too long (max 8 digits).";
-        }
-        else
-        {
-            seedMessage = "";
-        }
-    }
+	private void EvaluateSeed(string value)
+	{
+		if (value.Length < 8)
+		{
+			seedMessage = "Invalid Seed: Seed string is too short (min 8 digits).";
+		}
+		else if (value.Length > 8)
+		{
+			seedMessage = "Invalid Seed: Seed string is too long (max 8 digits).";
+		}
+		else
+		{
+			seedMessage = "";
+		}
+	}
 
-    private void SetSeed(string value)
-    {
-        showSeed = value;
-        try
-        {
-            if (showSeed.Length > 8)
-            { 
-                showSeed = showSeed.Remove(8);
-            }
-            showSeed = showSeed.PadLeft(8, '0');
-            seed = Blob.FromHex(showSeed);
-            seedMessage = "";
-        }
-        catch (Exception ex)
-        {
-            seedMessage = "Invalid Seed: " + ex.Message;
-        }
-    }
+	private void SetSeed(string value)
+	{
+		showSeed = value;
+		try
+		{
+			if (showSeed.Length > 8)
+			{ 
+				showSeed = showSeed.Remove(8);
+			}
+			showSeed = showSeed.PadLeft(8, '0');
+			seed = Blob.FromHex(showSeed);
+			seedMessage = "";
+		}
+		catch (Exception ex)
+		{
+			seedMessage = "Invalid Seed: " + ex.Message;
+		}
+	}
 
-    // Flag Field Functions
-    Task FlagsOnChanged( string value )
-    {
-        updateFlagString = false;
-        tempFlagString = value;
-        return Task.CompletedTask;
-    }
+	// Flag Field Functions
+	Task FlagsOnChanged( string value )
+	{
+		updateFlagString = false;
+		tempFlagString = value;
+		return Task.CompletedTask;
+	}
 
-    Task FlagsOnKeyUp(KeyboardEventArgs value)
-    {
-        if (value.Key == "Enter")
-        {
-            updateFlagString = true;
-            flagString = tempFlagString;
-            UpdateUrl();
-        }
+	Task FlagsOnKeyUp(KeyboardEventArgs value)
+	{
+		if (value.Key == "Enter")
+		{
+			updateFlagString = true;
+			flagString = tempFlagString;
+			UpdateUrl();
+		}
 
-        return Task.CompletedTask;
-    }
+		return Task.CompletedTask;
+	}
 
-    Task FlagsOnLoseFocus()
-    {
-        updateFlagString = true;
-        flagString = tempFlagString;
-        UpdateUrl();
-        return Task.CompletedTask;
-    }
+	Task FlagsOnLoseFocus()
+	{
+		updateFlagString = true;
+		flagString = tempFlagString;
+		UpdateUrl();
+		return Task.CompletedTask;
+	}
 
-    Task SetFlags( string value )
-    {
-        try
-        {
-            flags.ReadFlagString(value);
-            flagsMessage = "Flags loaded successfully.";
-        }
-        catch (Exception)
-        {
-            flagsMessage = "Invalid flags string.";
-        }
+	Task SetFlags( string value )
+	{
+		try
+		{
+			flags.ReadFlagString(value);
+			flagsMessage = "Flags loaded successfully.";
+		}
+		catch (Exception)
+		{
+			flagsMessage = "Invalid flags string.";
+		}
 
-        return Task.CompletedTask;
-    }
+		return Task.CompletedTask;
+	}
 
-    void LoadFromMemoryDone(bool result)
-    {
-        loadingDone = true;
-        JS.InvokeVoidAsync("hideLoadingBox");
-		
+	void LoadFromMemoryDone(bool result)
+	{
+		loadingDone = true;
+		JS.InvokeVoidAsync("hideLoadingBox");
+
 		var uri = new Uri(NavigationManager.Uri);
 		string navigateTo = GetNavigationSection(uri.OriginalString, false);
-        StateHasChanged();
+		StateHasChanged();
 
 		if (navigateTo != "")
 		{
 			JS.InvokeVoidAsync("blazorScrollToId", navigateTo);
 		}
 
-    }
+	}
+
+	async void ResetFromHiddenFlags()
+	{ 
+		await LoadYamlFromFile("sgl2022");
+		StateHasChanged();
+		flagsMessage = "Using default flags (SGL2022).";
+	}
 }
