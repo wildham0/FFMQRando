@@ -378,7 +378,46 @@ namespace FFMQLib
 			coreClusterRooms.Shuffle(rng);
 			coreClusterRooms = coreClusterRooms.Where(x => x.Links.Count > 0).ToList();
 
+			if (intradungeon)
+			{
+				foreach (var originRoom in coreClusterRooms)
+				{
+					List<ClusterRoom> locationProgressClusters = progressClusterRooms.Where(x =>
+						(originRoom.Rooms.Contains(macShipDeck) ? !x.Rooms.Intersect(macShipBarredRooms).Any() : true) &&
+						(x.Location == originRoom.Location)
+						).ToList();
+
+					while (locationProgressClusters.Any())
+					{
+						var originLinks = originRoom.Links.Where(x => !x.ForceLinkDestination).ToList();
+						var originLink = rng.PickFrom(originLinks);
+
+						List<ClusterRoom> destinationRooms = locationProgressClusters.Where(x =>
+							!x.Rooms.Intersect(originLink.ForbiddenDestinations).Any() &&
+							(originLink.ForceLinkOrigin ? !x.Links.Where(l => l.ForceLinkDestination).Any() : true) &&
+							(originLink.ForceDeadEnd ? (!x.Rooms.Intersect(crestRooms).Any() && (x.Links.Count % 2 == 0)) : true) &&
+							(originLink.ForceLinkOrigin ? !x.Links.Where(l => l.ForceDeadEnd).Any() : true)
+							).ToList();
+
+						var destinationRoom = rng.PickFrom(destinationRooms);
+						progressClusterRooms.Remove(destinationRoom);
+						locationProgressClusters.Remove(destinationRoom);
+
+						var destinationLinks = destinationRoom.Links.Where(x => !x.EntranceOnly && !x.ForceDeadEnd && !x.ForceLinkOrigin && !x.ForceLinkDestination).ToList();
+						var destinationLink = rng.PickFrom(destinationLinks);
+
+						originRoom.Links.Remove(originLink);
+						destinationRoom.Links.Remove(destinationLink);
+
+						ConnectLink(originLink, destinationLink);
+						destinationRoom.UpdateLinks(originLink, rng);
+						originRoom.Merge(destinationRoom);
+					}
+				}
+			}
+
 			// Distribute non deadends room
+			/*
 			while (progressClusterRooms.Any())
 			{
 				var originRoom = rng.PickFrom(coreClusterRooms);
@@ -411,7 +450,7 @@ namespace FFMQLib
 				ConnectLink(originLink, destinationLink);
 				destinationRoom.UpdateLinks(originLink, rng);
 				originRoom.Merge(destinationRoom);
-			}
+			}*/
 
 			// Connect Forced Links
 			foreach (var room in coreClusterRooms)
