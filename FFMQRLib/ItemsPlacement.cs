@@ -89,7 +89,6 @@ namespace FFMQLib
 			int prioritizedLocationsCount = 0;
 			int prioritizedItemsCount = 0;
 			int looseItemsCount = 0;
-			GpCount = 0;
 
 			List<Items> consumableList = rom.GetFromBank(0x01, 0x801E, 0xDD).ToBytes().Select(x => (Items)x).ToList();
 			List<Items> finalConsumables = rom.GetFromBank(0x01, 0x80F2, 0x04).ToBytes().Select(x => (Items)x).ToList();
@@ -113,9 +112,9 @@ namespace FFMQLib
 				regionsWeight.Find(x => x.Region == MapRegions.Fireburg).Weight = 1;
 				regionsWeight.Find(x => x.Region == MapRegions.Windia).Weight = 1;
 
-
 				ItemsList itemsList = new(flags, rng);
 				StartingItems = itemsList.Starting;
+				GpCount = 0;
 
 				ItemsLocations = new(initialItemlocations.Select(x => new GameObject(x)));
 
