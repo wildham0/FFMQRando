@@ -19,13 +19,13 @@ namespace FFMQLib
 	
 	public partial class FFMQRom : SnesRom
 	{
-		public void GeneralModifications(Flags flags, bool apenabled, MT19337 rng)
+		public void GeneralModifications(Flags flags, Preferences prefs, bool apenabled, MT19337 rng)
 		{
 			ExpandRom();
 			FastMovement();
 			DefaultSettings();
 			RemoveClouds();
-			RemoveStrobing();
+			RemoveStrobing(prefs.ReduceBattleFlash);
 			SmallFixes();
 			BugFixes();
 			SystemBugFixes();
@@ -123,7 +123,7 @@ namespace FFMQLib
 			PutInBank(0x0B, 0x8599, Blob.FromHex("80"));
 			PutInBank(0x0B, 0x85A4, Blob.FromHex("80"));
 		}
-		public void RemoveStrobing()
+		public void RemoveStrobing(bool reducebattleflash)
 		{
 			// Crystal flash, simply skip the flash routine
 			PutInBank(0x01, 0xD4C9, Blob.FromHex("EAEAEA"));
@@ -138,6 +138,24 @@ namespace FFMQLib
 			PutInBank(0x01, 0xDC2A, Blob.FromHex("EAEAEA"));
 			PutInBank(0x01, 0xDC37, Blob.FromHex("EAEAEA"));
 			PutInBank(0x01, 0xDDBA, Blob.FromHex("60"));
+
+			// These are a bit more extreme and are only flash, not strobbing, so we add them as preference
+			if (reducebattleflash)
+			{
+				// Start of battle flash
+				PutInBank(0x02, 0xDA4E, Blob.FromHex("a2"));
+
+				// Weapon flash (Sword, Axe, MorningStar)
+				// Sword
+				PutInBank(0x0B, 0xED64, Blob.FromHex("1931"));
+				PutInBank(0x0B, 0xED68, Blob.FromHex("1932"));
+				// Axe
+				PutInBank(0x0B, 0xED71, Blob.FromHex("1935"));
+				PutInBank(0x0B, 0xED75, Blob.FromHex("1936"));
+				// Morning Star
+				PutInBank(0x0B, 0xEDDD, Blob.FromHex("194e"));
+				PutInBank(0x0B, 0xEDE3, Blob.FromHex("1950"));
+			}
 		}
 		public void SmallFixes()
 		{

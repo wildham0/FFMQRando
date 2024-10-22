@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.6.20";
+		public static string Version = "1.6.21";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -86,7 +86,7 @@ namespace FFMQLib
 			DarkKingTrueForm darkKingTrueForm = new();
 
 			// General modifications
-			GeneralModifications(flags, apconfigs.ApEnabled, rng);
+			GeneralModifications(flags, preferences, apconfigs.ApEnabled, rng);
 			UnjankOverworld(GameMaps, MapChanges, MapPalettes);
 
 			// Maps Changes
