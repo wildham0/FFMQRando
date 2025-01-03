@@ -28,6 +28,8 @@ namespace FFMQLib
 		public int Magic;
 		public int Defense;
 		public int Evade;
+		public int MagicDef;
+		public int MagicEvasion;
 		public int Acccuracy;
 		public List<ElementsType> Resistances;
 
@@ -58,6 +60,8 @@ namespace FFMQLib
 		public int Magic;
 		public int Accuracy;
 		public int Evade;
+		public int MagicDef;
+		public int MagicEvasion;
 		public int Hp;
 		public int MaxHp;
 		public int Defense;
@@ -95,6 +99,8 @@ namespace FFMQLib
 				Magic += geardata[gear].Magic;
 				Defense += geardata[gear].Defense;
 				Evade += geardata[gear].Evade;
+				MagicDef += geardata[gear].MagicDef;
+				MagicEvasion += geardata[gear].MagicEvasion;
 				Resistances.AddRange(geardata[gear].Resistances);
 			}
 		
@@ -115,21 +121,31 @@ namespace FFMQLib
 			{ Items.JumboBomb, new GearStats() { } },
 			{ Items.MegaGrenade, new GearStats() { } },
 
-			{ Items.SteelHelm, new GearStats() { Defense = 4, Evade = 5, Strength = 5 } },
-			{ Items.MoonHelm, new GearStats() { Defense = 9, Evade = 9, Strength = 5, Resistances = new() { ElementsType.Fire } } },
-			{ Items.ApolloHelm, new GearStats() { Defense = 15, Evade = 15, Strength = 5, Resistances = new() { ElementsType.Fire } } },
+			{ Items.SteelHelm, new GearStats() { Defense = 4, MagicDef = 4, Evade = 5, MagicEvasion = 5, Strength = 5 } },
+			{ Items.MoonHelm, new GearStats() { Defense = 9, MagicDef = 9, Evade = 9, MagicEvasion = 9, Strength = 5, Resistances = new() { ElementsType.Fire } } },
+			{ Items.ApolloHelm, new GearStats() { Defense = 15, MagicDef = 14, Evade = 15, MagicEvasion = 14, Strength = 5, Resistances = new() { ElementsType.Fire } } },
 
-			{ Items.SteelArmor, new GearStats() { Defense = 6, Evade = 4 } },
-			{ Items.NobleArmor, new GearStats() { Defense = 12, Evade = 10, Resistances = new() { ElementsType.Water, ElementsType.Poison } } },
-			{ Items.GaiasArmor, new GearStats() { Defense = 15, Evade = 11, Resistances = new() { ElementsType.Water, ElementsType.Poison, ElementsType.Sleep, ElementsType.Air } } },
+			{ Items.SteelArmor, new GearStats() { Defense = 6, MagicDef = 6, Evade = 4, MagicEvasion = 5 } },
+			{ Items.NobleArmor, new GearStats() { Defense = 12, MagicDef = 10, Evade = 10, MagicEvasion = 10, Resistances = new() { ElementsType.Water, ElementsType.Poison } } },
+			{ Items.GaiasArmor, new GearStats() { Defense = 15, MagicDef = 12, Evade = 11, MagicEvasion = 11, Resistances = new() { ElementsType.Water, ElementsType.Poison, ElementsType.Sleep, ElementsType.Air } } },
 
-			{ Items.SteelShield, new GearStats() { Defense = 5, Evade = 6, Speed = 5 } },
-			{ Items.VenusShield, new GearStats() { Defense = 10, Evade = 12, Speed = 5, Resistances = new() { ElementsType.Paralysis } } },
-			{ Items.AegisShield, new GearStats() { Defense = 14, Evade = 14, Speed = 5, Resistances = new() { ElementsType.Paralysis, ElementsType.Stone } } },
+			{ Items.SteelShield, new GearStats() { Defense = 5, MagicDef = 4, Evade = 6, MagicEvasion = 5, Speed = 5 } },
+			{ Items.VenusShield, new GearStats() { Defense = 10, MagicDef = 11, Evade = 12, MagicEvasion = 11, Speed = 5, Resistances = new() { ElementsType.Paralysis } } },
+			{ Items.AegisShield, new GearStats() { Defense = 14,  MagicDef = 15,Evade = 14, MagicEvasion = 15, Speed = 5, Resistances = new() { ElementsType.Paralysis, ElementsType.Stone } } },
 
-			{ Items.Charm, new GearStats() { Defense = 1, Evade = 1, Magic = 5 } },
-			{ Items.MagicRing, new GearStats() { Defense = 3, Evade = 3, Magic = 5, Resistances = new() { ElementsType.Silence } } },
-			{ Items.CupidLocket, new GearStats() { Defense = 6, Evade = 6, Magic = 5, Resistances = new() { ElementsType.Silence, ElementsType.Blind, ElementsType.Confusion } } },
+			{ Items.Charm, new GearStats() { Defense = 1, MagicDef = 2, Evade = 1, MagicEvasion = 1, Magic = 5 } },
+			{ Items.MagicRing, new GearStats() { Defense = 3,  MagicDef = 4, Evade = 3, MagicEvasion = 4, Magic = 5, Resistances = new() { ElementsType.Silence } } },
+			{ Items.CupidLocket, new GearStats() { Defense = 6,  MagicDef = 7, Evade = 6, MagicEvasion = 6, Magic = 5, Resistances = new() { ElementsType.Silence, ElementsType.Blind, ElementsType.Confusion } } },
+
+			{ Items.BowOfGrace, new GearStats() { Speed = 5 } },
+			{ Items.NinjaStar, new GearStats() { Speed = 5 } },
+
+			{ Items.ReplicaArmor, new GearStats() { Defense = 15, MagicDef = 14, Evade = 15, MagicEvasion = 15, Resistances = new() { ElementsType.Water, ElementsType.Stone } } },
+			{ Items.MysticRobes, new GearStats() { Defense = 13,  MagicDef = 15, Evade = 12, MagicEvasion = 15, Resistances = new() { ElementsType.Water, ElementsType.Air } } },
+			{ Items.FlameArmor, new GearStats() { Defense = 14,  MagicDef = 12, Evade = 14, MagicEvasion = 12, Resistances = new() { ElementsType.Fire } } },
+			{ Items.BlackRobe, new GearStats() { Defense = 13,  MagicDef = 12, Evade = 15, MagicEvasion = 14, Speed = 5, Resistances = new() { ElementsType.Doom } } },
+
+			{ Items.EtherShield, new GearStats() { Defense = 12,  MagicDef = 12, Evade = 12, MagicEvasion = 13, Speed = 5, Resistances = new() { ElementsType.Paralysis, ElementsType.Sleep, ElementsType.Zombie } } },
 		};
 	}
 	public class BattleAction
