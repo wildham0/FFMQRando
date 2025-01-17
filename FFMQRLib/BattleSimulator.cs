@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Linq;
 using RomUtilities;
+using System.Reflection.Emit;
+using static System.Net.Mime.MediaTypeNames;
 
 
 
@@ -51,20 +53,30 @@ namespace FFMQLib
 		
 	}
 
+	public enum Teams
+	{ 
+		TeamA,
+		TeamB,
+	}
 
 	public class Entity
 	{
+		public int Level;
 		public int Strength;
 		public int Agility;
 		public int Speed; 
 		public int Magic;
-		public int Accuracy;
+		public int Accuracy => Level / 2 + 0x4B;
 		public int Evade;
 		public int MagicDef;
 		public int MagicEvasion;
 		public int Hp;
 		public int MaxHp;
 		public int Defense;
+		private int bonusStrength;
+		private int bonusAgility;
+		private int bonusSpeed;
+		private int bonusMagic;
 		private int coreStrength;
 		private int coreAgility;
 		private int coreSpeed;
@@ -76,27 +88,47 @@ namespace FFMQLib
 		public List<Items> Gears;
 		private MT19337 Rng;
 		public bool IsPlayer;
+		public bool IsDefending;
+		public Teams Team;
 
 		public Entity(MT19337 rng)
+		{
+			InitBen();
+			Rng = rng;
+		}
+		private void InitBen()
 		{
 			Actions = new();
 			Actions.Add(new WpSteelSword());
 
-			Rng = rng;
 
-			foreach (var action in Actions)
-			{
-				action.Execute(this, new() { this }, rng);
-			}
+			MaxHp = 40;
+			Hp = 40;
+			Level = 1;
+			coreStrength = 10;
+			coreAgility = 12;
+			coreSpeed = 8;
+			coreMagic = 15;
+			//Accuracy = Level / 2 + 0x4B;
+			Gears = new() { Items.SteelArmor, Items.SteelSword };
+			ProcessGears();
+			Agility = coreAgility + bonusAgility + Defense;
+			Strength = coreStrength + bonusStrength;
+			Speed = coreSpeed + bonusSpeed;
+			Magic = coreMagic + bonusMagic;
+
+			IsDefending = false;
+			IsPlayer = true;
+			Team = Teams.TeamA;
 		}
 		private void ProcessGears()
 		{
 			foreach (var gear in Gears)
 			{
-				Strength += geardata[gear].Strength;
-				Agility += geardata[gear].Agility;
-				Speed += geardata[gear].Speed;
-				Magic += geardata[gear].Magic;
+				bonusStrength += geardata[gear].Strength;
+				bonusAgility += geardata[gear].Agility;
+				bonusSpeed += geardata[gear].Speed;
+				bonusMagic += geardata[gear].Magic;
 				Defense += geardata[gear].Defense;
 				Evade += geardata[gear].Evade;
 				MagicDef += geardata[gear].MagicDef;
@@ -104,6 +136,23 @@ namespace FFMQLib
 				Resistances.AddRange(geardata[gear].Resistances);
 			}
 		
+		}
+
+		public void ProcessDamage(int damage, int defense)
+		{
+			if (damage < 0)
+			{
+				Hp = Math.Min(Hp - damage, MaxHp);
+			}
+			else
+			{
+				Hp = Math.Max(Hp - Math.Max(damage - Math.Min(0xFF, defense), 1), 0);
+			}
+
+			if (Hp == 0)
+			{
+				Ailments.Add(ElementsType.Doom);
+			}
 		}
 
 		public Dictionary<Items, GearStats> geardata = new()
@@ -148,53 +197,448 @@ namespace FFMQLib
 			{ Items.EtherShield, new GearStats() { Defense = 12,  MagicDef = 12, Evade = 12, MagicEvasion = 13, Speed = 5, Resistances = new() { ElementsType.Paralysis, ElementsType.Sleep, ElementsType.Zombie } } },
 		};
 	}
+
+	public enum HitRoutines
+	{ 
+		Plain,
+		Punch,
+		Sword,
+		Axe,
+		Claw,
+		Bomb,
+		Projectile,
+		Magic,
+		Speed,
+		Strength,
+		StrengthSpeed,
+		Base,
+		Hit100,
+		Hit90,
+	}
+	public enum ActionRoutines
+	{
+		None = 0x00,
+		Punch,
+		Sword,
+		Axe,
+		Claw,
+		Bomb,
+		Projectile,
+		MagicDamage1,
+		MagicDamage2,
+		MagicDamage3,
+		MagicUnknown1,
+		MagicUnknown2,
+		Life,
+		Heal,
+		MagicUnknown3,
+		PhysicalDamage1,
+		PhysicalDamage2,
+		PhysicalDamage3 = 0x10,
+		PhysicalDamage4,
+		PhysicalDamage5,
+		Ailments1,
+		PhysicalDamage6,
+		PhysicalDamage7,
+		PhysicalDamage8,
+		PhysicalDamage9,
+		PhysicalUnknown1,
+		SelfDestruct,
+		Multiply,
+		Seed,
+		PureDamage1,
+		PureDamage2,
+		Unknown1,
+		Unknown2
+	}
 	public class BattleAction
 	{
 		protected int Power;
-		protected int CritRate;
+		//protected int CritRate;
 		protected int Accuracy;
+		protected int NumberOfHits;
 		protected List<ElementsType> Ailments;
 		protected List<ElementsType> TypeDamage;
+		protected HitRoutines HitRoutine;
+		protected ActionRoutines Action;
+		protected bool CanCrit = true;
+
+		private static Dictionary<ActionRoutines, HitRoutines> actionToHitRoutines = new()
+		{
+			{ ActionRoutines.None, HitRoutines.Plain },
+			{ ActionRoutines.Punch, HitRoutines.Punch },
+			{ ActionRoutines.Sword, HitRoutines.Sword },
+			{ ActionRoutines.Axe, HitRoutines.Axe },
+			{ ActionRoutines.Claw, HitRoutines.Claw },
+			{ ActionRoutines.Bomb, HitRoutines.Bomb },
+			{ ActionRoutines.Projectile, HitRoutines.Projectile },
+			{ ActionRoutines.MagicDamage1, HitRoutines.Magic },
+			{ ActionRoutines.MagicDamage2, HitRoutines.Magic },
+			{ ActionRoutines.MagicDamage3, HitRoutines.Magic },
+			{ ActionRoutines.MagicUnknown1, HitRoutines.Magic },
+			{ ActionRoutines.MagicUnknown2, HitRoutines.Magic },
+			{ ActionRoutines.Life, HitRoutines.Magic },
+			{ ActionRoutines.Heal, HitRoutines.Magic },
+			{ ActionRoutines.MagicUnknown3, HitRoutines.Magic },
+			{ ActionRoutines.PhysicalDamage1, HitRoutines.Speed },
+			{ ActionRoutines.PhysicalDamage2, HitRoutines.Speed },
+			{ ActionRoutines.PhysicalDamage3, HitRoutines.Strength },
+			{ ActionRoutines.PhysicalDamage4, HitRoutines.Strength },
+			{ ActionRoutines.Ailments1, HitRoutines.Strength },
+			{ ActionRoutines.PhysicalDamage5, HitRoutines.Strength },
+			{ ActionRoutines.PhysicalDamage6, HitRoutines.StrengthSpeed },
+			{ ActionRoutines.PhysicalDamage7, HitRoutines.Base },
+			{ ActionRoutines.PhysicalDamage8, HitRoutines.Magic },
+			{ ActionRoutines.PhysicalDamage9, HitRoutines.Plain },
+			{ ActionRoutines.SelfDestruct, HitRoutines.Hit100 },
+			{ ActionRoutines.Multiply, HitRoutines.Hit90 },
+			{ ActionRoutines.Seed, HitRoutines.Plain },
+			{ ActionRoutines.PureDamage1, HitRoutines.Plain },
+			{ ActionRoutines.PureDamage2, HitRoutines.Plain },
+			{ ActionRoutines.Unknown1, HitRoutines.Plain },
+			{ ActionRoutines.Unknown2, HitRoutines.Plain },
+		};
 		public BattleAction() { }
 		//public virtual void Execute(Entity user, List<Entity> targets, MT19337 rng) { }
 
 		public void Execute(Entity user, List<Entity> targets, MT19337 rng)
 		{
-			var hitrate = CalcHitRate(user);
-			if (user.Ailments.Contains(ElementsType.Blind))
-			{
-				hitrate /= 2;
-			}
+			//(int, int) result = CalcHitRate(user);
+			//int hitrate = result.Item1;
+			//int critrate = result.Item2;
+
 			var damage = CalcDamage(user);
 			var targetcount = targets.Count;
 
 			foreach (var target in targets)
 			{
-				if (target.IsPlayer)
-				{
-					hitrate = 100 - target.Evade;
-				}
-				
-				if (rng.Between(0, 100) < hitrate)
-				{
-					if (rng.Between(0, 100) < CritRate)
-					{
-						damage *= 2;
-					}
-					
-					damage = Math.Min(target.Hp, Math.Max(1, damage - target.Defense));
-					target.Hp = target.Hp - damage;
-					if (target.Hp == 0)
-					{
-						target.Ailments.Add(ElementsType.Doom);
-					}
+				(int, int) result = CalcHitRate(user, target);
+				int hitrate = result.Item1;
+				int critrate = result.Item2;
 
-					ApplyAilments(target);
+
+				for (int i = 0; i < NumberOfHits; i++)
+				{
+					if (rng.Between(0, 100) < hitrate)
+					{
+						if (rng.Between(0, 100) < critrate)
+						{
+							damage *= 2;
+						}
+
+						damage = Math.Min(target.Hp, Math.Max(1, damage - target.Defense));
+						target.Hp = target.Hp - damage;
+						if (target.Hp == 0)
+						{
+							target.Ailments.Add(ElementsType.Doom);
+						}
+
+						ApplyAilments(target);
+					}
 				}
 			}
 		}
+		private (int, int) CalcHitRate(Entity user, Entity target)
+		{
+			int targetPlayerPhysicalHit = 100 - target.Evade;
+			int targetPlayerMagicalHit = 100 - target.MagicEvasion;
+			int hitrate = 0;
+			int critrate = 0;
+
+			var hitroutine = actionToHitRoutines[Action];
+
+			switch (hitroutine)
+			{
+				case HitRoutines.Punch:
+					hitrate = user.Accuracy;
+					critrate = 5;
+					break;
+				case HitRoutines.Sword:
+					hitrate = (((user.Strength + user.Speed) / 8) + 0x4B + Accuracy) / 3 + (user.Accuracy / 3);
+					critrate = 8;
+					break;
+				case HitRoutines.Axe:
+					hitrate = ((user.Strength / 4) + 0x4B + Accuracy) / 3 + (user.Accuracy / 3);
+					critrate = 2;
+					break;
+				case HitRoutines.Claw:
+					hitrate = ((user.Speed / 4) + 0x4B + Accuracy) / 3 + (user.Accuracy / 3);
+					critrate = 10;
+					break;
+				case HitRoutines.Bomb:
+					hitrate = Accuracy;
+					critrate = 0;
+					break;
+				case HitRoutines.Projectile:
+					hitrate = ((user.Speed / 4) + 0x4B + Accuracy) / 3 + (user.Accuracy / 3);
+					critrate = 14;
+					break;
+				case HitRoutines.Magic:
+					hitrate = ((user.Magic / 4) + 0x4B + Accuracy) / 2;
+					critrate = 0;
+					break;
+				case HitRoutines.Speed:
+					hitrate = ((user.Speed / 4) + 0x4B + Accuracy) / 2;
+					critrate = 5;
+					break;
+				case HitRoutines.Strength:
+					hitrate = ((user.Strength / 4) + 0x4B + Accuracy) / 2;
+					critrate = 5;
+					break;
+				case HitRoutines.StrengthSpeed:
+					hitrate = (((user.Strength + user.Speed) / 8) + 0x4B + Accuracy + user.Accuracy) / 2;
+					critrate = 0;
+					break;
+				case HitRoutines.Base:
+					hitrate = user.Accuracy;
+					critrate = 0;
+					break;
+				case HitRoutines.Hit90:
+					hitrate = 90;
+					critrate = 0;
+					break;
+				case HitRoutines.Hit100:
+					hitrate = 100;
+					critrate = 0;
+					break;
+			}
+
+			// Cap at 100
+			hitrate = Math.Min(100, hitrate);
+
+			// Attacker is blind
+			if (user.Ailments.Contains(ElementsType.Blind))
+			{
+				hitrate /= 2;
+			}
+
+			// If the target is a player character, then hit rate is based on evasion
+			if (target.IsPlayer)
+			{
+				// there's a special status check here, not sure what it is
+
+				// if attacker is higher level, we skip player evade
+				if (user.Level < target.Level)
+				{
+					if (HitRoutine == HitRoutines.Magic)
+					{
+						hitrate = 100 - target.MagicEvasion;
+					}
+					else
+					{
+						hitrate = 100 - target.Evade;
+					}
+				}
+			}
+
+			return (hitrate, critrate);
+		}
+		public int CalcPhysicalDefense(Entity target)
+		{
+			return target.IsDefending ? Math.Max(target.Defense * 2, 0xFA) : target.Defense;
+		}
+		public int CalcMagicDefense(Entity target)
+		{
+			return target.Magic + target.MagicDef;
+		}
+		public int CalcDamageStrSpdx2(Entity user)
+		{
+			return (user.Strength + user.Speed) * 2;
+		}
+		public int CalcDamageStrSpdPowx2(Entity user)
+		{
+			return (user.Strength + user.Speed + Power) * 2;
+		}
+		public int CalcDamagePowx12()
+		{
+			return Power * 12;
+		}
+		public int CalcDamageSpd2Powx12(Entity user)
+		{
+			return (user.Speed * 2 + Power) * 2;
+		}
+		public int CalcDamageMagPowx3(Entity user)
+		{
+			return (user.Magic + Power) * 3;
+		}
+		public int CalcDamageMagPowx9(Entity user)
+		{
+			return (user.Magic + Power) * 9;
+		}
+		public int CalcResistance(Entity target, int damage)
+		{
+			if (target.Resistances.Intersect(TypeDamage).Any())
+			{
+				if (TypeDamage.Contains(ElementsType.Zombie))
+				{
+					damage = -damage;
+				}
+				else
+				{
+					damage /= 2;
+				}
+			}
+
+			return damage;
+		}
+		public int CalcWeakness(Entity target, int damage)
+		{
+			bool thunderWeakness = target.Weaknesses.Contains(ElementsType.Water) && target.Weaknesses.Contains(ElementsType.Air);
+			bool thunderAttack = TypeDamage.Contains(ElementsType.Water) && TypeDamage.Contains(ElementsType.Water);
+
+			if (target.Weaknesses.Intersect(TypeDamage).Count() == 1 || (thunderWeakness && thunderAttack))
+			{
+				damage *= 2;
+			}
+
+			return damage;
+		}
+		public int CalcCrit(Entity target, int damage, int critrate, MT19337 rng)
+		{
+			if (rng.Between(0, 100) < critrate)
+			{
+				damage *= 2;
+			}
+
+			return damage;
+		}
+		public void ApplyAilments(Entity user, Entity target, int hitrate, MT19337 rng)
+		{
+			if (Ailments.Any() && rng.Between(0, 100) < hitrate)
+			{
+				if (!user.Ailments.Contains(ElementsType.Confusion) && (user.Team == target.Team))
+				{
+					target.Ailments = target.Ailments.Except(Ailments).ToList();
+				}
+				else
+				{
+					foreach (var ailment in Ailments)
+					{
+						if (!target.Resistances.Contains(ailment))
+						{
+							target.Ailments.Add(ailment);
+						}
+					}
+				}
+				// There's a bug where applying stone here, if resisted, continue to remove all ailments, we're ignoring it here			
+			}
+		}
+
+
+		public void ActionNone(Entity user, List<Entity> targets, MT19337 rng)
+		{
+			return;
+		}
+		public void ActionPunch(Entity user, Entity target, MT19337 rng)
+		{
+			(int hit, int crit) hitrate = CalcHitRate(user, target);
+
+			int defense = CalcPhysicalDefense(target);
+			int damage = CalcDamageStrSpdx2(user);
+			damage = CalcResistance(target, damage);
+			damage = CalcCrit(target, damage, hitrate.crit, rng);
+
+			if (rng.Between(0, 100) < hitrate.hit)
+			{
+				target.ProcessDamage(damage, defense);
+			}
+		}
+		public void WeaponAttack(Entity user, Entity target, MT19337 rng)
+		{
+			(int hit, int crit) hitrate = CalcHitRate(user, target);
+			int defense = CalcPhysicalDefense(target);
+			int damage = CalcDamageStrSpdPowx2(user);
+			damage = CalcResistance(target, damage);
+			damage = CalcWeakness(target, damage);
+			damage = CalcCrit(target, damage, hitrate.crit, rng);
+
+			if (rng.Between(0, 100) < hitrate.hit)
+			{
+				target.ProcessDamage(damage, defense);
+				ApplyAilments(user, target, hitrate.hit, rng);
+			}
+		}
+		public void BombAttack(Entity user, Entity target, int targetcount, MT19337 rng)
+		{
+			// should check if we have ammo, we don't care
+			(int hit, int crit) hitrate = CalcHitRate(user, target);
+			int defense = CalcPhysicalDefense(target);
+			int damage = CalcDamagePowx12();
+			damage /= targetcount;
+			damage = CalcWeakness(target, damage);
+			target.ProcessDamage(damage, defense);
+			// also weird check if Reflectant
+		}
+		public void ProjectileAttack(Entity user, Entity target, MT19337 rng)
+		{
+			// should check if we have ammo, we don't care
+			(int hit, int crit) hitrate = CalcHitRate(user, target);
+			int defense = CalcPhysicalDefense(target);
+			int damage = CalcDamageSpd2Powx12(user);
+			damage = CalcResistance(target, damage);
+			damage = CalcWeakness(target, damage);
+			damage = CalcCrit(target, damage, hitrate.crit, rng);
+
+			if (rng.Between(0, 100) < hitrate.hit)
+			{
+				target.ProcessDamage(damage, defense);
+				ApplyAilments(user, target, hitrate.hit, rng);
+			}
+		}
+		public void OffensiveMagic3Attack(Entity user, Entity target, int targetcount, MT19337 rng)
+		{
+			(int hit, int crit) hitrate = CalcHitRate(user, target);
+			int defense = CalcMagicDefense(target);
+			int damage = CalcDamageMagPowx3(user);
+			damage /= targetcount;
+			damage = CalcResistance(target, damage);
+			damage = CalcWeakness(target, damage);
+			target.ProcessDamage(damage, defense);
+			// There's some weird conditional after, skip it
+		}
+		public void OffensiveMagic9Attack(Entity user, Entity target, int targetcount, MT19337 rng)
+		{
+			(int hit, int crit) hitrate = CalcHitRate(user, target);
+			int defense = CalcMagicDefense(target);
+			int damage = CalcDamageMagPowx9(user);
+			damage /= targetcount;
+			damage = CalcResistance(target, damage);
+			damage = CalcWeakness(target, damage);
+			target.ProcessDamage(damage, defense);
+			// There's some weird conditional after, skip it
+		}
+		public void OffensiveMagicWeirdAttack(Entity user, Entity target, int targetcount, MT19337 rng)
+		{
+			// check if we're using refresher??
+			(int hit, int crit) hitrate = CalcHitRate(user, target);
+			int defense = CalcPhysicalDefense(target);
+			int damage = 0x1E * (Power & 0x0F);
+			if (rng.Between(0, 100) < hitrate.hit)
+			{
+				target.ProcessDamage(damage, defense);
+			}
+
+			int statid = ((Power & 0xE0) / 32) & 0x03;
+			int statdebuff = ((Power / 16) & 0x03) * 0x19;
+
+			if(stati)
+
+
+
+			if ((Power & 0xE0) / 32  ;
+
+
+
+			int damage = CalcDamageMagPowx9(user);
+			damage /= targetcount;
+			damage = CalcResistance(target, damage);
+			damage = CalcWeakness(target, damage);
+			target.ProcessDamage(damage, defense);
+			// There's some weird conditional after, skip it
+		}
+
 		public virtual int CalcHitRate(Entity user) { return 0; }
-		public virtual int CalcDamage(Entity user) { return 0; }
+		//public virtual int CalcDamage(Entity user) { return 0; }
 		public void ApplyAilments(Entity target)
 		{
 			foreach (var ailment in Ailments)
@@ -225,6 +669,21 @@ namespace FFMQLib
 		{
 			return (user.Strength + user.Speed + Power) * 2;
 		}
+	}
+
+	public class Battle
+	{
+		List<Entity> Enemies;
+		List<Entity> Heroes;
+
+		private void InitTeams()
+		{ 
+			
+		
+		
+		}
+	
+	
 	}
 
 }
