@@ -89,6 +89,8 @@ namespace FFMQLib
 		private MT19337 Rng;
 		public bool IsPlayer;
 		public bool IsDefending;
+		public bool IsUndead;
+		public bool IsBoss;
 		public Teams Team;
 
 		public Entity(MT19337 rng)
@@ -112,13 +114,12 @@ namespace FFMQLib
 			//Accuracy = Level / 2 + 0x4B;
 			Gears = new() { Items.SteelArmor, Items.SteelSword };
 			ProcessGears();
-			Agility = coreAgility + bonusAgility + Defense;
-			Strength = coreStrength + bonusStrength;
-			Speed = coreSpeed + bonusSpeed;
-			Magic = coreMagic + bonusMagic;
+			RestoreStats();
 
 			IsDefending = false;
 			IsPlayer = true;
+			IsUndead = false;
+			IsBoss = false;
 			Team = Teams.TeamA;
 		}
 		private void ProcessGears()
@@ -135,7 +136,13 @@ namespace FFMQLib
 				MagicEvasion += geardata[gear].MagicEvasion;
 				Resistances.AddRange(geardata[gear].Resistances);
 			}
-		
+		}
+		public void RestoreStats()
+		{
+			Agility = coreAgility + bonusAgility + Defense;
+			Strength = coreStrength + bonusStrength;
+			Speed = coreSpeed + bonusSpeed;
+			Magic = coreMagic + bonusMagic;
 		}
 
 		public void ProcessDamage(int damage, int defense)
@@ -260,7 +267,8 @@ namespace FFMQLib
 		protected List<ElementsType> Ailments;
 		protected List<ElementsType> TypeDamage;
 		protected HitRoutines HitRoutine;
-		protected ActionRoutines Action;
+		protected ActionRoutines ActionRoutine;
+		protected int Id;
 		protected bool CanCrit = true;
 
 		private static Dictionary<ActionRoutines, HitRoutines> actionToHitRoutines = new()
@@ -345,7 +353,7 @@ namespace FFMQLib
 			int hitrate = 0;
 			int critrate = 0;
 
-			var hitroutine = actionToHitRoutines[Action];
+			var hitroutine = actionToHitRoutines[ActionRoutine];
 
 			switch (hitroutine)
 			{
@@ -435,7 +443,7 @@ namespace FFMQLib
 		}
 		public int CalcPhysicalDefense(Entity target)
 		{
-			return target.IsDefending ? Math.Max(target.Defense * 2, 0xFA) : target.Defense;
+			return target.IsDefending ? Math.Max(target.Agility * 2, 0xFA) : target.Agility;
 		}
 		public int CalcMagicDefense(Entity target)
 		{
@@ -464,6 +472,22 @@ namespace FFMQLib
 		public int CalcDamageMagPowx9(Entity user)
 		{
 			return (user.Magic + Power) * 9;
+		}
+		public int CalcDamageStrAttHp8x15(Entity user)
+		{
+			return (int)((user.Strength + Power + (user.MaxHp / (user.IsBoss ? 80 : 8))) * 1.5);
+		}
+		public int CalcDamageStrAttHp16x2(Entity user)
+		{
+			return (int)((user.Strength + Power + (user.MaxHp / (user.IsBoss ? 160 : 16))) * 2);
+		}
+		public int CalcDamageStrAttHp8x075(Entity user)
+		{
+			return (int)((user.Strength + Power + (user.MaxHp / (user.IsBoss ? 80 : 8))) * 0.75);
+		}
+		public int CalcDamageStrSpdPow(Entity user)
+		{
+			return user.Strength + Power + user.Speed;
 		}
 		public int CalcResistance(Entity target, int damage)
 		{
@@ -607,7 +631,7 @@ namespace FFMQLib
 			target.ProcessDamage(damage, defense);
 			// There's some weird conditional after, skip it
 		}
-		public void OffensiveMagicWeirdAttack(Entity user, Entity target, int targetcount, MT19337 rng)
+		public void StatsDebuffAttack(Entity user, Entity target, MT19337 rng)
 		{
 			// check if we're using refresher??
 			(int hit, int crit) hitrate = CalcHitRate(user, target);
@@ -616,27 +640,196 @@ namespace FFMQLib
 			if (rng.Between(0, 100) < hitrate.hit)
 			{
 				target.ProcessDamage(damage, defense);
+				int statid = ((Power & 0xE0) / 32) & 0x03;
+				int statdebuff = ((Power / 16) & 0x03) * 0x19;
+
+				switch (statid)
+				{
+					case 0:
+						target.Strength = Math.Max(0, target.Strength - statdebuff);
+						break;
+					case 1:
+						target.Agility = Math.Max(0, target.Agility - statdebuff);
+						break;
+					case 2:
+						target.Speed = Math.Max(0, target.Speed - statdebuff);
+						break;
+					case 3:
+						target.Magic = Math.Max(0, target.Magic - statdebuff);
+						break;
+				}
 			}
-
-			int statid = ((Power & 0xE0) / 32) & 0x03;
-			int statdebuff = ((Power / 16) & 0x03) * 0x19;
-
-			if(stati)
-
-
-
-			if ((Power & 0xE0) / 32  ;
-
-
-
-			int damage = CalcDamageMagPowx9(user);
-			damage /= targetcount;
-			damage = CalcResistance(target, damage);
-			damage = CalcWeakness(target, damage);
-			target.ProcessDamage(damage, defense);
-			// There's some weird conditional after, skip it
 		}
 
+		public void CastLife(Entity user, Entity target, MT19337 rng)
+		{
+			if (target.Team != user.Team)
+			{
+				if (target.IsUndead && target.Level < user.Level)
+				{
+					(int hit, int crit) hitrate = CalcHitRate(user, target);
+
+					if (rng.Between(0, 100) < hitrate.hit)
+					{
+						target.Hp = 0;
+						target.Ailments.Add(ElementsType.Doom);
+					}
+				}
+			}
+			else
+			{
+				target.Ailments = new();
+				target.Hp = target.MaxHp;
+			}
+		}
+		public void CastHeal(Entity user, Entity target, MT19337 rng)
+		{
+			if (target.Team != user.Team || user.Ailments.Contains(ElementsType.Confusion))
+			{
+				(int hit, int crit) hitrate = CalcHitRate(user, target);
+				
+				if (!user.IsPlayer)
+				{
+					hitrate = (hitrate.hit / 2, hitrate.crit);
+				}
+
+				if (rng.Between(0, 100) < hitrate.hit)
+				{
+					ApplyAilments(target);
+				}
+			}
+			else
+			{
+				if (target.Ailments.Contains(ElementsType.Doom))
+				{
+					target.Ailments = new() { ElementsType.Doom };
+				}
+				else
+				{
+					target.Ailments = new();
+				}
+			}
+		}
+		public void CastCure(Entity user, Entity target, int targetcount, MT19337 rng)
+		{
+			if (target.Team != user.Team || target.IsUndead)
+			{
+				(int hit, int crit) hitrate = CalcHitRate(user, target);
+				int defense = CalcMagicDefense(target);
+				int damage = CalcDamageMagPowx3(user);
+				damage /= targetcount;
+				damage = CalcWeakness(target, damage);
+
+				if (rng.Between(0, 100) < hitrate.hit)
+				{
+					target.ProcessDamage(damage, defense);
+				}
+			}
+			else
+			{
+				int healing =((((int)(user.Magic * 1.5) + Power) * target.MaxHp) / 100) / targetcount;
+				target.ProcessDamage(-healing, 0);
+			}
+		}
+		public void PhysicalAttack01(Entity user, Entity target, int targetcount, MT19337 rng)
+		{
+			(int hit, int crit) hitrate = CalcHitRate(user, target);
+			int defense = CalcPhysicalDefense(target);
+			int damage = 1;
+			if (ActionRoutine == ActionRoutines.PhysicalDamage1)
+			{
+				damage = CalcDamageStrAttHp16x2(user);
+			}
+			else
+			{
+				damage = CalcDamageStrAttHp8x15(user);
+			}
+			damage = CalcResistance(target, damage);
+			damage /= targetcount;
+			target.ProcessDamage(damage, defense);
+
+			if(Id == 0x8A) //if snowstorm
+			{
+				user.ProcessDamage(-200, 0);
+			}
+		}
+		public void PhysicalAttack02(Entity user, Entity target, int targetcount, MT19337 rng)
+		{
+			PhysicalAttack01(user, target, targetcount, rng);
+		}
+		public void PhysicalAttack03(Entity user, Entity target, int targetcount, MT19337 rng)
+		{
+			(int hit, int crit) hitrate = CalcHitRate(user, target);
+			int defense = CalcPhysicalDefense(target);
+			int damage = CalcDamageStrAttHp8x075(user);
+
+			if (rng.Between(0, 100) < hitrate.hit)
+			{
+				target.ProcessDamage(damage, defense);
+
+				hitrate = (hitrate.hit / 2, hitrate.crit);
+
+				if (rng.Between(0, 100) < hitrate.hit)
+				{
+					ApplyAilments(target);
+				}
+			}
+		}
+		public void PhysicalAttack04(Entity user, Entity target, int targetcount, MT19337 rng)
+		{
+			(int hit, int crit) hitrate = CalcHitRate(user, target);
+
+			if (ActionRoutine != ActionRoutines.PhysicalDamage7)
+			{
+				int defense = CalcPhysicalDefense(target);
+				int damage = CalcDamageStrAttHp8x075(user);
+				damage /= targetcount;
+				target.ProcessDamage(damage, defense);
+				ApplyAilments(target);
+			}
+			else
+			{
+				hitrate = (hitrate.hit / 2, hitrate.crit);
+				if (rng.Between(0, 100) < hitrate.hit)
+				{
+					ApplyAilments(target);
+				}
+			}
+		}
+		public void PhysicalAttackMultiHits(Entity user, Entity target, int targetcount, MT19337 rng)
+		{
+			(int hit, int crit) hitrate = CalcHitRate(user, target);
+			int successfulhits = 0;
+			for (int i = 0; i < NumberOfHits; i++)
+			{
+				if (rng.Between(0, 100) < hitrate.hit)
+				{
+					successfulhits++;
+				}
+			}
+
+			int defense = CalcPhysicalDefense(target);
+			int damage = 0;
+
+			if (ActionRoutine < ActionRoutines.PhysicalDamage9)
+			{
+				damage = CalcDamageStrSpdPow(user);
+			}
+			else
+			{
+				damage = CalcDamageStrAttHp8x075(user);
+			}
+
+			damage = damage * successfulhits;
+
+			if (ActionRoutine != ActionRoutines.PhysicalDamage8)
+			{
+				damage /= 2;
+			}
+
+			CalcResistance(target, damage);
+			target.ProcessDamage(damage, defense);
+		}
 		public virtual int CalcHitRate(Entity user) { return 0; }
 		//public virtual int CalcDamage(Entity user) { return 0; }
 		public void ApplyAilments(Entity target)
