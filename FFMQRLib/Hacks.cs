@@ -61,6 +61,14 @@ namespace FFMQLib
 			// move starting position in the jump pos table by one so we end on the last intended position
 			PutInBank(0x00,0xF24C, Blob.FromHex("03006300C3002301")); // F251 > F24C
 
+			// Fix Up/Down sprite animation
+			PutInBank(0x00, 0xF420, Blob.FromHex("ff043c200008053c600808ffffffffffffffffffffffff043d60fb08053d200d08ffff80048005ff"));
+			// Fix Right sprite animation
+			PutInBank(0x00, 0xF458, Blob.FromHex("ff043c200008053c600808ffffffffffffffffffffffff043d60fb088005ffff8004ff"));
+			// Fix Left sprite animation
+			PutInBank(0x00, 0xF48B, Blob.FromHex("ff043c200008053c600808ffffffffffffffffffffffff8005043d200d08ffff8004ff"));
+
+
 			// Working hack for inmap room transition, except it slow down walking speed back at 16 frames vs 8, but it works!
 			PutInBank(0x11, 0x8200, Blob.FromHex("A9028D461AA00A008C9119A90F8D26196B"));
 			Put(0x0093DD, Blob.FromHex("22008211")); // 93DC > 93DD
