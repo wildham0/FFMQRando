@@ -12,264 +12,22 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace FFMQLib
 {
-	enum BattleActionType
-	{ 
-		Damage,
-		Status,
-		DamageStats,
-		Heal,
-		Cure,
-		Multiply,
-	}
-
-	public struct GearStats
-	{
-		public int Strength;
-		public int Agility;
-		public int Speed;
-		public int Magic;
-		public int Defense;
-		public int Evade;
-		public int MagicDef;
-		public int MagicEvasion;
-		public int Acccuracy;
-		public List<ElementsType> Resistances;
-
-		public GearStats()
-		{
-			Strength = 0;
-			Agility = 0;
-			Speed = 0;
-			Magic = 0;
-			Defense = 0;
-			Evade = 0;
-			Acccuracy = 0;
-			Resistances = new();
-		}
-	}
-
-	public class GearData
-	{
-		
-	}
-
-	public enum Teams
-	{ 
-		TeamA,
-		TeamB,
-	}
-
-	public class Entity
-	{
-		public int Level;
-		public int Strength;
-		public int Agility;
-		public int Speed; 
-		public int Magic;
-		public int Accuracy => Level / 2 + 0x4B;
-		public int Evade;
-		public int MagicDef;
-		public int MagicEvasion;
-		public int Hp;
-		public int MaxHp;
-		public int Defense;
-		private int bonusStrength;
-		private int bonusAgility;
-		private int bonusSpeed;
-		private int bonusMagic;
-		private int coreStrength;
-		private int coreAgility;
-		private int coreSpeed;
-		private int coreMagic;
-		public List<ElementsType> Resistances;
-		public List<ElementsType> Weaknesses;
-		public List<ElementsType> Ailments;
-		public List<BattleAction> Actions;
-		public List<Items> Gears;
-		private MT19337 Rng;
-		public bool IsPlayer;
-		public bool IsDefending;
-		public bool IsUndead;
-		public bool IsBoss;
-		public Teams Team;
-
-		public Entity(MT19337 rng)
-		{
-			InitBen();
-			Rng = rng;
-		}
-		private void InitBen()
-		{
-			Actions = new();
-			Actions.Add(new WpSteelSword());
-
-
-			MaxHp = 40;
-			Hp = 40;
-			Level = 1;
-			coreStrength = 10;
-			coreAgility = 12;
-			coreSpeed = 8;
-			coreMagic = 15;
-			//Accuracy = Level / 2 + 0x4B;
-			Gears = new() { Items.SteelArmor, Items.SteelSword };
-			ProcessGears();
-			RestoreStats();
-
-			IsDefending = false;
-			IsPlayer = true;
-			IsUndead = false;
-			IsBoss = false;
-			Team = Teams.TeamA;
-		}
-		private void ProcessGears()
-		{
-			foreach (var gear in Gears)
-			{
-				bonusStrength += geardata[gear].Strength;
-				bonusAgility += geardata[gear].Agility;
-				bonusSpeed += geardata[gear].Speed;
-				bonusMagic += geardata[gear].Magic;
-				Defense += geardata[gear].Defense;
-				Evade += geardata[gear].Evade;
-				MagicDef += geardata[gear].MagicDef;
-				MagicEvasion += geardata[gear].MagicEvasion;
-				Resistances.AddRange(geardata[gear].Resistances);
-			}
-		}
-		public void RestoreStats()
-		{
-			Agility = coreAgility + bonusAgility + Defense;
-			Strength = coreStrength + bonusStrength;
-			Speed = coreSpeed + bonusSpeed;
-			Magic = coreMagic + bonusMagic;
-		}
-
-		public void ProcessDamage(int damage, int defense)
-		{
-			if (damage < 0)
-			{
-				Hp = Math.Min(Hp - damage, MaxHp);
-			}
-			else
-			{
-				Hp = Math.Max(Hp - Math.Max(damage - Math.Min(0xFF, defense), 1), 0);
-			}
-
-			if (Hp == 0)
-			{
-				Ailments.Add(ElementsType.Doom);
-			}
-		}
-
-		public Dictionary<Items, GearStats> geardata = new()
-		{
-			{ Items.SteelSword, new GearStats() {  } },
-			{ Items.KnightSword, new GearStats() { Speed = 5 } },
-			{ Items.Excalibur, new GearStats() { Speed = 5 } },
-			{ Items.Axe, new GearStats() { } },
-			{ Items.BattleAxe, new GearStats() { } },
-			{ Items.GiantsAxe, new GearStats() { } },
-			{ Items.CatClaw, new GearStats() { Magic = 5 } },
-			{ Items.CharmClaw, new GearStats() { Magic = 5 } },
-			{ Items.DragonClaw, new GearStats() { Magic = 5 } },
-			{ Items.Bomb, new GearStats() { } },
-			{ Items.JumboBomb, new GearStats() { } },
-			{ Items.MegaGrenade, new GearStats() { } },
-
-			{ Items.SteelHelm, new GearStats() { Defense = 4, MagicDef = 4, Evade = 5, MagicEvasion = 5, Strength = 5 } },
-			{ Items.MoonHelm, new GearStats() { Defense = 9, MagicDef = 9, Evade = 9, MagicEvasion = 9, Strength = 5, Resistances = new() { ElementsType.Fire } } },
-			{ Items.ApolloHelm, new GearStats() { Defense = 15, MagicDef = 14, Evade = 15, MagicEvasion = 14, Strength = 5, Resistances = new() { ElementsType.Fire } } },
-
-			{ Items.SteelArmor, new GearStats() { Defense = 6, MagicDef = 6, Evade = 4, MagicEvasion = 5 } },
-			{ Items.NobleArmor, new GearStats() { Defense = 12, MagicDef = 10, Evade = 10, MagicEvasion = 10, Resistances = new() { ElementsType.Water, ElementsType.Poison } } },
-			{ Items.GaiasArmor, new GearStats() { Defense = 15, MagicDef = 12, Evade = 11, MagicEvasion = 11, Resistances = new() { ElementsType.Water, ElementsType.Poison, ElementsType.Sleep, ElementsType.Air } } },
-
-			{ Items.SteelShield, new GearStats() { Defense = 5, MagicDef = 4, Evade = 6, MagicEvasion = 5, Speed = 5 } },
-			{ Items.VenusShield, new GearStats() { Defense = 10, MagicDef = 11, Evade = 12, MagicEvasion = 11, Speed = 5, Resistances = new() { ElementsType.Paralysis } } },
-			{ Items.AegisShield, new GearStats() { Defense = 14,  MagicDef = 15,Evade = 14, MagicEvasion = 15, Speed = 5, Resistances = new() { ElementsType.Paralysis, ElementsType.Stone } } },
-
-			{ Items.Charm, new GearStats() { Defense = 1, MagicDef = 2, Evade = 1, MagicEvasion = 1, Magic = 5 } },
-			{ Items.MagicRing, new GearStats() { Defense = 3,  MagicDef = 4, Evade = 3, MagicEvasion = 4, Magic = 5, Resistances = new() { ElementsType.Silence } } },
-			{ Items.CupidLocket, new GearStats() { Defense = 6,  MagicDef = 7, Evade = 6, MagicEvasion = 6, Magic = 5, Resistances = new() { ElementsType.Silence, ElementsType.Blind, ElementsType.Confusion } } },
-
-			{ Items.BowOfGrace, new GearStats() { Speed = 5 } },
-			{ Items.NinjaStar, new GearStats() { Speed = 5 } },
-
-			{ Items.ReplicaArmor, new GearStats() { Defense = 15, MagicDef = 14, Evade = 15, MagicEvasion = 15, Resistances = new() { ElementsType.Water, ElementsType.Stone } } },
-			{ Items.MysticRobes, new GearStats() { Defense = 13,  MagicDef = 15, Evade = 12, MagicEvasion = 15, Resistances = new() { ElementsType.Water, ElementsType.Air } } },
-			{ Items.FlameArmor, new GearStats() { Defense = 14,  MagicDef = 12, Evade = 14, MagicEvasion = 12, Resistances = new() { ElementsType.Fire } } },
-			{ Items.BlackRobe, new GearStats() { Defense = 13,  MagicDef = 12, Evade = 15, MagicEvasion = 14, Speed = 5, Resistances = new() { ElementsType.Doom } } },
-
-			{ Items.EtherShield, new GearStats() { Defense = 12,  MagicDef = 12, Evade = 12, MagicEvasion = 13, Speed = 5, Resistances = new() { ElementsType.Paralysis, ElementsType.Sleep, ElementsType.Zombie } } },
-		};
-	}
-
-	public enum HitRoutines
-	{ 
-		Plain,
-		Punch,
-		Sword,
-		Axe,
-		Claw,
-		Bomb,
-		Projectile,
-		Magic,
-		Speed,
-		Strength,
-		StrengthSpeed,
-		Base,
-		Hit100,
-		Hit90,
-	}
-	public enum ActionRoutines
-	{
-		None = 0x00,
-		Punch,
-		Sword,
-		Axe,
-		Claw,
-		Bomb,
-		Projectile,
-		MagicDamage1,
-		MagicDamage2,
-		MagicDamage3,
-		MagicUnknown1,
-		MagicUnknown2,
-		Life,
-		Heal,
-		MagicUnknown3,
-		PhysicalDamage1,
-		PhysicalDamage2,
-		PhysicalDamage3 = 0x10,
-		PhysicalDamage4,
-		PhysicalDamage5,
-		Ailments1,
-		PhysicalDamage6,
-		PhysicalDamage7,
-		PhysicalDamage8,
-		PhysicalDamage9,
-		PhysicalUnknown1,
-		SelfDestruct,
-		Multiply,
-		Seed,
-		PureDamage1,
-		PureDamage2,
-		Unknown1,
-		Unknown2
-	}
 	public class BattleAction
 	{
-		protected int Power;
+		public int Power;
 		//protected int CritRate;
 		protected int Accuracy;
 		protected int NumberOfHits;
 		protected List<ElementsType> Ailments;
-		protected List<ElementsType> TypeDamage;
+		public List<ElementsType> TypeDamage;
 		protected HitRoutines HitRoutine;
 		protected ActionRoutines ActionRoutine;
-		protected int Id;
+		protected Action battleAction;
+		public int Id;
+		public string Name;
 		protected bool CanCrit = true;
+		protected Targetings Targeting;
+		private Logger Log;
 
 		private static Dictionary<ActionRoutines, HitRoutines> actionToHitRoutines = new()
 		{
@@ -283,11 +41,11 @@ namespace FFMQLib
 			{ ActionRoutines.MagicDamage1, HitRoutines.Magic },
 			{ ActionRoutines.MagicDamage2, HitRoutines.Magic },
 			{ ActionRoutines.MagicDamage3, HitRoutines.Magic },
-			{ ActionRoutines.MagicUnknown1, HitRoutines.Magic },
+			{ ActionRoutines.MagicStatsDebuff, HitRoutines.Magic },
 			{ ActionRoutines.MagicUnknown2, HitRoutines.Magic },
 			{ ActionRoutines.Life, HitRoutines.Magic },
 			{ ActionRoutines.Heal, HitRoutines.Magic },
-			{ ActionRoutines.MagicUnknown3, HitRoutines.Magic },
+			{ ActionRoutines.Cure, HitRoutines.Magic },
 			{ ActionRoutines.PhysicalDamage1, HitRoutines.Speed },
 			{ ActionRoutines.PhysicalDamage2, HitRoutines.Speed },
 			{ ActionRoutines.PhysicalDamage3, HitRoutines.Strength },
@@ -306,43 +64,166 @@ namespace FFMQLib
 			{ ActionRoutines.Unknown1, HitRoutines.Plain },
 			{ ActionRoutines.Unknown2, HitRoutines.Plain },
 		};
-		public BattleAction() { }
-		//public virtual void Execute(Entity user, List<Entity> targets, MT19337 rng) { }
-
-		public void Execute(Entity user, List<Entity> targets, MT19337 rng)
+		public BattleAction(string name, int id, int power, int accuracy, ActionRoutines battleaction, List<ElementsType> type, List<ElementsType> ailments, Targetings targeting, int numberofhits = 1)
 		{
-			//(int, int) result = CalcHitRate(user);
-			//int hitrate = result.Item1;
-			//int critrate = result.Item2;
+			Name = name;
+			Id = id;
+			Power = power;
+			Accuracy = accuracy;
+			ActionRoutine = battleaction;
+			Ailments = ailments;
+			TypeDamage = type;
+			NumberOfHits = numberofhits;
+			Targeting = targeting;
+		}
+		
 
-			var damage = CalcDamage(user);
-			var targetcount = targets.Count;
+		public void Execute(Entity user, List<Entity> targets, TargetSelections targetPreference, Logger log, MT19337 rng)
+		{
+			Log = log;
+			targets = ProcessTargeting(targets, targetPreference, rng);
 
 			foreach (var target in targets)
 			{
-				(int, int) result = CalcHitRate(user, target);
-				int hitrate = result.Item1;
-				int critrate = result.Item2;
-
-
-				for (int i = 0; i < NumberOfHits; i++)
+				Log.Add(user.Name + " use " + Name + " on " + target.Name + ".");
+				switch (ActionRoutine)
 				{
-					if (rng.Between(0, 100) < hitrate)
-					{
-						if (rng.Between(0, 100) < critrate)
-						{
-							damage *= 2;
-						}
+					case ActionRoutines.None:
+						ActionNone(user, targets, rng);
+						break;
+					case ActionRoutines.Punch:
+						ActionPunch(user, target, rng);
+						break;
+					case ActionRoutines.Sword:
+						WeaponAttack(user, target, rng);
+						break;
+					case ActionRoutines.Axe:
+						WeaponAttack(user, target, rng);
+						break;
+					case ActionRoutines.Claw:
+						WeaponAttack(user, target, rng);
+						break;
+					case ActionRoutines.Bomb:
+						BombAttack(user, target, targets.Count, rng);
+						break;
+					case ActionRoutines.Projectile:
+						ProjectileAttack(user, target, rng);
+						break;
+					case ActionRoutines.MagicDamage1:
+						OffensiveMagic3Attack(user, target, targets.Count, rng);
+						break;
+					case ActionRoutines.MagicDamage2:
+						OffensiveMagic3Attack(user, target, targets.Count, rng);
+						break;
+					case ActionRoutines.MagicDamage3:
+						OffensiveMagic9Attack(user, target, targets.Count, rng);
+						break;
+					case ActionRoutines.MagicStatsDebuff:
+						StatsDebuffAttack(user, target, rng);
+						break;
+					case ActionRoutines.MagicUnknown2:
+						ActionNone(user, targets, rng);
+						break;
+					case ActionRoutines.Life:
+						CastLife(user, target, rng);
+						break;
+					case ActionRoutines.Heal:
+						CastHeal(user, target, rng);
+						break;
+					case ActionRoutines.Cure:
+						CastCure(user, target, targets.Count, rng);
+						break;
+					case ActionRoutines.PhysicalDamage1:
+						PhysicalAttack01(user, target, targets.Count, rng);
+						break;
+					case ActionRoutines.PhysicalDamage2:
+						PhysicalAttack02(user, target, targets.Count, rng);
+						break;
+					case ActionRoutines.PhysicalDamage3:
+						PhysicalAttack01(user, target, targets.Count, rng);
+						break;
+					case ActionRoutines.PhysicalDamage4:
+						PhysicalAttack01(user, target, targets.Count, rng);
+						break;
+					case ActionRoutines.Ailments1:
+						PhysicalAttack03(user, target, targets.Count, rng);
+						break;
+					case ActionRoutines.PhysicalDamage5:
+						PhysicalAttack04(user, target, targets.Count, rng);
+						break;
+					case ActionRoutines.PhysicalDamage6:
+						PhysicalAttack04(user, target, targets.Count, rng);
+						break;
+					case ActionRoutines.PhysicalDamage7:
+						PhysicalAttackMultiHits(user, target, targets.Count, rng);
+						break;
+					case ActionRoutines.PhysicalDamage8:
+						PhysicalAttackMultiHits(user, target, targets.Count, rng);
+						break;
+					case ActionRoutines.PhysicalDamage9:
+						AttackDrain(user, target, rng);
+						break;
+					case ActionRoutines.SelfDestruct:
+						AttackSelfDestruct(user, target, rng);
+						break;
+					case ActionRoutines.Multiply:
+						AttackMultiply(user, target, rng);
+						break;
+					case ActionRoutines.Seed:
+						UseSeed(user, target, rng);
+						break;
+					case ActionRoutines.PureDamage1:
+						AttackFlatDamage(user, target, rng);
+						break;
+					case ActionRoutines.PureDamage2:
+						AttackFlatDamage(user, target, rng);
+						break;
+					case ActionRoutines.Unknown1:
+						ActionNone(user, targets, rng);
+						break;
+					case ActionRoutines.Unknown2:
+						ActionNone(user, targets, rng);
+						break;
+				}
+			}
+		}
+		private List<Entity> ProcessTargeting(List<Entity> targets, TargetSelections targetingPreference, MT19337 rng)
+		{
+			List<Targetings> multipleTargeting = new() { Targetings.MultipleAlly, Targetings.SelectionAlly, Targetings.MultipleEnemy, Targetings.SelectionEnemy, Targetings.MultipleAny, Targetings.SelectionAny };
+			List<Targetings> singleTargeting = new() { Targetings.SingleAlly, Targetings.SelectionAlly, Targetings.SingleEnemy, Targetings.SelectionEnemy, Targetings.SingleAny, Targetings.SelectionAny };
 
-						damage = Math.Min(target.Hp, Math.Max(1, damage - target.Defense));
-						target.Hp = target.Hp - damage;
-						if (target.Hp == 0)
-						{
-							target.Ailments.Add(ElementsType.Doom);
-						}
+			List<TargetSelections> randomSelection = new() { TargetSelections.PrioritizeMultipleTarget, TargetSelections.PrioritizeSingleTarget };
+			if (targetingPreference == TargetSelections.RandomTargeting)
+			{
+				targetingPreference = rng.PickFrom(randomSelection);
+			}
 
-						ApplyAilments(target);
-					}
+			if (targetingPreference == TargetSelections.OverrideMultiple)
+			{
+				return targets;
+			}
+			else if (targetingPreference == TargetSelections.PrioritizeMultipleTarget)
+			{
+				if (multipleTargeting.Contains(Targeting))
+				{
+					return targets;
+				}
+				else
+				{
+					targets.Shuffle(rng);
+					return targets.GetRange(0, 1);
+				}
+			}
+			else
+			{
+				if (singleTargeting.Contains(Targeting))
+				{
+					targets.Shuffle(rng);
+					return targets.GetRange(0, 1);
+				}
+				else
+				{
+					return targets;
 				}
 			}
 		}
@@ -522,6 +403,7 @@ namespace FFMQLib
 			if (rng.Between(0, 100) < critrate)
 			{
 				damage *= 2;
+				Log.Add("Critical Hit!");
 			}
 
 			return damage;
@@ -541,6 +423,7 @@ namespace FFMQLib
 						if (!target.Resistances.Contains(ailment))
 						{
 							target.Ailments.Add(ailment);
+							Log.Add(user.Name + " inflicted " + Enum.GetName(typeof(ElementsType), ailment) + " to " + target.Name + ".");
 						}
 					}
 				}
@@ -566,6 +449,10 @@ namespace FFMQLib
 			{
 				target.ProcessDamage(damage, defense);
 			}
+			else
+			{
+				Log.Add("Miss!");
+			}
 		}
 		public void WeaponAttack(Entity user, Entity target, MT19337 rng)
 		{
@@ -581,6 +468,11 @@ namespace FFMQLib
 				target.ProcessDamage(damage, defense);
 				ApplyAilments(user, target, hitrate.hit, rng);
 			}
+			else
+			{
+				Log.Add("Miss!");
+			}
+
 		}
 		public void BombAttack(Entity user, Entity target, int targetcount, MT19337 rng)
 		{
@@ -606,8 +498,13 @@ namespace FFMQLib
 			if (rng.Between(0, 100) < hitrate.hit)
 			{
 				target.ProcessDamage(damage, defense);
-				ApplyAilments(user, target, hitrate.hit, rng);
+				ApplyAilments(user, target, 100, rng);
 			}
+			else
+			{
+				Log.Add("Miss!");
+			}
+
 		}
 		public void OffensiveMagic3Attack(Entity user, Entity target, int targetcount, MT19337 rng)
 		{
@@ -616,6 +513,7 @@ namespace FFMQLib
 			int damage = CalcDamageMagPowx3(user);
 			damage /= targetcount;
 			damage = CalcResistance(target, damage);
+			damage = CalcCrit(target, damage, hitrate.crit, rng);
 			damage = CalcWeakness(target, damage);
 			target.ProcessDamage(damage, defense);
 			// There's some weird conditional after, skip it
@@ -627,6 +525,7 @@ namespace FFMQLib
 			int damage = CalcDamageMagPowx9(user);
 			damage /= targetcount;
 			damage = CalcResistance(target, damage);
+			damage = CalcCrit(target, damage, hitrate.crit, rng);
 			damage = CalcWeakness(target, damage);
 			target.ProcessDamage(damage, defense);
 			// There's some weird conditional after, skip it
@@ -659,6 +558,11 @@ namespace FFMQLib
 						break;
 				}
 			}
+			else
+			{
+				Log.Add("Miss!");
+			}
+
 		}
 
 		public void CastLife(Entity user, Entity target, MT19337 rng)
@@ -695,7 +599,7 @@ namespace FFMQLib
 
 				if (rng.Between(0, 100) < hitrate.hit)
 				{
-					ApplyAilments(target);
+					ApplyAilments(user, target, 100, rng);
 				}
 			}
 			else
@@ -745,6 +649,7 @@ namespace FFMQLib
 				damage = CalcDamageStrAttHp8x15(user);
 			}
 			damage = CalcResistance(target, damage);
+			damage = CalcCrit(target, damage, hitrate.crit, rng);
 			damage /= targetcount;
 			target.ProcessDamage(damage, defense);
 
@@ -771,9 +676,14 @@ namespace FFMQLib
 
 				if (rng.Between(0, 100) < hitrate.hit)
 				{
-					ApplyAilments(target);
+					ApplyAilments(user, target, 100, rng);
 				}
 			}
+			else
+			{
+				Log.Add("Miss!");
+			}
+
 		}
 		public void PhysicalAttack04(Entity user, Entity target, int targetcount, MT19337 rng)
 		{
@@ -785,15 +695,20 @@ namespace FFMQLib
 				int damage = CalcDamageStrAttHp8x075(user);
 				damage /= targetcount;
 				target.ProcessDamage(damage, defense);
-				ApplyAilments(target);
+				ApplyAilments(user, target, hitrate.hit, rng);
 			}
 			else
 			{
 				hitrate = (hitrate.hit / 2, hitrate.crit);
 				if (rng.Between(0, 100) < hitrate.hit)
 				{
-					ApplyAilments(target);
+					ApplyAilments(user, target, 100, rng);
 				}
+				else
+				{
+					Log.Add("Miss!");
+				}
+
 			}
 		}
 		public void PhysicalAttackMultiHits(Entity user, Entity target, int targetcount, MT19337 rng)
@@ -806,6 +721,11 @@ namespace FFMQLib
 				{
 					successfulhits++;
 				}
+			}
+			
+			if(successfulhits == 0)
+			{
+				Log.Add("Miss!");
 			}
 
 			int defense = CalcPhysicalDefense(target);
@@ -828,55 +748,62 @@ namespace FFMQLib
 			}
 
 			CalcResistance(target, damage);
+			damage = CalcCrit(target, damage, hitrate.crit, rng);
 			target.ProcessDamage(damage, defense);
 		}
-		public virtual int CalcHitRate(Entity user) { return 0; }
-		//public virtual int CalcDamage(Entity user) { return 0; }
-		public void ApplyAilments(Entity target)
+		public void AttackDrain(Entity user, Entity target, MT19337 rng)
 		{
-			foreach (var ailment in Ailments)
-			{
-				if (!target.Resistances.Contains(ailment))
-				{
-					target.Ailments.Add(ailment);
-				}
-			}
-		}
-	}
-
-	public class WpSteelSword : BattleAction
-	{
-		public WpSteelSword()
-		{
-			Power = 10;
-			CritRate = 8;
-			Accuracy = 10;
-			Ailments = new();
-			TypeDamage = new();
-		}
-		public override int CalcHitRate(Entity user)
-		{ 
-			return (((user.Strength + user.Speed) / 8) + 0x4B + Accuracy) / 3 + (user.Accuracy / 3);
-		}
-		public override int CalcDamage(Entity user)
-		{
-			return (user.Strength + user.Speed + Power) * 2;
-		}
-	}
-
-	public class Battle
-	{
-		List<Entity> Enemies;
-		List<Entity> Heroes;
-
-		private void InitTeams()
-		{ 
+			(int hit, int crit) hitrate = CalcHitRate(user, target);
+			int defense = CalcPhysicalDefense(target);
+			int damage = CalcDamageStrAttHp8x075(user);
+			damage = CalcResistance(target, damage);
+			damage = CalcCrit(target, damage, hitrate.crit, rng);
+			target.ProcessDamage(damage, defense);
+			user.ProcessDamage(-damage, 0);
 			
-		
-		
+			// there's a level component here, but i'm not sure
 		}
-	
-	
-	}
+		public void AttackSelfDestruct(Entity user, Entity target, MT19337 rng)
+		{
+			int defense = CalcPhysicalDefense(target);
+			int damage = user.MaxHp + Power;
 
+			target.ProcessDamage(damage, defense);
+			user.ProcessDamage(user.Hp, 0);
+		}
+		public void AttackMultiply(Entity user, Entity target, MT19337 rng)
+		{
+			// yeah...?
+			// if there's space
+			(int hit, int crit) hitrate = CalcHitRate(user, target);
+			if (rng.Between(0, 100) < hitrate.hit)
+			{ 
+				// multiply
+			}
+			else
+			{
+				Log.Add("Do nothing.");
+			}
+
+		}
+		public void UseSeed(Entity user, Entity target, MT19337 rng)
+		{ 
+			// Nothing!
+		}
+
+		public void AttackFlatDamage(Entity user, Entity target, MT19337 rng)
+		{
+			int damage = Power * 8;
+			
+			if (Id == 0xD0)
+			{
+				user.ProcessDamage(-1000, 0);
+			}
+			int defense = CalcPhysicalDefense(target);
+			target.ProcessDamage(damage, defense);
+			damage = CalcResistance(target, damage);
+			//damage = CalcCrit(target, damage, hitrate.crit, rng);
+			ApplyAilments(user, target, 100, rng);
+		}
+	}
 }
