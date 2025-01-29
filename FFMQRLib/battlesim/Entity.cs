@@ -7,6 +7,7 @@ using System.Linq;
 using RomUtilities;
 using System.Reflection.Emit;
 using static System.Net.Mime.MediaTypeNames;
+using System.Runtime.CompilerServices;
 
 
 
@@ -21,26 +22,31 @@ namespace FFMQLib
 	public class Entity
 	{
 		public int Level;
-		public int Strength;
-		public int Agility;
-		public int Speed;
-		public int Magic;
+		public int Attack => Math.Max(0, coreAttack + bonusAttack - debuffAttack);
+		public int Defense => Math.Max(0, coreDefense + bonusDefense + Armor - debuffDefense);
+		public int Speed => Math.Max(0, coreSpeed + bonusSpeed - debuffSpeed);
+		public int Magic => Math.Max(0, coreMagic + bonusMagic - debuffMagic);
 		public int Accuracy => Level / 2 + 0x4B;
 		public int Evade;
-		public int MagicDef;
-		public int MagicEvasion;
+		public int MagicDefense => MagicArmor + Magic;
+		public int MagicEvade;
 		public int Hp;
 		public int MaxHp;
-		public int Defense;
+		public int Armor;
+		public int MagicArmor;
 		public string Name;
-		private int bonusStrength;
-		private int bonusAgility;
+		private int bonusAttack;
+		private int bonusDefense;
 		private int bonusSpeed;
 		private int bonusMagic;
-		private int coreStrength;
-		private int coreAgility;
+		private int coreAttack;
+		private int coreDefense;
 		private int coreSpeed;
 		private int coreMagic;
+		private int debuffAttack;
+		private int debuffDefense;
+		private int debuffSpeed;
+		private int debuffMagic;
 		public List<ElementsType> Resistances;
 		public List<ElementsType> Weaknesses;
 		public List<ElementsType> Ailments;
@@ -49,24 +55,84 @@ namespace FFMQLib
 		private List<int> weightedScript;
 		private MT19337 Rng;
 		public bool IsPlayer;
+		public bool IsBen = false;
 		public bool IsDefending;
 		public bool IsUndead;
 		public bool IsBoss;
 		public bool HydraMode;
-		public PazuzuModes PazuzuMode;
+		public PazuzuModes PazuzuMode = PazuzuModes.AttackingShieldOff;
 		public int PazuzuRound;
 		public DkModes DkMode;
 		public Teams Team;
 		public int Initiative;
 		public AiProfiles AiProfile;
+		public StoredAction NextAction;
 		public Logger Log;
+		public bool Recovered;
+		public bool Multiply = false;
+		public EnemyIds EnemyId;
+		public bool Debuffed => debuffAttack > 0 || debuffDefense > 0 || debuffSpeed > 0 || debuffMagic > 0;
+		public bool TechnicalDeath => Ailments.Intersect(tdAilments).Any();
+
+		private EnemyAttackLinks Scripts;
+
+		private List<ElementsType> tdAilments = new() { ElementsType.Doom, ElementsType.Stone };
+		private List<List<int>> scriptsWeight = new()
+		{
+			new() { 0x2d, 0x23, 0x0a, 0x0a, 0x00, 0x00, 0x00, 0x00 },
+			new() { 0x1e, 0x1e, 0x14, 0x14, 0x00, 0x00, 0x00, 0x00 },
+			new() { 0x28, 0x1e, 0x14, 0x0a, 0x00, 0x00, 0x00, 0x00 },
+			new() { 0x23, 0x19, 0x0a, 0x0a, 0x00, 0x00, 0x00, 0x00 },
+			new() { 0x19, 0x19, 0x16, 0x0a, 0x0a, 0x0a, 0x00, 0x00 },
+			new() { 0x14, 0x14, 0x14, 0x14, 0x0a, 0x08, 0x00, 0x00 },
+			new() { 0x1c, 0x17, 0x12, 0x0d, 0x0a, 0x0a, 0x00, 0x00 },
+			new() { 0x14, 0x14, 0x0a, 0x0a, 0x0a, 0x08, 0x00, 0x00 },
+			new() { 0x14, 0x0f, 0x0f, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a },
+			new() { 0x13, 0x0f, 0x0f, 0x0f, 0x0a, 0x0a, 0x0a, 0x0a },
+			new() { 0x11, 0x0d, 0x0d, 0x0d, 0x0d, 0x0d, 0x09, 0x09 },
+			new() { 0x2d, 0x23, 0x8a, 0x0a, 0x00, 0x00, 0x00, 0x00 },
+			new() { 0x23, 0x19, 0x8a, 0x0a, 0x0a, 0x0a, 0x00, 0x00 },
+			new() { 0x19, 0x19, 0x16, 0x8a, 0x0a, 0x08, 0x00, 0x00 },
+			new() { 0x14, 0x0f, 0x0f, 0x8a, 0x0a, 0x0a, 0x0a, 0x0a },
+			new() { 0x13, 0x0f, 0x0f, 0x0f, 0x89, 0x09, 0x09, 0x09 }, // 0x0F
+
+			// sps
+			
+			new() { 0x26, 0x13, 0x13, 0x05, 0x05, 0x0e, 0x00, 0x00 }, // Flamerus
+			new() { 0x14, 0x14, 0x1e, 0x0e, 0x14, 0x00, 0x00, 0x00 }, // IceGolem
+			new() { 0x2e, 0x1b, 0x1b, 0x00, 0x00, 0x00, 0x00, 0x00 }, // Hydra/Wyvern
+			new() { 0x19, 0x14, 0x19, 0x14, 0x0a, 0x00, 0x00, 0x00 }, // Pazuzu
+			new() { 0x14, 0x14, 0x14, 0x14, 0x14, 0x00, 0x00, 0x00 }, // Zuh
+			new() { 0x28, 0x14, 0x14, 0x14, 0x00, 0x00, 0x00, 0x00 }, // Dk1
+
+		};
 
 		public Entity(Logger log, MT19337 rng)
 		{
 			Rng = rng;
 			Log = log;
 		}
-		public void InitBen(PowerLevels power, Teams team)
+		public Entity(Logger log, MT19337 rng, Enemy enemy, EnemyAttackLinks scripts)
+		{
+			Rng = rng;
+			Log = log;
+			Scripts = scripts;
+			InitFromEnemy(enemy, scripts);
+		}
+		public Entity(Logger log, MT19337 rng, PowerLevels powerlevel, CompanionsId companion)
+		{
+			Rng = rng;
+			Log = log;
+			if (companion == CompanionsId.Benjamin)
+			{
+				InitBen(powerlevel);
+			}
+			else
+			{
+				InitCompanion(powerlevel, companion);
+			}
+		}
+		public void InitBen(PowerLevels power)
 		{
 			Actions = new();
 			Name = "Benjamin";
@@ -85,7 +151,7 @@ namespace FFMQLib
 				Level = 10;
 				List<Items> startingWeapons = new() { Items.KnightSword, Items.BattleAxe, Items.CharmClaw, Items.JumboBomb };
 				startingWeapon = Rng.PickFrom(startingWeapons);
-				Gears = new() { Items.NobleArmor, Items.VenusShield, Items.MoonHelm, Items.MagicRing, startingWeapon };
+				Gears = new() { Items.NobleArmor, Items.VenusShield, Items.MoonHelm, Items.CupidLocket, startingWeapon };
 				Actions.AddRange(new List<BattleAction>() { Battle.BattleActions[(int)Items.CureBook], Battle.BattleActions[(int)Items.BlizzardBook], Battle.BattleActions[(int)Items.ThunderSeal] });
 			}
 			else if (power == PowerLevels.Strong)
@@ -102,16 +168,41 @@ namespace FFMQLib
 				List<Items> startingWeapons = new() { Items.Excalibur, Items.GiantsAxe, Items.DragonClaw, Items.MegaGrenade };
 				startingWeapon = Rng.PickFrom(startingWeapons);
 				Gears = new() { Items.GaiasArmor, Items.AegisShield, Items.ApolloHelm, Items.CupidLocket, startingWeapon };
-				Actions.AddRange(new List<BattleAction>() { Battle.BattleActions[(int)Items.CureBook], Battle.BattleActions[(int)Items.LifeBook], Battle.BattleActions[(int)Items.FlareSeal], Battle.BattleActions[(int)Items.AeroBook] });
+				Actions.AddRange(new List<BattleAction>() { Battle.BattleActions[(int)Items.CureBook], Battle.BattleActions[(int)Items.LifeBook], Battle.BattleActions[(int)Items.WhiteSeal], Battle.BattleActions[(int)Items.MeteorSeal], Battle.BattleActions[(int)Items.FlareSeal], Battle.BattleActions[(int)Items.AeroBook] });
+			}
+			else if (power == PowerLevels.Plain10)
+			{
+				Level = 10;
+				List<Items> startingWeapons = new() { Items.Excalibur, Items.GiantsAxe, Items.DragonClaw, Items.MegaGrenade };
+				startingWeapon = Rng.PickFrom(startingWeapons);
+				Gears = new() { Items.SteelArmor, Items.SteelHelm, Items.SteelShield, startingWeapon };
+				Actions.AddRange(new List<BattleAction>() { Battle.BattleActions[(int)Items.CureBook], Battle.BattleActions[(int)Items.LifeBook], Battle.BattleActions[(int)Items.WhiteSeal], Battle.BattleActions[(int)Items.MeteorSeal], Battle.BattleActions[(int)Items.FlareSeal], Battle.BattleActions[(int)Items.AeroBook] });
+			}
+			else if (power == PowerLevels.Plain20)
+			{
+				Level = 20;
+				List<Items> startingWeapons = new() { Items.Excalibur, Items.GiantsAxe, Items.DragonClaw, Items.MegaGrenade };
+				startingWeapon = Rng.PickFrom(startingWeapons);
+				Gears = new() { Items.SteelArmor, Items.SteelHelm, Items.SteelShield, startingWeapon };
+				Actions.AddRange(new List<BattleAction>() { Battle.BattleActions[(int)Items.CureBook], Battle.BattleActions[(int)Items.LifeBook], Battle.BattleActions[(int)Items.WhiteSeal], Battle.BattleActions[(int)Items.MeteorSeal], Battle.BattleActions[(int)Items.FlareSeal], Battle.BattleActions[(int)Items.AeroBook] });
+			}
+			else if (power == PowerLevels.Plain30)
+			{
+				Level = 30;
+				List<Items> startingWeapons = new() { Items.Excalibur, Items.GiantsAxe, Items.DragonClaw, Items.MegaGrenade };
+				startingWeapon = Rng.PickFrom(startingWeapons);
+				Gears = new() { Items.SteelArmor, Items.SteelHelm, Items.SteelShield, startingWeapon };
+				Actions.AddRange(new List<BattleAction>() { Battle.BattleActions[(int)Items.CureBook], Battle.BattleActions[(int)Items.LifeBook], Battle.BattleActions[(int)Items.WhiteSeal], Battle.BattleActions[(int)Items.MeteorSeal], Battle.BattleActions[(int)Items.FlareSeal], Battle.BattleActions[(int)Items.AeroBook] });
 			}
 
 			Actions.Add(Battle.BattleActions[(int)startingWeapon]);
-			
+			Actions.Add(Battle.BattleActions[(int)Items.Refresher]);
+
 			MaxHp = 40 * Level;
 			Hp = MaxHp;
 
-			coreStrength = 4 + 3 * Level;
-			coreAgility = 4 + 2 * Level;
+			coreAttack = 4 + 3 * Level;
+			coreDefense = 4 + 2 * Level;
 			coreSpeed = 6 + 2 * Level;
 			coreMagic = 9 + Level;
 
@@ -124,9 +215,11 @@ namespace FFMQLib
 
 			IsDefending = false;
 			IsPlayer = true;
+			IsBen = true;
 			IsUndead = false;
 			IsBoss = false;
-			Team = team;
+			Recovered = false;
+			Team = Teams.TeamA;
 			weightedScript = new();
 			AiProfile = AiProfiles.Player;
 		}
@@ -165,17 +258,18 @@ namespace FFMQLib
 			{ SpellFlags.MeteorSeal, Items.MeteorSeal },
 			{ SpellFlags.FlareSeal, Items.FlareSeal },
 		};
-		public void InitCompanion(PowerLevels power, Teams team)
+		public CompanionsId InitCompanion(PowerLevels power, CompanionsId currentcompanion)
 		{
 			Actions = new();
 			Companions companions = new(LevelingType.QuestsExtended);
 
-			List<CompanionsId> validcompanions = new() { CompanionsId.Kaeli, CompanionsId.Reuben, CompanionsId.Tristam, CompanionsId.Phoebe };
-			var currentcompanion = Rng.PickFrom(validcompanions);
+			List<CompanionsId> validcompanions = new() { CompanionsId.Kaeli, CompanionsId.Reuben, CompanionsId.Phoebe, CompanionsId.Tristam };
+			//var currentcompanion = Rng.PickFrom(validcompanions);
 			var companion = companions[currentcompanion];
 
-
 			Name = Enum.GetName(typeof(CompanionsId), currentcompanion);
+			power = PowerLevels.Strong;
+
 			if (power == PowerLevels.Initial)
 			{
 				Level = 7;
@@ -193,18 +287,41 @@ namespace FFMQLib
 			}
 			else if (power == PowerLevels.Godly)
 			{
-				Level = 31;
+				Level = 34;
 				Gears = companion.ArmorSet2.Select(a => armorFlagsToItems[a]).Append(companion.Weapon).ToList();
+			}
+			else if (power == PowerLevels.Plain10)
+			{
+				Level = 15;
+				Gears = new() { Items.SteelArmor, Items.SteelHelm, Items.SteelShield, companion.Weapon };
+			}
+			else if (power == PowerLevels.Plain20)
+			{
+				Level = 25;
+				Gears = new() { Items.SteelArmor, Items.SteelHelm, Items.SteelShield, companion.Weapon };
+			}
+			else if (power == PowerLevels.Plain30)
+			{
+				Level = 35;
+				Gears = new() { Items.SteelArmor, Items.SteelHelm, Items.SteelShield, companion.Weapon };
 			}
 
 			Actions.Add(Battle.BattleActions[(int)companion.Weapon]);
-			//Actions.AddRange(companion.LoadOut)
+			Actions.Add(Battle.BattleActions[(int)Items.Refresher]);
+			int loadoutselect = Level < 23 ? 0 : 1;
+
+			var loadOut = companion.LoadOut[loadoutselect];
+
+			if (loadOut.Spells.Any())
+			{
+				Actions.AddRange(loadOut.Spells.Select(s => Battle.BattleActions[(int)spellFlagsToItems[s]]).ToList());
+			}
 
 			MaxHp = companion.HPBase + 40 * Level;
 			Hp = MaxHp;
 
-			coreStrength = companion.StrBase + companion.StrMultiplier * Level;
-			coreAgility = companion.ConBase + companion.ConMultiplier * Level;
+			coreAttack = companion.AttBase + companion.AttMultiplier * Level;
+			coreDefense = companion.DefBase + companion.DefMultiplier * Level;
 			coreSpeed = companion.SpdBase + companion.SpdMultiplier * Level;
 			coreMagic = companion.MagBase + companion.MagMultiplier * Level;
 
@@ -219,29 +336,32 @@ namespace FFMQLib
 			IsPlayer = true;
 			IsUndead = false;
 			IsBoss = false;
-			Team = team;
+			Recovered = false;
+			Team = Teams.TeamA;
 			weightedScript = new();
-			AiProfile = AiProfiles.Player;
+			AiProfile = AiProfiles.Companion;
+
+			return currentcompanion;
 		}
-		public void InitBehemoth(Teams team)
+		public void InitFromEnemy(Enemy enemy, EnemyAttackLinks scripts)
 		{
-			Actions = new() { Battle.BattleActions[0x7C] };
+			Name = Enum.GetName(typeof(EnemyIds), enemy.Id);
 
-			Name = "Behemoth";
+			EnemyId = enemy.Id;
 
-			MaxHp = 0x50;
-			Hp = 0x50;
-			Level = 1;
-			coreStrength = 0x01;
-			coreAgility = 0x19;
-			coreSpeed = 0x0C;
-			coreMagic = 0x01;
-			MagicDef = 0x01;
-			MagicEvasion = 0x01;
-			Evade = 0x01;
+			MaxHp = enemy.HP;
+			Hp = enemy.HP;
+			Level = enemy.Level;
+			coreAttack = enemy.Attack;
+			coreDefense = enemy.Defense;
+			coreSpeed = enemy.Speed;
+			coreMagic = enemy.Magic;
+			MagicArmor = enemy.MagicDefense;
+			MagicEvade = enemy.MagicEvade;
+			Evade = enemy.Evade;
 
-			Resistances = new();
-			Weaknesses = new();
+			Resistances = enemy.Resistances;
+			Weaknesses = enemy.Weaknesses;
 			Ailments = new();
 
 			RestoreStats();
@@ -249,23 +369,71 @@ namespace FFMQLib
 			IsDefending = false;
 			IsPlayer = false;
 			IsUndead = false;
-			IsBoss = false;
-			weightedScript = new() { 0x2D, 0x23, 0x0A, 0x0A, 0x00, 0x00 };
-			AiProfile = AiProfiles.Enemy;
+			IsBoss = enemy.Id > EnemyIds.Minotaur || (enemy.Id == EnemyIds.StoneGolem) || (enemy.Id == EnemyIds.SkullrusRex);
+			Recovered = false;
+			Team = Teams.TeamB;
+			weightedScript = scriptsWeight[scripts[(int)enemy.Id].AttackPattern].ToList();
 
-			Team = team;
+			AiProfile =	AiProfiles.Enemy;
+
+			switch (enemy.Id)
+			{
+				case EnemyIds.FlamerusRex:
+					weightedScript = scriptsWeight[0x10].ToList();
+					break;
+				case EnemyIds.IceGolem:
+					weightedScript = scriptsWeight[0x11].ToList();
+					AiProfile = AiProfiles.IceGolem;
+					break;
+				case EnemyIds.DualheadHydra:
+					weightedScript = scriptsWeight[0x12].ToList();
+					AiProfile = AiProfiles.Hydra;
+					break;
+				case EnemyIds.TwinheadWyvern:
+					weightedScript = scriptsWeight[0x12].ToList();
+					AiProfile = AiProfiles.Hydra;
+					break;
+				case EnemyIds.Pazuzu:
+					weightedScript = scriptsWeight[0x13].ToList();
+					AiProfile = AiProfiles.Pazuzu;
+					break;
+				case EnemyIds.Zuh:
+					weightedScript = scriptsWeight[0x14].ToList();
+					AiProfile = AiProfiles.Pazuzu;
+					break;
+				case EnemyIds.DarkKing:
+					weightedScript = scriptsWeight[0x15].ToList();
+					AiProfile = AiProfiles.DarkKing;
+					break;
+			}
+
+
+			var stongolemlist = new List<int> { 0xB2, 0x88, 0xB7, 0xFF, 0xFF, 0xFF };
+			Actions = scripts[(int)enemy.Id].Attacks.Select(a => Battle.BattleActions[a]).ToList();
+			//Actions = stongolemlist.Select(a => Battle.BattleActions[a]).ToList();
+			if (enemy.Id == EnemyIds.IceGolem)
+			{
+				Actions.Add(Battle.BattleActions[0x8A]);
+			}
+
 		}
-
 		public void RollInitiative(MT19337 rng)
 		{
 			Initiative = Speed + rng.Between(0, Speed / 2);
+		}
+		public void PlayerPickAction(List<Entity> battlers, MT19337 rng)
+		{
+			PlayerAi(battlers, rng);
 		}
 		public void DoRound(List<Entity> battlers, MT19337 rng)
 		{
 			switch (AiProfile)
 			{
 				case AiProfiles.Player:
-					PlayerAi(battlers, rng);
+					PlayerActionAi(battlers, rng);
+					break;
+				case AiProfiles.Companion:
+					CompanionAi(battlers, rng);
 					break;
 				case AiProfiles.Enemy:
 					EnemyAi(battlers, rng);
@@ -279,12 +447,25 @@ namespace FFMQLib
 				case AiProfiles.Pazuzu:
 					PazuzuAi(battlers, rng);
 					break;
+				case AiProfiles.DarkKing:
+					DarkKingAi(battlers, rng);
+					break;
 			}
 		}
 		private void EnemyAi(List<Entity> battlers, MT19337 rng)
 		{
 			bool foundaction = false;
 			int actionpos = 0;
+
+			for (int i = 0; i < 6; i++)
+			{
+				if ((weightedScript[i] & 0x80) > 0)
+				{
+					actionpos = i;
+					foundaction = true;
+					weightedScript[i] &= 0x7F;
+				}
+			}
 
 			while (!foundaction)
 			{
@@ -293,7 +474,7 @@ namespace FFMQLib
 				{
 					if (roll < weightedScript[i])
 					{
-						if (i < Actions.Count)
+						if (i < Actions.Count && Actions[i].Id != 0xFF)
 						{
 							actionpos = i;
 							foundaction = true;
@@ -346,7 +527,7 @@ namespace FFMQLib
 			{
 				PazuzuMode++;
 
-				if (PazuzuMode > PazuzuModes.DeactivteShield)
+				if (PazuzuMode > PazuzuModes.DeactivateShield)
 				{
 					PazuzuMode = PazuzuModes.AttackingShieldOff;
 				}
@@ -354,7 +535,37 @@ namespace FFMQLib
 
 			EnemyAi(battlers, rng);
 		}
+		private void DarkKingAi(List<Entity> battlers, MT19337 rng)
+		{
+			if (DkMode == DkModes.Phase1 && Hp < (MaxHp * 0.75))
+			{
+				DkMode = DkModes.Phase2;
+				Actions = Scripts[(int)EnemyIds.DarkKing + 1].Attacks.Select(a => Battle.BattleActions[a]).ToList();
+				//Actions = new() { Battle.BattleActions[0xCD], Battle.BattleActions[0xCC], Battle.BattleActions[0xCB], Battle.BattleActions[0xCF], Battle.BattleActions[0xCE], Battle.BattleActions[0xD0] };
+				weightedScript = new() { 0x14, 0x14, 0x14, 0x94, 0x0A, 0x0A };
+			}
+			else if (DkMode == DkModes.Phase2 && Hp < (MaxHp * 0.5))
+			{
+				DkMode = DkModes.Phase34;
+				Actions = Scripts[(int)EnemyIds.DarkKing + 2].Attacks.Select(a => Battle.BattleActions[a]).ToList();
+				//Actions = new() { Battle.BattleActions[0xD1], Battle.BattleActions[0xD2], Battle.BattleActions[0xD3], Battle.BattleActions[0xD4], Battle.BattleActions[0xD5], Battle.BattleActions[0xD6] };
+				weightedScript = new() { 0x14, 0x14, 0x8C, 0x0C, 0x12, 0x12 };
+			}
 
+			EnemyAi(battlers, rng);
+		}
+		private void PlayerActionAi(List<Entity> battlers, MT19337 rng)
+		{
+			List<ElementsType> disablingAilments = new() { ElementsType.Doom, ElementsType.Stone };
+			NextAction.Execute(battlers.Where(b => b.Team != Team && !b.Ailments.Intersect(disablingAilments).Any()).ToList());
+		}
+
+		private void CompanionAi(List<Entity> battlers, MT19337 rng)
+		{
+			List<ElementsType> disablingAilments = new() { ElementsType.Doom, ElementsType.Stone };
+			PlayerAi(battlers, rng);
+			NextAction.Execute(battlers.Where(b => b.Team != Team && !b.Ailments.Intersect(disablingAilments).Any()).ToList());
+		}
 		private void PlayerAi(List<Entity> battlers, MT19337 rng)
 		{
 			List<ElementsType> disablingAilments = new() { ElementsType.Doom, ElementsType.Stone };
@@ -370,46 +581,61 @@ namespace FFMQLib
 				var incapacitedAllies = validAllyTargets.Where(t => t.Ailments.Contains(ElementsType.Paralysis) || t.Ailments.Contains(ElementsType.Confusion) || t.Ailments.Contains(ElementsType.Sleep)).ToList();
 				var poisonedBlindedAllies = validAllyTargets.Where(t => t.Ailments.Contains(ElementsType.Poison) || t.Ailments.Contains(ElementsType.Blind)).ToList();
 				var statusAllies = validAllyTargets.Where(t => t.Ailments.Except(new List<ElementsType>() { ElementsType.Doom }).Any()).ToList();
-				var criticalAllies = validAllyTargets.Where(t => t.Hp < t.MaxHp / 2).ToList();
+				var criticalAllies = validAllyTargets.Where(t => t.Hp < t.MaxHp / 2 && !t.TechnicalDeath).ToList();
+				var debuffedAllies = validAllyTargets.Where(t => t.Debuffed && !t.TechnicalDeath).ToList();
 
 				BattleAction lifeaction;
 				BattleAction healaction;
 				BattleAction cureaction;
+				BattleAction refresher;
 
 				bool haslife = Actions.TryFind(a => a.Id == 0x17, out lifeaction);
 				bool hasheal = Actions.TryFind(a => a.Id == 0x16, out healaction);
 				bool hascure = Actions.TryFind(a => a.Id == 0x15, out cureaction);
+				bool hasrefressher = Actions.TryFind(a => a.Id == 0x13, out refresher);
 
 				if (!tookaction && deadAllies.Any() && haslife)
 				{
-					lifeaction.Execute(this, deadAllies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
+					NextAction = new StoredAction(lifeaction, this, deadAllies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
 					tookaction = true;
 				}
 				else if (!tookaction && statusAllies.Any() && (haslife || hasheal))
 				{
 					if (haslife)
 					{
-						lifeaction.Execute(this, statusAllies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
+						NextAction = new StoredAction(lifeaction, this, statusAllies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
 						tookaction = true;
 					}
 					else
 					{
-						healaction.Execute(this, statusAllies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
+						NextAction = new StoredAction(healaction, this, statusAllies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
 						tookaction = true;
 					}
 				}
 				else if (!tookaction && criticalAllies.Any() && (haslife || hascure))
 				{
+					var enemies = battlers.Where(b => b.Team != Team).ToList();
+					var ally = battlers.Where(b => b.Team == Team && b.Name != Name).ToList();
+					/*
+					int enemiesInit = (int)(enemies.OrderByDescending(e => e.Speed).First().Speed * 1.5);
+					int myInit = (int)(Speed * 1.5);
+					int allyInit = 0;
+					if (ally.Any())
+					{
+						allyInit = (int)(ally.First().Speed * 1.5);
+					}*/
+
+
 					if (criticalAllies.Count == 1)
 					{
 						if (haslife)
 						{
-							lifeaction.Execute(this, criticalAllies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
+							NextAction = new StoredAction(lifeaction, this, criticalAllies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
 							tookaction = true;
 						}
 						else
 						{
-							cureaction.Execute(this, criticalAllies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
+							NextAction = new StoredAction(cureaction, this, criticalAllies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
 							tookaction = true;
 						}
 					}
@@ -417,77 +643,90 @@ namespace FFMQLib
 					{
 						if (hascure)
 						{
-							cureaction.Execute(this, criticalAllies, TargetSelections.PrioritizeMultipleTarget, Log, rng);
+							NextAction = new StoredAction(cureaction, this, criticalAllies, TargetSelections.PrioritizeMultipleTarget, Log, rng);
 							tookaction = true;
 
 						}
 						else
 						{
-							lifeaction.Execute(this, criticalAllies.OrderBy(a => a.Hp).ToList().GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
+							NextAction = new StoredAction(lifeaction, this, criticalAllies.OrderBy(a => a.Hp).ToList().GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
 							tookaction = true;
 						}
 					}
 				}
-
-				List<int> validAttackId = Enumerable.Range(0x18, 0x18).ToList();
-
-				if (!tookaction)
+				else if (debuffedAllies.Any())
 				{
-					// if we can't heal or are confused, then just attack
-					if (Ailments.Contains(ElementsType.Confusion))
-					{
-						// pick a side, then just pick a random attack
-						if (rng.Between(0, 100) < 50) // confirm odds;
-						{
-							validEnemyTargets = validAllyTargets.Where(a => !a.Ailments.Contains(ElementsType.Doom) && !a.Ailments.Contains(ElementsType.Stone)).ToList();
-						}
-
-						List<BattleAction> validActions = Actions.Where(a => validAttackId.Contains(a.Id)).ToList();
-						rng.PickFrom(validActions).Execute(this, validEnemyTargets, TargetSelections.RandomTargeting, Log, rng);
-					}
-					else
-					{
-						List<ElementsType> weaknesses = validEnemyTargets.SelectMany(e => e.Weaknesses).ToList();
-						List<BattleAction> validActions = Actions.Where(a => validAttackId.Contains(a.Id)).ToList();
-						validActions = validActions.OrderByDescending(a => a.Power).ToList();
-						validActions = validActions.OrderByDescending(a => a.TypeDamage.Intersect(weaknesses).Any()).ToList();
-
-						validActions.First().Execute(this, validEnemyTargets, TargetSelections.PrioritizeMultipleTarget, Log, rng);
-					}
+					NextAction = new StoredAction(refresher, this, debuffedAllies, TargetSelections.PrioritizeSingleTarget, Log, rng);
+					tookaction = true;
 				}
 			}
+			
+			List<int> validAttackId = Enumerable.Range(0x18, 0x18).ToList();
+			List<int> physicalAttackId = Enumerable.Range(0x20, 0x0F).ToList();
 
+			if (!tookaction)
+			{
+				// if we can't heal or are confused, then just attack
+				if (Ailments.Contains(ElementsType.Confusion))
+				{
+					// pick a side, then just pick a random attack
+					if (rng.Between(0, 100) < 50) // confirm odds;
+					{
+						validEnemyTargets = validAllyTargets.Where(a => !a.Ailments.Contains(ElementsType.Doom) && !a.Ailments.Contains(ElementsType.Stone)).ToList();
+					}
 
+					List<BattleAction> validActions = Actions.Where(a => validAttackId.Contains(a.Id)).ToList();
+					NextAction = new StoredAction(rng.PickFrom(validActions), this, validEnemyTargets, TargetSelections.RandomTargeting, Log, rng);
+				}
+				else
+				{
+					List<(int power, BattleAction action)> priorityCast = new();
+						
+					List<ElementsType> weaknesses = validEnemyTargets.SelectMany(e => e.Weaknesses).ToList();
+					List<ElementsType> resistances = validEnemyTargets.SelectMany(e => e.Resistances).ToList();
+					List<BattleAction> validActions = Actions.Where(a => validAttackId.Contains(a.Id)).ToList();
+					priorityCast = validActions.Select(a => (a.RelativePower(resistances, weaknesses), a)).ToList();
+					priorityCast = priorityCast.OrderByDescending(a => a.power).ToList();
 
+					if (validEnemyTargets.Where(v => v.PazuzuMode == PazuzuModes.AttackingShieldOn || v.PazuzuMode == PazuzuModes.DeactivateShield).Any())
+					{
+						priorityCast = priorityCast.Where(c => physicalAttackId.Contains(c.action.Id)).ToList();
+					}
 
+					NextAction = new StoredAction(priorityCast.First().action, this, validEnemyTargets, TargetSelections.PrioritizeMultipleTarget, Log, rng);
+				}
+			}
+		}
 
-
-
-
-
+		public void ApplyDebuff(int str, int agi, int spd, int mag)
+		{
+			debuffAttack += str;
+			debuffDefense += agi;
+			debuffSpeed += spd;
+			debuffMagic += mag;
 		}
 
 		private void ProcessGears()
 		{
 			foreach (var gear in Gears)
 			{
-				bonusStrength += geardata[gear].Strength;
-				bonusAgility += geardata[gear].Agility;
-				bonusSpeed += geardata[gear].Speed;
-				bonusMagic += geardata[gear].Magic;
-				Defense += geardata[gear].Defense;
+				bonusAttack += geardata[gear].AttackBonus;
+				bonusDefense += geardata[gear].DefenseBonus;
+				bonusSpeed += geardata[gear].SpeedBonus;
+				bonusMagic += geardata[gear].MagicBonus;
+				Armor += geardata[gear].Armor;
 				Evade += geardata[gear].Evade;
-				MagicDef += geardata[gear].MagicDef;
-				MagicEvasion += geardata[gear].MagicEvasion;
+				MagicArmor += geardata[gear].MagicArmor;
+				MagicEvade += geardata[gear].MagicEvade;
 				Resistances.AddRange(geardata[gear].Resistances);
 			}
 		}
 		public void RestoreStats()
 		{
-			Agility = coreAgility + bonusAgility + Defense;
-			Strength = coreStrength + bonusStrength;
-			Speed = coreSpeed + bonusSpeed;
-			Magic = coreMagic + bonusMagic;
+			debuffAttack = 0;
+			debuffDefense = 0;
+			debuffSpeed = 0;
+			debuffMagic = 0;
 		}
 
 		public void ProcessDamage(int damage, int defense)
@@ -513,43 +752,44 @@ namespace FFMQLib
 		public Dictionary<Items, GearStats> geardata = new()
 		{
 			{ Items.SteelSword, new GearStats() {  } },
-			{ Items.KnightSword, new GearStats() { Speed = 5 } },
-			{ Items.Excalibur, new GearStats() { Speed = 5 } },
+			{ Items.KnightSword, new GearStats() { SpeedBonus = 5 } },
+			{ Items.Excalibur, new GearStats() { SpeedBonus = 5 } },
 			{ Items.Axe, new GearStats() { } },
 			{ Items.BattleAxe, new GearStats() { } },
 			{ Items.GiantsAxe, new GearStats() { } },
-			{ Items.CatClaw, new GearStats() { Magic = 5 } },
-			{ Items.CharmClaw, new GearStats() { Magic = 5 } },
-			{ Items.DragonClaw, new GearStats() { Magic = 5 } },
+			{ Items.CatClaw, new GearStats() { MagicBonus = 5 } },
+			{ Items.CharmClaw, new GearStats() { MagicBonus = 5 } },
+			{ Items.DragonClaw, new GearStats() { MagicBonus = 5 } },
 			{ Items.Bomb, new GearStats() { } },
 			{ Items.JumboBomb, new GearStats() { } },
 			{ Items.MegaGrenade, new GearStats() { } },
 
-			{ Items.SteelHelm, new GearStats() { Defense = 4, MagicDef = 4, Evade = 5, MagicEvasion = 5, Strength = 5 } },
-			{ Items.MoonHelm, new GearStats() { Defense = 9, MagicDef = 9, Evade = 9, MagicEvasion = 9, Strength = 5, Resistances = new() { ElementsType.Fire } } },
-			{ Items.ApolloHelm, new GearStats() { Defense = 15, MagicDef = 14, Evade = 15, MagicEvasion = 14, Strength = 5, Resistances = new() { ElementsType.Fire } } },
+			{ Items.SteelHelm, new GearStats() { Armor = 4, MagicArmor = 4, Evade = 5, MagicEvade = 5, AttackBonus = 5 } },
+			{ Items.MoonHelm, new GearStats() { Armor = 9, MagicArmor = 9, Evade = 9, MagicEvade = 9, AttackBonus = 5, Resistances = new() { ElementsType.Fire } } },
+			{ Items.ApolloHelm, new GearStats() { Armor = 15, MagicArmor = 14, Evade = 15, MagicEvade = 14, AttackBonus = 5, Resistances = new() { ElementsType.Fire } } },
 
-			{ Items.SteelArmor, new GearStats() { Defense = 6, MagicDef = 6, Evade = 4, MagicEvasion = 5 } },
-			{ Items.NobleArmor, new GearStats() { Defense = 12, MagicDef = 10, Evade = 10, MagicEvasion = 10, Resistances = new() { ElementsType.Water, ElementsType.Poison } } },
-			{ Items.GaiasArmor, new GearStats() { Defense = 15, MagicDef = 12, Evade = 11, MagicEvasion = 11, Resistances = new() { ElementsType.Water, ElementsType.Poison, ElementsType.Sleep, ElementsType.Air } } },
+			{ Items.SteelArmor, new GearStats() { Armor = 6, MagicArmor = 6, Evade = 4, MagicEvade = 5 } },
+			{ Items.NobleArmor, new GearStats() { Armor = 12, MagicArmor = 10, Evade = 10, MagicEvade = 10, Resistances = new() { ElementsType.Water, ElementsType.Poison } } },
+			{ Items.GaiasArmor, new GearStats() { Armor = 15, MagicArmor = 12, Evade = 11, MagicEvade = 11, Resistances = new() { ElementsType.Water, ElementsType.Poison, ElementsType.Sleep, ElementsType.Air } } },
 
-			{ Items.SteelShield, new GearStats() { Defense = 5, MagicDef = 4, Evade = 6, MagicEvasion = 5, Speed = 5 } },
-			{ Items.VenusShield, new GearStats() { Defense = 10, MagicDef = 11, Evade = 12, MagicEvasion = 11, Speed = 5, Resistances = new() { ElementsType.Paralysis } } },
-			{ Items.AegisShield, new GearStats() { Defense = 14,  MagicDef = 15,Evade = 14, MagicEvasion = 15, Speed = 5, Resistances = new() { ElementsType.Paralysis, ElementsType.Stone } } },
+			{ Items.SteelShield, new GearStats() { Armor = 5, MagicArmor = 4, Evade = 6, MagicEvade = 5, SpeedBonus = 5 } },
+			{ Items.VenusShield, new GearStats() { Armor = 10, MagicArmor = 11, Evade = 12, MagicEvade = 11, SpeedBonus = 5, Resistances = new() { ElementsType.Paralysis } } },
+			{ Items.AegisShield, new GearStats() { Armor = 14,  MagicArmor = 15,Evade = 14, MagicEvade = 15, SpeedBonus = 5, Resistances = new() { ElementsType.Paralysis, ElementsType.Stone } } },
 
-			{ Items.Charm, new GearStats() { Defense = 1, MagicDef = 2, Evade = 1, MagicEvasion = 1, Magic = 5 } },
-			{ Items.MagicRing, new GearStats() { Defense = 3,  MagicDef = 4, Evade = 3, MagicEvasion = 4, Magic = 5, Resistances = new() { ElementsType.Silence } } },
-			{ Items.CupidLocket, new GearStats() { Defense = 6,  MagicDef = 7, Evade = 6, MagicEvasion = 6, Magic = 5, Resistances = new() { ElementsType.Silence, ElementsType.Blind, ElementsType.Confusion } } },
+			{ Items.Charm, new GearStats() { Armor = 1, MagicArmor = 2, Evade = 1, MagicEvade = 1, MagicBonus = 5 } },
+			{ Items.MagicRing, new GearStats() { Armor = 3,  MagicArmor = 4, Evade = 3, MagicEvade = 4, MagicBonus = 5, Resistances = new() { ElementsType.Silence } } },
+			{ Items.CupidLocket, new GearStats() { Armor = 6,  MagicArmor = 7, Evade = 6, MagicEvade = 6, MagicBonus = 5, Resistances = new() { ElementsType.Silence, ElementsType.Blind, ElementsType.Confusion } } },
 
-			{ Items.BowOfGrace, new GearStats() { Speed = 5 } },
-			{ Items.NinjaStar, new GearStats() { Speed = 5 } },
+			{ Items.BowOfGrace, new GearStats() { SpeedBonus = 5 } },
+			{ Items.NinjaStar, new GearStats() { SpeedBonus = 5 } },
+			{ Items.MorningStar, new GearStats() },
 
-			{ Items.ReplicaArmor, new GearStats() { Defense = 15, MagicDef = 14, Evade = 15, MagicEvasion = 15, Resistances = new() { ElementsType.Water, ElementsType.Stone } } },
-			{ Items.MysticRobes, new GearStats() { Defense = 13,  MagicDef = 15, Evade = 12, MagicEvasion = 15, Resistances = new() { ElementsType.Water, ElementsType.Air } } },
-			{ Items.FlameArmor, new GearStats() { Defense = 14,  MagicDef = 12, Evade = 14, MagicEvasion = 12, Resistances = new() { ElementsType.Fire } } },
-			{ Items.BlackRobe, new GearStats() { Defense = 13,  MagicDef = 12, Evade = 15, MagicEvasion = 14, Speed = 5, Resistances = new() { ElementsType.Doom } } },
+			{ Items.ReplicaArmor, new GearStats() { Armor = 15, MagicArmor = 14, Evade = 15, MagicEvade = 15, Resistances = new() { ElementsType.Water, ElementsType.Stone } } },
+			{ Items.MysticRobes, new GearStats() { Armor = 13,  MagicArmor = 15, Evade = 12, MagicEvade = 15, Resistances = new() { ElementsType.Water, ElementsType.Air } } },
+			{ Items.FlameArmor, new GearStats() { Armor = 14,  MagicArmor = 12, Evade = 14, MagicEvade = 12, Resistances = new() { ElementsType.Fire } } },
+			{ Items.BlackRobe, new GearStats() { Armor = 13,  MagicArmor = 12, Evade = 15, MagicEvade = 14, SpeedBonus = 5, Resistances = new() { ElementsType.Doom } } },
 
-			{ Items.EtherShield, new GearStats() { Defense = 12,  MagicDef = 12, Evade = 12, MagicEvasion = 13, Speed = 5, Resistances = new() { ElementsType.Paralysis, ElementsType.Sleep, ElementsType.Zombie } } },
+			{ Items.EtherShield, new GearStats() { Armor = 12,  MagicArmor = 12, Evade = 12, MagicEvade = 13, SpeedBonus = 5, Resistances = new() { ElementsType.Paralysis, ElementsType.Sleep, ElementsType.Zombie } } },
 		};
 	}
 }

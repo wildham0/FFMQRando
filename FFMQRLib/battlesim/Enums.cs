@@ -30,10 +30,12 @@ namespace FFMQLib
 	public enum AiProfiles
 	{ 
 		Player,
+		Companion,
 		Enemy,
 		IceGolem,
 		Hydra,
-		Pazuzu
+		Pazuzu,
+		DarkKing
 	}
 	public enum TargetSelections
 	{ 
@@ -48,7 +50,10 @@ namespace FFMQLib
 		Initial,
 		Intermediate,
 		Strong,
-		Godly
+		Godly,
+		Plain10,
+		Plain20,
+		Plain30,
 	}
 
 	public enum HitRoutines
@@ -122,7 +127,7 @@ namespace FFMQLib
 		AttackingShieldOff,
 		ActivateShield,
 		AttackingShieldOn,
-		DeactivteShield,
+		DeactivateShield,
 	}
 
 	public enum DkModes

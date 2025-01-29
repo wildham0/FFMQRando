@@ -12,10 +12,76 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace FFMQLib
 {
+	public class StoredAction
+	{
+		public BattleAction Action;
+		public Entity User;
+		public List<Entity> Targets;
+		public TargetSelections TargetSelection;
+		public Logger Log;
+		public MT19337 Rng;
+		private bool Cancel;
+		private bool PickNew;
+
+		public StoredAction(BattleAction action, Entity user, List<Entity> targets, TargetSelections targetPreference, Logger log, MT19337 rng)
+		{
+			Action = action;
+			User = user;
+			Targets = targets;
+			TargetSelection = targetPreference;
+			Log = log;
+			Rng = rng;
+			Cancel = false;
+			PickNew = false;
+		}
+		public void Execute(List<Entity> potentialTargets)
+		{
+			if (!Cancel)
+			{
+				if (PickNew)
+				{
+					Targets = new() { Rng.PickFrom(potentialTargets) };
+				}
+
+				Action.Execute(User, Targets, TargetSelection, Log, Rng);
+			}
+			else
+			{
+				Log.Add(User.Name + " do nothing.");
+			}
+		}
+		private void UpdateTargets()
+		{
+			if (Targets.First().Team == User.Team)
+			{
+				if (Action.Id == (int)Items.HealBook)
+				{
+					Targets = Targets.Where(t => !t.Ailments.Contains(ElementsType.Doom)).ToList();
+				}
+				else if (Action.Id == (int)Items.CureBook)
+				{
+					Targets = Targets.Where(t => !t.Ailments.Contains(ElementsType.Stone) && !t.Ailments.Contains(ElementsType.Doom)).ToList();
+				}
+
+				if (!Targets.Any())
+				{
+					Cancel = true;
+				}
+			}
+			else
+			{
+				Targets = Targets.Where(t => !t.Ailments.Contains(ElementsType.Stone) && !t.Ailments.Contains(ElementsType.Doom)).ToList();
+
+				if (!Targets.Any())
+				{
+					PickNew = true;
+				}
+			}
+		}
+	}
 	public class BattleAction
 	{
 		public int Power;
-		//protected int CritRate;
 		protected int Accuracy;
 		protected int NumberOfHits;
 		protected List<ElementsType> Ailments;
@@ -76,7 +142,35 @@ namespace FFMQLib
 			NumberOfHits = numberofhits;
 			Targeting = targeting;
 		}
-		
+
+		public int RelativePower(List<ElementsType> resistances, List<ElementsType> weaknesses)
+		{
+			int relpower = 0;
+
+			if (ActionRoutine == ActionRoutines.MagicDamage2)
+			{
+				relpower = Power * 3;
+			}
+			else if (ActionRoutine == ActionRoutines.MagicDamage3)
+			{
+				relpower = Power * 9;
+			}
+			else
+			{
+				relpower = Power * 4;
+			}
+
+			if (resistances.Intersect(TypeDamage).Any())
+			{
+				relpower /= 2;
+			}
+			else if (weaknesses.Intersect(TypeDamage).Any())
+			{ 
+				relpower *= 2;
+			}
+
+			return relpower;
+		}
 
 		public void Execute(Entity user, List<Entity> targets, TargetSelections targetPreference, Logger log, MT19337 rng)
 		{
@@ -210,16 +304,14 @@ namespace FFMQLib
 				}
 				else
 				{
-					targets.Shuffle(rng);
-					return targets.GetRange(0, 1);
+					return new() { rng.PickFrom(targets) };
 				}
 			}
 			else
 			{
 				if (singleTargeting.Contains(Targeting))
 				{
-					targets.Shuffle(rng);
-					return targets.GetRange(0, 1);
+					return new() { rng.PickFrom(targets) };
 				}
 				else
 				{
@@ -230,7 +322,7 @@ namespace FFMQLib
 		private (int, int) CalcHitRate(Entity user, Entity target)
 		{
 			int targetPlayerPhysicalHit = 100 - target.Evade;
-			int targetPlayerMagicalHit = 100 - target.MagicEvasion;
+			int targetPlayerMagicalHit = 100 - target.MagicEvade;
 			int hitrate = 0;
 			int critrate = 0;
 
@@ -243,11 +335,11 @@ namespace FFMQLib
 					critrate = 5;
 					break;
 				case HitRoutines.Sword:
-					hitrate = (((user.Strength + user.Speed) / 8) + 0x4B + Accuracy) / 3 + (user.Accuracy / 3);
+					hitrate = (((user.Attack + user.Speed) / 8) + 0x4B + Accuracy) / 3 + (user.Accuracy / 3);
 					critrate = 8;
 					break;
 				case HitRoutines.Axe:
-					hitrate = ((user.Strength / 4) + 0x4B + Accuracy) / 3 + (user.Accuracy / 3);
+					hitrate = ((user.Attack / 4) + 0x4B + Accuracy) / 3 + (user.Accuracy / 3);
 					critrate = 2;
 					break;
 				case HitRoutines.Claw:
@@ -271,11 +363,11 @@ namespace FFMQLib
 					critrate = 5;
 					break;
 				case HitRoutines.Strength:
-					hitrate = ((user.Strength / 4) + 0x4B + Accuracy) / 2;
+					hitrate = ((user.Attack / 4) + 0x4B + Accuracy) / 2;
 					critrate = 5;
 					break;
 				case HitRoutines.StrengthSpeed:
-					hitrate = (((user.Strength + user.Speed) / 8) + 0x4B + Accuracy + user.Accuracy) / 2;
+					hitrate = (((user.Attack + user.Speed) / 8) + 0x4B + Accuracy + user.Accuracy) / 2;
 					critrate = 0;
 					break;
 				case HitRoutines.Base:
@@ -311,7 +403,7 @@ namespace FFMQLib
 				{
 					if (HitRoutine == HitRoutines.Magic)
 					{
-						hitrate = 100 - target.MagicEvasion;
+						hitrate = 100 - target.MagicEvade;
 					}
 					else
 					{
@@ -324,19 +416,19 @@ namespace FFMQLib
 		}
 		public int CalcPhysicalDefense(Entity target)
 		{
-			return target.IsDefending ? Math.Max(target.Agility * 2, 0xFA) : target.Agility;
+			return target.IsDefending ? Math.Max(target.Defense * 2, 0xFA) : target.Defense;
 		}
 		public int CalcMagicDefense(Entity target)
 		{
-			return target.Magic + target.MagicDef;
+			return target.MagicDefense;
 		}
 		public int CalcDamageStrSpdx2(Entity user)
 		{
-			return (user.Strength + user.Speed) * 2;
+			return (user.Attack + user.Speed) * 2;
 		}
 		public int CalcDamageStrSpdPowx2(Entity user)
 		{
-			return (user.Strength + user.Speed + Power) * 2;
+			return (user.Attack + user.Speed + Power) * 2;
 		}
 		public int CalcDamagePowx12()
 		{
@@ -356,19 +448,19 @@ namespace FFMQLib
 		}
 		public int CalcDamageStrAttHp8x15(Entity user)
 		{
-			return (int)((user.Strength + Power + (user.MaxHp / (user.IsBoss ? 80 : 8))) * 1.5);
+			return (int)((user.Attack + Power + (user.MaxHp / (user.IsBoss ? 80 : 8))) * 1.5);
 		}
 		public int CalcDamageStrAttHp16x2(Entity user)
 		{
-			return (int)((user.Strength + Power + (user.MaxHp / (user.IsBoss ? 160 : 16))) * 2);
+			return (int)((user.Attack + Power + (user.MaxHp / (user.IsBoss ? 160 : 16))) * 2);
 		}
 		public int CalcDamageStrAttHp8x075(Entity user)
 		{
-			return (int)((user.Strength + Power + (user.MaxHp / (user.IsBoss ? 80 : 8))) * 0.75);
+			return (int)((user.Attack + Power + (user.MaxHp / (user.IsBoss ? 80 : 8))) * 0.75);
 		}
 		public int CalcDamageStrSpdPow(Entity user)
 		{
-			return user.Strength + Power + user.Speed;
+			return user.Attack + Power + user.Speed;
 		}
 		public int CalcResistance(Entity target, int damage)
 		{
@@ -472,7 +564,6 @@ namespace FFMQLib
 			{
 				Log.Add("Miss!");
 			}
-
 		}
 		public void BombAttack(Entity user, Entity target, int targetcount, MT19337 rng)
 		{
@@ -533,34 +624,41 @@ namespace FFMQLib
 		public void StatsDebuffAttack(Entity user, Entity target, MT19337 rng)
 		{
 			// check if we're using refresher??
-			(int hit, int crit) hitrate = CalcHitRate(user, target);
-			int defense = CalcPhysicalDefense(target);
-			int damage = 0x1E * (Power & 0x0F);
-			if (rng.Between(0, 100) < hitrate.hit)
+			if (Id == (int)Items.Refresher)
 			{
-				target.ProcessDamage(damage, defense);
-				int statid = ((Power & 0xE0) / 32) & 0x03;
-				int statdebuff = ((Power / 16) & 0x03) * 0x19;
-
-				switch (statid)
-				{
-					case 0:
-						target.Strength = Math.Max(0, target.Strength - statdebuff);
-						break;
-					case 1:
-						target.Agility = Math.Max(0, target.Agility - statdebuff);
-						break;
-					case 2:
-						target.Speed = Math.Max(0, target.Speed - statdebuff);
-						break;
-					case 3:
-						target.Magic = Math.Max(0, target.Magic - statdebuff);
-						break;
-				}
+				target.RestoreStats();
 			}
 			else
 			{
-				Log.Add("Miss!");
+				(int hit, int crit) hitrate = CalcHitRate(user, target);
+				int defense = CalcPhysicalDefense(target);
+				int damage = 0x1E * (Power & 0x0F);
+				if (rng.Between(0, 100) < hitrate.hit)
+				{
+					target.ProcessDamage(damage, defense);
+					int statid = ((Power & 0xE0) / 32) & 0x03;
+					int statdebuff = ((Power / 16) & 0x03) * 0x19;
+
+					switch (statid)
+					{
+						case 0:
+							target.ApplyDebuff(statdebuff, 0, 0, 0);
+							break;
+						case 1:
+							target.ApplyDebuff(0, statdebuff, 0, 0);
+							break;
+						case 2:
+							target.ApplyDebuff(0, 0, statdebuff, 0);
+							break;
+						case 3:
+							target.ApplyDebuff(0, 0, 0, statdebuff);
+							break;
+					}
+				}
+				else
+				{
+					Log.Add("Miss!");
+				}
 			}
 
 		}
@@ -582,6 +680,11 @@ namespace FFMQLib
 			}
 			else
 			{
+				if (target.Ailments.Contains(ElementsType.Stone) || target.Ailments.Contains(ElementsType.Confusion) || target.Ailments.Contains(ElementsType.Paralysis) || target.Ailments.Contains(ElementsType.Sleep) || target.Hp <= 0)
+				{
+					target.Recovered = true;
+				}
+
 				target.Ailments = new();
 				target.Hp = target.MaxHp;
 			}
@@ -604,14 +707,12 @@ namespace FFMQLib
 			}
 			else
 			{
-				if (target.Ailments.Contains(ElementsType.Doom))
+				if (target.Ailments.Contains(ElementsType.Stone) || target.Ailments.Contains(ElementsType.Confusion) || target.Ailments.Contains(ElementsType.Paralysis) || target.Ailments.Contains(ElementsType.Sleep))
 				{
-					target.Ailments = new() { ElementsType.Doom };
+					target.Recovered = true;
 				}
-				else
-				{
-					target.Ailments = new();
-				}
+
+				target.Ailments = new();
 			}
 		}
 		public void CastCure(Entity user, Entity target, int targetcount, MT19337 rng)
@@ -777,8 +878,8 @@ namespace FFMQLib
 			// if there's space
 			(int hit, int crit) hitrate = CalcHitRate(user, target);
 			if (rng.Between(0, 100) < hitrate.hit)
-			{ 
-				// multiply
+			{
+				user.Multiply = true;
 			}
 			else
 			{

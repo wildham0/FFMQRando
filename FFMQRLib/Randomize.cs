@@ -77,7 +77,7 @@ namespace FFMQLib
 			Companions = new(flags.CompanionLevelingType);
 			GameInfoScreen = new();
 
-			Battle battle = new(rng);
+			Battle battle = new(EnemiesStats, EnemyAttackLinks, rng);
 
 			Credits credits = new(this);
 			TitleScreen titleScreen = new(this);
