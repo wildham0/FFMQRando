@@ -84,16 +84,17 @@ namespace FFMQLib
 		public int Power;
 		protected int Accuracy;
 		protected int NumberOfHits;
-		protected List<ElementsType> Ailments;
+		public List<ElementsType> Ailments;
 		public List<ElementsType> TypeDamage;
 		protected HitRoutines HitRoutine;
-		protected ActionRoutines ActionRoutine;
+		private ActionRoutines ActionRoutine;
 		protected Action battleAction;
 		public int Id;
 		public string Name;
 		protected bool CanCrit = true;
-		protected Targetings Targeting;
+		public Targetings Targeting;
 		private Logger Log;
+		private bool simulationMode = false;
 
 		private static Dictionary<ActionRoutines, HitRoutines> actionToHitRoutines = new()
 		{
@@ -157,25 +158,148 @@ namespace FFMQLib
 			}
 			else
 			{
-				relpower = Power * 4;
+				relpower = Power * 3;
 			}
 
-			if (resistances.Intersect(TypeDamage).Any())
-			{
-				relpower /= 2;
-			}
-			else if (weaknesses.Intersect(TypeDamage).Any())
-			{ 
-				relpower *= 2;
-			}
+			CalcResistance(resistances, relpower);
+			CalcWeakness(weaknesses, relpower);
 
 			return relpower;
 		}
+		public int Rating(Entity user)
+		{
+			int rating = 0;
+			int damage = 0;
+			bool applyaailment = false;
+			switch (ActionRoutine)
+			{
+				case ActionRoutines.None:
+					break;
+				case ActionRoutines.Punch:
+					rating = CalcDamageStrSpdx2(user);
+					break;
+				case ActionRoutines.Sword:
+					damage = CalcDamageStrSpdPowx2(user);
+					break;
+				case ActionRoutines.Axe:
+					damage = CalcDamageStrSpdPowx2(user);
+					break;
+				case ActionRoutines.Claw:
+					damage = CalcDamageStrSpdPowx2(user);
+					applyaailment = true;
+					break;
+				case ActionRoutines.Bomb:
+					damage = CalcDamagePowx12();
+					break;
+				case ActionRoutines.Projectile:
+					damage = CalcDamageSpd2Powx12(user);
+					applyaailment = true;
+					break;
+				case ActionRoutines.MagicDamage1:
+					damage = CalcDamageMagPowx3(user);
+					break;
+				case ActionRoutines.MagicDamage2:
+					damage = CalcDamageMagPowx3(user);
+					break;
+				case ActionRoutines.MagicDamage3:
+					damage = CalcDamageMagPowx9(user);
+					break;
+				case ActionRoutines.MagicStatsDebuff:
+					damage = 0x1E * (Power & 0x0F);
+					break;
+				case ActionRoutines.MagicUnknown2:
+					// Exit
+					break;
+				case ActionRoutines.Life:
+					// Not used
+					break;
+				case ActionRoutines.Heal:
+					rating = 100;
+					break;
+				case ActionRoutines.Cure:
+					rating = 10;
+					break;
+				case ActionRoutines.PhysicalDamage1:
+					damage = CalcDamageStrAttHp16x2(user);
+					break;
+				case ActionRoutines.PhysicalDamage2:
+					damage = CalcDamageStrAttHp8x15(user);
+					break;
+				case ActionRoutines.PhysicalDamage3:
+					damage = CalcDamageStrAttHp8x15(user);
+					break;
+				case ActionRoutines.PhysicalDamage4:
+					damage = CalcDamageStrAttHp8x15(user);
+					break;
+				case ActionRoutines.Ailments1:
+					damage = CalcDamageStrAttHp8x075(user);
+					applyaailment = true;
+					break;
+				case ActionRoutines.PhysicalDamage5:
+					damage = CalcDamageStrAttHp8x075(user);
+					applyaailment = true;
+					break;
+				case ActionRoutines.PhysicalDamage6:
+					damage = CalcDamageStrAttHp8x075(user);
+					applyaailment = true;
+					break;
+				case ActionRoutines.PhysicalDamage7:
+					damage = (CalcDamageStrSpdPow(user) * NumberOfHits) / 2;
+					break;
+				case ActionRoutines.PhysicalDamage8:
+					damage = CalcDamageStrSpdPow(user) * NumberOfHits;
+					break;
+				case ActionRoutines.PhysicalDamage9:
+					damage = CalcDamageStrAttHp8x075(user);
+					break;
+				case ActionRoutines.SelfDestruct:
+					rating = 100;
+					break;
+				case ActionRoutines.Multiply:
+					rating = 100;
+					break;
+				case ActionRoutines.Seed:
+					//
+					break;
+				case ActionRoutines.PureDamage1:
+					damage = Power * 8 * (Targeting == Targetings.MultipleEnemy ? 2 : 1);
+					applyaailment = true;
+					break;
+				case ActionRoutines.PureDamage2:
+					damage = Power * 8 * (Targeting == Targetings.MultipleEnemy ? 2 : 1);
+					applyaailment = true;
+					break;
+				case ActionRoutines.Unknown1:
+					//
+					break;
+				case ActionRoutines.Unknown2:
+					//
+					break;
+			}
 
+			if (damage != 0)
+			{
+				rating = (damage * 100) / 1500;
+			}
+
+			List<ElementsType> badAilments = new() { ElementsType.Doom, ElementsType.Paralysis, ElementsType.Stone, ElementsType.Confusion, ElementsType.Sleep };
+			//List<ElementsType> okAilments = new() { ElementsType.Sleep };
+			if (applyaailment)
+			{
+				if (Ailments.Intersect(badAilments).Any())
+				{
+					rating += 20;
+				}
+			}
+
+			return Math.Min(100, rating);
+		}
 		public void Execute(Entity user, List<Entity> targets, TargetSelections targetPreference, Logger log, MT19337 rng)
 		{
 			Log = log;
 			targets = ProcessTargeting(targets, targetPreference, rng);
+
+			simulationMode = user.SimulationMode;
 
 			foreach (var target in targets)
 			{
@@ -462,37 +586,53 @@ namespace FFMQLib
 		{
 			return user.Attack + Power + user.Speed;
 		}
-		public int CalcResistance(Entity target, int damage)
+		public int CalcResistance(List<ElementsType> resists, int damage)
 		{
-			if (target.Resistances.Intersect(TypeDamage).Any())
+			if (ElementsMatch(resists))
 			{
 				if (TypeDamage.Contains(ElementsType.Zombie))
 				{
-					damage = -damage;
+					return -damage;
 				}
 				else
 				{
-					damage /= 2;
+					return damage / 2;
 				}
 			}
 
 			return damage;
 		}
-		public int CalcWeakness(Entity target, int damage)
+		public int CalcWeakness(List<ElementsType> weaks, int damage)
 		{
-			bool thunderWeakness = target.Weaknesses.Contains(ElementsType.Water) && target.Weaknesses.Contains(ElementsType.Air);
-			bool thunderAttack = TypeDamage.Contains(ElementsType.Water) && TypeDamage.Contains(ElementsType.Water);
-
-			if (target.Weaknesses.Intersect(TypeDamage).Count() == 1 || (thunderWeakness && thunderAttack))
+			if (ElementsMatch(weaks))
 			{
-				damage *= 2;
+				return damage * 2;
 			}
 
 			return damage;
 		}
+		public bool ElementsMatch(List<ElementsType> elements)
+		{
+			bool thunderElement = elements.Contains(ElementsType.Water) && elements.Contains(ElementsType.Air);
+			bool thunderAttack = TypeDamage.Contains(ElementsType.Water) && TypeDamage.Contains(ElementsType.Water);
+
+			if (thunderAttack)
+			{
+				if (thunderElement)
+				{
+					return true;
+				}
+			}
+			else if (elements.Intersect(TypeDamage).Any())
+			{
+				return true;
+			}
+
+			return false;
+		}
 		public int CalcCrit(Entity target, int damage, int critrate, MT19337 rng)
 		{
-			if (rng.Between(0, 100) < critrate)
+			if (RollD100(RollType.CritRoll, rng) < critrate)
 			{
 				damage *= 2;
 				Log.Add("Critical Hit!");
@@ -500,9 +640,27 @@ namespace FFMQLib
 
 			return damage;
 		}
+		private int RollD100(RollType roll, MT19337 rng)
+		{
+			if (simulationMode)
+			{
+				if (roll == RollType.CritRoll)
+				{
+					return 100;
+				}
+				else
+				{
+					return 0;
+				}
+			}
+			else
+			{
+				return rng.Between(0, 100);
+			}
+		}
 		public void ApplyAilments(Entity user, Entity target, int hitrate, MT19337 rng)
 		{
-			if (Ailments.Any() && rng.Between(0, 100) < hitrate)
+			if (Ailments.Any() && RollD100(RollType.AfflictRoll, rng) < hitrate)
 			{
 				if (!user.Ailments.Contains(ElementsType.Confusion) && (user.Team == target.Team))
 				{
@@ -534,10 +692,10 @@ namespace FFMQLib
 
 			int defense = CalcPhysicalDefense(target);
 			int damage = CalcDamageStrSpdx2(user);
-			damage = CalcResistance(target, damage);
+			damage = CalcResistance(target.Resistances, damage);
 			damage = CalcCrit(target, damage, hitrate.crit, rng);
 
-			if (rng.Between(0, 100) < hitrate.hit)
+			if (RollD100(RollType.HitRoll, rng) < hitrate.hit)
 			{
 				target.ProcessDamage(damage, defense);
 			}
@@ -551,11 +709,11 @@ namespace FFMQLib
 			(int hit, int crit) hitrate = CalcHitRate(user, target);
 			int defense = CalcPhysicalDefense(target);
 			int damage = CalcDamageStrSpdPowx2(user);
-			damage = CalcResistance(target, damage);
-			damage = CalcWeakness(target, damage);
+			damage = CalcResistance(target.Resistances, damage);
+			damage = CalcWeakness(target.Weaknesses, damage);
 			damage = CalcCrit(target, damage, hitrate.crit, rng);
 
-			if (rng.Between(0, 100) < hitrate.hit)
+			if (RollD100(RollType.HitRoll, rng) < hitrate.hit)
 			{
 				target.ProcessDamage(damage, defense);
 				ApplyAilments(user, target, hitrate.hit, rng);
@@ -572,7 +730,7 @@ namespace FFMQLib
 			int defense = CalcPhysicalDefense(target);
 			int damage = CalcDamagePowx12();
 			damage /= targetcount;
-			damage = CalcWeakness(target, damage);
+			damage = CalcWeakness(target.Weaknesses, damage);
 			target.ProcessDamage(damage, defense);
 			// also weird check if Reflectant
 		}
@@ -582,8 +740,8 @@ namespace FFMQLib
 			(int hit, int crit) hitrate = CalcHitRate(user, target);
 			int defense = CalcPhysicalDefense(target);
 			int damage = CalcDamageSpd2Powx12(user);
-			damage = CalcResistance(target, damage);
-			damage = CalcWeakness(target, damage);
+			damage = CalcResistance(target.Resistances, damage);
+			damage = CalcWeakness(target.Weaknesses, damage);
 			damage = CalcCrit(target, damage, hitrate.crit, rng);
 
 			if (rng.Between(0, 100) < hitrate.hit)
@@ -603,9 +761,9 @@ namespace FFMQLib
 			int defense = CalcMagicDefense(target);
 			int damage = CalcDamageMagPowx3(user);
 			damage /= targetcount;
-			damage = CalcResistance(target, damage);
+			damage = CalcResistance(target.Resistances, damage);
 			damage = CalcCrit(target, damage, hitrate.crit, rng);
-			damage = CalcWeakness(target, damage);
+			damage = CalcWeakness(target.Weaknesses, damage);
 			target.ProcessDamage(damage, defense);
 			// There's some weird conditional after, skip it
 		}
@@ -615,9 +773,9 @@ namespace FFMQLib
 			int defense = CalcMagicDefense(target);
 			int damage = CalcDamageMagPowx9(user);
 			damage /= targetcount;
-			damage = CalcResistance(target, damage);
+			damage = CalcResistance(target.Resistances, damage);
 			damage = CalcCrit(target, damage, hitrate.crit, rng);
-			damage = CalcWeakness(target, damage);
+			damage = CalcWeakness(target.Weaknesses, damage);
 			target.ProcessDamage(damage, defense);
 			// There's some weird conditional after, skip it
 		}
@@ -633,7 +791,7 @@ namespace FFMQLib
 				(int hit, int crit) hitrate = CalcHitRate(user, target);
 				int defense = CalcPhysicalDefense(target);
 				int damage = 0x1E * (Power & 0x0F);
-				if (rng.Between(0, 100) < hitrate.hit)
+				if (RollD100(RollType.AfflictRoll, rng) < hitrate.hit)
 				{
 					target.ProcessDamage(damage, defense);
 					int statid = ((Power & 0xE0) / 32) & 0x03;
@@ -671,7 +829,7 @@ namespace FFMQLib
 				{
 					(int hit, int crit) hitrate = CalcHitRate(user, target);
 
-					if (rng.Between(0, 100) < hitrate.hit)
+					if (RollD100(RollType.HitRoll, rng) < hitrate.hit)
 					{
 						target.Hp = 0;
 						target.Ailments.Add(ElementsType.Doom);
@@ -680,7 +838,7 @@ namespace FFMQLib
 			}
 			else
 			{
-				if (target.Ailments.Contains(ElementsType.Stone) || target.Ailments.Contains(ElementsType.Confusion) || target.Ailments.Contains(ElementsType.Paralysis) || target.Ailments.Contains(ElementsType.Sleep) || target.Hp <= 0)
+				if (target.Ailments.Contains(ElementsType.Doom) || target.Ailments.Contains(ElementsType.Stone) || target.Ailments.Contains(ElementsType.Confusion) || target.Ailments.Contains(ElementsType.Paralysis) || target.Ailments.Contains(ElementsType.Sleep) || target.Hp <= 0)
 				{
 					target.Recovered = true;
 				}
@@ -700,7 +858,7 @@ namespace FFMQLib
 					hitrate = (hitrate.hit / 2, hitrate.crit);
 				}
 
-				if (rng.Between(0, 100) < hitrate.hit)
+				if (RollD100(RollType.AfflictRoll, rng) < hitrate.hit)
 				{
 					ApplyAilments(user, target, 100, rng);
 				}
@@ -723,9 +881,9 @@ namespace FFMQLib
 				int defense = CalcMagicDefense(target);
 				int damage = CalcDamageMagPowx3(user);
 				damage /= targetcount;
-				damage = CalcWeakness(target, damage);
+				damage = CalcWeakness(target.Weaknesses, damage);
 
-				if (rng.Between(0, 100) < hitrate.hit)
+				if (RollD100(RollType.HitRoll, rng) < hitrate.hit)
 				{
 					target.ProcessDamage(damage, defense);
 				}
@@ -749,7 +907,7 @@ namespace FFMQLib
 			{
 				damage = CalcDamageStrAttHp8x15(user);
 			}
-			damage = CalcResistance(target, damage);
+			damage = CalcResistance(target.Resistances, damage);
 			damage = CalcCrit(target, damage, hitrate.crit, rng);
 			damage /= targetcount;
 			target.ProcessDamage(damage, defense);
@@ -769,13 +927,13 @@ namespace FFMQLib
 			int defense = CalcPhysicalDefense(target);
 			int damage = CalcDamageStrAttHp8x075(user);
 
-			if (rng.Between(0, 100) < hitrate.hit)
+			if (RollD100(RollType.HitRoll, rng) < hitrate.hit)
 			{
 				target.ProcessDamage(damage, defense);
 
 				hitrate = (hitrate.hit / 2, hitrate.crit);
 
-				if (rng.Between(0, 100) < hitrate.hit)
+				if (RollD100(RollType.AfflictRoll, rng) < hitrate.hit)
 				{
 					ApplyAilments(user, target, 100, rng);
 				}
@@ -801,7 +959,7 @@ namespace FFMQLib
 			else
 			{
 				hitrate = (hitrate.hit / 2, hitrate.crit);
-				if (rng.Between(0, 100) < hitrate.hit)
+				if (RollD100(RollType.AfflictRoll, rng) < hitrate.hit)
 				{
 					ApplyAilments(user, target, 100, rng);
 				}
@@ -818,7 +976,7 @@ namespace FFMQLib
 			int successfulhits = 0;
 			for (int i = 0; i < NumberOfHits; i++)
 			{
-				if (rng.Between(0, 100) < hitrate.hit)
+				if (RollD100(RollType.HitRoll, rng) < hitrate.hit)
 				{
 					successfulhits++;
 				}
@@ -848,7 +1006,7 @@ namespace FFMQLib
 				damage /= 2;
 			}
 
-			CalcResistance(target, damage);
+			CalcResistance(target.Resistances, damage);
 			damage = CalcCrit(target, damage, hitrate.crit, rng);
 			target.ProcessDamage(damage, defense);
 		}
@@ -857,7 +1015,7 @@ namespace FFMQLib
 			(int hit, int crit) hitrate = CalcHitRate(user, target);
 			int defense = CalcPhysicalDefense(target);
 			int damage = CalcDamageStrAttHp8x075(user);
-			damage = CalcResistance(target, damage);
+			damage = CalcResistance(target.Resistances, damage);
 			damage = CalcCrit(target, damage, hitrate.crit, rng);
 			target.ProcessDamage(damage, defense);
 			user.ProcessDamage(-damage, 0);
@@ -877,7 +1035,7 @@ namespace FFMQLib
 			// yeah...?
 			// if there's space
 			(int hit, int crit) hitrate = CalcHitRate(user, target);
-			if (rng.Between(0, 100) < hitrate.hit)
+			if (RollD100(RollType.HitRoll, rng) < hitrate.hit)
 			{
 				user.Multiply = true;
 			}
@@ -901,10 +1059,12 @@ namespace FFMQLib
 				user.ProcessDamage(-1000, 0);
 			}
 			int defense = CalcPhysicalDefense(target);
-			target.ProcessDamage(damage, defense);
-			damage = CalcResistance(target, damage);
+			damage -= defense; // remove defense before check resist
+			damage = CalcResistance(target.Resistances, damage);
 			//damage = CalcCrit(target, damage, hitrate.crit, rng);
 			ApplyAilments(user, target, 100, rng);
+			target.ProcessDamage(damage, 0);
+
 		}
 	}
 }

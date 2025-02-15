@@ -1179,5 +1179,7 @@ namespace FFMQLib
 		Pazuzu = 0x4E,
 		Zuh = 0x4F,
 		DarkKing = 0x50,
+		DarkKingWeapons = 0x51, //
+		DarkKingSpider = 0x52,
 	}
 }

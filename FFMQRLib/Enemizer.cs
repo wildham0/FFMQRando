@@ -37,39 +37,38 @@ namespace FFMQLib
 	// link from link table, from the SQL world, describing a many-to-many relationship
 	public class EnemyAttackLink : ICloneable
 	{
-		private Blob _rawBytes;
+		//private Blob _rawBytes;
 
 		private const int EnemiesAttackLinksAddress = 0xC6FF; // Bank 02
 		private const int EnemiesAttackLinksBank = 0x02;
 		private const int EnemiesAttackLinksLength = 0x09;
 
 		public byte AttackPattern { get; set; }
-		public byte[] Attacks { get; set; }
-		public byte CastHeal { get; set; }
-		public byte CastCure { get; set; }
-		public int Id { get; set; }
-		public int AttackCount => Attacks.Count(a => a != 0xFF);
-		public List<int> NeedsSlotsFilled { get; }
+		public List<EnemyAttackIds> Attacks { get; set; }
+		public bool CastHeal { get; set; }
+		public bool CastCure { get; set; }
+		public EnemyIds Id { get; set; }
+		public int AttackCount => Attacks.Count(a => a != EnemyAttackIds.Nothing);
+		public List<int> NeedsSlotsFilled { get; set; }
 
 		public EnemyAttackLink(int id, FFMQRom rom)
 		{
-			_rawBytes = rom.GetFromBank(EnemiesAttackLinksBank, EnemiesAttackLinksAddress + (id * EnemiesAttackLinksLength), EnemiesAttackLinksLength);
-
-			Id = id;
-			AttackPattern = _rawBytes[0];
-			Attacks = new byte[6];
-			Attacks[0] = _rawBytes[1];
-			Attacks[1] = _rawBytes[2];
-			Attacks[2] = _rawBytes[3];
-			Attacks[3] = _rawBytes[4];
-			Attacks[4] = _rawBytes[5];
-			Attacks[5] = _rawBytes[6];
-			CastHeal = _rawBytes[7];
-			CastCure = _rawBytes[8];
+			GetFromBytes(id, rom.GetFromBank(EnemiesAttackLinksBank, EnemiesAttackLinksAddress + (id * EnemiesAttackLinksLength), EnemiesAttackLinksLength));
+		}
+		public EnemyAttackLink(int id, byte[] rawBytes)
+		{
+			GetFromBytes(id, rawBytes);
+		}
+		public void GetFromBytes(int id, byte[] rawBytes)
+		{
+			Id = (EnemyIds)id;
+			AttackPattern = rawBytes[0];
+			Attacks = rawBytes[1..7].Select(a => (EnemyAttackIds)a).ToList();
+			CastHeal = rawBytes[7] == (byte)EnemyAttackIds.HealSelf;
+			CastCure = rawBytes[8] == (byte)EnemyAttackIds.CureSelf;
 			NeedsSlotsFilled = new();
 		}
-
-		private EnemyAttackLink(int id, byte attackPattern, byte[] attacks, byte castHeal, byte castCure)
+		private EnemyAttackLink(EnemyIds id, byte attackPattern, List<EnemyAttackIds> attacks, bool castHeal, bool castCure)
 		{
 			Id = id;
 			AttackPattern = attackPattern;
@@ -82,19 +81,28 @@ namespace FFMQLib
 		{
 			return new EnemyAttackLink(Id, AttackPattern, Attacks, CastHeal, CastCure);
 		}
+		public byte[] GetBytes()
+		{
+			return new[] { AttackPattern, (byte)Attacks[0], (byte)Attacks[1], (byte)Attacks[2], (byte)Attacks[3], (byte)Attacks[4], (byte)Attacks[5], CastHeal ? (byte)EnemyAttackIds.HealSelf : (byte)EnemyAttackIds.Nothing, CastCure ? (byte)EnemyAttackIds.CureSelf : (byte)EnemyAttackIds.Nothing };
+		}
+		public byte[] GetAttackBytes()
+		{
+			return Attacks.Select(a => (byte)a).ToArray();
+		}
 
 		public void Write(FFMQRom rom)
 		{
+			/*
 			_rawBytes[0] = AttackPattern;
-			_rawBytes[1] = Attacks[0];
-			_rawBytes[2] = Attacks[1];
-			_rawBytes[3] = Attacks[2];
-			_rawBytes[4] = Attacks[3];
-			_rawBytes[5] = Attacks[4];
-			_rawBytes[6] = Attacks[5];
+			_rawBytes[1] = (byte)Attacks[0];
+			_rawBytes[2] = (byte)Attacks[1];
+			_rawBytes[3] = (byte)Attacks[2];
+			_rawBytes[4] = (byte)Attacks[3];
+			_rawBytes[5] = (byte)Attacks[4];
+			_rawBytes[6] = (byte)Attacks[5];
 			_rawBytes[7] = CastHeal;
 			_rawBytes[8] = CastCure;
-			rom.PutInBank(EnemiesAttackLinksBank, EnemiesAttackLinksAddress + (Id * EnemiesAttackLinksLength), _rawBytes);
+			rom.PutInBank(EnemiesAttackLinksBank, EnemiesAttackLinksAddress + (Id * EnemiesAttackLinksLength), _rawBytes);*/
 		}
 	}
 	// link from link table, from the SQL world, describing a many-to-many relationship
@@ -102,13 +110,16 @@ namespace FFMQLib
 	{
 		private List<EnemyAttackLink> _EnemyAttackLinks;
 		private Blob _darkKingAttackLinkBytes;
-		private byte iceGolemDesperateAttack;
+		private EnemyAttackIds iceGolemDesperateAttack;
 
-		private List<int> Mobs;
-		private List<int> Bosses;
-		private List<int> DarkCastleBosses;
-		private List<int> DarkKing;
+		private List<EnemyIds> Mobs;
+		private List<EnemyIds> Bosses;
+		private List<EnemyIds> DarkCastleBosses;
+		private List<EnemyIds> DarkKing;
 
+		private const int EnemiesAttackLinksAddress = 0xC6FF; // Bank 02
+		private const int EnemiesAttackLinksBank = 0x02;
+		private const int EnemiesAttackLinksLength = 0x09;
 		private const int EnemiesAttackLinksQty = 0x53;
 
 		// Dark King Attack Links, separate from EnemiesAttacks
@@ -122,26 +133,30 @@ namespace FFMQLib
 
 		public EnemyAttackLinks(FFMQRom rom)
 		{
+
+			_EnemyAttackLinks = rom.GetFromBank(EnemiesAttackLinksBank, EnemiesAttackLinksAddress, EnemiesAttackLinksQty * EnemiesAttackLinksLength).ToBytes().Chunk(EnemiesAttackLinksLength).Select((l, i) => new EnemyAttackLink(i, l)).ToList();
+
+			/*
 			_EnemyAttackLinks = new List<EnemyAttackLink>();
 
 			for (int i = 0; i < EnemiesAttackLinksQty; i++)
 			{
 				_EnemyAttackLinks.Add(new EnemyAttackLink(i, rom));
-			}
+			}*/
 
-			iceGolemDesperateAttack = rom.GetFromBank(IceGolemDesperateAttackBank, IceGolemDesperateAttackOffset, 1)[0];
+			iceGolemDesperateAttack = (EnemyAttackIds)rom.GetFromBank(IceGolemDesperateAttackBank, IceGolemDesperateAttackOffset, 1)[0];
 			_darkKingAttackLinkBytes = rom.GetFromBank(DarkKingAttackLinkBank, DarkKingAttackLinkAddress, DarkKingAttackLinkQty);
 
-			Mobs = Enumerable.Range(0, 0x40).ToList();
-			Bosses = Enumerable.Range(0x42, 8).ToList().Concat(new List<int>() { 0x4A, 0x4B, 0x4C, 0x4E }).ToList();
-			DarkCastleBosses = new List<int>() { 0x40, 0x41, 0x4D, 0x4F };
-			DarkKing = new List<int> { 0x50, 0x51, 0x52 };
+			Mobs = Enumerable.Range((int)EnemyIds.Brownie, 0x40).Select(e => (EnemyIds)e).ToList();
+			Bosses = Enumerable.Range((int)EnemyIds.Behemoth, 8).Select(e => (EnemyIds)e).ToList().Concat(new List<EnemyIds>() { EnemyIds.FlamerusRex, EnemyIds.IceGolem, EnemyIds.DualheadHydra, EnemyIds.Pazuzu }).ToList();
+			DarkCastleBosses = new() { EnemyIds.SkullrusRex, EnemyIds.StoneGolem, EnemyIds.TwinheadWyvern, EnemyIds.Zuh };
+			DarkKing = new() { EnemyIds.DarkKing, EnemyIds.DarkKingWeapons, EnemyIds.DarkKingSpider };
 
 			// Wyvern, Hydra, DK2 and Dk3 need to have a specific slot filled to avoid softlock
-			_EnemyAttackLinks[0x4C].NeedsSlotsFilled.Add(3);
-			_EnemyAttackLinks[0x4D].NeedsSlotsFilled.Add(3);
-			_EnemyAttackLinks[0x51].NeedsSlotsFilled.Add(3);
-			_EnemyAttackLinks[0x52].NeedsSlotsFilled.Add(2);
+			_EnemyAttackLinks[(int)EnemyIds.DualheadHydra].NeedsSlotsFilled.Add(3);
+			_EnemyAttackLinks[(int)EnemyIds.TwinheadWyvern].NeedsSlotsFilled.Add(3);
+			_EnemyAttackLinks[(int)EnemyIds.DarkKingWeapons].NeedsSlotsFilled.Add(3);
+			_EnemyAttackLinks[(int)EnemyIds.DarkKingSpider].NeedsSlotsFilled.Add(2);
 		}
 		public EnemyAttackLink this[int attackid]
 		{
@@ -154,13 +169,16 @@ namespace FFMQLib
 		}
 		public void Write(FFMQRom rom)
 		{
+
+			rom.PutInBank(EnemiesAttackLinksBank, EnemiesAttackLinksAddress, _EnemyAttackLinks.SelectMany(l => l.GetBytes()).ToArray());
+			/*
 			foreach (EnemyAttackLink e in _EnemyAttackLinks)
 			{
 				e.Write(rom);
-			}
+			}*/
 
-			rom.PutInBank(DarkKingAttackLinkBank, DarkKingAttackLinkAddress, _EnemyAttackLinks.Where(l => l.Id == 0x51 || l.Id == 0x52).OrderBy(l => l.Id).SelectMany(l => l.Attacks.ToList()).ToArray());
-			rom.PutInBank(IceGolemDesperateAttackBank, IceGolemDesperateAttackOffset, new byte[] { iceGolemDesperateAttack });
+			rom.PutInBank(DarkKingAttackLinkBank, DarkKingAttackLinkAddress, _EnemyAttackLinks.Where(l => l.Id == EnemyIds.DarkKingWeapons || l.Id == EnemyIds.DarkKingSpider).OrderBy(l => l.Id).SelectMany(l => l.GetAttackBytes()).ToArray());
+			rom.PutInBank(IceGolemDesperateAttackBank, IceGolemDesperateAttackOffset, new byte[] { (byte)iceGolemDesperateAttack });
 		}
 		public void ShuffleAttacks(EnemizerAttacks enemizerattacks, EnemizerGroups group, MT19337 rng)
 		{
@@ -182,7 +200,7 @@ namespace FFMQLib
 					break;
 			}
 		}
-		private List<int> GetValidEnemies(EnemizerGroups group)
+		private List<EnemyIds> GetValidEnemies(EnemizerGroups group)
 		{
 			var validenemies = Mobs.ToList();
 			if (group != EnemizerGroups.MobsOnly)
@@ -200,7 +218,7 @@ namespace FFMQLib
 		private void ScriptShuffle(EnemizerGroups group, MT19337 rng)
 		{
 			var mobs = Mobs.ToList();
-			Dictionary<int, int> switchList = new();
+			Dictionary<EnemyIds, EnemyIds> switchList = new();
 
 			while (mobs.Count > 1)
 			{
@@ -259,19 +277,18 @@ namespace FFMQLib
 			}
 
 			// Remove Strong Psychshield since it might get used
-			var zuhScript = _EnemyAttackLinks.Find(e => e.Id == 0x4F);
-			zuhScript.Attacks[0x05] = 0xDA;
+			var zuhScript = _EnemyAttackLinks.Find(e => e.Id == EnemyIds.Zuh);
+			zuhScript.Attacks[0x05] = EnemyAttackIds.HurricanePlus;
 
 			// Extend Behemoth, Minotaur and DK1 attack list to avoid softlock
-			var behemothScript = _EnemyAttackLinks.Find(e => e.Id == 0x42);
-			behemothScript.Attacks = new byte[] { 0x7C, 0x7C, 0x7C, 0x7C, 0x7C, 0x7C };
+			var behemothScript = _EnemyAttackLinks.Find(e => e.Id == EnemyIds.Behemoth);
+			behemothScript.Attacks = Enumerable.Repeat(EnemyAttackIds.Horn, 6).ToList();
 
-			var minotaurScript = _EnemyAttackLinks.Find(e => e.Id == 0x43);
-			minotaurScript.Attacks = new byte[] { 0x44, 0x64, 0x54, 0x44, 0x64, 0x54 };
+			var minotaurScript = _EnemyAttackLinks.Find(e => e.Id == EnemyIds.Minotaur);
+			minotaurScript.Attacks = new() { EnemyAttackIds.Axe, EnemyAttackIds.Roundhouse, EnemyAttackIds.Scream, EnemyAttackIds.Axe, EnemyAttackIds.Roundhouse, EnemyAttackIds.Scream };
 
-			var dk1Script = _EnemyAttackLinks.Find(e => e.Id == 0x50);
-			minotaurScript.Attacks[0x04] = rng.PickFrom(new List<byte>() { 0xCA, 0x53, 0x52 });
-
+			var dk1Script = _EnemyAttackLinks.Find(e => e.Id == EnemyIds.DarkKing);
+			minotaurScript.Attacks[0x04] = rng.PickFrom(new List<EnemyAttackIds>() { EnemyAttackIds.DarkCane, EnemyAttackIds.IronNail, EnemyAttackIds.Spark });
 
 			foreach (var link in _EnemyAttackLinks)
 			{
@@ -285,10 +302,10 @@ namespace FFMQLib
 		}
 		private void ChaosRandom(EnemizerGroups group, MT19337 rng)
 		{
-			var possibleAttacks = new List<byte>();
+			var possibleAttacks = new List<EnemyAttackIds>();
 			bool meandDK = rng.Between(1, 6) == 1;
 
-			for (byte i = 0x40; i <= 0xDB; i++)
+			for (var i = EnemyAttackIds.Sword; i <= EnemyAttackIds.HeatwaveUnused; i++)
 			{
 				possibleAttacks.Add(i);
 			}
@@ -297,20 +314,20 @@ namespace FFMQLib
 
 			foreach (var link in validenemies)
 			{
-				var ea = _EnemyAttackLinks[link];
+				var ea = _EnemyAttackLinks[(int)link];
 				
-				uint noOfAttacks = (uint)rng.Between(2, 6);
+				int noOfAttacks = (int)rng.Between(2, 6);
 
-				for(uint i = 0; i < 6; i++)
+				for(int i = 0; i < 6; i++)
 				{
-					ea.Attacks[i] = 0xFF;
+					ea.Attacks[i] = EnemyAttackIds.Nothing;
 				}
 
-				for(uint i = 0; i < noOfAttacks; i++)
+				for(int i = 0; i < noOfAttacks; i++)
 				{
 					if (DarkKing.Contains(link) && !meandDK)
 					{
-						ea.Attacks[i] = rng.PickFrom(possibleAttacks.Except(new List<byte> { 0x49, 0x4A, 0xC1, 0xC2 }).ToList());
+						ea.Attacks[i] = rng.PickFrom(possibleAttacks.Except(new List<EnemyAttackIds> { EnemyAttackIds.CureSelf, EnemyAttackIds.HealSelf, EnemyAttackIds.Selfdestruct, EnemyAttackIds.Multiply }).ToList());
 					}
 					else
 					{
@@ -335,7 +352,7 @@ namespace FFMQLib
 				// Some enemies require certain slots to be filled, or the game locks up
 				foreach(var slot in ea.NeedsSlotsFilled)
 				{
-					if(ea.Attacks[slot] == 0xFF)
+					if(ea.Attacks[slot] == EnemyAttackIds.Nothing)
 					{
 						ea.Attacks[slot] = rng.PickFrom(possibleAttacks);
 					}
@@ -345,8 +362,8 @@ namespace FFMQLib
 			if (group != EnemizerGroups.MobsOnly)
 			{
 				var icegolemattacks = possibleAttacks
-					.Except(new List<byte> { 0x49, 0x4A, 0xC1, 0xC2 })
-					.Except(Enumerable.Range(0xC8, 20).Select(x => (byte)x))
+					.Except(new List<EnemyAttackIds> { EnemyAttackIds.CureSelf, EnemyAttackIds.HealSelf, EnemyAttackIds.Selfdestruct, EnemyAttackIds.Multiply })
+					.Except(Enumerable.Range((int)EnemyAttackIds.PsychshieldBug, 20).Select(x => (EnemyAttackIds)x))
 					.ToList();
 
 				iceGolemDesperateAttack = rng.PickFrom(icegolemattacks);
@@ -356,7 +373,7 @@ namespace FFMQLib
 		{
 			var validenemies = GetValidEnemies(group);
 			var validattacks = _EnemyAttackLinks.Where(l => Mobs.Contains(l.Id)).SelectMany(l => l.Attacks).Distinct().ToList();
-			List<byte> dkattacks = new();
+			List<EnemyAttackIds> dkattacks = new();
 
 
 			if (group != EnemizerGroups.MobsOnly)
@@ -367,25 +384,25 @@ namespace FFMQLib
 			if (group == EnemizerGroups.MobsBossesDK)
 			{
 				dkattacks.AddRange(_EnemyAttackLinks.Where(l => DarkKing.Contains(l.Id)).SelectMany(l => l.Attacks).Distinct().ToList());
-				dkattacks.Remove(0xFF);
+				dkattacks.RemoveAll(a => a == EnemyAttackIds.Nothing);
 			}
 
-			List<byte> invalidattacks = new() { 0x49, 0x4A, 0xC1, 0xC2, 0xC8, 0xC9, 0xFF };
+			List<EnemyAttackIds> invalidattacks = new() { EnemyAttackIds.CureSelf, EnemyAttackIds.HealSelf, EnemyAttackIds.Selfdestruct, EnemyAttackIds.Multiply, EnemyAttackIds.Psychshield, EnemyAttackIds.PsychshieldBug, EnemyAttackIds.Nothing };
 			validattacks.RemoveAll(invalidattacks.Contains);
 			validattacks = validattacks.Distinct().ToList();
 
 			foreach (var link in validenemies)
 			{
-				List<byte> attackpool = new(validattacks);
+				List<EnemyAttackIds> attackpool = new(validattacks);
 
 				if (DarkCastleBosses.Concat(DarkKing).Contains(link))
 				{
 					attackpool.AddRange(dkattacks);
 				}
 				
-				List<byte> newattacks = new();
+				List<EnemyAttackIds> newattacks = new();
 
-				for (int i = 0; i < _EnemyAttackLinks[link].AttackCount; i++)
+				for (int i = 0; i < _EnemyAttackLinks[(int)link].AttackCount; i++)
 				{
 					newattacks.Add(rng.PickFrom(attackpool));
 				}
@@ -393,20 +410,95 @@ namespace FFMQLib
 				newattacks.Sort();
 
 				// Split hydra's and wyvern attacks to make them less backended
-				if (link == 0x4C || link == 0x4D)
+				if (link == EnemyIds.TwinheadWyvern || link == EnemyIds.DualheadHydra)
 				{
 					newattacks = newattacks.Where((a, i) => i % 2 == 0).Concat(newattacks.Where((a, i) => i % 2 == 1)).ToList();
 				}
 
 				while (newattacks.Count < 6)
 				{
-					newattacks.Add(0xFF);
+					newattacks.Add(EnemyAttackIds.Nothing);
 				}
 
-				_EnemyAttackLinks[link].Attacks = newattacks.ToArray();
+				_EnemyAttackLinks[(int)link].Attacks = newattacks.ToList();
 			}
 
-			iceGolemDesperateAttack = rng.PickFrom(validattacks.Where(a => a < 0xC1).ToList());
+			iceGolemDesperateAttack = rng.PickFrom(validattacks.Where(a => a < EnemyAttackIds.Selfdestruct).ToList());
+		}
+		public void BalancedTest(EnemizerGroups group, MT19337 rng)
+		{
+			var validenemies = GetValidEnemies(group);
+			var validattacks = _EnemyAttackLinks.Where(l => Mobs.Contains(l.Id)).SelectMany(l => l.Attacks).Distinct().ToList();
+			List<EnemyAttackIds> dkattacks = new();
+
+
+			if (group != EnemizerGroups.MobsOnly)
+			{
+				validattacks.AddRange(_EnemyAttackLinks.Where(l => Bosses.Concat(DarkCastleBosses).Contains(l.Id)).SelectMany(l => l.Attacks).Distinct().ToList());
+			}
+
+			if (group == EnemizerGroups.MobsBossesDK)
+			{
+				dkattacks.AddRange(_EnemyAttackLinks.Where(l => DarkKing.Contains(l.Id)).SelectMany(l => l.Attacks).Distinct().ToList());
+				dkattacks.RemoveAll(a => a == EnemyAttackIds.Nothing);
+			}
+
+			List<EnemyAttackIds> invalidattacks = new() { EnemyAttackIds.CureSelf, EnemyAttackIds.HealSelf, EnemyAttackIds.Selfdestruct, EnemyAttackIds.Multiply, EnemyAttackIds.Psychshield, EnemyAttackIds.PsychshieldBug, EnemyAttackIds.Nothing };
+			validattacks.RemoveAll(invalidattacks.Contains);
+			validattacks = validattacks.Distinct().ToList();
+
+			var safeattacks = validattacks.Intersect(safeAttacks).ToList();
+			var badattacks = validattacks.Intersect(ailmentAttacks.Concat(strongAttacks)).ToList();
+
+			foreach (var link in validenemies)
+			{
+				List<EnemyAttackIds> attackpool = new(validattacks);
+
+				if (DarkCastleBosses.Concat(DarkKing).Contains(link))
+				{
+					attackpool.AddRange(dkattacks);
+				}
+
+				List<EnemyAttackIds> newattacks = new();
+
+				bool badAttackPicked = false;
+				int badAttackPickedCount = 0;
+
+				for (int i = 0; i < _EnemyAttackLinks[(int)link].AttackCount; i++)
+				{
+					var newAttack = badAttackPicked ? rng.PickFrom(safeattacks.Except(newattacks).ToList()) : rng.PickFrom(badattacks.Except(newattacks).ToList());
+					if (!badAttackPicked && badattacks.Contains(newAttack))
+					{
+						badAttackPickedCount++;
+						if (badAttackPickedCount >= 2)
+						{
+							badAttackPicked = true;
+						}
+						
+					}
+
+					newattacks.Add(newAttack);
+				}
+
+				newattacks.Shuffle(rng);
+
+				//newattacks.Sort();
+
+				// Split hydra's and wyvern attacks to make them less backended
+				if (link == EnemyIds.TwinheadWyvern || link == EnemyIds.DualheadHydra)
+				{
+					newattacks = newattacks.Where((a, i) => i % 2 == 0).Concat(newattacks.Where((a, i) => i % 2 == 1)).ToList();
+				}
+
+				while (newattacks.Count < 6)
+				{
+					newattacks.Add(EnemyAttackIds.Nothing);
+				}
+
+				_EnemyAttackLinks[(int)link].Attacks = newattacks.ToList();
+			}
+
+			iceGolemDesperateAttack = rng.PickFrom(validattacks.Where(a => a < EnemyAttackIds.Selfdestruct).ToList());
 		}
 		private void Selfdestruct(EnemizerGroups group)
 		{
@@ -414,23 +506,177 @@ namespace FFMQLib
 
 			foreach (var link in validenemies)
 			{
-				var ea = _EnemyAttackLinks[link];
+				var ea = _EnemyAttackLinks[(int)link];
 
 				ea.AttackPattern = 0x01;
-				ea.Attacks[0] = 0xC1;
-				ea.Attacks[1] = 0xFF;
-				ea.Attacks[2] = 0xFF;
-				ea.Attacks[3] = 0xFF;
-				ea.Attacks[4] = 0xFF;
-				ea.Attacks[5] = 0xFF;
-
-				// Some enemies require certain slots to be filled, or the game locks up
-				foreach (var slot in ea.NeedsSlotsFilled)
-				{
-					ea.Attacks[slot] = 0xC1;
-				}
+				ea.Attacks = Enumerable.Repeat(EnemyAttackIds.Selfdestruct, 6).ToList();
 			}
 		}
+
+		private List<EnemyAttackIds> safeAttacks = new()
+		{
+			EnemyAttackIds.BoneMissile,
+			EnemyAttackIds.DoubleHit,
+			EnemyAttackIds.DoubleSword,
+			EnemyAttackIds.Cure,
+			EnemyAttackIds.DoubleSword,
+			EnemyAttackIds.PsychshieldBug,
+			EnemyAttackIds.Blizzard,
+			EnemyAttackIds.Muffle,
+			EnemyAttackIds.SilenceSong,
+			EnemyAttackIds.Windstorm,
+			EnemyAttackIds.StoneBlock,
+			EnemyAttackIds.ThunderSpell,
+			EnemyAttackIds.PowerDrain,
+			EnemyAttackIds.Mucus,
+			EnemyAttackIds.BlindFlash,
+			EnemyAttackIds.Electrapulse,
+			EnemyAttackIds.Punch,
+			EnemyAttackIds.Spark,
+			EnemyAttackIds.Scream,
+			EnemyAttackIds.PoisonFlour,
+			EnemyAttackIds.Fire,
+			EnemyAttackIds.TwinFang,
+			EnemyAttackIds.Claw,
+			EnemyAttackIds.BowArrow,
+			EnemyAttackIds.PoisonSting,
+			EnemyAttackIds.Blinder,
+			EnemyAttackIds.Psudopod,
+			EnemyAttackIds.IronNail,
+			EnemyAttackIds.QuickSand,
+			EnemyAttackIds.Thunder,
+			EnemyAttackIds.ThunderBeam,
+			EnemyAttackIds.WhipTongue,
+			EnemyAttackIds.Sting,
+			EnemyAttackIds.Horn,
+			EnemyAttackIds.MegaPunch,
+			EnemyAttackIds.Branch,
+			EnemyAttackIds.PoisonFluid,
+			EnemyAttackIds.BlowDart,
+			EnemyAttackIds.Fang,
+			EnemyAttackIds.Scissor,
+			EnemyAttackIds.Bearhug,
+			EnemyAttackIds.Axe,
+			EnemyAttackIds.Hurricane,
+			EnemyAttackIds.Blackness,
+			EnemyAttackIds.ChewOff,
+			EnemyAttackIds.Coldness,
+			EnemyAttackIds.Smokescreen,
+			EnemyAttackIds.Tail,
+			EnemyAttackIds.Stab,
+			EnemyAttackIds.RottonMucus,
+			EnemyAttackIds.Fin,
+			EnemyAttackIds.AxeBomber,
+			EnemyAttackIds.Piledriver,
+			EnemyAttackIds.Wraparound,
+			EnemyAttackIds.Beak,
+			EnemyAttackIds.Dive,
+			EnemyAttackIds.PoisonSnake,
+			EnemyAttackIds.BodySlam,
+			EnemyAttackIds.HurricanePlus,
+			EnemyAttackIds.PoisonThorn,
+			EnemyAttackIds.IceBlock,
+			EnemyAttackIds.HydroAcid,
+			EnemyAttackIds.Kick,
+			EnemyAttackIds.Dissolve,
+			EnemyAttackIds.Watergun,
+			EnemyAttackIds.Tornado,
+			EnemyAttackIds.Attatch,
+			EnemyAttackIds.IcyFoam,
+			EnemyAttackIds.Drain,
+			EnemyAttackIds.Roundhouse,
+			EnemyAttackIds.Bite,
+			EnemyAttackIds.Scimitar,
+			EnemyAttackIds.HeadButt,
+			EnemyAttackIds.IceBreath,
+			EnemyAttackIds.GiantBlade,
+			EnemyAttackIds.Scrunch,
+			EnemyAttackIds.RipEarth,
+			EnemyAttackIds.Dash,
+			EnemyAttackIds.FullNelson,
+			EnemyAttackIds.Uppercut,
+			EnemyAttackIds.DragonCut,
+			EnemyAttackIds.Poisonbreath,
+			EnemyAttackIds.NeckChoke,
+			EnemyAttackIds.Sword,
+			EnemyAttackIds.Beam,
+			EnemyAttackIds.SuckerStick
+		};
+
+		private List<EnemyAttackIds> ailmentAttacks = new()
+		{
+			EnemyAttackIds.DoomPowder,
+			EnemyAttackIds.DoomGaze,
+			EnemyAttackIds.HealSelf,
+			EnemyAttackIds.SpookyLaugh,
+			EnemyAttackIds.HypnoSleep,
+			EnemyAttackIds.Riddle,
+			EnemyAttackIds.CorrodeGas,
+			EnemyAttackIds.Gaze,
+			EnemyAttackIds.SonicBoom,
+			EnemyAttackIds.DoomGaze,
+			EnemyAttackIds.SleepLure,
+			EnemyAttackIds.SleepPowder,
+			EnemyAttackIds.Stare,
+			EnemyAttackIds.ParaGas,
+			EnemyAttackIds.Bark,
+			EnemyAttackIds.Lullaby,
+			EnemyAttackIds.ParaNeedle,
+			EnemyAttackIds.BadBreath,
+			EnemyAttackIds.ParaClaw,
+			EnemyAttackIds.BodyOdor,
+			EnemyAttackIds.ParaSnake,
+			EnemyAttackIds.ParaStare,
+			EnemyAttackIds.ParaBreath,
+			EnemyAttackIds.Screechvoice,
+			EnemyAttackIds.SilverWeb,
+			EnemyAttackIds.StoneGaze,
+			EnemyAttackIds.GoldenWeb,
+			EnemyAttackIds.StoneBeak
+		};
+
+		private List<EnemyAttackIds> strongAttacks = new()
+		{
+			EnemyAttackIds.DoubleKick,
+			EnemyAttackIds.StompStomp,
+			EnemyAttackIds.TwinShears,
+			EnemyAttackIds.Flame,
+			EnemyAttackIds.Rapier,
+			EnemyAttackIds.ChokeUp,
+			EnemyAttackIds.FireBreath,
+			EnemyAttackIds.FireBall,
+			EnemyAttackIds.HeatwaveUnused,
+			EnemyAttackIds.Typhoon,
+			EnemyAttackIds.Quake,
+			EnemyAttackIds.Whirlwater,
+			EnemyAttackIds.Heatwave,
+			EnemyAttackIds.QuakeSpell,
+			EnemyAttackIds.Psychshield,
+			EnemyAttackIds.MirrorSword,
+			EnemyAttackIds.PiledriverFixed,
+			EnemyAttackIds.DarkCane,
+			EnemyAttackIds.DarkSaber,
+			EnemyAttackIds.FlameSweep,
+			EnemyAttackIds.TripleFang,
+			EnemyAttackIds.Lazer,
+			EnemyAttackIds.FlamePillar,
+			EnemyAttackIds.SixPsudopods,
+			EnemyAttackIds.SnakeHead,
+			EnemyAttackIds.Headboomerang,
+			EnemyAttackIds.SpiderKids,
+			EnemyAttackIds.MegaFlare,
+			EnemyAttackIds.Snowstorm,
+			EnemyAttackIds.FireSword,
+			EnemyAttackIds.CureArrow,
+			EnemyAttackIds.ThreeHeads,
+			EnemyAttackIds.SkyAttack,
+			EnemyAttackIds.IceSword,
+			EnemyAttackIds.MegaWhite,
+			EnemyAttackIds.QuakeAxe,
+			EnemyAttackIds.SkyAttackFixed,
+			EnemyAttackIds.FireBreathFixed,
+			EnemyAttackIds.Multiply
+		};
 		// deprecated, harvest for reference data down the road
 		private void SafeShuffleAttacks(bool highhpscaling, MT19337 rng)
 		{
@@ -597,9 +843,9 @@ namespace FFMQLib
 				}
 
 				_EnemyAttackLinks[enemy].AttackPattern = (byte)pattern.Id;
-				_EnemyAttackLinks[enemy].Attacks = attackList.Select(x => (byte)x).ToArray();
-				_EnemyAttackLinks[enemy].CastHeal = (byte)(healCaster ? healSpell : 0xFF);
-				_EnemyAttackLinks[enemy].CastCure = (byte)(cureCaster ? cureSpell : 0xFF);
+				//_EnemyAttackLinks[enemy].Attacks = attackList.Select(x => (byte)x).ToArray();
+				//_EnemyAttackLinks[enemy].CastHeal = (byte)(healCaster ? healSpell : 0xFF);
+				//_EnemyAttackLinks[enemy].CastCure = (byte)(cureCaster ? cureSpell : 0xFF);
 			}
 
 			commonAttacks = allAttacks.Except(dkAttacks).Except(psychshieldAttacks).Except(deathstoneAttacks).Except(highHpAttacks).Except(midHpAttacks).Except(lowHpAttacks).Except(statusHpAttacks).ToList();
@@ -655,16 +901,16 @@ namespace FFMQLib
 
 				if (boss < 0xF0)
 				{
-					_EnemyAttackLinks[boss].Attacks = attackList.Select(x => (byte)x).ToList().ToArray();
+					//_EnemyAttackLinks[boss].Attacks = attackList.Select(x => (byte)x).ToList().ToArray();
 				}
 				else
 				{
 					// special check hydras as their scripts is splitted
 					var targetHydra = (boss == 0xFE ? 0x4C : 0x4D);
 
-					_EnemyAttackLinks[targetHydra].Attacks[3] = (byte)attackList[0];
-					_EnemyAttackLinks[targetHydra].Attacks[4] = (byte)attackList[1];
-					_EnemyAttackLinks[targetHydra].Attacks[5] = (byte)attackList[2];
+					//_EnemyAttackLinks[targetHydra].Attacks[3] = (byte)attackList[0];
+					//_EnemyAttackLinks[targetHydra].Attacks[4] = (byte)attackList[1];
+					//_EnemyAttackLinks[targetHydra].Attacks[5] = (byte)attackList[2];
 				}
 			}
 
@@ -672,7 +918,7 @@ namespace FFMQLib
 			var dkPhase2Attacks = _EnemyAttackLinks[0x51].Attacks.ToList();
 			var dkPhase3Attacks = _EnemyAttackLinks[0x52].Attacks.ToList();
 
-			_darkKingAttackLinkBytes = dkPhase2Attacks.Concat(dkPhase3Attacks).ToArray();
+			//_darkKingAttackLinkBytes = dkPhase2Attacks.Concat(dkPhase3Attacks).ToArray();
 		}
 
 	}

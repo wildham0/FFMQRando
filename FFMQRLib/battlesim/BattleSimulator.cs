@@ -10,6 +10,9 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Numerics;
 using System.Net.WebSockets;
 using Microsoft.VisualBasic;
+using static System.Reflection.Metadata.BlobBuilder;
+using static System.Collections.Specialized.BitVector32;
+using YamlDotNet.Serialization;
 
 
 
@@ -40,7 +43,12 @@ namespace FFMQLib
 			Resistances = new();
 		}
 	}
-
+	public struct ActionResult
+	{
+		public int MaxDamage;
+		public int Probability;
+		public int Disabled;
+	}
 	public class Logger
 	{
 		private List<string> logs;
@@ -77,73 +85,361 @@ namespace FFMQLib
 		private MT19337 Rng;
 		private List<int> winsA;
 		private List<int> winsB;
+		private List<int> protoWinsA;
+		private List<int> protoWinsB;
 		private CompanionsId currentCompanion;
 		private EnemiesStats enemies;
 		private EnemyAttackLinks scripts;
+		//private Dictionary<string, (int half, int quarter, int zero)> resultsTracker;
+		private List<(List<string> attacks, int percent)> resultsTracker;
 
+		List<ProtoEntity> ProtoBattlers;
 		public Battle(EnemiesStats _enemies, EnemyAttackLinks _scripts, MT19337 rng)
 		{
 			Rng = rng;
 			SimLog = new Logger();
-			
+			Log = new();
+
+			int runningratio = 0;
+			//int totalwinb = 0;
+
+			resultsTracker = new();
+			Dictionary<string, int> ratings = new();
+
 			enemies = _enemies;
 			scripts = _scripts;
+			/*
+			Flags flags = new();
+			flags.BossesScalingLower = EnemiesScaling.OneAndHalf;
+			flags.BossesScalingUpper = EnemiesScaling.OneAndHalf;
+			flags.EnemiesScalingLower = EnemiesScaling.OneAndHalf;
+			flags.EnemiesScalingUpper = EnemiesScaling.OneAndHalf;
+			
+			_enemies.ScaleEnemies(flags, rng);*/
+			EnemyIds simformation = EnemyIds.Jinn;
 
-			EnemyIds simformation = EnemyIds.Medusa;
+			List<(string attack1, string attack2)> attackpairs = new();
 
 			//List<PowerLevels> powerlevels = new() { PowerLevels.Plain10 };
 			//List<PowerLevels> powerlevels = new() { PowerLevels.Initial, PowerLevels.Intermediate, PowerLevels.Strong, PowerLevels.Godly };
-			List<PowerLevels> powerlevels = new() { PowerLevels.Intermediate, PowerLevels.Plain10 };
+			List<PowerLevels> powerlevels = new() { PowerLevels.Intermediate };
 			//foreach (var power in powerlevels)
-			for(int j = 0; j < 2; j++)
+			List<CompanionsId> validcompanions = new() { CompanionsId.Kaeli, CompanionsId.Reuben, CompanionsId.Phoebe, CompanionsId.Tristam };
+			currentCompanion = Rng.PickFrom(validcompanions);
+			// 4,7 ; 8,15 ; 12,23 ; 19,31
+
+			InitTeams(PowerLevels.Initial, simformation, 12, 23);
+
+			for (int i = 0; i < 1000; i++)
 			{
-				Log = new();
-				//scripts.ShuffleAttacks(EnemizerAttacks.Chaos, EnemizerGroups.MobsBossesDK, rng);
+				winsA = new() { 0, 0, 0, 0 };
+				winsB = new() { 0, 0, 0, 0 };
 
-				foreach (var power in powerlevels)
-				{ 
+				InitEnemies(simformation);
 
-					winsA = new() { 0, 0, 0, 0 };
-					winsB = new() { 0, 0, 0, 0 };
+				for (int j = 0; j < 100; j++)
+				{
+					Battlers.ForEach(b => b.HealUp());
+					DoBattle(rng);
+				}
 
-					for (int i = 0; i < 100; i++)
+				int attackRating = 0;
+
+				foreach (var enemy in Battlers.Where(b => b.Team == Teams.TeamB))
+				{
+					SimLog.Add(Enum.GetName(typeof(EnemyIds), enemy.EnemyId) + ": " + String.Join(", ", scripts[(int)enemy.EnemyId].Attacks.Select(a => Battle.BattleActions[(int)a].Name)) + ".");
+
+					scripts[(int)enemy.EnemyId].Attacks.Where(a => a != EnemyAttackIds.Nothing).Select(a => (Battle.BattleActions[(int)a].Name, Battle.BattleActions[(int)a].Rating(enemy))).ToList().ForEach(a => ratings[a.Name] = a.Item2);
+
+					var namesList = scripts[(int)enemy.EnemyId].Attacks.Where(a => a != EnemyAttackIds.Nothing).Select(a => Battle.BattleActions[(int)a].Name).ToList();
+					namesList.Sort();
+
+					for (int z = 0; z < namesList.Count; z++)
 					{
-						InitTeams(power, simformation);
-						DoBattle(rng);
-					};
+						for (int x = z + 1; x < namesList.Count; x++)
+						{
+							attackpairs.Add((namesList[z], namesList[x]));
+						}
+					}
 
-					SimLog.Add(Enum.GetName(typeof(EnemyIds), simformation) + ": " + String.Join(", ", scripts[(int)simformation].Attacks.Select(a => Battle.BattleActions[a].Name)) + ".");
-					SimLog.Add(Enum.GetName(typeof(PowerLevels), power) + " Power vs " + Enum.GetName(typeof(EnemyIds), simformation));
-					SimLog.Add("Kaeli: " + (winsA[0] * 100) / (winsA[0] + winsB[0]) + "%");
-					SimLog.Add("Tristam: " + (winsA[1] * 100) / (winsA[1] + winsB[1]) + "%");
-					SimLog.Add("Phoebe: " + (winsA[2] * 100) / (winsA[2] + winsB[2]) + "%");
-					SimLog.Add("Reuben: " + (winsA[3] * 100) / (winsA[3] + winsB[3]) + "%");
-					SimLog.Add("Total: " + (winsA.Sum() * 100) / (winsA.Sum() + winsB.Sum()) + "%");
+					//var currentAttackRating = (int)scripts[(int)enemy.EnemyId].Attacks.Where(a => a != 0xFF).Select(a => Battle.BattleActions[a].Rating(enemy)).Average();
+					//var attackCount = scripts[(int)enemy.EnemyId].Attacks.Where(a => a != 0xFF).Count();
+
+					//currentAttackRating += (6 - attackCount) * 5;
+					//attackRating += currentAttackRating;
+				}
+
+				//attackRating /= Battlers.Count(b => b.Team == Teams.TeamB);
+
+				/*
+				int attackRating = (int)Battlers.Where(b => b.Team == Teams.TeamB)
+					.SelectMany(e => scripts[(int)e.EnemyId].Attacks)
+					.Where(a => a != 0xFF)
+					.Distinct()
+					.ToList()
+					.Select(a => Battle.BattleActions[a].Rating()
+					.Average();*/
+
+				SimLog.Add("Average Rating: " + attackRating + ".");
+
+				SimLog.Add("Ben: " + String.Join(", ", Battlers.Find(b => b.IsBen).Gears.Select(g => Enum.GetName(typeof(Items), g))) + ".");
+
+				if (winsA[0] + winsB[0] > 0) SimLog.Add("Kaeli: " + (winsA[0] * 100) / (winsA[0] + winsB[0]) + "%");
+				if (winsA[1] + winsB[1] > 0) SimLog.Add("Tristam: " + (winsA[1] * 100) / (winsA[1] + winsB[1]) + "%");
+				if (winsA[2] + winsB[2] > 0) SimLog.Add("Phoebe: " + (winsA[2] * 100) / (winsA[2] + winsB[2]) + "%");
+				if (winsA[3] + winsB[3] > 0) SimLog.Add("Reuben: " + (winsA[3] * 100) / (winsA[3] + winsB[3]) + "%");
+
+				var attackNames = Battlers.Where(b => b.Team == Teams.TeamB)
+									.SelectMany(e => scripts[(int)e.EnemyId].Attacks)
+									.Where(a => a != EnemyAttackIds.Nothing)
+									.Distinct()
+									.ToList()
+									.Select(a => Battle.BattleActions[(int)a].Name)
+									.ToList();
+
+
+				var winRatio = (winsA[(int)currentCompanion - 1] * 100) / (winsA[(int)currentCompanion - 1] + winsB[(int)currentCompanion - 1]);
+				runningratio += winRatio;
+
+				resultsTracker.Add((new(attackNames), winRatio));
+				/*
+				(int half, int quarter, int zero) winIncrement = (0, 0, 0);
+
+				if (winRatio <= 0)
+				{
+					winIncrement = (0, 0, 1);
+				}
+				else if (winRatio <= 25)
+				{
+					winIncrement = (0, 1, 0);
+				}
+				else if (winRatio <= 50)
+				{
+					winIncrement = (1, 0, 0);
+				}
+
+				if (winRatio <= 50)
+				{
+					foreach (var attack in attackNames)
+					{
+						if (resultsTracker.ContainsKey(attack))
+						{
+							resultsTracker[attack] = (resultsTracker[attack].half + winIncrement.half, resultsTracker[attack].quarter + winIncrement.quarter, resultsTracker[attack].zero + winIncrement.zero);
+						}
+						else
+						{
+							resultsTracker[attack] = winIncrement;
+						}
+					}
+				}
+				*/
+				//SimLog.Add("Total: " + (winsA.Sum() * 100) / (winsA.Sum() + winsB.Sum()) + "%");
+				/*
+				if (!Battlers.Find(b => b.IsBen).ImproveGear(Battlers.Where(b => b.Team == Teams.TeamB).ToList(), rng))
+				{
+					break;
+				}*/
+			}
+
+			List<string> nameList = resultsTracker.SelectMany(r => r.attacks).Distinct().ToList();
+			attackpairs = attackpairs.Distinct().ToList();
+
+			//var test = resultsTracker.GroupBy(r => r.attacks.GetRange(0, 2)).ToList();
+			
+			List<(string attack, int max, int min, int average, int rating)> finalResult = nameList
+				.Select(n => (n,
+					resultsTracker.Where(r => r.attacks.Contains(n)).Max(r => r.percent),
+					resultsTracker.Where(r => r.attacks.Contains(n)).Min(r => r.percent),
+					(int)resultsTracker.Where(r => r.attacks.Contains(n)).Average(r => r.percent),
+					ratings[n])
+					)
+				.OrderByDescending(r => r.Item4)
+				.ToList();
+
+			//List<(string attack, string attack1, string attack2, int max, int min, int average, int count)> finalResult2 = attackpairs
+			var finalResult2 = attackpairs
+				.Select(n => (n.attack1 + ", " + n.attack2,
+					n.attack1,
+					n.attack2,
+					resultsTracker.Where(r => r.attacks.Contains(n.attack1) && r.attacks.Contains(n.attack2)).Max(r => r.percent),
+					resultsTracker.Where(r => r.attacks.Contains(n.attack1) && r.attacks.Contains(n.attack2)).Min(r => r.percent),
+					(int)resultsTracker.Where(r => r.attacks.Contains(n.attack1) && r.attacks.Contains(n.attack2)).Average(r => r.percent),
+					resultsTracker.Where(r => r.attacks.Contains(n.attack1) && r.attacks.Contains(n.attack2)).Count())
+					)
+				.OrderByDescending(r => r.Item6)
+				.Select((r,i) => (r, i))
+				.ToList();
+			
+			var finalResult3 = nameList.Select(n =>
+				(n,
+				finalResult2.Where(r => r.r.attack1 == n || r.r.attack2 == n).Average(r => r.i))).ToList();
+
+
+			/*
+			List<(string attack, int max, int min, int average)> finalResult = test
+				.Select(g => (String.Join(", ", g.First().attacks.GetRange(0,2)),
+					g.Max(r => r.percent),
+					g.Min(r => r.percent),
+					(int)g.Average(r => r.percent))
+					)
+				.OrderByDescending(r => r.Item4)
+				.ToList();*/
+			//resultsTracker = resultsTracker.OrderByDescending(r => r.Value.zero).ToDictionary(r => r.Key, r => r.Value);
+			resultsTracker = resultsTracker.OrderByDescending(s => s.percent).ToList();
+			SimLog.Add("Final %: " + runningratio / 100 + "%");
+			SimLog.Add("Simulation finished.");
+		}
+		private void MatrixStart()
+		{
+			var enemies = Battlers.Where(b => b.Team == Teams.TeamB).ToList();
+			var allies = Battlers.Where(b => b.Team == Teams.TeamA).ToList();
+
+			List<List<(int slot, int prob)>> probabilities = new();
+			foreach (var enemy in enemies)
+			{
+				enemy.SimulationMode = true;
+				probabilities.Add(enemy.ScriptProbability2());
+			}
+
+			List<(int prob, int hpremaining, int incapacited)> results = new();
+			ProcessEnemy(enemies, allies, results, 1, probabilities, 0, allies.Select(a => a.Hp).ToList(), allies.Select(a => a.Ailments.ToList()).ToList());
+
+			int allprob = results.Sum(r => r.prob);
+
+			var ok60plus = results.Where(r => r.hpremaining >= 60 && r.incapacited == 0).Sum(r => r.prob) * 100 / allprob;
+			var one60plus = results.Where(r => r.hpremaining >= 60 && r.incapacited == 1).Sum(r => r.prob) * 100 / allprob;
+			var two60plus = results.Where(r => r.hpremaining >= 60 && r.incapacited == 2).Sum(r => r.prob) * 100 / allprob;
+			var okless = results.Where(r => r.hpremaining < 60 && r.incapacited == 0).Sum(r => r.prob) * 100 / allprob;
+			var oneless = results.Where(r => r.hpremaining < 60 && r.incapacited == 1).Sum(r => r.prob) * 100 / allprob;
+			var twoless = results.Where(r => r.hpremaining < 60 && r.incapacited == 2).Sum(r => r.prob) * 100 / allprob;
+
+			var goodspot = ok60plus + one60plus;
+			var badsport = two60plus + oneless + twoless + okless;
+
+			SimLog.Add("Estimate survival rate: " + goodspot + "%");
+
+			foreach (var enemy in enemies)
+			{
+				enemy.SimulationMode = false;
+			}
+		}
+		private void ProcessEnemy(List<Entity> enemies, List<Entity> allies, List<(int prob, int hpremaining, int incapacited)> results, int runningprob, List<List<(int slot, int prob)>> probabilities, int currentenemy, List<int> hp, List<List<ElementsType>> ailments)
+		{
+
+			if (currentenemy >= enemies.Count)
+			{
+				List<ElementsType> incapicitingAilments = new() { ElementsType.Doom, ElementsType.Stone, ElementsType.Paralysis, ElementsType.Confusion, ElementsType.Sleep };
+				results.Add((runningprob, allies.Sum(a => a.Hp) * 100 / allies.Sum(a => a.MaxHp), allies.Count(a => a.Ailments.Intersect(incapicitingAilments).Any())));
+				Log.Add("Result added");
+			}
+			else
+			{
+				List<ElementsType> incapicitingAilments = new() { ElementsType.Doom, ElementsType.Stone };
+
+				foreach (var action in probabilities[currentenemy])
+				{
+					for (int i = 0; i < allies.Count; i++)
+					{
+						allies[i].HealUp();
+						allies[i].Hp = hp[i];
+						allies[i].Ailments.AddRange(ailments[i]);
+					}
+
+					if (enemies[currentenemy].Actions[action.slot].Targeting == Targetings.MultipleEnemy)
+					{
+						enemies[currentenemy].Actions[action.slot].Execute(enemies[currentenemy], allies, TargetSelections.PrioritizeMultipleTarget, Log, Rng);
+						ProcessEnemy(enemies, allies, results, runningprob * action.prob, probabilities, currentenemy + 1, allies.Select(a => a.Hp).ToList(), allies.Select(a => a.Ailments.ToList()).ToList());
+					}
+					else
+					{
+						if (!allies[0].Ailments.Intersect(incapicitingAilments).Any())
+						{
+							enemies[currentenemy].Actions[action.slot].Execute(enemies[currentenemy], allies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, Rng);
+							ProcessEnemy(enemies, allies, results, runningprob * action.prob, probabilities, currentenemy + 1, allies.Select(a => a.Hp).ToList(), allies.Select(a => a.Ailments.ToList()).ToList());
+						}
+
+						for (int i = 0; i < allies.Count; i++)
+						{
+							allies[i].HealUp();
+							allies[i].Hp = hp[i];
+							allies[i].Ailments.AddRange(ailments[i]);
+						}
+
+						if (allies.Count > 1 && !allies[1].Ailments.Intersect(incapicitingAilments).Any())
+						{
+							enemies[currentenemy].Actions[action.slot].Execute(enemies[currentenemy], allies.GetRange(1, 1), TargetSelections.PrioritizeSingleTarget, Log, Rng);
+							ProcessEnemy(enemies, allies, results, runningprob * action.prob, probabilities, currentenemy + 1, allies.Select(a => a.Hp).ToList(), allies.Select(a => a.Ailments.ToList()).ToList());
+						}
+					}
+				}
+			}
+		}
+		private void GenRoundMatrix()
+		{ 
+			var enemies = Battlers.Where(b => b.Team == Teams.TeamB).ToList();
+			var allies = Battlers.Where(b => b.Team == Teams.TeamA).ToList();
+			List<Dictionary<int, int>> trueOdds = new();
+
+			List<ElementsType> incapicitingAilments = new() { ElementsType.Doom, ElementsType.Stone, ElementsType.Paralysis, ElementsType.Confusion, ElementsType.Sleep };
+			List<(int prob, int hpremaining, int maxdamage, int incapacited)> results = new();
+
+			foreach (var enemy in enemies)
+			{
+				enemy.SimulationMode = true;
+				
+				var probs = enemy.ScriptProbability2();
+
+				foreach (var action in probs)
+				{
+					if (enemy.Actions[action.slot].Targeting == Targetings.MultipleEnemy)
+					{
+						allies.ForEach(a => a.HealUp());
+						enemy.Actions[action.slot].Execute(enemy, allies, TargetSelections.PrioritizeMultipleTarget, Log, Rng);
+						var morehp = allies.OrderByDescending(a => a.MaxHp).First();
+						results.Add((action.prob, allies.Sum(a => a.Hp), morehp.MaxHp - morehp.Hp, allies.Count(a => a.Ailments.Intersect(incapicitingAilments).Any())));
+					}
+					else
+					{
+						allies.ForEach(a => a.HealUp());
+						enemy.Actions[action.slot].Execute(enemy, allies.GetRange(0,1), TargetSelections.PrioritizeSingleTarget, Log, Rng);
+						results.Add((action.prob / 2, allies.Sum(a => a.Hp), allies[0].MaxHp - allies[0].Hp, allies[0].Ailments.Intersect(incapicitingAilments).Any() ? 1 : 0));
+
+						if (allies.Count > 1)
+						{
+							allies[0].HealUp();
+							enemy.Actions[action.slot].Execute(enemy, allies.GetRange(1, 1), TargetSelections.PrioritizeSingleTarget, Log, Rng);
+							results.Add((action.prob / 2, allies.Sum(a => a.Hp), allies[1].MaxHp - allies[1].Hp, allies[1].Ailments.Intersect(incapicitingAilments).Any() ? 1 : 0));
+						}
+					}
 				}
 			}
 
-
-			SimLog.Add("Simulation finished.");
-
+			enemies.ForEach(e => e.SimulationMode = false);
 		}
-		private void InitTeams(PowerLevels powerlevel, EnemyIds formation)
+		private void InitTeams(PowerLevels powerlevel, EnemyIds formation, int levelben, int levelcomp)
 		{
-			List<CompanionsId> validcompanions = new() { CompanionsId.Kaeli, CompanionsId.Reuben, CompanionsId.Phoebe, CompanionsId.Tristam };
-			currentCompanion = Rng.PickFrom(validcompanions);
-			//PowerLevels powerLevel = PowerLevels.Intermediate;
-			var formationentities = formations[formation];
-
 			Battlers = new()
 			{
-				new Entity(Log, Rng, powerlevel, CompanionsId.Benjamin),
-				new Entity(Log, Rng, powerlevel, currentCompanion),
+				new Entity(Log, Rng, powerlevel, CompanionsId.Benjamin, levelben),
+				new Entity(Log, Rng, powerlevel, currentCompanion, levelcomp),
 			};
 
+			InitEnemies(formation);
+		}
+		private void InitEnemies(EnemyIds formation)
+		{
+
+			//scripts.ShuffleAttacks(EnemizerAttacks.Chaos, EnemizerGroups.MobsBossesDK, Rng);
+			scripts.BalancedTest(EnemizerGroups.MobsBossesDK, Rng);
+
+			var formationentities = formations[formation];
+			Battlers.RemoveAll(b => b.Team == Teams.TeamB);
 			foreach (var entity in formationentities)
 			{
 				Battlers.Add(new Entity(Log, Rng, enemies[(int)entity], scripts));
 			}
 		}
+
 		Dictionary<EnemyIds, List<EnemyIds>> formations = new()
 		{
 			{ EnemyIds.Behemoth, new() { EnemyIds.Behemoth } },
@@ -157,6 +453,7 @@ namespace FFMQLib
 			{ EnemyIds.DualheadHydra, new() { EnemyIds.DualheadHydra } },
 			{ EnemyIds.Gidrah, new() { EnemyIds.Gidrah, EnemyIds.Skuldier, EnemyIds.Skuldier } },
 			{ EnemyIds.Dullahan, new() { EnemyIds.Dullahan, EnemyIds.Vampire, EnemyIds.Vampire } },
+			{ EnemyIds.Thanatos, new() { EnemyIds.Dullahan } },
 			{ EnemyIds.Pazuzu, new() { EnemyIds.Pazuzu } },
 			{ EnemyIds.SkullrusRex, new() { EnemyIds.SkullrusRex, EnemyIds.Shadow, EnemyIds.Shadow } },
 			{ EnemyIds.StoneGolem, new() { EnemyIds.StoneGolem, EnemyIds.Cerebus, EnemyIds.Cerebus } },
@@ -164,12 +461,6 @@ namespace FFMQLib
 			{ EnemyIds.Zuh, new() { EnemyIds.Zuh, EnemyIds.Chimera, EnemyIds.Thanatos } },
 			{ EnemyIds.DarkKing, new() { EnemyIds.DarkKing } },
 		};
-		private void SelectionFormation(EnemyIds encounter)
-		{ 
-		
-		
-		
-		}
 		private void DoBattle(MT19337 rng)
 		{
 			List<ElementsType> deathAilments = new() { ElementsType.Doom, ElementsType.Stone };
@@ -206,6 +497,39 @@ namespace FFMQLib
 			}
 		}
 
+		private void ProtoDoBattle(MT19337 rng)
+		{
+			Log.Add("Proto Battle started.");
+			bool teamdefeated = false;
+			int roundcount = 0;
+
+			while (!teamdefeated)
+			{
+				roundcount++;
+				Log.Add("Round " + roundcount + " started.");
+				ProtoDoRound(rng);
+
+				if (roundcount > 200)
+				{
+					ProtoBattlers.Where(b => b.Team == Teams.TeamA).ToList().ForEach(b => b.ProcessDamage(b.MaxHp, 0));
+				}
+
+				if (!ProtoBattlers.Where(b => b.Team == Teams.TeamA && !b.TechnicalDeath).Any())
+				{
+					Log.Add("Team A is defeated.");
+					protoWinsB[(int)currentCompanion - 1]++;
+					teamdefeated = true;
+				}
+				else if (!ProtoBattlers.Where(b => b.Team == Teams.TeamB && !b.TechnicalDeath).Any())
+				{
+					Log.Add("Team B is defeated.");
+					protoWinsA[(int)currentCompanion - 1]++;
+					teamdefeated = true;
+				}
+			}
+		}
+
+
 		private void DoRound(MT19337 rng)
 		{
 			// Ben choose is action before initiative
@@ -215,6 +539,7 @@ namespace FFMQLib
 			foreach (var battler in Battlers)
 			{
 				battler.RollInitiative(rng);
+				battler.Recovered = false;
 			}
 
 			Battlers = Battlers.OrderByDescending(b => b.Initiative).ToList();
@@ -314,6 +639,100 @@ namespace FFMQLib
 				}
 			}
 		}
+		private void ProtoDoRound(MT19337 rng)
+		{
+			// Roll initiative
+			foreach (var battler in Battlers)
+			{
+				battler.RollInitiative(rng);
+			}
+
+			ProtoBattlers = ProtoBattlers.OrderByDescending(b => b.Initiative).ToList();
+
+			List<ElementsType> deathAilments = new() { ElementsType.Doom, ElementsType.Stone };
+			List<ElementsType> disabledAilments = new() { ElementsType.Paralysis, ElementsType.Sleep };
+
+			foreach (var battler in ProtoBattlers)
+			{
+				if (!ProtoBattlers.Where(b => b.Team == Teams.TeamA && !b.TechnicalDeath).Any() || !ProtoBattlers.Where(b => b.Team == Teams.TeamB && !b.TechnicalDeath).Any())
+				{
+					break;
+				}
+
+				if (!battler.Ailments.Intersect(deathAilments).Any())
+				{
+					bool skipround = false;
+
+					if (battler.Ailments.Contains(ElementsType.Paralysis))
+					{
+						skipround = true;
+
+						if (rng.Between(0, 100) < 0x14)
+						{
+							battler.Ailments.Remove(ElementsType.Paralysis);
+							Log.Add(battler.Name + " recovered from paralysis.");
+						}
+					}
+
+					if (battler.Ailments.Contains(ElementsType.Sleep))
+					{
+						skipround = true;
+
+						if (rng.Between(0, 100) < 0x1E)
+						{
+							battler.Ailments.Remove(ElementsType.Sleep);
+							Log.Add(battler.Name + " recovered from sleep.");
+						}
+					}
+
+					if (battler.Ailments.Contains(ElementsType.Confusion))
+					{
+						if (rng.Between(0, 100) < 0x28)
+						{
+							battler.Ailments.Remove(ElementsType.Confusion);
+							Log.Add(battler.Name + " recovered from confusion.");
+							skipround = true;
+						}
+					}
+
+					if (battler.Recovered)
+					{
+						battler.Recovered = false;
+						skipround = true;
+					}
+
+					if (!skipround)
+					{
+						Log.Add(battler.Name + " is acting.");
+						battler.DoRound(ProtoBattlers, rng);
+					}
+				}
+			}
+
+			var multiplyingBattlers = ProtoBattlers.Where(b => b.Multiply).ToList();
+
+			foreach (var battler in multiplyingBattlers)
+			{
+				if (battler.Multiply)
+				{
+					battler.Multiply = false;
+					var wholeteam = ProtoBattlers.Where(b => b.Team == battler.Team).ToList();
+					var deadteammates = wholeteam.Where(b => b.TechnicalDeath).ToList();
+
+					if (deadteammates.Any() && wholeteam.Count >= 3)
+					{
+						ProtoBattlers.Remove(deadteammates.First());
+					}
+
+					if (wholeteam.Count < 3)
+					{
+						ProtoEntity copy = new ProtoEntity(Log, Rng, enemies[(int)battler.EnemyId], scripts);
+						copy.Hp = battler.Hp;
+						ProtoBattlers.Add(copy);
+					}
+				}
+			}
+		}
 
 		public static Dictionary<int, BattleAction> BattleActions = new()
 		{
@@ -363,12 +782,12 @@ namespace FFMQLib
 			{ 0x46, new BattleAction("Bone Missile", 0x46, 0x06, 100, ActionRoutines.Bomb, new() { ElementsType.Projectile }, new(), Targetings.SingleEnemy) },
 			{ 0x47, new BattleAction("Bow & Arrow", 0x47, 0x0F, 100, ActionRoutines.Projectile, new() { ElementsType.Projectile }, new(), Targetings.SingleEnemy) },
 			{ 0x48, new BattleAction("Blow Dart", 0x48, 0x0F, 100, ActionRoutines.Projectile, new() { ElementsType.Projectile }, new(), Targetings.SingleEnemy) },
-			{ 0x49, new BattleAction("Cure", 0x49, 0x19, 100, ActionRoutines.Cure, new(), new(), Targetings.SingleAlly) },
-			{ 0x4A, new BattleAction("Heal", 0x4A, 0x00, 100, ActionRoutines.Heal, new(), new() { ElementsType.Stone }, Targetings.SingleAlly) },
-			{ 0x4B, new BattleAction("Quake", 0x4B, 0x14, 100, ActionRoutines.MagicDamage3, new() { ElementsType.Earth }, new(), Targetings.MultipleEnemy) },
+			{ 0x49, new BattleAction("CureSelf", 0x49, 0x19, 100, ActionRoutines.Cure, new(), new(), Targetings.SingleAlly) },
+			{ 0x4A, new BattleAction("HealSelf", 0x4A, 0x00, 100, ActionRoutines.Heal, new(), new() { ElementsType.Stone }, Targetings.SingleAlly) },
+			{ 0x4B, new BattleAction("QuakeSpell", 0x4B, 0x14, 100, ActionRoutines.MagicDamage3, new() { ElementsType.Earth }, new(), Targetings.MultipleEnemy) },
 			{ 0x4C, new BattleAction("Blizzard", 0x4C, 0x0A, 100, ActionRoutines.MagicDamage2, new() { ElementsType.Water }, new(), Targetings.SingleEnemy) },
 			{ 0x4D, new BattleAction("Fire", 0x4D, 0x0F, 100, ActionRoutines.MagicDamage2, new() { ElementsType.Fire }, new(), Targetings.SingleEnemy) },
-			{ 0x4E, new BattleAction("Thunder", 0x4E, 0x14, 100, ActionRoutines.MagicDamage2, new() { ElementsType.Water, ElementsType.Air }, new(), Targetings.SingleEnemy) },
+			{ 0x4E, new BattleAction("ThunderSpell", 0x4E, 0x14, 100, ActionRoutines.MagicDamage2, new() { ElementsType.Water, ElementsType.Air }, new(), Targetings.SingleEnemy) },
 			// weird one
 			{ 0x4F, new BattleAction("Reflectant", 0x4F, 0x00, 55, ActionRoutines.Seed, new(), new(), Targetings.SingleAlly) },
 			{ 0x50, new BattleAction("Electrapulse", 0x50, 0xD1, 100, ActionRoutines.MagicStatsDebuff, new(), new(), Targetings.SingleEnemy) },
@@ -380,7 +799,7 @@ namespace FFMQLib
 			{ 0x56, new BattleAction("Doom Gaze", 0x56, 0x00, 94, ActionRoutines.Ailments1, new() { ElementsType.Projectile }, new() { ElementsType.Doom }, Targetings.SingleEnemy) },
 			{ 0x57, new BattleAction("Doom Powder", 0x57, 0x00, 94, ActionRoutines.Ailments1, new() { ElementsType.Projectile }, new() { ElementsType.Doom }, Targetings.SingleEnemy) },
 			{ 0x58, new BattleAction("Cure", 0x58, 0x00, 55, ActionRoutines.Cure, new(), new(), Targetings.SingleAlly) },
-			{ 0x59, new BattleAction("Fire Breath", 0x59, 0x5C, 100, ActionRoutines.PureDamage1, new() { ElementsType.Fire }, new(), Targetings.MultipleEnemy) },
+			{ 0x59, new BattleAction("Fire Breath Fixed", 0x59, 0x5C, 100, ActionRoutines.PureDamage1, new() { ElementsType.Fire }, new(), Targetings.MultipleEnemy) },
 			{ 0x5A, new BattleAction("Punch", 0x5A, 0x04, 100, ActionRoutines.PhysicalDamage1, new() { ElementsType.Bomb }, new(), Targetings.SingleEnemy) },
 			{ 0x5B, new BattleAction("Kick", 0x5B, 0x05, 100, ActionRoutines.PhysicalDamage1, new() { ElementsType.Bomb }, new(), Targetings.SingleEnemy) },
 			{ 0x5C, new BattleAction("Uppercut", 0x5C, 0x0F, 100, ActionRoutines.PhysicalDamage1, new() { ElementsType.Bomb }, new(), Targetings.SingleEnemy) },
@@ -397,8 +816,8 @@ namespace FFMQLib
 			{ 0x67, new BattleAction("Mega Punch", 0x67, 0x05, 100, ActionRoutines.PhysicalDamage1, new() { ElementsType.Bomb }, new(), Targetings.SingleEnemy) },
 			{ 0x68, new BattleAction("Bearhug", 0x68, 0x02, 100, ActionRoutines.PhysicalDamage3, new() { ElementsType.Bomb }, new(), Targetings.SingleEnemy) },
 			{ 0x69, new BattleAction("Axe Bomber", 0x69, 0x0A, 100, ActionRoutines.PhysicalDamage3, new() { ElementsType.Bomb }, new(), Targetings.SingleEnemy) },
-			{ 0x6A, new BattleAction("Pilediver", 0x6A, 0x50, 100, ActionRoutines.PureDamage1, new() { ElementsType.Bomb }, new(), Targetings.SingleEnemy) },
-			{ 0x6B, new BattleAction("Sky Attack", 0x6B, 0x46, 100, ActionRoutines.PureDamage1, new() { ElementsType.Bomb }, new(), Targetings.MultipleEnemy) },
+			{ 0x6A, new BattleAction("Piledriver Fixed", 0x6A, 0x50, 100, ActionRoutines.PureDamage1, new() { ElementsType.Bomb }, new(), Targetings.SingleEnemy) },
+			{ 0x6B, new BattleAction("Sky Attack Fixed", 0x6B, 0x46, 100, ActionRoutines.PureDamage1, new() { ElementsType.Bomb }, new(), Targetings.MultipleEnemy) },
 			{ 0x6C, new BattleAction("Wraparound", 0x6C, 0x0A, 100, ActionRoutines.PhysicalDamage3, new() { ElementsType.Bomb }, new(), Targetings.SingleEnemy) },
 			{ 0x6D, new BattleAction("Dive", 0x6D, 0x0A, 100, ActionRoutines.PhysicalDamage3, new() { ElementsType.Bomb }, new(), Targetings.SingleEnemy) },
 			{ 0x6E, new BattleAction("Attach", 0x6E, 0x0A, 100, ActionRoutines.PhysicalDamage3, new() { ElementsType.Bomb }, new(), Targetings.SingleEnemy) },
@@ -509,13 +928,10 @@ namespace FFMQLib
 			{ 0xD7, new BattleAction("Fire Breath", 0xD7, 0x78, 100, ActionRoutines.PhysicalDamage4, new() { ElementsType.Fire }, new(), Targetings.SingleEnemy) },
 			{ 0xD8, new BattleAction("Sky Attack", 0xD8, 0xFA, 100, ActionRoutines.PhysicalDamage3, new() { ElementsType.Bomb }, new(), Targetings.MultipleEnemy) },
 			{ 0xD9, new BattleAction("Piledriver", 0xD9, 0x0A, 100, ActionRoutines.PhysicalDamage3, new() { ElementsType.Bomb }, new(), Targetings.SingleEnemy) },
-			{ 0xDA, new BattleAction("Hurricane", 0xDA, 0x0F, 100, ActionRoutines.PhysicalDamage4, new() { ElementsType.Air, ElementsType.Projectile }, new(), Targetings.SingleEnemy) },
-			{ 0xDB, new BattleAction("Heatwave", 0xDB, 0xDC, 100, ActionRoutines.PhysicalDamage4, new() { ElementsType.Fire, ElementsType.Air, ElementsType.Projectile }, new() { ElementsType.Paralysis, ElementsType.Sleep, ElementsType.Silence }, Targetings.MultipleEnemy) },
+			{ 0xDA, new BattleAction("Hurricane Plus", 0xDA, 0x0F, 100, ActionRoutines.PhysicalDamage4, new() { ElementsType.Air, ElementsType.Projectile }, new(), Targetings.SingleEnemy) },
+			{ 0xDB, new BattleAction("Heatwave Unused", 0xDB, 0xDC, 100, ActionRoutines.PhysicalDamage4, new() { ElementsType.Fire, ElementsType.Air, ElementsType.Projectile }, new() { ElementsType.Paralysis, ElementsType.Sleep, ElementsType.Silence }, Targetings.MultipleEnemy) },
 
 			{ 0xFF, new BattleAction("Nothing", 0xFF, 0x00, 0, ActionRoutines.None, new() , new(), Targetings.SelectionEnemy) },
 		};
-
-
 	}
-
 }

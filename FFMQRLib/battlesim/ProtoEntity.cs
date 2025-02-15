@@ -13,13 +13,8 @@ using System.Runtime.CompilerServices;
 
 namespace FFMQLib
 {
-	public class ScriptProfile
-	{ 
-		public List<BattleAction> Actions;
-		public List<int> ActionIds;
-		public List<int> WeigthedScript;
-	}
-	public class Entity
+
+	public class ProtoEntity
 	{
 		public int Level;
 		public int Attack => Math.Max(0, coreAttack + bonusAttack - debuffAttack);
@@ -60,7 +55,6 @@ namespace FFMQLib
 		public bool IsUndead;
 		public bool IsBoss;
 		public bool HydraMode;
-		public bool SimulationMode = false;
 		public PazuzuModes PazuzuMode = PazuzuModes.AttackingShieldOff;
 		public int PazuzuRound;
 		public DkModes DkMode;
@@ -108,19 +102,19 @@ namespace FFMQLib
 
 		};
 
-		public Entity(Logger log, MT19337 rng)
+		public ProtoEntity(Logger log, MT19337 rng)
 		{
 			Rng = rng;
 			Log = log;
 		}
-		public Entity(Logger log, MT19337 rng, Enemy enemy, EnemyAttackLinks scripts)
+		public ProtoEntity(Logger log, MT19337 rng, Enemy enemy, EnemyAttackLinks scripts)
 		{
 			Rng = rng;
 			Log = log;
 			Scripts = scripts;
 			InitFromEnemy(enemy, scripts);
 		}
-		public Entity(Logger log, MT19337 rng, PowerLevels powerlevel, CompanionsId companion, int level = 0)
+		public ProtoEntity(Logger log, MT19337 rng, PowerLevels powerlevel, CompanionsId companion, int level = 0)
 		{
 			Rng = rng;
 			Log = log;
@@ -139,51 +133,10 @@ namespace FFMQLib
 			Name = "Benjamin";
 			Items startingWeapon = Items.SteelSword;
 
-			List<(int level, Items gear)> gearThreshold = new()
-			{
-				(1, Items.SteelSword),
-				(1, Items.Axe),
-				(1, Items.CureBook),
-				(4, Items.Bomb),
-				(4, Items.SteelShield),
-				(4, Items.QuakeBook),
-				(4, Items.Charm),
-				(7, Items.FireBook),
-				(7, Items.SteelHelm),
-				(7, Items.MagicRing),
-				(7, Items.CatClaw),
-				(7, Items.MagicRing),
-				(8, Items.JumboBomb),
-				(8, Items.HealBook),
-				(11, Items.KnightSword),
-				(11, Items.NobleArmor),
-				(11, Items.BlizzardBook),
-				(11, Items.VenusShield),
-				//(11, Items.ExitBook),
-				(12, Items.BattleAxe),
-				(12, Items.ThunderSeal),
-				(12, Items.CharmClaw),
-				(12, Items.WhiteSeal),
-				(16, Items.LifeBook),
-				(16, Items.MoonHelm),
-				(16, Items.AeroBook),
-				(16, Items.MegaGrenade),
-				(19, Items.GiantsAxe),
-				(19, Items.MeteorSeal),
-				(19, Items.CupidLocket),
-				(19, Items.ApolloHelm),
-				(19, Items.DragonClaw),
-				(21, Items.Excalibur),
-				(21, Items.FlareSeal),
-				(22, Items.GaiasArmor),
-				(22, Items.AegisShield),
-			};
-
-
 			if (level != 0)
 			{
 				Level = level;
-				Gears = gearThreshold.Where(g => g.level <= Level).Select(g => g.gear).ToList();
+				Gears = new() { Items.SteelArmor, startingWeapon };
 			}
 			else if (power == PowerLevels.Initial)
 			{
@@ -198,7 +151,7 @@ namespace FFMQLib
 				Level = 10;
 				List<Items> startingWeapons = new() { Items.KnightSword, Items.BattleAxe, Items.CharmClaw, Items.JumboBomb };
 				startingWeapon = Rng.PickFrom(startingWeapons);
-				Gears = new() { Items.NobleArmor, Items.VenusShield, Items.MoonHelm, Items.MagicRing, startingWeapon };
+				Gears = new() { Items.NobleArmor, Items.VenusShield, Items.MoonHelm, Items.CupidLocket, startingWeapon };
 				Actions.AddRange(new List<BattleAction>() { Battle.BattleActions[(int)Items.CureBook], Battle.BattleActions[(int)Items.BlizzardBook], Battle.BattleActions[(int)Items.ThunderSeal] });
 			}
 			else if (power == PowerLevels.Strong)
@@ -220,31 +173,29 @@ namespace FFMQLib
 			else if (power == PowerLevels.Plain10)
 			{
 				Level = 10;
-				List<Items> startingWeapons = new() { Items.SteelSword, Items.Axe, Items.CatClaw, Items.Bomb };
+				List<Items> startingWeapons = new() { Items.Excalibur, Items.GiantsAxe, Items.DragonClaw, Items.MegaGrenade };
 				startingWeapon = Rng.PickFrom(startingWeapons);
 				Gears = new() { Items.SteelArmor, Items.SteelHelm, Items.SteelShield, startingWeapon };
-				//Actions.AddRange(new List<BattleAction>() { Battle.BattleActions[(int)Items.CureBook], Battle.BattleActions[(int)Items.LifeBook], Battle.BattleActions[(int)Items.WhiteSeal], Battle.BattleActions[(int)Items.MeteorSeal], Battle.BattleActions[(int)Items.FlareSeal], Battle.BattleActions[(int)Items.AeroBook] });
+				Actions.AddRange(new List<BattleAction>() { Battle.BattleActions[(int)Items.CureBook], Battle.BattleActions[(int)Items.LifeBook], Battle.BattleActions[(int)Items.WhiteSeal], Battle.BattleActions[(int)Items.MeteorSeal], Battle.BattleActions[(int)Items.FlareSeal], Battle.BattleActions[(int)Items.AeroBook] });
 			}
 			else if (power == PowerLevels.Plain20)
 			{
 				Level = 20;
-				List<Items> startingWeapons = new() { Items.SteelSword, Items.Axe, Items.CatClaw, Items.Bomb };
+				List<Items> startingWeapons = new() { Items.Excalibur, Items.GiantsAxe, Items.DragonClaw, Items.MegaGrenade };
 				startingWeapon = Rng.PickFrom(startingWeapons);
 				Gears = new() { Items.SteelArmor, Items.SteelHelm, Items.SteelShield, startingWeapon };
-				//Actions.AddRange(new List<BattleAction>() { Battle.BattleActions[(int)Items.CureBook], Battle.BattleActions[(int)Items.LifeBook], Battle.BattleActions[(int)Items.WhiteSeal], Battle.BattleActions[(int)Items.MeteorSeal], Battle.BattleActions[(int)Items.FlareSeal], Battle.BattleActions[(int)Items.AeroBook] });
+				Actions.AddRange(new List<BattleAction>() { Battle.BattleActions[(int)Items.CureBook], Battle.BattleActions[(int)Items.LifeBook], Battle.BattleActions[(int)Items.WhiteSeal], Battle.BattleActions[(int)Items.MeteorSeal], Battle.BattleActions[(int)Items.FlareSeal], Battle.BattleActions[(int)Items.AeroBook] });
 			}
 			else if (power == PowerLevels.Plain30)
 			{
 				Level = 30;
-				List<Items> startingWeapons = new() { Items.SteelSword, Items.Axe, Items.CatClaw, Items.Bomb };
+				List<Items> startingWeapons = new() { Items.Excalibur, Items.GiantsAxe, Items.DragonClaw, Items.MegaGrenade };
 				startingWeapon = Rng.PickFrom(startingWeapons);
 				Gears = new() { Items.SteelArmor, Items.SteelHelm, Items.SteelShield, startingWeapon };
-				//Actions.AddRange(new List<BattleAction>() { Battle.BattleActions[(int)Items.CureBook], Battle.BattleActions[(int)Items.LifeBook], Battle.BattleActions[(int)Items.WhiteSeal], Battle.BattleActions[(int)Items.MeteorSeal], Battle.BattleActions[(int)Items.FlareSeal], Battle.BattleActions[(int)Items.AeroBook] });
+				Actions.AddRange(new List<BattleAction>() { Battle.BattleActions[(int)Items.CureBook], Battle.BattleActions[(int)Items.LifeBook], Battle.BattleActions[(int)Items.WhiteSeal], Battle.BattleActions[(int)Items.MeteorSeal], Battle.BattleActions[(int)Items.FlareSeal], Battle.BattleActions[(int)Items.AeroBook] });
 			}
 
-			//Actions.Add(Battle.BattleActions[(int)startingWeapon]);
-			var validOffenseGear = Enumerable.Range(0x15, 23).Select(g => (Items)g).ToList();
-			Actions.AddRange(Gears.Intersect(validOffenseGear).Select(g => Battle.BattleActions[(int)g]).ToList());
+			Actions.Add(Battle.BattleActions[(int)startingWeapon]);
 			Actions.Add(Battle.BattleActions[(int)Items.Refresher]);
 
 			MaxHp = 40 * Level;
@@ -317,26 +268,10 @@ namespace FFMQLib
 			var companion = companions[currentcompanion];
 
 			Name = Enum.GetName(typeof(CompanionsId), currentcompanion);
-			//power = PowerLevels.Strong;
-			if (power == PowerLevels.Plain10)
-			{
-				level = 10;
-			}
-			else if (power == PowerLevels.Plain20)
-			{
-				level = 20;
-			}
-			else if (power == PowerLevels.Plain30)
-			{
-				level = 30;
-			}
-
-
 
 			if (level > 0)
 			{
-				//Level = (int)(level * 1.5) + 5;
-				Level = level;
+				Level = (int)(level * 1.5) + 5;
 				if (Level < 23)
 				{
 					Gears = companion.ArmorSet1.Select(a => armorFlagsToItems[a]).Append(companion.Weapon).ToList();
@@ -366,7 +301,6 @@ namespace FFMQLib
 				Level = 34;
 				Gears = companion.ArmorSet2.Select(a => armorFlagsToItems[a]).Append(companion.Weapon).ToList();
 			}
-			/*
 			else if (power == PowerLevels.Plain10)
 			{
 				Level = 15;
@@ -381,7 +315,7 @@ namespace FFMQLib
 			{
 				Level = 35;
 				Gears = new() { Items.SteelArmor, Items.SteelHelm, Items.SteelShield, companion.Weapon };
-			}*/
+			}
 
 			Actions.Add(Battle.BattleActions[(int)companion.Weapon]);
 			Actions.Add(Battle.BattleActions[(int)Items.Refresher]);
@@ -492,25 +426,20 @@ namespace FFMQLib
 			{
 				Actions.Add(Battle.BattleActions[0x8A]);
 			}
-
 		}
-		public void RollInitiative(MT19337 rng)
+		public void RollInitiative()
 		{
-			Initiative = Speed + rng.Between(0, Speed / 2);
+			Initiative = Speed;
 		}
-		public void PlayerPickAction(List<Entity> battlers, MT19337 rng)
-		{
-			PlayerAi(battlers, rng);
-		}
-		public void DoRound(List<Entity> battlers, MT19337 rng)
+		public void DoRound(List<ProtoEntity> battlers, MT19337 rng)
 		{
 			switch (AiProfile)
 			{
 				case AiProfiles.Player:
-					PlayerActionAi(battlers, rng);
+					ProtoPlayerAi(battlers, rng);
 					break;
 				case AiProfiles.Companion:
-					CompanionAi(battlers, rng);
+					ProtoPlayerAi(battlers, rng);
 					break;
 				case AiProfiles.Enemy:
 					EnemyAi(battlers, rng);
@@ -522,83 +451,14 @@ namespace FFMQLib
 					HydraAi(battlers, rng);
 					break;
 				case AiProfiles.Pazuzu:
-					PazuzuAi(battlers, rng);
+					EnemyAi(battlers, rng);
 					break;
 				case AiProfiles.DarkKing:
 					DarkKingAi(battlers, rng);
 					break;
 			}
 		}
-		//public ()
-		public List<(int slot, int prob)> ScriptProbability2()
-		{
-			List<(int slot, int prob)> truprobab = new();
-
-			// standard
-			int totalodds = 0;
-
-			for (int i = 0; i < 6; i++)
-			{
-				if (i < Actions.Count && Actions[i].Id != 0xFF && weightedScript[i] != 0x00)
-				{
-					truprobab.Add((i, weightedScript[i] & 0x7F));
-				}
-
-				totalodds += weightedScript[i];
-			}
-
-			for (int i = 0; i < truprobab.Count; i++)
-			{
-				truprobab[i] = (truprobab[i].slot, (truprobab[i].prob * 100) / totalodds);
-			}
-			//
-			// firstrike 
-			/*
-			for (int i = 0; i < 6; i++)
-			{
-				if ((weightedScript[i] & 0x80) > 0)
-				{
-					truprobab.Add((i, 0xFF));
-				}
-			}*/
-
-			return truprobab;
-		}
-		public List<(int slot, Entity enemy, int prob)> ScriptProbability()
-		{
-			List<(int slot, Entity enemy, int prob)> truprobab = new();
-
-			// standard
-			int totalodds = 0;
-
-			for (int i = 0; i < 6; i++)
-			{
-				if (i < Actions.Count && Actions[i].Id != 0xFF && weightedScript[i] != 0x00)
-				{
-					truprobab.Add((i, this, weightedScript[i] & 0x7F));
-				}
-
-				totalodds += weightedScript[i];
-			}
-
-			for (int i = 0; i < truprobab.Count; i++)
-			{
-				truprobab[i] = (truprobab[i].slot, this, (truprobab[i].prob * 100) / totalodds);
-			}
-			//
-			// firstrike 
-			/*
-			for (int i = 0; i < 6; i++)
-			{
-				if ((weightedScript[i] & 0x80) > 0)
-				{
-					truprobab.Add((i, 0xFF));
-				}
-			}*/
-
-			return truprobab;
-		}
-		private void EnemyAi(List<Entity> battlers, MT19337 rng)
+		private void EnemyAi(List<ProtoEntity> battlers, MT19337 rng)
 		{
 			bool foundaction = false;
 			int actionpos = 0;
@@ -639,23 +499,23 @@ namespace FFMQLib
 				}
 			}
 
-			List<Entity> validTargets = battlers.Where(b => b.Team != Team && !b.TechnicalDeath).ToList();
-			Actions[actionpos].Execute(this, validTargets, TargetSelections.PrioritizeMultipleTarget, Log, rng);
+			List<ProtoEntity> validTargets = battlers.Where(b => b.Team != Team && !b.TechnicalDeath).ToList();
+			//Actions[actionpos].Execute(this, validTargets, TargetSelections.PrioritizeMultipleTarget, Log, rng);
 		}
 
-		private void IceGolemAi(List<Entity> battlers, MT19337 rng)
+		private void IceGolemAi(List<ProtoEntity> battlers, MT19337 rng)
 		{
 			if (Hp < (MaxHp / 4) && rng.Between(0, 100) < 50)
 			{
-				List<Entity> validTargets = battlers.Where(b => b.Team != Team).ToList();
-				Actions[6].Execute(this, validTargets, TargetSelections.OverrideMultiple, Log, rng);
+				List<ProtoEntity> validTargets = battlers.Where(b => b.Team != Team && !b.TechnicalDeath).ToList();
+				//Actions[6].Execute(this, validTargets, TargetSelections.OverrideMultiple, Log, rng);
 			}
 			else
 			{
 				EnemyAi(battlers, rng);
 			}
 		}
-		private void HydraAi(List<Entity> battlers, MT19337 rng)
+		private void HydraAi(List<ProtoEntity> battlers, MT19337 rng)
 		{
 			if (Hp < (MaxHp / 2) && !HydraMode)
 			{
@@ -665,275 +525,80 @@ namespace FFMQLib
 
 			EnemyAi(battlers, rng);
 		}
-		private void PazuzuAi(List<Entity> battlers, MT19337 rng)
-		{
-			PazuzuRound++;
-
-			if (PazuzuRound > 5)
-			{
-				PazuzuMode++;
-
-				if (PazuzuMode > PazuzuModes.DeactivateShield)
-				{
-					PazuzuMode = PazuzuModes.AttackingShieldOff;
-				}
-			}
-
-			EnemyAi(battlers, rng);
-		}
-		private void DarkKingAi(List<Entity> battlers, MT19337 rng)
+		private void DarkKingAi(List<ProtoEntity> battlers, MT19337 rng)
 		{
 			if (DkMode == DkModes.Phase1 && Hp < (MaxHp * 0.75))
 			{
 				DkMode = DkModes.Phase2;
 				Actions = Scripts[(int)EnemyIds.DarkKing + 1].Attacks.Select(a => Battle.BattleActions[(int)a]).ToList();
-				//Actions = new() { Battle.BattleActions[0xCD], Battle.BattleActions[0xCC], Battle.BattleActions[0xCB], Battle.BattleActions[0xCF], Battle.BattleActions[0xCE], Battle.BattleActions[0xD0] };
 				weightedScript = new() { 0x14, 0x14, 0x14, 0x94, 0x0A, 0x0A };
 			}
 			else if (DkMode == DkModes.Phase2 && Hp < (MaxHp * 0.5))
 			{
 				DkMode = DkModes.Phase34;
 				Actions = Scripts[(int)EnemyIds.DarkKing + 2].Attacks.Select(a => Battle.BattleActions[(int)a]).ToList();
-				//Actions = new() { Battle.BattleActions[0xD1], Battle.BattleActions[0xD2], Battle.BattleActions[0xD3], Battle.BattleActions[0xD4], Battle.BattleActions[0xD5], Battle.BattleActions[0xD6] };
 				weightedScript = new() { 0x14, 0x14, 0x8C, 0x0C, 0x12, 0x12 };
 			}
 
 			EnemyAi(battlers, rng);
 		}
-		private void PlayerActionAi(List<Entity> battlers, MT19337 rng)
+		public void ProtoPlayerAi(List<ProtoEntity> battlers, MT19337 rng)
 		{
-			List<ElementsType> disablingAilments = new() { ElementsType.Doom, ElementsType.Stone };
-			NextAction.Execute(battlers.Where(b => b.Team != Team && !b.Ailments.Intersect(disablingAilments).Any()).ToList());
-		}
-
-		private void CompanionAi(List<Entity> battlers, MT19337 rng)
-		{
-			List<ElementsType> disablingAilments = new() { ElementsType.Doom, ElementsType.Stone };
-			PlayerAi(battlers, rng);
-			NextAction.Execute(battlers.Where(b => b.Team != Team && !b.Ailments.Intersect(disablingAilments).Any()).ToList());
-		}
-		private void PlayerAi(List<Entity> battlers, MT19337 rng)
-		{
-			List<ElementsType> disablingAilments = new() { ElementsType.Doom, ElementsType.Stone };
-			var validEnemyTargets = battlers.Where(b => b.Team != Team && !b.Ailments.Intersect(disablingAilments).Any()).ToList();
+			List<ElementsType> badAilments = new() { ElementsType.Doom, ElementsType.Stone, ElementsType.Confusion, ElementsType.Paralysis, ElementsType.Sleep };
+			var validEnemyTargets = battlers.Where(b => b.Team != Team && !b.TechnicalDeath).ToList();
 			var validAllyTargets = battlers.Where(b => b.Team == Team).ToList();
 
-			bool tookaction = false;
+			var lifeTargets = validAllyTargets.Where(t => t.Ailments.Intersect(badAilments).Any()).ToList();
+			var healTargets = validAllyTargets.Where(t => t.Ailments.Intersect(badAilments.Where(b => b != ElementsType.Doom)).Any()).ToList();
+			var cureTargets = validAllyTargets.Where(t => t.Hp < (t.MaxHp * 0.25) && !t.TechnicalDeath).ToList();
 
-			if (!Ailments.Contains(ElementsType.Confusion))
+
+			BattleAction lifeaction;
+			BattleAction healaction;
+			BattleAction cureaction;
+
+
+			bool haslife = Actions.TryFind(a => a.Id == 0x17, out lifeaction);
+			bool hasheal = Actions.TryFind(a => a.Id == 0x16, out healaction);
+			bool hascure = Actions.TryFind(a => a.Id == 0x15, out cureaction);
+
+			if (haslife & lifeTargets.Any())
 			{
-				var deadAllies = validAllyTargets.Where(t => t.Ailments.Contains(ElementsType.Doom)).ToList();
-				var stonedAllies = validAllyTargets.Where(t => t.Ailments.Contains(ElementsType.Stone)).ToList();
-				var incapacitedAllies = validAllyTargets.Where(t => t.Ailments.Contains(ElementsType.Paralysis) || t.Ailments.Contains(ElementsType.Confusion) || t.Ailments.Contains(ElementsType.Sleep)).ToList();
-				var poisonedBlindedAllies = validAllyTargets.Where(t => t.Ailments.Contains(ElementsType.Poison) || t.Ailments.Contains(ElementsType.Blind)).ToList();
-				var statusAllies = validAllyTargets.Where(t => t.Ailments.Except(new List<ElementsType>() { ElementsType.Doom }).Any()).ToList();
-				var criticalAllies = validAllyTargets.Where(t => t.Hp < t.MaxHp / 2 && !t.TechnicalDeath).ToList();
-				var debuffedAllies = validAllyTargets.Where(t => t.Debuffed && !t.TechnicalDeath).ToList();
-
-				BattleAction lifeaction;
-				BattleAction healaction;
-				BattleAction cureaction;
-				BattleAction refresher;
-
-				bool haslife = Actions.TryFind(a => a.Id == 0x17, out lifeaction);
-				bool hasheal = Actions.TryFind(a => a.Id == 0x16, out healaction);
-				bool hascure = Actions.TryFind(a => a.Id == 0x15, out cureaction);
-				bool hasrefressher = Actions.TryFind(a => a.Id == 0x13, out refresher);
-
-				if (!tookaction && deadAllies.Any() && haslife)
-				{
-					NextAction = new StoredAction(lifeaction, this, deadAllies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
-					tookaction = true;
-				}
-				else if (!tookaction && statusAllies.Any() && (haslife || hasheal))
-				{
-					if (haslife)
-					{
-						NextAction = new StoredAction(lifeaction, this, statusAllies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
-						tookaction = true;
-					}
-					else
-					{
-						NextAction = new StoredAction(healaction, this, statusAllies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
-						tookaction = true;
-					}
-				}
-				else if (!tookaction && criticalAllies.Any() && (haslife || hascure))
-				{
-					var enemies = battlers.Where(b => b.Team != Team).ToList();
-					var ally = battlers.Where(b => b.Team == Team && b.Name != Name).ToList();
-					/*
-					int enemiesInit = (int)(enemies.OrderByDescending(e => e.Speed).First().Speed * 1.5);
-					int myInit = (int)(Speed * 1.5);
-					int allyInit = 0;
-					if (ally.Any())
-					{
-						allyInit = (int)(ally.First().Speed * 1.5);
-					}*/
-
-
-					if (criticalAllies.Count == 1)
-					{
-						if (haslife)
-						{
-							NextAction = new StoredAction(lifeaction, this, criticalAllies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
-							tookaction = true;
-						}
-						else
-						{
-							NextAction = new StoredAction(cureaction, this, criticalAllies.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
-							tookaction = true;
-						}
-					}
-					else
-					{
-						if (hascure)
-						{
-							NextAction = new StoredAction(cureaction, this, criticalAllies, TargetSelections.PrioritizeMultipleTarget, Log, rng);
-							tookaction = true;
-
-						}
-						else
-						{
-							NextAction = new StoredAction(lifeaction, this, criticalAllies.OrderBy(a => a.Hp).ToList().GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, rng);
-							tookaction = true;
-						}
-					}
-				}
-				else if (debuffedAllies.Any())
-				{
-					NextAction = new StoredAction(refresher, this, debuffedAllies, TargetSelections.PrioritizeSingleTarget, Log, rng);
-					tookaction = true;
-				}
+				//lifeaction.Execute(this, lifeTargets.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, Rng);
 			}
-			
-			List<int> validAttackId = Enumerable.Range(0x18, 0x18).ToList();
-			List<int> physicalAttackId = Enumerable.Range(0x20, 0x0F).ToList();
-
-			if (!tookaction)
+			else if (hasheal & healTargets.Any())
 			{
-				// if we can't heal or are confused, then just attack
-				if (Ailments.Contains(ElementsType.Confusion))
-				{
-					// pick a side, then just pick a random attack
-					if (rng.Between(0, 100) < 50) // confirm odds;
-					{
-						validEnemyTargets = validAllyTargets.Where(a => !a.Ailments.Contains(ElementsType.Doom) && !a.Ailments.Contains(ElementsType.Stone)).ToList();
-					}
-
-					List<BattleAction> validActions = Actions.Where(a => validAttackId.Contains(a.Id)).ToList();
-					NextAction = new StoredAction(rng.PickFrom(validActions), this, validEnemyTargets, TargetSelections.RandomTargeting, Log, rng);
-				}
-				else
-				{
-					List<(int power, BattleAction action)> priorityCast = new();
-						
-					List<ElementsType> weaknesses = validEnemyTargets.SelectMany(e => e.Weaknesses).ToList();
-					List<ElementsType> resistances = validEnemyTargets.SelectMany(e => e.Resistances).ToList();
-					List<BattleAction> validActions = Actions.Where(a => validAttackId.Contains(a.Id)).ToList();
-					priorityCast = validActions.Select(a => (a.RelativePower(resistances, weaknesses), a)).ToList();
-					priorityCast = priorityCast.OrderByDescending(a => a.power).ToList();
-
-					if (validEnemyTargets.Where(v => v.PazuzuMode == PazuzuModes.AttackingShieldOn || v.PazuzuMode == PazuzuModes.DeactivateShield).Any())
-					{
-						priorityCast = priorityCast.Where(c => physicalAttackId.Contains(c.action.Id)).ToList();
-					}
-
-					NextAction = new StoredAction(priorityCast.First().action, this, validEnemyTargets, TargetSelections.PrioritizeMultipleTarget, Log, rng);
-				}
+				//healaction.Execute(this, healTargets.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, Rng);
 			}
-		}
-		public bool ImproveGear(List<Entity> battlers, MT19337 rng)
-		{
-			var validOffenseGear = Enumerable.Range(0x18, 20).Select(g => (Items)g).ToList();
-			var validDefenseGear = new List<Items>() { Items.SteelArmor, Items.NobleArmor, Items.GaiasArmor, Items.SteelHelm, Items.MoonHelm, Items.ApolloHelm, Items.SteelShield, Items.VenusShield, Items.AegisShield, Items.Charm, Items.MagicRing, Items.CupidLocket };
-
-			// Remove what we already have
-			validOffenseGear = validOffenseGear.Except(Gears).ToList();
-			validDefenseGear = validDefenseGear.Except(Gears).ToList();
-
-			List<ElementsType> weaknesses = battlers.SelectMany(b => b.Weaknesses).ToList();
-			List<ElementsType> resistances = battlers.SelectMany(b => b.Resistances).ToList();
-			List<ElementsType> inflictedailments = battlers.SelectMany(b => b.Actions.SelectMany(a => a.Ailments)).ToList();
-			List<ElementsType> typedamage = battlers.SelectMany(b => b.Actions.SelectMany(a => a.TypeDamage)).ToList();
-
-			inflictedailments = inflictedailments.Except(Resistances).ToList();
-			typedamage = typedamage.Except(Resistances).ToList();
-			var allelements = typedamage.Concat(inflictedailments).ToList();
-
-			var improvementArmor = validDefenseGear.Where(g => geardata[g].Resistances.Intersect(allelements).Any()).OrderBy(g => geardata[g].Armor).ToList();
-			//improvementArmor = improvementArmor.OrderByDescending(g => geardata[g].Resistances.Intersect(allelements).Count()).ToList();
-
-			var improvementAttack = validOffenseGear.OrderBy(g => Battle.BattleActions[(int)g].RelativePower(resistances, weaknesses)).ToList();
-
-			if (rng.Between(0, 5) == 0 && improvementArmor.Any())
+			else if (haslife && cureTargets.Any())
 			{
-				// improve defense
-				Gears.Add(improvementArmor.First());
+				//lifeaction.Execute(this, cureTargets.GetRange(0, 1), TargetSelections.PrioritizeSingleTarget, Log, Rng);
 			}
-			else if (improvementAttack.Any())
+			else if (hascure && cureTargets.Any())
 			{
-				// improve offense
-				var newaction = improvementAttack.First();
-				Gears.Add(newaction);
-				Actions.Add(Battle.BattleActions[(int)newaction]);
+				//cureaction.Execute(this, cureTargets.GetRange(0, 1), TargetSelections.PrioritizeMultipleTarget, Log, Rng);
 			}
 			else
 			{
-				return false;
+				List<int> validAttackId = Enumerable.Range(0x18, 0x18).ToList();
+
+				List<(int power, BattleAction action)> priorityCast = new();
+
+				List<ElementsType> weaknesses = validEnemyTargets.SelectMany(e => e.Weaknesses).ToList();
+				List<ElementsType> resistances = validEnemyTargets.SelectMany(e => e.Resistances).ToList();
+				List<BattleAction> validActions = Actions.Where(a => validAttackId.Contains(a.Id)).ToList();
+				priorityCast = validActions.Select(a => (a.RelativePower(resistances, weaknesses), a)).ToList();
+				priorityCast = priorityCast.OrderByDescending(a => a.power).ToList();
+
+				//priorityCast.First().action.Execute(this, validEnemyTargets, TargetSelections.PrioritizeMultipleTarget, Log, rng);
 			}
-
-			ProcessGears();
-			return true;
 		}
-		public void ApplyDebuff(int str, int agi, int spd, int mag)
-		{
-			debuffAttack += str;
-			debuffDefense += agi;
-			debuffSpeed += spd;
-			debuffMagic += mag;
-		}
-
 		public void HealUp()
 		{
 			Ailments = new();
 			Hp = MaxHp;
 			RestoreStats();
 			Recovered = false;
-
-			if (AiProfile != AiProfiles.Player || AiProfile != AiProfiles.Companion)
-			{
-				switch (EnemyId)
-				{
-					case EnemyIds.FlamerusRex:
-						weightedScript = scriptsWeight[0x10].ToList();
-						break;
-					case EnemyIds.IceGolem:
-						weightedScript = scriptsWeight[0x11].ToList();
-						AiProfile = AiProfiles.IceGolem;
-						break;
-					case EnemyIds.DualheadHydra:
-						weightedScript = scriptsWeight[0x12].ToList();
-						AiProfile = AiProfiles.Hydra;
-						break;
-					case EnemyIds.TwinheadWyvern:
-						weightedScript = scriptsWeight[0x12].ToList();
-						AiProfile = AiProfiles.Hydra;
-						break;
-					case EnemyIds.Pazuzu:
-						weightedScript = scriptsWeight[0x13].ToList();
-						AiProfile = AiProfiles.Pazuzu;
-						break;
-					case EnemyIds.Zuh:
-						weightedScript = scriptsWeight[0x14].ToList();
-						AiProfile = AiProfiles.Pazuzu;
-						break;
-					case EnemyIds.DarkKing:
-						weightedScript = scriptsWeight[0x15].ToList();
-						AiProfile = AiProfiles.DarkKing;
-						break;
-				}
-			}
 		}
 
 		private void ProcessGears()
