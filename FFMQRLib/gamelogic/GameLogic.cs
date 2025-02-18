@@ -132,6 +132,14 @@ namespace FFMQLib
 				exitTrickRoom.Links.Add(new RoomLink(74, new() { AccessReqs.ExitBook }));
 			}
 
+			// If map is shuffled, we block the one way access from Frozen Fields to Aquaria without wakewater
+			if (flags.MapShuffling != MapShufflingMode.None || flags.CrestShuffle)
+			{
+				var frozenFieldsRoom = Rooms.Find(x => x.Id == 223);
+				var aquariaAccess = frozenFieldsRoom.Links.Find(x => x.TargetRoom == 221);
+				aquariaAccess.Access.Add(AccessReqs.WakeWater);
+			}
+
 			// Giant Tree
 			var giantTreeLink = locationLinks.Find(l => l.Location == LocationIds.GiantTree);
 			Rooms.Find(x => x.Type == RoomType.Subregion && x.Region == SubRegions.Windia).Links.Remove(giantTreeLink);

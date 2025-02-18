@@ -81,7 +81,7 @@ namespace FFMQLib
 						$"2C4{(int)kaelidata.GameObject:X1}46",       // hide					"2C4146",
 						CompanionSwitchRoutine,
 						$"05E6{(int)CompanionsId.Kaeli:X2}085B85",
-						$"2B{(int)NewGameFlagsList.ShowForestaKaeli:X2}2B6C",
+						$"2B{(int)NewGameFlagsList.ShowForestaKaeli:X2}2B{(int)NewGameFlagsList.ShowWindiaKaeli:X2}2B6C",
 						"00",
 						$"2C1{(int)kaelidata.GameObject:X1}4200",
 						$"2C1{(int)kaelidata.GameObject:X1}4300",
