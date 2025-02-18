@@ -107,10 +107,10 @@ namespace FFMQLib
 		public List<ArmorFlags> ArmorSet1 { get; set; }
 		public List<ArmorFlags> ArmorSet2 { get; set; }
 		public int HPBase { get; set; }
-		public int StrBase { get; set; }
-		public int StrMultiplier { get; set; }
-		public int ConBase { get; set; }
-		public int ConMultiplier { get; set; }
+		public int AttBase { get; set; }
+		public int AttMultiplier { get; set; }
+		public int DefBase { get; set; }
+		public int DefMultiplier { get; set; }
 		public int MagBase { get; set; }
 		public int MagMultiplier { get; set; }
 		public int SpdBase { get; set; }
@@ -133,12 +133,12 @@ namespace FFMQLib
 			var hpbase = Blob.FromUShorts(new ushort[] { (ushort)HPBase });
 			levelingdata.AddRange(hpbase.ToBytes());
 
-			levelingdata.Add((byte)StrMultiplier);
-			var strbase = Blob.FromUShorts(new ushort[] { (ushort)StrBase });
+			levelingdata.Add((byte)AttMultiplier);
+			var strbase = Blob.FromUShorts(new ushort[] { (ushort)AttBase });
 			levelingdata.AddRange(strbase.ToBytes());
 
-			levelingdata.Add((byte)ConMultiplier);
-			var conbase = Blob.FromUShorts(new ushort[] { (ushort)ConBase });
+			levelingdata.Add((byte)DefMultiplier);
+			var conbase = Blob.FromUShorts(new ushort[] { (ushort)DefBase });
 			levelingdata.AddRange(conbase.ToBytes());
 
 			levelingdata.Add((byte)SpdMultiplier);
@@ -220,10 +220,10 @@ namespace FFMQLib
 			{
 				Weapon = Items.GiantsAxe,
 				HPBase = 40,
-				StrBase = 3,
-				StrMultiplier = 3,
-				ConBase = 10,
-				ConMultiplier = 2,
+				AttBase = 3,
+				AttMultiplier = 3,
+				DefBase = 10,
+				DefMultiplier = 2,
 				MagBase = 0,
 				MagMultiplier = 2,
 				SpdBase = 15,
@@ -244,10 +244,10 @@ namespace FFMQLib
 			{
 				Weapon = Items.NinjaStar,
 				HPBase = 160,
-				StrBase = 2,
-				StrMultiplier = 3,
-				ConBase = 8,
-				ConMultiplier = 1,
+				AttBase = 2,
+				AttMultiplier = 3,
+				DefBase = 8,
+				DefMultiplier = 1,
 				MagBase = 8,
 				MagMultiplier = 1,
 				SpdBase = 10,
@@ -268,10 +268,10 @@ namespace FFMQLib
 			{
 				Weapon = Items.BowOfGrace,
 				HPBase = 80,
-				StrBase = 35,
-				StrMultiplier = 1,
-				ConBase = 5,
-				ConMultiplier = 1,
+				AttBase = 35,
+				AttMultiplier = 1,
+				DefBase = 5,
+				DefMultiplier = 1,
 				MagBase = 4,
 				MagMultiplier = 3,
 				SpdBase = 2,
@@ -292,10 +292,10 @@ namespace FFMQLib
 			{
 				Weapon = Items.MorningStar,
 				HPBase = 80,
-				StrBase = 38,
-				StrMultiplier = 2,
-				ConBase = 38,
-				ConMultiplier = 1,
+				AttBase = 38,
+				AttMultiplier = 2,
+				DefBase = 38,
+				DefMultiplier = 1,
 				MagBase = 10,
 				MagMultiplier = 1,
 				SpdBase = 38,

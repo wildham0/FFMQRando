@@ -33,6 +33,7 @@ namespace FFMQLib
 			get => EnemizerAttacks == EnemizerAttacks.Normal ? EnemizerGroups.MobsOnly : internalEnemizerGroups;
 			set => internalEnemizerGroups = value;
 		}
+		public bool ProgressiveEnemizer { get; set; } = false;
 		public bool ShuffleResWeakType { get; set; } = false;
 		public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
 		public LevelingType CompanionLevelingType { get; set; } = LevelingType.Quests;

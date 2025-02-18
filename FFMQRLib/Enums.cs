@@ -205,8 +205,10 @@ namespace FFMQLib
 
 		Minotaur,
 		FlamerusRex,
-		Phanquid,
-		FreezerCrab,
+		Phanquid, // Dont use, for ap comp only
+		Squidite, 
+		SnowCrab,
+		FreezerCrab, // Dont use, for ap comp only
 		IceGolem,
 		Jinn,
 		Medusa,
@@ -282,9 +284,11 @@ namespace FFMQLib
 		Pazuzu5F,
 		Pazuzu6F,
 
+		SkullrusRex,
 		StoneGolem,
 		TwinheadWyvern,
 		Zuh,
+		DarkKing,
 		
 		Gp150,
 		Gp200,
@@ -293,6 +297,11 @@ namespace FFMQLib
 		Gp600,
 		Gp900,
 		Gp1200,
+
+		PowerLevel0,
+		PowerLevel1,
+		PowerLevel2,
+		PowerLevel3,
 
 		Barred,
 	}
@@ -377,7 +386,7 @@ namespace FFMQLib
 		FlameArmor = 0x08,
 		BlackRobe = 0x09,
 		SteelShield = 0x0A,
-		VenusShield = 0x0C,
+		VenusShield = 0x0B,
 		AegisShield = 0x0C,
 		EtherShield = 0x0D,
 		Charm = 0x0E,
@@ -1068,5 +1077,118 @@ namespace FFMQLib
 		RainbowBridgeToPazuzu,
 		RainbowBridgeToSpencer,
 		FocusTower,
+	}
+
+	public enum EnemyIds
+	{
+
+		Brownie = 0x00,
+		Mintmint,
+		RedCap,
+
+		MadPlant,
+		PlantMan,
+		LiveOak,
+
+		Slime,
+		Jelly,
+		Ooze,
+
+		PoisonToad,
+		GiantToad,
+		MadToad,
+
+		Basilisk,
+		Flazzard,
+		Salamand,
+
+		SandWorm,
+		LandWorm,
+		Leech,
+
+		Skeleton,
+		RedBone,
+		Skuldier,
+
+		Roc,
+		Sparna,
+		Garuda,
+
+		Zombie,
+		Mummy,
+
+		DesertHag,
+		WaterHag,
+
+		Ninja,
+		Shadow,
+
+		Sphinx,
+		Manticor,
+
+		Centaur,
+		Nitemare,
+
+		StoneyRoost,
+		HotWings,
+
+		Ghost,
+		Spector,
+
+		Gather,
+		Beholder,
+
+		Fangpire,
+		Vampire,
+
+		Mage,
+		Sorcerer,
+
+		LandTurtle,
+		AdamantTurtle,
+
+		Scorpion,
+		Snipion,
+
+		Werewolf,
+		Cerberus,
+
+		Edgehog,
+		StingRat,
+
+		Lamia,
+		Naga,
+
+		Avizzard,
+		Gargoyle,
+
+		Gorgon,
+		MinotaurZombie,
+		Phanquid,
+		FreezerCrab,
+		Iflyte,
+		Stheno,
+		Chimera,
+		Thanatos,
+
+		SkullrusRex = 0x40,
+		StoneGolem = 0x41,
+		Behemoth = 0x42,
+		Minotaur = 0x43,
+		Squidite = 0x44,
+		SnowCrab = 0x45,
+		Jinn = 0x46,
+		Medusa = 0x47,
+		Gidrah = 0x48,
+		Dullahan = 0x49,
+		FlamerusRex = 0x4A,
+		IceGolem = 0x4B,
+		DualheadHydra = 0x4C,
+		TwinheadWyvern = 0x4D,
+		Pazuzu = 0x4E,
+		Zuh = 0x4F,
+		DarkKing = 0x50,
+		DarkKingWeapons = 0x51, //
+		DarkKingSpider = 0x52,
 	}
 }
