@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.6.21";
+		public static string Version = "1.6.22";
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -27,11 +27,13 @@ namespace FFMQLib
 		public EnemyAttackLinks EnemyAttackLinks;
 		public Attacks Attacks;
 		public EnemiesStats EnemiesStats;
+		public FormationsData FormationsData;
 		public GameLogic GameLogic;
 		public EntrancesData EntrancesData;
 		public MapPalettes MapPalettes;
 		public Companions Companions;
 		public GameInfoScreen GameInfoScreen;
+
 
 		private byte[] originalData;
 		public bool beta = false;
@@ -59,8 +61,9 @@ namespace FFMQLib
 			asyncrng = new MT19337((uint)Guid.NewGuid().GetHashCode());
 
 			Attacks = new(this);
-			EnemyAttackLinks = new(this);
 			EnemiesStats = new(this);
+			FormationsData = new(this);
+			EnemyAttackLinks = new(this);
 			GameMaps = new(this);
 			MapObjects = new(this);
 			GameFlags = new(this);
@@ -77,7 +80,7 @@ namespace FFMQLib
 			Companions = new(flags.CompanionLevelingType);
 			GameInfoScreen = new();
 
-			Battle battle = new(EnemiesStats, EnemyAttackLinks, rng);
+			//Battle battle = new(EnemiesStats, EnemyAttackLinks, rng);
 
 			Credits credits = new(this);
 			TitleScreen titleScreen = new(this);
@@ -98,9 +101,9 @@ namespace FFMQLib
 			// Enemies
 			MapObjects.SetEnemiesDensity(flags.EnemiesDensity, rng);
 			MapObjects.ShuffleEnemiesPosition(flags.ShuffleEnemiesPosition, GameMaps, rng);
-			EnemyAttackLinks.ShuffleAttacks(flags.EnemizerAttacks, flags.EnemizerGroups, rng);
 			EnemiesStats.ScaleEnemies(flags, rng);
 			EnemiesStats.ShuffleResistWeakness(flags.ShuffleResWeakType, GameInfoScreen, rng);
+			EnemyAttackLinks.ShuffleAttacks(flags, EnemiesStats, FormationsData, rng);
 
 			// Companions
 			GameLogic.CompanionsShuffle(flags.CompanionsLocations, flags.KaelisMomFightMinotaur, apconfigs, rng);
@@ -122,7 +125,7 @@ namespace FFMQLib
 			Overworld.UpdateOverworld(flags, GameLogic, Battlefields);
 
 			// Logic
-			GameLogic.CrawlRooms(flags, Overworld, Battlefields);
+			GameLogic.CrawlRooms(flags, Overworld, EnemiesStats, Battlefields);
 			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this);
 			EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
 			

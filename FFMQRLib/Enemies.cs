@@ -103,8 +103,16 @@ namespace FFMQLib
 		private const int enemiesStatsBank = 0x02;
 		private const int enemiesStatsLength = 0x0e;
 
+		//public Dictionary<EnemyFormationIds, PowerLevels> FormationPowers { get; set; }
+		public Dictionary<AccessReqs, AccessReqs> BossesPower;
+		public Dictionary<LocationIds, AccessReqs> BattlefieldsPower;
+
 		public EnemiesStats(FFMQRom rom)
 		{
+
+			BossesPower = new();
+			BattlefieldsPower = new();
+
 			_enemies = new List<Enemy>();
 
 			for (int i = 0; i < EnemiesStatsQty; i++)
@@ -360,6 +368,81 @@ namespace FFMQLib
 			_rawBytes[0x0c] = (byte)(tempweak);
 
 			return _rawBytes;
+		}
+	}
+	public enum BattleTracks
+	{ 
+		Normal = 0x00,
+		Boss = 0x01,
+		Final = 0x10,
+		Unusued = 0x11,
+	}
+
+	public class Formation
+	{ 
+		public EnemyFormationIds Id { get; set; }
+		public List<EnemyIds> Enemies { get; set; }
+		public List<bool> Flying { get; set; }
+		private byte settingByte;
+		public bool CantRun { get; set; }
+		public bool Floating { get; set; }
+		public BattleTracks Track { get; set; }
+
+		private byte unknownBitMask = 0x93;
+
+		public Formation(EnemyFormationIds id, byte[] data)
+		{
+			Id = id;
+			Enemies = new();
+			Flying = new();
+
+			for (int i = 0; i < 3; i++)
+			{
+				if (data[i] != 0xFF)
+				{
+					Enemies.Add((EnemyIds)(data[i] & 0x7F));
+				}
+
+				Flying.Add((data[i] & 0x80) > 0);
+			}
+
+			settingByte = data[3];
+
+			CantRun = (settingByte & 0x40) > 0;
+			Floating = (settingByte & 0x20) > 0;
+			Track = (BattleTracks)((settingByte / 4) & 0x03);
+		}
+
+		public byte[] GetBytes()
+		{
+			var byteEnemies = Enemies.Select(e => (byte)e).Concat(new List<byte>() { 0xFF, 0xFF }).ToList().GetRange(0, 3);
+
+			return new byte[]
+				{
+					(byte)(byteEnemies[0] | (Flying[0] ? 0x80 : 0x00)),
+					(byte)(byteEnemies[1] | (Flying[0] ? 0x80 : 0x00)),
+					(byte)(byteEnemies[2] | (Flying[0] ? 0x80 : 0x00)),
+					(byte)((settingByte & unknownBitMask) | (CantRun ? 0x40 : 0x00) | (Floating ? 0x20 : 0x00) | (byte)((int)Track * 4))
+				};
+		}
+	}
+	public class FormationsData
+	{
+		private const int formationsBank = 0x02;
+		private const int formationsOffset = 0xCA6A;
+		private const int formationsSize = 0x04;
+		private const int formationsQty = 0xEA;
+
+		public Dictionary<EnemyFormationIds, Formation> Formations;
+
+		public FormationsData(FFMQRom rom)
+		{ 
+			Formations = rom.GetFromBank(formationsBank, formationsOffset, formationsQty * formationsSize).Chunk(formationsSize).Select((f,i) => new Formation((EnemyFormationIds)i, f)).ToDictionary(f => f.Id, f => f);
+		}
+
+		public void Write(FFMQRom rom)
+		{
+			rom.PutInBank(formationsBank, formationsOffset, Formations.SelectMany(f => f.Value.GetBytes()).ToArray());
 		}
 	}
 }

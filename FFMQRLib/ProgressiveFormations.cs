@@ -50,6 +50,11 @@ namespace FFMQLib
 		Medusa,
 		Knight,
 		Chimera,
+		Rex,
+		Golem,
+		Hydra,
+		Zu,
+		DarkKing
 	}
 	public partial class FFMQRom : SnesRom
 	{

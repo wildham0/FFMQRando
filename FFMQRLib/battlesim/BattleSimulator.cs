@@ -116,7 +116,7 @@ namespace FFMQLib
 			flags.EnemiesScalingUpper = EnemiesScaling.OneAndHalf;
 			
 			_enemies.ScaleEnemies(flags, rng);*/
-			EnemyIds simformation = EnemyIds.Jinn;
+			EnemyIds simformation = EnemyIds.Flazzard;
 
 			List<(string attack1, string attack2)> attackpairs = new();
 
@@ -128,7 +128,7 @@ namespace FFMQLib
 			currentCompanion = Rng.PickFrom(validcompanions);
 			// 4,7 ; 8,15 ; 12,23 ; 19,31
 
-			InitTeams(PowerLevels.Initial, simformation, 12, 23);
+			InitTeams(PowerLevels.Initial, simformation, 8, 15);
 
 			for (int i = 0; i < 1000; i++)
 			{
@@ -430,7 +430,7 @@ namespace FFMQLib
 		{
 
 			//scripts.ShuffleAttacks(EnemizerAttacks.Chaos, EnemizerGroups.MobsBossesDK, Rng);
-			scripts.BalancedTest(EnemizerGroups.MobsBossesDK, Rng);
+			scripts.Balanced(EnemizerGroups.MobsBossesDK, true, true, Rng);
 
 			var formationentities = formations[formation];
 			Battlers.RemoveAll(b => b.Team == Teams.TeamB);
@@ -456,10 +456,12 @@ namespace FFMQLib
 			{ EnemyIds.Thanatos, new() { EnemyIds.Dullahan } },
 			{ EnemyIds.Pazuzu, new() { EnemyIds.Pazuzu } },
 			{ EnemyIds.SkullrusRex, new() { EnemyIds.SkullrusRex, EnemyIds.Shadow, EnemyIds.Shadow } },
-			{ EnemyIds.StoneGolem, new() { EnemyIds.StoneGolem, EnemyIds.Cerebus, EnemyIds.Cerebus } },
+			{ EnemyIds.StoneGolem, new() { EnemyIds.StoneGolem, EnemyIds.Cerberus, EnemyIds.Cerberus } },
 			{ EnemyIds.TwinheadWyvern, new() { EnemyIds.TwinheadWyvern, EnemyIds.Iflyte, EnemyIds.Stheno } },
 			{ EnemyIds.Zuh, new() { EnemyIds.Zuh, EnemyIds.Chimera, EnemyIds.Thanatos } },
 			{ EnemyIds.DarkKing, new() { EnemyIds.DarkKing } },
+			{ EnemyIds.WaterHag, new() { EnemyIds.WaterHag, EnemyIds.WaterHag, EnemyIds.Vampire } },
+			{ EnemyIds.Flazzard, new() { EnemyIds.Flazzard, EnemyIds.Flazzard } },
 		};
 		private void DoBattle(MT19337 rng)
 		{

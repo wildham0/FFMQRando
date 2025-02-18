@@ -58,6 +58,7 @@ namespace FFMQLib
 		
 		private const int TreasuresOffset = 0x8000;
 		private int GpCount;
+		private AccessReqs CurrentPowerLevel = AccessReqs.PowerLevel0;
 
 		private class RegionWeight
 		{ 
@@ -115,6 +116,7 @@ namespace FFMQLib
 				ItemsList itemsList = new(flags, rng);
 				StartingItems = itemsList.Starting;
 				GpCount = 0;
+				CurrentPowerLevel = AccessReqs.PowerLevel0;
 
 				ItemsLocations = new(initialItemlocations.Select(x => new GameObject(x)));
 
@@ -137,6 +139,8 @@ namespace FFMQLib
 						accessReqsToProcess.AddRange(result);
 					}
 				}
+
+				accessReqsToProcess.Add(CurrentPowerLevel);
 
 				ProcessRequirements(accessReqsToProcess);
 
@@ -232,10 +236,21 @@ namespace FFMQLib
 					placedItems.Add(itemToPlace);
 					//Console.WriteLine(Enum.GetName(targetLocation.Location) + "_" + targetLocation.ObjectId + " - " + Enum.GetName(itemToPlace));
 
-					List<AccessReqs> result;
+					List<AccessReqs> powerLevelsToProcess = UpdatePowerLevel(placedItems);
 
-					if (AccessReferences.ItemAccessReq.TryGetValue(itemToPlace, out result))
+					List<AccessReqs> result = new();
+
+					if (AccessReferences.ItemAccessReq.TryGetValue(itemToPlace, out result) || powerLevelsToProcess.Any())
 					{
+						if (result != null)
+						{
+							result = result.Concat(powerLevelsToProcess).ToList();
+						}
+						else
+						{
+							result = powerLevelsToProcess;
+						}
+						
 						ProcessRequirements(result);
 					}
 				}
@@ -367,6 +382,88 @@ namespace FFMQLib
 				GpCount += AccessToGp[access];
 				accessReqToProcess.Remove(access);
 			}
+		}
+		private static List<Items> level1weapons = new() { Items.KnightSword, Items.BattleAxe, Items.JumboBomb, Items.CharmClaw };
+		private static List<Items> level2weapons = new() { Items.Excalibur, Items.GiantsAxe, Items.MegaGrenade, Items.DragonClaw };
+		private static List<Items> level0armors = new() { Items.SteelHelm, Items.SteelArmor, Items.SteelShield, Items.Charm };
+		private static List<Items> level1armors = new() { Items.MoonHelm, Items.NobleArmor, Items.VenusShield, Items.MagicRing };
+		private static List<Items> level2armors = new() { Items.ApolloHelm, Items.GaiasArmor, Items.AegisShield, Items.CupidLocket };
+		private static List<Items> level0spells = new() { Items.CureBook, Items.FireBook };
+		private static List<Items> level1spells = new() { Items.BlizzardBook, Items.ThunderSeal, Items.AeroBook };
+		private static List<Items> level2spells = new() { Items.WhiteSeal, Items.MeteorSeal, Items.FlareSeal };
+		private static List<Items> coins = new() { Items.SandCoin, Items.RiverCoin, Items.SunCoin };
+
+		private List<AccessReqs> UpdatePowerLevel(List<Items> placedItems)
+		{
+			//var accessiblecount = ItemsLocations.Count(l => l.Accessible);
+			//var totlcount = ItemsLocations.Count();
+
+			int openness = 1;
+			if (placedItems.Intersect(coins).Count() >= 2)
+			{
+				openness = 3;
+			}
+			else if (placedItems.Intersect(coins).Count() >= 1)
+			{
+				openness = 2;
+			}
+
+			int weaponquality = 1;
+			if (placedItems.Intersect(level2weapons).Any())
+			{
+				weaponquality = 3;
+			}
+			else if (placedItems.Intersect(level1weapons).Any())
+			{
+				weaponquality = 2;
+			}
+
+			int armorquality = 0;
+			int level2armorscount = placedItems.Intersect(level2armors).Count();
+			int level1armorscount = placedItems.Intersect(level1armors).Count();
+			int level0armorscount = placedItems.Intersect(level0armors).Count();
+
+			if (level2armorscount >= 2)
+			{
+				armorquality = 3;
+			}
+			else if (level2armorscount + level1armorscount >= 2)
+			{
+				armorquality = 2;
+			}
+			else if (level2armorscount + level1armorscount + level0armorscount >= 3)
+			{
+				armorquality = 1;
+			}
+
+			int spellquality = 0;
+
+			if (placedItems.Intersect(level2spells).Any())
+			{
+				spellquality = 3;
+			}
+			else if (placedItems.Intersect(level1spells).Any())
+			{
+				spellquality = 2;
+			}
+			else if (placedItems.Intersect(level0spells).Any())
+			{
+				spellquality = 1;
+			}
+
+			List<int> qualityList = new() { openness, weaponquality, armorquality, spellquality };
+			List<AccessReqs> accessReqToProcess = new();
+
+			for (int i = 0; i <= qualityList.Min(); i++)
+			{
+				if ((int)AccessReqs.PowerLevel0 + i > (int)CurrentPowerLevel)
+				{
+					accessReqToProcess.Add((AccessReqs)((int)AccessReqs.PowerLevel0 + i));
+					CurrentPowerLevel = (AccessReqs)((int)AccessReqs.PowerLevel0 + i);
+				}
+			}
+
+			return accessReqToProcess;
 		}
 		public void WriteChests(FFMQRom rom)
 		{

@@ -205,8 +205,10 @@ namespace FFMQLib
 
 		Minotaur,
 		FlamerusRex,
-		Phanquid,
-		FreezerCrab,
+		Phanquid, // Dont use, for ap comp only
+		Squidite, 
+		SnowCrab,
+		FreezerCrab, // Dont use, for ap comp only
 		IceGolem,
 		Jinn,
 		Medusa,
@@ -282,9 +284,11 @@ namespace FFMQLib
 		Pazuzu5F,
 		Pazuzu6F,
 
+		SkullrusRex,
 		StoneGolem,
 		TwinheadWyvern,
 		Zuh,
+		DarkKing,
 		
 		Gp150,
 		Gp200,
@@ -293,6 +297,11 @@ namespace FFMQLib
 		Gp600,
 		Gp900,
 		Gp1200,
+
+		PowerLevel0,
+		PowerLevel1,
+		PowerLevel2,
+		PowerLevel3,
 
 		Barred,
 	}
@@ -1142,7 +1151,7 @@ namespace FFMQLib
 		Snipion,
 
 		Werewolf,
-		Cerebus,
+		Cerberus,
 
 		Edgehog,
 		StingRat,

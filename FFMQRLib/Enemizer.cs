@@ -7,6 +7,7 @@ using System.IO;
 using System.Diagnostics;
 using System.ComponentModel;
 using static System.Math;
+using Microsoft.VisualBasic;
 
 namespace FFMQLib
 {
@@ -17,8 +18,12 @@ namespace FFMQLib
 		Normal = 0,
 		[Description("Script Shuffle")]
 		SimpleShuffle,
-		[Description("Safe Randomization")]
-		Safe,
+		//[Description("Safe Randomization")]
+		//Safe,
+		[Description("Balanced")]
+		Balanced,
+		[Description("Balanced Expert")]
+		BalancedExpert,
 		[Description("Chaos Randomization")]
 		Chaos,
 		[Description("Self-Destruct")]
@@ -34,11 +39,17 @@ namespace FFMQLib
 		MobsBossesDK,
 	}
 
+	public enum BalancedMode
+	{ 
+		Safe,
+		NoAilment,
+		ForcedBad,
+		All
+	}
+
 	// link from link table, from the SQL world, describing a many-to-many relationship
 	public class EnemyAttackLink : ICloneable
 	{
-		//private Blob _rawBytes;
-
 		private const int EnemiesAttackLinksAddress = 0xC6FF; // Bank 02
 		private const int EnemiesAttackLinksBank = 0x02;
 		private const int EnemiesAttackLinksLength = 0x09;
@@ -58,6 +69,10 @@ namespace FFMQLib
 		public EnemyAttackLink(int id, byte[] rawBytes)
 		{
 			GetFromBytes(id, rawBytes);
+		}
+		public EnemyAttackLink(EnemyIds id, EnemyAttackLink link)
+		{
+			GetFromBytes((int)id, link.GetBytes());
 		}
 		public void GetFromBytes(int id, byte[] rawBytes)
 		{
@@ -89,21 +104,6 @@ namespace FFMQLib
 		{
 			return Attacks.Select(a => (byte)a).ToArray();
 		}
-
-		public void Write(FFMQRom rom)
-		{
-			/*
-			_rawBytes[0] = AttackPattern;
-			_rawBytes[1] = (byte)Attacks[0];
-			_rawBytes[2] = (byte)Attacks[1];
-			_rawBytes[3] = (byte)Attacks[2];
-			_rawBytes[4] = (byte)Attacks[3];
-			_rawBytes[5] = (byte)Attacks[4];
-			_rawBytes[6] = (byte)Attacks[5];
-			_rawBytes[7] = CastHeal;
-			_rawBytes[8] = CastCure;
-			rom.PutInBank(EnemiesAttackLinksBank, EnemiesAttackLinksAddress + (Id * EnemiesAttackLinksLength), _rawBytes);*/
-		}
 	}
 	// link from link table, from the SQL world, describing a many-to-many relationship
 	public class EnemyAttackLinks
@@ -131,18 +131,13 @@ namespace FFMQLib
 		private const int IceGolemDesperateAttackBank = 0x02;
 		private const int IceGolemDesperateAttackOffset = 0xAAC9;
 
+		private EnemiesStats enemiesStats;
+		private FormationsData formationsData;
+		private Dictionary<EnemyIds, (bool bad, int ailments)> skillResults;
+
 		public EnemyAttackLinks(FFMQRom rom)
 		{
-
 			_EnemyAttackLinks = rom.GetFromBank(EnemiesAttackLinksBank, EnemiesAttackLinksAddress, EnemiesAttackLinksQty * EnemiesAttackLinksLength).ToBytes().Chunk(EnemiesAttackLinksLength).Select((l, i) => new EnemyAttackLink(i, l)).ToList();
-
-			/*
-			_EnemyAttackLinks = new List<EnemyAttackLink>();
-
-			for (int i = 0; i < EnemiesAttackLinksQty; i++)
-			{
-				_EnemyAttackLinks.Add(new EnemyAttackLink(i, rom));
-			}*/
 
 			iceGolemDesperateAttack = (EnemyAttackIds)rom.GetFromBank(IceGolemDesperateAttackBank, IceGolemDesperateAttackOffset, 1)[0];
 			_darkKingAttackLinkBytes = rom.GetFromBank(DarkKingAttackLinkBank, DarkKingAttackLinkAddress, DarkKingAttackLinkQty);
@@ -151,6 +146,8 @@ namespace FFMQLib
 			Bosses = Enumerable.Range((int)EnemyIds.Behemoth, 8).Select(e => (EnemyIds)e).ToList().Concat(new List<EnemyIds>() { EnemyIds.FlamerusRex, EnemyIds.IceGolem, EnemyIds.DualheadHydra, EnemyIds.Pazuzu }).ToList();
 			DarkCastleBosses = new() { EnemyIds.SkullrusRex, EnemyIds.StoneGolem, EnemyIds.TwinheadWyvern, EnemyIds.Zuh };
 			DarkKing = new() { EnemyIds.DarkKing, EnemyIds.DarkKingWeapons, EnemyIds.DarkKingSpider };
+
+			skillResults = new();
 
 			// Wyvern, Hydra, DK2 and Dk3 need to have a specific slot filled to avoid softlock
 			_EnemyAttackLinks[(int)EnemyIds.DualheadHydra].NeedsSlotsFilled.Add(3);
@@ -171,36 +168,55 @@ namespace FFMQLib
 		{
 
 			rom.PutInBank(EnemiesAttackLinksBank, EnemiesAttackLinksAddress, _EnemyAttackLinks.SelectMany(l => l.GetBytes()).ToArray());
-			/*
-			foreach (EnemyAttackLink e in _EnemyAttackLinks)
-			{
-				e.Write(rom);
-			}*/
 
 			rom.PutInBank(DarkKingAttackLinkBank, DarkKingAttackLinkAddress, _EnemyAttackLinks.Where(l => l.Id == EnemyIds.DarkKingWeapons || l.Id == EnemyIds.DarkKingSpider).OrderBy(l => l.Id).SelectMany(l => l.GetAttackBytes()).ToArray());
 			rom.PutInBank(IceGolemDesperateAttackBank, IceGolemDesperateAttackOffset, new byte[] { (byte)iceGolemDesperateAttack });
 		}
-		public void ShuffleAttacks(EnemizerAttacks enemizerattacks, EnemizerGroups group, MT19337 rng)
+		public void ShuffleAttacks(Flags flags, EnemiesStats enemies, FormationsData formations, MT19337 rng)
 		{
+			enemiesStats = enemies;
+			formationsData = formations;
+
+			var enemizerattacks = flags.EnemizerAttacks;
+			var enemizergroup = flags.EnemizerGroups;
+			var progressive = flags.ProgressiveEnemizer;
+			
+			enemizerattacks = EnemizerAttacks.Balanced;
+			enemizergroup = EnemizerGroups.MobsBosses;
+			progressive = false;
+
 			switch (enemizerattacks) 
 			{
-				case EnemizerAttacks.Safe:
-					SafeRandom(group, rng);
+				case EnemizerAttacks.Balanced:
+					Balanced(enemizergroup, false, progressive, rng);
+					break;
+				case EnemizerAttacks.BalancedExpert:
+					Balanced(enemizergroup, true, progressive, rng);
 					break;
 				case EnemizerAttacks.Chaos:
-					ChaosRandom(group, rng);
+					ChaosRandom(enemizergroup, progressive, rng);
 					break;
 				case EnemizerAttacks.SelfDestruct:
-					Selfdestruct(group);
+					Selfdestruct(enemizergroup);
 					break;
 				case EnemizerAttacks.SimpleShuffle:
-					ScriptShuffle(group, rng);
+					if (progressive)
+					{
+						ProgressiveScriptShuffle(enemizergroup, rng);
+					}
+					else
+					{
+						ScriptShuffle(enemizergroup, rng);
+					}
 					break;
 				default:
 					break;
 			}
+
+			AnalyzeAttackLevel();
+			GeneratePowerLevels(skillResults);
 		}
-		private List<EnemyIds> GetValidEnemies(EnemizerGroups group)
+		private List<(EnemyCategory group, List<EnemyIds> enemies)> GetValidEnemies(EnemizerGroups group, bool progressive)
 		{
 			var validenemies = Mobs.ToList();
 			if (group != EnemizerGroups.MobsOnly)
@@ -213,10 +229,97 @@ namespace FFMQLib
 				validenemies.AddRange(DarkKing);
 			}
 
-			return validenemies;
+			List<(EnemyCategory group, List<EnemyIds> enemies)> progenemies = new();
+			if (progressive)
+			{
+				progenemies = EnemyInfo.EnemyCategories.Select(c => (c.Key, c.Value.Intersect(validenemies).ToList())).ToList();
+				progenemies = progenemies.Where(g => g.enemies.Any()).ToList();
+
+				// Don't group Dark Kings
+				if (progenemies.TryFind(g => g.group == EnemyCategory.DarkKing, out var dkgroup))
+				{
+					progenemies.Remove(dkgroup);
+					dkgroup.enemies.ForEach(dk => progenemies.Add((EnemyCategory.DarkKing, new List<EnemyIds>() { dk })));
+				}
+			}
+			else
+			{
+				progenemies = validenemies.Select(e => (EnemyCategory.Imp, new List<EnemyIds>() { e })).ToList();
+			}
+
+			return progenemies;
+		}
+		private void ProgressiveScriptShuffle(EnemizerGroups group, MT19337 rng)
+		{
+			PadScripts(rng);
+
+			var mobsCategory = EnemyInfo.EnemyCategories.Where(c => c.Key <= EnemyCategory.Devil).Select(c => (c.Key, c.Value)).ToList();
+			var bossesCategory = EnemyInfo.EnemyCategories.Where(c => c.Key > EnemyCategory.Devil && c.Key < EnemyCategory.DarkKing).Select(c => (c.Key, c.Value)).ToList();
+
+			List<((EnemyCategory category, List<EnemyIds> enemies) groupa, (EnemyCategory category, List<EnemyIds> enemies) groupb)> switchList = new();
+
+			while (mobsCategory.Count > 1)
+			{
+				var tempmobA = rng.TakeFrom(mobsCategory);
+				var tempmobB = rng.TakeFrom(mobsCategory);
+
+				switchList.Add((tempmobA, tempmobB));
+				switchList.Add((tempmobB, tempmobA));
+			}
+
+			if (group != EnemizerGroups.MobsOnly)
+			{
+				while (bossesCategory.Count > 1)
+				{
+					var tempmobA = rng.TakeFrom(bossesCategory);
+					var tempmobB = rng.TakeFrom(bossesCategory);
+
+					switchList.Add((tempmobA, tempmobB));
+					switchList.Add((tempmobB, tempmobA));
+				}
+			}
+
+			// DK isn't switched because he can't really get matched, so he just gets 3 random script
+			if (group == EnemizerGroups.MobsBossesDK)
+			{
+				var potentialScript = Bosses.Concat(DarkCastleBosses).Concat(DarkKing).ToList();
+
+				_EnemyAttackLinks[(int)EnemyIds.DarkKing] = new EnemyAttackLink(EnemyIds.DarkKing, _EnemyAttackLinks[(int)rng.TakeFrom(potentialScript)]);
+				_EnemyAttackLinks[(int)EnemyIds.DarkKingWeapons] = new EnemyAttackLink(EnemyIds.DarkKingWeapons, _EnemyAttackLinks[(int)rng.TakeFrom(potentialScript)]);
+				_EnemyAttackLinks[(int)EnemyIds.DarkKingSpider] = new EnemyAttackLink(EnemyIds.DarkKingSpider, _EnemyAttackLinks[(int)rng.TakeFrom(potentialScript)]);
+			}
+
+			// Assign scripts
+			foreach (var enemygroup in switchList)
+			{
+				var groupA = enemygroup.groupa.enemies;
+				var groupB = enemygroup.groupb.enemies;
+				
+				var tempattack0 = _EnemyAttackLinks[(int)groupA[0]];
+				var tempattack1 = _EnemyAttackLinks[(int)groupA[1]];
+				var tempattack2 = (groupA.Count > 2) ? _EnemyAttackLinks[(int)groupA[2]] : _EnemyAttackLinks[(int)groupA[1]];
+
+				_EnemyAttackLinks[(int)groupA[0]] = new EnemyAttackLink(groupA[0], _EnemyAttackLinks[(int)groupB[0]]);
+				_EnemyAttackLinks[(int)groupA[1]] = new EnemyAttackLink(groupA[1], _EnemyAttackLinks[(int)groupB[1]]);
+				
+				if (groupA.Count > 2)
+				{
+					_EnemyAttackLinks[(int)groupA[2]] = (groupB.Count > 2) ? new EnemyAttackLink(groupA[2], _EnemyAttackLinks[(int)groupB[2]]) : new EnemyAttackLink(groupA[2], _EnemyAttackLinks[(int)groupB[1]]); ;
+				}
+
+				_EnemyAttackLinks[(int)groupB[0]] = new EnemyAttackLink(groupB[0], tempattack0);
+				_EnemyAttackLinks[(int)groupB[1]] = new EnemyAttackLink(groupB[1], tempattack1);
+
+				if (groupB.Count > 2)
+				{
+					_EnemyAttackLinks[(int)groupB[2]] = (groupA.Count > 2) ? new EnemyAttackLink(groupB[2], tempattack2) : new EnemyAttackLink(groupB[2], tempattack1); ;
+				}
+			}
 		}
 		private void ScriptShuffle(EnemizerGroups group, MT19337 rng)
 		{
+			PadScripts(rng);
+
 			var mobs = Mobs.ToList();
 			Dictionary<EnemyIds, EnemyIds> switchList = new();
 
@@ -229,43 +332,24 @@ namespace FFMQLib
 				switchList.Add(tempmobB, tempmobA);
 			}
 
-			if (group != EnemizerGroups.MobsOnly)
+			List<EnemyIds> dkbosses = (group == EnemizerGroups.MobsBossesDK) ? DarkCastleBosses.Concat(DarkKing).ToList() : DarkCastleBosses;
+			
+			if (group == EnemizerGroups.MobsBossesDK)
 			{
-				
-				bool includedk = (group == EnemizerGroups.MobsBossesDK);
-				
-				var bosses = Bosses.Concat(DarkCastleBosses).ToList();
-				List<int> tooShortBosses = new() { 0x42, 0x43 };
-
-				if (includedk)
+				while (dkbosses.Count > 1)
 				{
-					bosses = bosses.Concat(DarkKing).ToList();
-					//tooShortBosses.Add(0x50);
+					var tempbossA = rng.TakeFrom(dkbosses);
+					var tempbossB = rng.TakeFrom(dkbosses);
+
+					switchList.Add(tempbossA, tempbossB);
+					switchList.Add(tempbossB, tempbossA);
 				}
+			}
 
-				//bosses.RemoveAll(tooShortBosses.Contains);
-				
-				// Do hydra/wyvern first since it requires a minimum 4 attacks pattern
-				/*var hydra = 0x4C;
-				var wyvern = 0x4D;
+			if (group == EnemizerGroups.MobsBosses)
+			{
+				var bosses = Bosses.Concat(dkbosses).ToList();
 
-				bosses.Remove(hydra);
-				var hydracompanion = rng.TakeFrom(bosses);
-
-				switchList.Add(hydra, hydracompanion);
-				switchList.Add(hydracompanion, hydra);
-
-				if (hydracompanion != wyvern)
-				{
-					bosses.Remove(wyvern);
-					var wyverncompanion = rng.TakeFrom(bosses);
-
-					switchList.Add(wyvern, wyverncompanion);
-					switchList.Add(wyverncompanion, wyvern);
-				}
-
-				bosses.AddRange(tooShortBosses);
-				*/
 				while (bosses.Count > 1)
 				{
 					var tempbossA = rng.TakeFrom(bosses);
@@ -276,6 +360,19 @@ namespace FFMQLib
 				}
 			}
 
+
+			foreach (var link in _EnemyAttackLinks)
+			{
+				if (switchList.TryGetValue(link.Id, out var newid))
+				{
+					link.Id = newid;
+				}
+			}
+
+			_EnemyAttackLinks = _EnemyAttackLinks.OrderBy(l => l.Id).ToList();
+		}
+		private void PadScripts(MT19337 rng)
+		{
 			// Remove Strong Psychshield since it might get used
 			var zuhScript = _EnemyAttackLinks.Find(e => e.Id == EnemyIds.Zuh);
 			zuhScript.Attacks[0x05] = EnemyAttackIds.HurricanePlus;
@@ -288,74 +385,41 @@ namespace FFMQLib
 			minotaurScript.Attacks = new() { EnemyAttackIds.Axe, EnemyAttackIds.Roundhouse, EnemyAttackIds.Scream, EnemyAttackIds.Axe, EnemyAttackIds.Roundhouse, EnemyAttackIds.Scream };
 
 			var dk1Script = _EnemyAttackLinks.Find(e => e.Id == EnemyIds.DarkKing);
-			minotaurScript.Attacks[0x04] = rng.PickFrom(new List<EnemyAttackIds>() { EnemyAttackIds.DarkCane, EnemyAttackIds.IronNail, EnemyAttackIds.Spark });
-
-			foreach (var link in _EnemyAttackLinks)
-			{
-				if (switchList.TryGetValue(link.Id, out var newid))
-				{
-					link.Id = newid;
-				}
-			}
-
-			_EnemyAttackLinks = _EnemyAttackLinks.OrderBy(l => l.Id).ToList();
+			dk1Script.Attacks[0x04] = rng.PickFrom(new List<EnemyAttackIds>() { EnemyAttackIds.DarkCane, EnemyAttackIds.IronNail, EnemyAttackIds.Spark });
 		}
-		private void ChaosRandom(EnemizerGroups group, MT19337 rng)
+		private void ChaosRandom(EnemizerGroups group, bool progressive, MT19337 rng)
 		{
 			var possibleAttacks = new List<EnemyAttackIds>();
 			bool meandDK = rng.Between(1, 6) == 1;
 
-			for (var i = EnemyAttackIds.Sword; i <= EnemyAttackIds.HeatwaveUnused; i++)
+			for (var i = EnemyAttackIds.Sword; i < EnemyAttackIds.HeatwaveUnused; i++)
 			{
 				possibleAttacks.Add(i);
 			}
 
-			var validenemies = GetValidEnemies(group);
+			var validenemies = GetValidEnemies(group, progressive);
 
-			foreach (var link in validenemies)
+			foreach (var catgroup in validenemies)
 			{
-				var ea = _EnemyAttackLinks[(int)link];
-				
-				int noOfAttacks = (int)rng.Between(2, 6);
+				List<EnemyAttackIds> attacklist = new();
+				List<EnemyAttackIds> nothinglist = new() { EnemyAttackIds.Nothing, EnemyAttackIds.Nothing, EnemyAttackIds.Nothing, EnemyAttackIds.Nothing, EnemyAttackIds.Nothing, EnemyAttackIds.Nothing };
 
-				for(int i = 0; i < 6; i++)
+				foreach (var enemy in catgroup.enemies)
 				{
-					ea.Attacks[i] = EnemyAttackIds.Nothing;
-				}
-
-				for(int i = 0; i < noOfAttacks; i++)
-				{
-					if (DarkKing.Contains(link) && !meandDK)
+					int maxattack = _EnemyAttackLinks[(int)enemy].AttackCount;
+					while (attacklist.Count < maxattack)
 					{
-						ea.Attacks[i] = rng.PickFrom(possibleAttacks.Except(new List<EnemyAttackIds> { EnemyAttackIds.CureSelf, EnemyAttackIds.HealSelf, EnemyAttackIds.Selfdestruct, EnemyAttackIds.Multiply }).ToList());
+						if (DarkKing.Contains(enemy) && !meandDK)
+						{
+							attacklist.Add(rng.PickFrom(possibleAttacks.Except(new List<EnemyAttackIds> { EnemyAttackIds.CureSelf, EnemyAttackIds.HealSelf, EnemyAttackIds.Selfdestruct, EnemyAttackIds.Multiply }).ToList()));
+						}
+						else
+						{
+							attacklist.Add(rng.PickFrom(possibleAttacks));
+						}
 					}
-					else
-					{
-						ea.Attacks[i] = rng.PickFrom(possibleAttacks);
-					}
-					
-				}
 
-				// Some values of AttackPattern (e.g. 0x0B) result in the third (or other) attack slot being used
-				// regardless of it being 0xFF (which is an ignored slot for most other AttackPattern values)
-				if(noOfAttacks <= 3)
-				{
-					ea.AttackPattern = 0x01;
-				}
-
-				// Similarly, most AttackPattern values do not use attack slots 5 and 6, but 0x0D and 0x0C do.
-				if(noOfAttacks >= 4)
-				{
-					ea.AttackPattern = 0x04;
-				}
-
-				// Some enemies require certain slots to be filled, or the game locks up
-				foreach(var slot in ea.NeedsSlotsFilled)
-				{
-					if(ea.Attacks[slot] == EnemyAttackIds.Nothing)
-					{
-						ea.Attacks[slot] = rng.PickFrom(possibleAttacks);
-					}
+					_EnemyAttackLinks[(int)enemy].Attacks = attacklist.GetRange(0, maxattack).Concat(nothinglist).ToList().GetRange(0, 6).ToList();
 				}
 			}
 
@@ -369,68 +433,130 @@ namespace FFMQLib
 				iceGolemDesperateAttack = rng.PickFrom(icegolemattacks);
 			}
 		}
-		private void SafeRandom(EnemizerGroups group, MT19337 rng)
+		private void GeneratePowerLevels(Dictionary<EnemyIds, (bool bad, int ailments)> skillResults)
 		{
-			var validenemies = GetValidEnemies(group);
-			var validattacks = _EnemyAttackLinks.Where(l => Mobs.Contains(l.Id)).SelectMany(l => l.Attacks).Distinct().ToList();
-			List<EnemyAttackIds> dkattacks = new();
-
-
-			if (group != EnemizerGroups.MobsOnly)
+			Dictionary<int, AccessReqs> powerlevels = new()
 			{
-				validattacks.AddRange(_EnemyAttackLinks.Where(l => Bosses.Concat(DarkCastleBosses).Contains(l.Id)).SelectMany(l => l.Attacks).Distinct().ToList());
+				{ 0, AccessReqs.PowerLevel0 },
+				{ 1, AccessReqs.PowerLevel1 },
+				{ 2, AccessReqs.PowerLevel2 },
+				{ 3, AccessReqs.PowerLevel3 },
+			};
+
+			foreach (var formation in EnemyInfo.BossesFormations)
+			{
+				var enemies = skillResults.Where(r => formation.Value.Contains(r.Key)).Select(r => r.Key).ToList();
+				var results = skillResults.Where(r => formation.Value.Contains(r.Key)).Select(r => r.Value).ToList();
+
+				int baselevel = 0;
+				int enemycount = enemies.Count;
+				int maxhp = enemiesStats.Enemies().Where(e => enemies.Contains(e.Id)).Max(e => e.HP);
+
+				if (enemycount == 1)
+				{
+					if (maxhp < 4000)
+					{
+						baselevel = 0;
+					}
+					else if (maxhp < 10000)
+					{
+						baselevel = 1;
+					}
+					else
+					{
+						baselevel = 2;
+					}
+
+					if (results[0].bad)
+					{
+						baselevel++;
+					}
+				}
+				else
+				{
+					if (maxhp < 10000)
+					{
+						baselevel = 1;
+					}
+					else if (maxhp < 20000)
+					{
+						baselevel = 2;
+					}
+					else
+					{
+						baselevel = 3;
+					}
+
+					if (results.Count(r => r.bad) > 1 || results.Count(r => r.ailments > 0) > 1)
+					{
+						baselevel++;
+					}
+				}
+
+				enemiesStats.BossesPower.Add(EnemyInfo.BossesAccess[formation.Key], powerlevels[Math.Min(baselevel, 3)]);
 			}
 
-			if (group == EnemizerGroups.MobsBossesDK)
+			foreach (var battlefield in EnemyInfo.BattlefieldFormations)
 			{
-				dkattacks.AddRange(_EnemyAttackLinks.Where(l => DarkKing.Contains(l.Id)).SelectMany(l => l.Attacks).Distinct().ToList());
-				dkattacks.RemoveAll(a => a == EnemyAttackIds.Nothing);
+				int minlevel = 3;
+				foreach (var formation in battlefield.Value)
+				{
+					var enemies = formationsData.Formations[formation].Enemies;
+					var results = skillResults.Where(r => enemies.Contains(r.Key)).Select(r => r.Value).ToList();
+
+					int baselevel = 0;
+					int enemycount = enemies.Count;
+					int maxhp = enemiesStats.Enemies().Where(e => enemies.Contains(e.Id)).Max(e => e.HP);
+
+					if (enemycount == 1)
+					{
+						baselevel = 0;
+					}
+					else if (enemycount == 2)
+					{
+						if (maxhp < 250)
+						{
+							baselevel = 0;
+						}
+						else
+						{
+							baselevel = 1;
+						}
+					}
+					else
+					{
+						if (maxhp < 250)
+						{
+							baselevel = 1;
+						}
+						else if (maxhp < 500)
+						{
+							baselevel = 1;
+						}
+						else
+						{
+							baselevel = 2;
+						}
+					}
+
+					if (results.Count(r => r.bad) > 1 || results.Count(r => r.ailments > 0) > 1)
+					{
+						baselevel++;
+					}
+
+					minlevel = Math.Min(minlevel, baselevel);
+				}
+
+				enemiesStats.BattlefieldsPower.Add(battlefield.Key, powerlevels[Math.Min(minlevel, 3)]);
 			}
-
-			List<EnemyAttackIds> invalidattacks = new() { EnemyAttackIds.CureSelf, EnemyAttackIds.HealSelf, EnemyAttackIds.Selfdestruct, EnemyAttackIds.Multiply, EnemyAttackIds.Psychshield, EnemyAttackIds.PsychshieldBug, EnemyAttackIds.Nothing };
-			validattacks.RemoveAll(invalidattacks.Contains);
-			validattacks = validattacks.Distinct().ToList();
-
-			foreach (var link in validenemies)
-			{
-				List<EnemyAttackIds> attackpool = new(validattacks);
-
-				if (DarkCastleBosses.Concat(DarkKing).Contains(link))
-				{
-					attackpool.AddRange(dkattacks);
-				}
-				
-				List<EnemyAttackIds> newattacks = new();
-
-				for (int i = 0; i < _EnemyAttackLinks[(int)link].AttackCount; i++)
-				{
-					newattacks.Add(rng.PickFrom(attackpool));
-				}
-
-				newattacks.Sort();
-
-				// Split hydra's and wyvern attacks to make them less backended
-				if (link == EnemyIds.TwinheadWyvern || link == EnemyIds.DualheadHydra)
-				{
-					newattacks = newattacks.Where((a, i) => i % 2 == 0).Concat(newattacks.Where((a, i) => i % 2 == 1)).ToList();
-				}
-
-				while (newattacks.Count < 6)
-				{
-					newattacks.Add(EnemyAttackIds.Nothing);
-				}
-
-				_EnemyAttackLinks[(int)link].Attacks = newattacks.ToList();
-			}
-
-			iceGolemDesperateAttack = rng.PickFrom(validattacks.Where(a => a < EnemyAttackIds.Selfdestruct).ToList());
 		}
-		public void BalancedTest(EnemizerGroups group, MT19337 rng)
+		public void Balanced(EnemizerGroups group, bool expert, bool progressive, MT19337 rng)
 		{
-			var validenemies = GetValidEnemies(group);
+			var validenemies = GetValidEnemies(group, progressive);
+			
+			// Select attacks
 			var validattacks = _EnemyAttackLinks.Where(l => Mobs.Contains(l.Id)).SelectMany(l => l.Attacks).Distinct().ToList();
 			List<EnemyAttackIds> dkattacks = new();
-
 
 			if (group != EnemizerGroups.MobsOnly)
 			{
@@ -450,67 +576,132 @@ namespace FFMQLib
 			var safeattacks = validattacks.Intersect(safeAttacks).ToList();
 			var badattacks = validattacks.Intersect(ailmentAttacks.Concat(strongAttacks)).ToList();
 
-			foreach (var link in validenemies)
+			// Distribute attacks
+			foreach (var catgroup in validenemies)
 			{
+				List<EnemyAttackIds> attacklist = new();
+				List<EnemyAttackIds> nothinglist = new() { EnemyAttackIds.Nothing, EnemyAttackIds.Nothing, EnemyAttackIds.Nothing, EnemyAttackIds.Nothing, EnemyAttackIds.Nothing, EnemyAttackIds.Nothing };
+				
 				List<EnemyAttackIds> attackpool = new(validattacks);
 
-				if (DarkCastleBosses.Concat(DarkKing).Contains(link))
+				bool firstenemydone = false;
+				int ailmentPicked = 0;
+				int badPicked = 0;
+
+				foreach (var enemy in catgroup.enemies)
 				{
-					attackpool.AddRange(dkattacks);
-				}
+					int maxattack = _EnemyAttackLinks[(int)enemy].AttackCount;
 
-				List<EnemyAttackIds> newattacks = new();
-
-				bool badAttackPicked = false;
-				int badAttackPickedCount = 0;
-
-				for (int i = 0; i < _EnemyAttackLinks[(int)link].AttackCount; i++)
-				{
-					var newAttack = badAttackPicked ? rng.PickFrom(safeattacks.Except(newattacks).ToList()) : rng.PickFrom(badattacks.Except(newattacks).ToList());
-					if (!badAttackPicked && badattacks.Contains(newAttack))
+					if (DarkCastleBosses.Concat(DarkKing).Contains(enemy))
 					{
-						badAttackPickedCount++;
-						if (badAttackPickedCount >= 2)
-						{
-							badAttackPicked = true;
-						}
-						
+						attackpool.AddRange(dkattacks);
 					}
 
-					newattacks.Add(newAttack);
+					while (attacklist.Count < maxattack)
+					{
+						List<EnemyAttackIds> validAttacks = new();
+						
+						if ((maxattack == 2) || (maxattack == 3 && badPicked > 0) || (maxattack > 3 && badPicked > 1))
+						{
+							validAttacks = attackpool.Intersect(safeattacks).ToList();
+						}
+						else if (expert)
+						{
+							validAttacks = attackpool.Intersect(badattacks).ToList();
+						}
+						else
+						{
+							validAttacks = attackpool.Intersect(safeattacks.Concat(badattacks)).ToList();
+						}
+
+						var newAttack = rng.PickFrom(validAttacks.Except(attacklist).ToList());
+
+						if (badattacks.Contains(newAttack))
+						{
+							badPicked++;
+						}
+						
+						if (ailmentAttacks.Contains(newAttack))
+						{
+							ailmentPicked++;
+						}
+
+						attacklist.Add(newAttack);
+					}
+
+					if (!firstenemydone)
+					{
+						firstenemydone = true;
+						attacklist.Shuffle(rng);
+					}
+
+					else if ((enemy == EnemyIds.TwinheadWyvern || enemy == EnemyIds.DualheadHydra) && !firstenemydone)
+					{
+						firstenemydone = true;
+
+						// Split hydra's and wyvern attacks to make them less backended
+						List<EnemyAttackIds> badhydra = attacklist.Intersect(badattacks).ToList();
+						List<EnemyAttackIds> goodhydra = attacklist.Intersect(safeattacks).ToList();
+
+						List<List<EnemyAttackIds>> hydraattacks = new() { new(), new() };
+
+						int currentphase = rng.Between(0, 1);
+
+						while (badhydra.Any())
+						{
+							hydraattacks[currentphase].Add(badhydra.First());
+							badhydra.RemoveAt(0);
+
+							currentphase = (currentphase == 0) ? 1 : 0;
+						}
+
+						currentphase = 0;
+
+						while (currentphase < 2)
+						{
+							while (hydraattacks[currentphase].Count < 3 && goodhydra.Any())
+							{
+								hydraattacks[currentphase].Add(goodhydra.First());
+								goodhydra.RemoveAt(0);
+							}
+
+							hydraattacks[currentphase].Shuffle(rng);
+							currentphase++;
+						}
+
+						attacklist = hydraattacks.SelectMany(a => a).ToList();
+					}
+
+					_EnemyAttackLinks[(int)enemy].Attacks = attacklist.GetRange(0, maxattack).Concat(nothinglist).ToList().GetRange(0, 6).ToList();
+					//skillResults.Add(enemy, (badPicked > 0, ailmentPicked));
 				}
-
-				newattacks.Shuffle(rng);
-
-				//newattacks.Sort();
-
-				// Split hydra's and wyvern attacks to make them less backended
-				if (link == EnemyIds.TwinheadWyvern || link == EnemyIds.DualheadHydra)
-				{
-					newattacks = newattacks.Where((a, i) => i % 2 == 0).Concat(newattacks.Where((a, i) => i % 2 == 1)).ToList();
-				}
-
-				while (newattacks.Count < 6)
-				{
-					newattacks.Add(EnemyAttackIds.Nothing);
-				}
-
-				_EnemyAttackLinks[(int)link].Attacks = newattacks.ToList();
 			}
 
-			iceGolemDesperateAttack = rng.PickFrom(validattacks.Where(a => a < EnemyAttackIds.Selfdestruct).ToList());
+			iceGolemDesperateAttack = rng.PickFrom(safeattacks);
+		}
+		private void AnalyzeAttackLevel()
+		{
+			foreach (var link in _EnemyAttackLinks)
+			{
+				var strongattacks = link.Attacks.Intersect(strongAttacks).Count();
+				var ailmentattacks = link.Attacks.Intersect(ailmentAttacks).Count();
+
+				skillResults.Add(link.Id, ((strongattacks + ailmentattacks) > 0, ailmentattacks));
+			}
 		}
 		private void Selfdestruct(EnemizerGroups group)
 		{
-			var validenemies = GetValidEnemies(group);
+			// Never progressive
+			var validenemies = GetValidEnemies(group, false);
 
-			foreach (var link in validenemies)
+			foreach (var enemy in validenemies.SelectMany(e => e.enemies))
 			{
-				var ea = _EnemyAttackLinks[(int)link];
-
+				var ea = _EnemyAttackLinks[(int)enemy];
 				ea.AttackPattern = 0x01;
 				ea.Attacks = Enumerable.Repeat(EnemyAttackIds.Selfdestruct, 6).ToList();
 			}
+
+			AnalyzeAttackLevel();
 		}
 
 		private List<EnemyAttackIds> safeAttacks = new()
