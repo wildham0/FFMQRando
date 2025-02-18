@@ -77,8 +77,6 @@ namespace FFMQLib
 
 	public class Battle
 	{
-		List<Entity> Enemies;
-		List<Entity> Heroes;
 		List<Entity> Battlers;
 		private Logger Log;
 		private Logger SimLog;
@@ -93,7 +91,6 @@ namespace FFMQLib
 		//private Dictionary<string, (int half, int quarter, int zero)> resultsTracker;
 		private List<(List<string> attacks, int percent)> resultsTracker;
 
-		List<ProtoEntity> ProtoBattlers;
 		public Battle(EnemiesStats _enemies, EnemyAttackLinks _scripts, MT19337 rng)
 		{
 			Rng = rng;
@@ -498,40 +495,6 @@ namespace FFMQLib
 				}
 			}
 		}
-
-		private void ProtoDoBattle(MT19337 rng)
-		{
-			Log.Add("Proto Battle started.");
-			bool teamdefeated = false;
-			int roundcount = 0;
-
-			while (!teamdefeated)
-			{
-				roundcount++;
-				Log.Add("Round " + roundcount + " started.");
-				ProtoDoRound(rng);
-
-				if (roundcount > 200)
-				{
-					ProtoBattlers.Where(b => b.Team == Teams.TeamA).ToList().ForEach(b => b.ProcessDamage(b.MaxHp, 0));
-				}
-
-				if (!ProtoBattlers.Where(b => b.Team == Teams.TeamA && !b.TechnicalDeath).Any())
-				{
-					Log.Add("Team A is defeated.");
-					protoWinsB[(int)currentCompanion - 1]++;
-					teamdefeated = true;
-				}
-				else if (!ProtoBattlers.Where(b => b.Team == Teams.TeamB && !b.TechnicalDeath).Any())
-				{
-					Log.Add("Team B is defeated.");
-					protoWinsA[(int)currentCompanion - 1]++;
-					teamdefeated = true;
-				}
-			}
-		}
-
-
 		private void DoRound(MT19337 rng)
 		{
 			// Ben choose is action before initiative
@@ -637,100 +600,6 @@ namespace FFMQLib
 						Entity copy = new Entity(Log, Rng, enemies[(int)battler.EnemyId], scripts);
 						copy.Hp = battler.Hp;
 						Battlers.Add(copy);
-					}
-				}
-			}
-		}
-		private void ProtoDoRound(MT19337 rng)
-		{
-			// Roll initiative
-			foreach (var battler in Battlers)
-			{
-				battler.RollInitiative(rng);
-			}
-
-			ProtoBattlers = ProtoBattlers.OrderByDescending(b => b.Initiative).ToList();
-
-			List<ElementsType> deathAilments = new() { ElementsType.Doom, ElementsType.Stone };
-			List<ElementsType> disabledAilments = new() { ElementsType.Paralysis, ElementsType.Sleep };
-
-			foreach (var battler in ProtoBattlers)
-			{
-				if (!ProtoBattlers.Where(b => b.Team == Teams.TeamA && !b.TechnicalDeath).Any() || !ProtoBattlers.Where(b => b.Team == Teams.TeamB && !b.TechnicalDeath).Any())
-				{
-					break;
-				}
-
-				if (!battler.Ailments.Intersect(deathAilments).Any())
-				{
-					bool skipround = false;
-
-					if (battler.Ailments.Contains(ElementsType.Paralysis))
-					{
-						skipround = true;
-
-						if (rng.Between(0, 100) < 0x14)
-						{
-							battler.Ailments.Remove(ElementsType.Paralysis);
-							Log.Add(battler.Name + " recovered from paralysis.");
-						}
-					}
-
-					if (battler.Ailments.Contains(ElementsType.Sleep))
-					{
-						skipround = true;
-
-						if (rng.Between(0, 100) < 0x1E)
-						{
-							battler.Ailments.Remove(ElementsType.Sleep);
-							Log.Add(battler.Name + " recovered from sleep.");
-						}
-					}
-
-					if (battler.Ailments.Contains(ElementsType.Confusion))
-					{
-						if (rng.Between(0, 100) < 0x28)
-						{
-							battler.Ailments.Remove(ElementsType.Confusion);
-							Log.Add(battler.Name + " recovered from confusion.");
-							skipround = true;
-						}
-					}
-
-					if (battler.Recovered)
-					{
-						battler.Recovered = false;
-						skipround = true;
-					}
-
-					if (!skipround)
-					{
-						Log.Add(battler.Name + " is acting.");
-						battler.DoRound(ProtoBattlers, rng);
-					}
-				}
-			}
-
-			var multiplyingBattlers = ProtoBattlers.Where(b => b.Multiply).ToList();
-
-			foreach (var battler in multiplyingBattlers)
-			{
-				if (battler.Multiply)
-				{
-					battler.Multiply = false;
-					var wholeteam = ProtoBattlers.Where(b => b.Team == battler.Team).ToList();
-					var deadteammates = wholeteam.Where(b => b.TechnicalDeath).ToList();
-
-					if (deadteammates.Any() && wholeteam.Count >= 3)
-					{
-						ProtoBattlers.Remove(deadteammates.First());
-					}
-
-					if (wholeteam.Count < 3)
-					{
-						ProtoEntity copy = new ProtoEntity(Log, Rng, enemies[(int)battler.EnemyId], scripts);
-						copy.Hp = battler.Hp;
-						ProtoBattlers.Add(copy);
 					}
 				}
 			}
