@@ -66,3 +66,7 @@ body {
 .fa-circle-question:before {
     content: "\f059";
 }
+
+.fa-floppy-disk::before {
+    content: "\f0c7";
+}
