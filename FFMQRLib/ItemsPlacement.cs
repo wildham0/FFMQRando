@@ -59,6 +59,9 @@ namespace FFMQLib
 		private const int TreasuresOffset = 0x8000;
 		private int GpCount;
 		private AccessReqs CurrentPowerLevel = AccessReqs.PowerLevel0;
+		private PowerLevel PowerLevel;
+		private List<Items> PlacedItems;
+		private List<AccessReqs> ProcessedAccessReqs;
 
 		private class RegionWeight
 		{ 
@@ -125,7 +128,8 @@ namespace FFMQLib
 				looseItemsCount = Max(0, itemsList.Count - prioritizedLocationsCount);
 				prioritizedItemsCount = Min(prioritizedLocationsCount, itemsList.Count);
 
-				List<Items> placedItems = new();
+				PlacedItems = new();
+				ProcessedAccessReqs = new();
 
 				List<Items> nonRequiredItems = flags.SkyCoinMode == SkyCoinModes.Standard ? itemsList.Starting : itemsList.Starting.Append(Items.SkyCoin).ToList();
 
@@ -233,10 +237,10 @@ namespace FFMQLib
 					{ 
 						targetLocation.Type = GameObjectType.Chest;
 					}
-					placedItems.Add(itemToPlace);
+					PlacedItems.Add(itemToPlace);
 					//Console.WriteLine(Enum.GetName(targetLocation.Location) + "_" + targetLocation.ObjectId + " - " + Enum.GetName(itemToPlace));
 
-					List<AccessReqs> powerLevelsToProcess = UpdatePowerLevel(placedItems);
+					List<AccessReqs> powerLevelsToProcess = UpdatePowerLevel(PlacedItems);
 
 					List<AccessReqs> result = new();
 
@@ -370,6 +374,51 @@ namespace FFMQLib
 				accessReqToProcess.Remove(currentReq);
 			}
 		}
+		private void ProcessRequirements2(Items itemToPlace, List<Items> placedItems)
+		{
+			List<AccessReqs> accessReqToProcess = new();
+
+			if (AccessReferences.ItemAccessReq.TryGetValue(itemToPlace, out var result))
+			{
+				accessReqToProcess.AddRange(result);
+			}
+
+			accessReqToProcess.AddRange(PowerLevel.UpdatePowerLevel(placedItems, ProcessedAccessReqs, ItemsLocations));
+
+			while (accessReqToProcess.Any())
+			{
+				AddGp(accessReqToProcess);
+
+				if (!accessReqToProcess.Any())
+				{
+					break;
+				}
+
+				var currentReq = accessReqToProcess.First();
+
+				// Update Locations
+				List<GameObject> unaccessibleLocations = ItemsLocations.Where(x => x.Accessible == false).ToList();
+				for (int i = 0; i < unaccessibleLocations.Count; i++)
+				{
+					for (int j = 0; j < unaccessibleLocations[i].AccessRequirements.Count; j++)
+					{
+						unaccessibleLocations[i].AccessRequirements[j] = unaccessibleLocations[i].AccessRequirements[j].Where(x => x != currentReq).ToList();
+						if (!unaccessibleLocations[i].AccessRequirements[j].Any())
+						{
+							unaccessibleLocations[i].Accessible = true;
+							if (unaccessibleLocations[i].Type == GameObjectType.Trigger)
+							{
+								accessReqToProcess.AddRange(unaccessibleLocations[i].OnTrigger);
+							}
+						}
+					}
+				}
+
+				ProcessedAccessReqs.Add(currentReq);
+				accessReqToProcess.Remove(currentReq);
+				accessReqToProcess.AddRange(PowerLevel.UpdatePowerLevel(placedItems, ProcessedAccessReqs, ItemsLocations));
+			}
+		}
 		private void AddGp(List<AccessReqs> accessReqToProcess)
 		{
 			var gpAccessList = AccessToGp.Keys.ToList();
@@ -383,6 +432,7 @@ namespace FFMQLib
 				accessReqToProcess.Remove(access);
 			}
 		}
+		
 		private static List<Items> level1weapons = new() { Items.KnightSword, Items.BattleAxe, Items.JumboBomb, Items.CharmClaw };
 		private static List<Items> level2weapons = new() { Items.Excalibur, Items.GiantsAxe, Items.MegaGrenade, Items.DragonClaw };
 		private static List<Items> level0armors = new() { Items.SteelHelm, Items.SteelArmor, Items.SteelShield, Items.Charm };

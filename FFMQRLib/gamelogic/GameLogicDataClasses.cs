@@ -24,6 +24,7 @@ namespace FFMQLib
 		BattlefieldGp,
 		Trigger,
 		Companion,
+		Quest,
 		Dummy
 	}
 	public enum RoomType : int
@@ -76,6 +77,16 @@ namespace FFMQLib
 			Location = copyFrom.Location;
 			LocationSlot = copyFrom.LocationSlot;
 			Name = copyFrom.Name;
+		}
+		public GameObjectData(GameObjectType type, List<AccessReqs> triggers, List<AccessReqs> access, string name)
+		{
+			ObjectId = 0;
+			Type = type;
+			OnTrigger = triggers;
+			Access = access;
+			Location = LocationIds.None;
+			LocationSlot = LocationIds.None;
+			Name = name;
 		}
 	}
 	public class GameObject : GameObjectData

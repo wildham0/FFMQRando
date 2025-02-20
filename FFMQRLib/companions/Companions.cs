@@ -422,6 +422,76 @@ namespace FFMQLib
 				Locations.Add(companion.id, locationRooms[targetroom.Id]);
 			}
 		}
+		public void UpdateLogic(List<Room> rooms)
+		{
+			Dictionary<CompanionsId, List<AccessReqs>> companionsAccess = new()
+			{
+				{ CompanionsId.Kaeli, new() { AccessReqs.KaeliLevelUp1, AccessReqs.KaeliLevelUp2, AccessReqs.KaeliLevelUp3, AccessReqs.KaeliLevelUp4 } },
+				{ CompanionsId.Tristam, new() { AccessReqs.TristamLevelUp1, AccessReqs.TristamLevelUp2, AccessReqs.TristamLevelUp3, AccessReqs.TristamLevelUp4 } },
+				{ CompanionsId.Phoebe, new() { AccessReqs.PhoebeLevelUp1, AccessReqs.PhoebeLevelUp2, AccessReqs.PhoebeLevelUp3, AccessReqs.PhoebeLevelUp4 } },
+				{ CompanionsId.Reuben, new() { AccessReqs.ReubenLevelUp1, AccessReqs.ReubenLevelUp2, AccessReqs.ReubenLevelUp3, AccessReqs.ReubenLevelUp4 } },
+			};
+
+			//var questsToProcess = Quests.Where(q => Available[q.Companion]).S
+			foreach (var companion in companionsAccess)
+			{
+				//var questsTo
+				
+				if (Available[companion.Key])
+				{
+					if (levelingType == LevelingType.Quests || levelingType == LevelingType.QuestsExtended)
+					{
+						foreach (var quest in Quests.Where(q => q.Companion == companion.Key))
+						{
+							switch (quest.Name)
+							{
+								case QuestsId.CureKaeli:
+									rooms.Find(r => r.Id == 17).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.Kaeli1, AccessReqs.Minotaur, AccessReqs.Elixir }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.VisitBoneDungeon:
+									rooms.Find(r => r.Id == 26).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.TristamBoneItemGiven }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.VisitWintryCave:
+									rooms.Find(r => r.Id == 45).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.Phoebe1 }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.VisitMine:
+									rooms.Find(r => r.Id == 91).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.Reuben1 }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.SaveCrystalofEarth:
+									rooms.Find(r => r.Id == 38).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.FlamerusRex }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.SaveCrystalofWater:
+									rooms.Find(r => r.Id == 70).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.IceGolem }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.SaveCrystalofFire:
+									rooms.Find(r => r.Id == 121).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.DualheadHydra }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.SaveCrystalofWind:
+									rooms.Find(r => r.Id == 179).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.Pazuzu }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.SaveQtyCrystals:
+									rooms.Find(r => r.Id == 179).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.Pazuzu }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+
+							}
+
+						}
+					
+					}
+				
+				}
+			
+			}
+		}
 		public void Write(FFMQRom rom)
 		{
 			QuestRoutines(rom);
