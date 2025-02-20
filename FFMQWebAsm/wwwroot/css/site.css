@@ -70,3 +70,7 @@ body {
 .fa-floppy-disk::before {
     content: "\f0c7";
 }
+
+.fa-square-up-right:before {
+    content: "\f360";
+}
