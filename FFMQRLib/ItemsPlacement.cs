@@ -74,7 +74,7 @@ namespace FFMQLib
 				Weight = _weight;
 			}
 		}
-		public ItemsPlacement(Flags flags, List<GameObject> initialGameObjects, ApConfigs apconfigs, FFMQRom rom, MT19337 rng)
+		public ItemsPlacement(Flags flags, List<GameObject> initialGameObjects, Companions companions, ApConfigs apconfigs, FFMQRom rom, MT19337 rng)
 		{
 			if (apconfigs.ApEnabled)
 			{
@@ -82,10 +82,10 @@ namespace FFMQLib
             }
 			else
 			{
-				PlaceItems(flags, initialGameObjects, rom, rng);
+				PlaceItems(flags, initialGameObjects, companions, rom, rng);
 			}
 		}
-		public void PlaceItems(Flags flags, List<GameObject> initialGameObjects, FFMQRom rom, MT19337 rng)
+		public void PlaceItems(Flags flags, List<GameObject> initialGameObjects, Companions companions, FFMQRom rom, MT19337 rng)
 		{
 			bool badPlacement = true;
 			int counter = 0;
@@ -93,6 +93,8 @@ namespace FFMQLib
 			int prioritizedLocationsCount = 0;
 			int prioritizedItemsCount = 0;
 			int looseItemsCount = 0;
+
+			PowerLevel = new(flags.CompanionLevelingType, companions);
 
 			List<Items> consumableList = rom.GetFromBank(0x01, 0x801E, 0xDD).ToBytes().Select(x => (Items)x).ToList();
 			List<Items> finalConsumables = rom.GetFromBank(0x01, 0x80F2, 0x04).ToBytes().Select(x => (Items)x).ToList();
@@ -119,7 +121,7 @@ namespace FFMQLib
 				ItemsList itemsList = new(flags, rng);
 				StartingItems = itemsList.Starting;
 				GpCount = 0;
-				CurrentPowerLevel = AccessReqs.PowerLevel0;
+				PowerLevel.Initialize();
 
 				ItemsLocations = new(initialItemlocations.Select(x => new GameObject(x)));
 
@@ -134,6 +136,7 @@ namespace FFMQLib
 				List<Items> nonRequiredItems = flags.SkyCoinMode == SkyCoinModes.Standard ? itemsList.Starting : itemsList.Starting.Append(Items.SkyCoin).ToList();
 
 				List<AccessReqs> accessReqsToProcess = new();
+				
 				// Apply starting items access
 				foreach (var item in nonRequiredItems)
 				{
@@ -144,7 +147,7 @@ namespace FFMQLib
 					}
 				}
 
-				accessReqsToProcess.Add(CurrentPowerLevel);
+				accessReqsToProcess.Add(PowerLevel.Current);
 
 				ProcessRequirements(accessReqsToProcess);
 
@@ -374,7 +377,7 @@ namespace FFMQLib
 				accessReqToProcess.Remove(currentReq);
 			}
 		}
-		private void ProcessRequirements2(Items itemToPlace, List<Items> placedItems)
+		private void ProcessRequirements2(Items itemToPlace, List<GameObject> saa)
 		{
 			List<AccessReqs> accessReqToProcess = new();
 
@@ -383,7 +386,7 @@ namespace FFMQLib
 				accessReqToProcess.AddRange(result);
 			}
 
-			accessReqToProcess.AddRange(PowerLevel.UpdatePowerLevel(placedItems, ProcessedAccessReqs, ItemsLocations));
+			accessReqToProcess.AddRange(PowerLevel.GetNewPowerLevel().UpdatePowerLevel(placedItems, ProcessedAccessReqs, ItemsLocations));
 
 			while (accessReqToProcess.Any())
 			{

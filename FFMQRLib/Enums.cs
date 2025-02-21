@@ -164,6 +164,8 @@ namespace FFMQLib
 	}
 	public enum AccessReqs : int
 	{
+		None,
+
 		Elixir,
 		TreeWither,
 		WakeWater,
@@ -191,17 +193,34 @@ namespace FFMQLib
 		JumboBomb,
 		MegaGrenade,
 		
+		Kaeli,
 		Kaeli1,
 		Kaeli2,
 		Tristam,
-		TristamBoneItemGiven, 
+		TristamBoneItemGiven,
+		TristamQuestCompleted,
 		ReubenMine, // is TristamBoneItemGiven, but we switch it for compat with ap 1.4 (this is awful)
+		Phoebe,
+		PhoebeVisitedCave,
+		PhoebeQuestCompleted,
 		Phoebe1,
+		Reuben,
+		ReubenVisitedMine,
+		ReubenQuestCompleted,
 		Reuben1,
 		ReubenDadSaved,
 		Otto,
 		CaptainMac,
 		ShipSteeringWheel,
+		TreeWitherPerson,
+		HealedPerson,
+
+		TopOfVolcanoVisited,
+		ChocoboVisited,
+		LightTempleVisited,
+		PointlessLedgeVisited,
+		TreehouseVisited,
+		MountGaleVisited,
 
 		Minotaur,
 		FlamerusRex,

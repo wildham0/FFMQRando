@@ -105,7 +105,7 @@ namespace FFMQLib
 			return yaml;
 		}
 
-		public void CrawlRooms(Flags flags, Overworld overworld, EnemiesStats enemies, Battlefields battlefields)
+		public void CrawlRooms(Flags flags, Overworld overworld, EnemiesStats enemies, Companions companions, Battlefields battlefields)
 		{
 			// Initialization
 			accessQueue = new();
@@ -114,6 +114,9 @@ namespace FFMQLib
 			regionRoomIds = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
 
 			var locationLinks = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).ToList();
+
+			// Add Quests to Logic
+			companions.AddQuestsToLogic(Rooms);
 
 			// Process Logic Access
 			if (flags.LogicOptions != LogicOptions.Expert)

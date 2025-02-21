@@ -866,7 +866,7 @@ namespace FFMQLib
 				List<byte> treehousesnpclook = new() { 0x60, 0x64, 0x68, 0x6C, 0x70, 0x74 };
 
 				MapObjects[0x11].Add(new MapObject(MapObjects[0x11][0x01]));
-				MapObjects[0x11][0x0C].Coord = rng.PickFrom(treehouseslocations);
+				MapObjects[0x11][0x0C].Coord = treehouseslocations[Companions.PickedTreeHouse];
 				MapObjects[0x11][0x0C].Sprite = rng.PickFrom(treehousesnpclook);
 				MapObjects[0x11][0x0C].Value = (byte)TalkScriptsList.TreeHouseQuestNPC;
 			}
