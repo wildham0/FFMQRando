@@ -553,6 +553,10 @@ namespace FFMQLib
 			// If the instruments data is full ($620, $20 bytes), when loading a new track the instruments will overflow and crash the spc chip by loading garbage data; the fix force the instrument data to be flushed to make space
 			PutInBank(0x0D, 0x8340, Blob.FromHex("22708811b016eaeaeaeaeaeaea"));
 			PutInBank(0x11, 0x8870, Blob.FromHex("a20000c220b528f009e8e8e02000d0f5386b186b"));
+
+			// Fix Mask/Mirror hanging on non enemies maps
+			PutInBank(0x01, 0x8DF3, Blob.FromHex("2240821160"));
+			PutInBank(0x11, 0x8240, Blob.FromHex("08e220c210af461a00d0fa286b"));
 		}
 		public void ShuffledFloorVanillaMonstersFix(Flags flags)
 		{
