@@ -32,10 +32,19 @@ namespace FFMQLib
 		private static List<Items> level2spells = new() { Items.WhiteSeal, Items.MeteorSeal, Items.FlareSeal };
 		private static List<Items> coins = new() { Items.SandCoin, Items.RiverCoin, Items.SunCoin };
 
+		private Items progressiveSword;
+		private Items progressiveAxe;
+		private Items progressiveClaw;
+		private Items progressiveBomb;
+		private Items progressiveHelm;
+		private Items progressiveArmor;
+		private Items progressiveShield;
+		private Items progressiveAccessory;
+
 		private static List<AccessReqs> bosses = new() { AccessReqs.Minotaur, AccessReqs.Squidite, AccessReqs.SnowCrab, AccessReqs.Jinn, AccessReqs.Medusa, AccessReqs.Gidrah, AccessReqs.Dullahan };
 		private static List<AccessReqs> crystals = new() { AccessReqs.FlamerusRex, AccessReqs.IceGolem, AccessReqs.DualheadHydra, AccessReqs.Pazuzu };
 		private static List<LocationIds> battlefields = new() { LocationIds.ForestaSouthBattlefield, LocationIds.ForestaWestBattlefield, LocationIds.ForestaEastBattlefield, LocationIds.AquariaBattlefield01, LocationIds.AquariaBattlefield02, LocationIds.AquariaBattlefield03, LocationIds.WintryBattlefield01, LocationIds.WintryBattlefield02, LocationIds.PyramidBattlefield01, LocationIds.LibraBattlefield01, LocationIds.LibraBattlefield02, LocationIds.FireburgBattlefield01, LocationIds.FireburgBattlefield02, LocationIds.FireburgBattlefield03, LocationIds.MineBattlefield01, LocationIds.MineBattlefield02, LocationIds.MineBattlefield03, LocationIds.VolcanoBattlefield01, LocationIds.WindiaBattlefield01, LocationIds.WindiaBattlefield02 };
-		private static Dictionary<CompanionsId, AccessReqs> companionAccess = new()
+		private static Dictionary<CompanionsId, AccessReqs> companionsToReqs = new()
 		{
 			{ CompanionsId.Kaeli, AccessReqs.Kaeli },
 			{ CompanionsId.Tristam, AccessReqs.Tristam },
@@ -67,11 +76,11 @@ namespace FFMQLib
 			{ QuestsId.VisitPointlessLedge, AccessReqs.PointlessLedgeVisited },
 			{ QuestsId.VisitTreeHouses, AccessReqs.TreehouseVisited },
 			{ QuestsId.VisitMountGale, AccessReqs.MountGaleVisited },
-			{ QuestsId.VisitChocobo, AccessReqs.ChocoboVisited },
 			{ QuestsId.BuildRainbowBridge, AccessReqs.RainbowBridge },
 		};
 
 		private LevelingType levelingMode;
+		private bool progressiveGear;
 
 		private int openness;
 		private int weaponQuality;
@@ -93,17 +102,19 @@ namespace FFMQLib
 
 		private List<(QuestsId quest, AccessReqs companion, AccessReqs req)> quests = new();
 		private List<(QuestsId quest, AccessReqs companion, AccessReqs req)> currentQuests = new();
+		private List<AccessReqs> availableCompanions;
 
 
-		public PowerLevel(LevelingType _levelingMode, Companions companions)
+		public PowerLevel(LevelingType _levelingMode, bool progressive, Companions companions)
 		{
 			levelingMode = _levelingMode;
+			progressiveGear = progressive;
 			ProcessQuests(companions);
 			Initialize();
 		}
 		public void Initialize()
 		{
-			currentPowerLevel = 0;
+			currentPowerLevel = -1;
 			crystalSaved = new();
 			battlefieldDefeated = new();
 			bossesDefeated = new();
@@ -117,11 +128,24 @@ namespace FFMQLib
 			spellQuality = 0;
 			companionLevel = 0;
 			currentQuests = quests.ToList();
+			questCompleted[AccessReqs.Kaeli] = 0;
+			questCompleted[AccessReqs.Tristam] = 0;
+			questCompleted[AccessReqs.Phoebe] = 0;
+			questCompleted[AccessReqs.Reuben] = 0;
+
+			progressiveSword = Items.None;
+			progressiveAxe = Items.None;
+			progressiveClaw = Items.None;
+			progressiveBomb = Items.None;
+			progressiveHelm = Items.None;
+			progressiveArmor = Items.None;
+			progressiveShield = Items.None;
+			progressiveAccessory = Items.None;
 		}
 		private void ProcessQuests(Companions companions)
 		{
 			// Remove unavailable companions
-			companionAccess = companionAccess.Where(c => companions.Available[c.Key]).ToDictionary(c => c.Key, c => c.Value);
+			availableCompanions = companions.Available.Where(c => c.Value).Select(c => companionsToReqs[c.Key]).ToList();
 			
 			crystalNeeded = 100;
 			battlefieldsNeeded = 100;
@@ -154,41 +178,85 @@ namespace FFMQLib
 			{
 				if (quest.Name == QuestsId.CollectQtyItems)
 				{
-					quests.Add((quest.Name, companionAccess[quest.Companion], AccessReqs.Barred));
+					quests.Add((quest.Name, companionsToReqs[quest.Companion], AccessReqs.Barred));
 				}
 				else if (quest.Name == QuestsId.SaveQtyCrystals)
 				{
-					quests.Add((quest.Name, companionAccess[quest.Companion], AccessReqs.Barred));
+					quests.Add((quest.Name, companionsToReqs[quest.Companion], AccessReqs.Barred));
 					crystalNeeded = quest.Quantity;
 				}
 				else if (quest.Name == QuestsId.ClearQtyBattlefields)
 				{
-					quests.Add((quest.Name, companionAccess[quest.Companion], AccessReqs.Barred));
+					quests.Add((quest.Name, companionsToReqs[quest.Companion], AccessReqs.Barred));
 					battlefieldsNeeded = quest.Quantity;
 				}
 				else if (quest.Name == QuestsId.ClearSpecificBattlefield)
 				{
-					quests.Add((quest.Name, companionAccess[quest.Companion], AccessReqs.Barred));
+					quests.Add((quest.Name, companionsToReqs[quest.Companion], AccessReqs.Barred));
 					battlefieldToClear = (LocationIds)quest.Quantity;
 				}
 				else if (quest.Name == QuestsId.DefeatQtyMinibosses)
 				{
-					quests.Add((quest.Name, companionAccess[quest.Companion], AccessReqs.Barred));
+					quests.Add((quest.Name, companionsToReqs[quest.Companion], AccessReqs.Barred));
 					bossesNeeded = quest.Quantity;
 				}
 				else if (quest.Name == QuestsId.CollectQtySkyCoins)
 				{
-					quests.Add((quest.Name, companionAccess[quest.Companion], AccessReqs.Barred));
+					quests.Add((quest.Name, companionsToReqs[quest.Companion], AccessReqs.Barred));
 					skyCoinNeeded = quest.Quantity;
 				}
 				else
 				{
-					quests.Add((quest.Name, companionAccess[quest.Companion], questToAcces[quest.Name]));
+					quests.Add((quest.Name, companionsToReqs[quest.Companion], questToAcces[quest.Name]));
 				}
+			}
+		}
+		private Items ProcessProgressiveItem(Items itemToPlace)
+		{
+			if (itemToPlace >= Items.SteelSword && itemToPlace <= Items.Excalibur)
+			{
+				return progressiveSword = progressiveSword == Items.None ? Items.SteelSword : progressiveSword + 1;
+			}
+			else if (itemToPlace >= Items.Axe && itemToPlace <= Items.GiantsAxe)
+			{
+				return progressiveAxe = progressiveAxe == Items.None ? Items.Axe : progressiveAxe + 1;
+			}
+			else if (itemToPlace >= Items.CatClaw && itemToPlace <= Items.DragonClaw)
+			{
+				return progressiveClaw = progressiveClaw == Items.None ? Items.CatClaw : progressiveClaw + 1;
+			}
+			else if (itemToPlace >= Items.Bomb && itemToPlace <= Items.MegaGrenade)
+			{
+				return progressiveBomb = progressiveBomb == Items.None ? Items.Bomb : progressiveBomb + 1;
+			}
+			else if (itemToPlace >= Items.SteelHelm && itemToPlace <= Items.ApolloHelm)
+			{
+				return progressiveHelm = progressiveHelm == Items.None ? Items.SteelHelm : progressiveHelm + 1;
+			}
+			else if (itemToPlace >= Items.SteelArmor && itemToPlace <= Items.GaiasArmor)
+			{
+				return progressiveArmor = progressiveArmor == Items.None ? Items.SteelArmor : progressiveArmor + 1;
+			}
+			else if (itemToPlace >= Items.SteelShield && itemToPlace <= Items.AegisShield)
+			{
+				return progressiveShield = progressiveShield == Items.None ? Items.SteelShield : progressiveShield + 1;
+			}
+			else if (itemToPlace >= Items.Charm && itemToPlace <= Items.CupidLocket)
+			{
+				return progressiveAccessory = progressiveAccessory == Items.None ? Items.Charm : progressiveAccessory + 1;
+			}
+			else
+			{
+				return itemToPlace;
 			}
 		}
 		private void UpdateItem(Items placedItem)
 		{
+			if (progressiveGear)
+			{
+				placedItem = ProcessProgressiveItem(placedItem);
+			}
+			
 			if (coins.Contains(placedItem) && openness < 3)
 			{
 				openness++;
@@ -232,7 +300,7 @@ namespace FFMQLib
 		private void UpdateCompanion(AccessReqs req, List<GameObject> locations)
 		{
 			// Update accessible companions
-			if (companionAccess.Select(c => c.Value).Contains(req))
+			if (availableCompanions.Contains(req))
 			{
 				accessibleCompanions.Add(req);
 			}
@@ -476,7 +544,7 @@ namespace FFMQLib
 				if ((int)AccessReqs.PowerLevel0 + i > (int)Current)
 				{
 					accessReqToProcess.Add((AccessReqs)((int)AccessReqs.PowerLevel0 + i));
-					Current = (AccessReqs)((int)AccessReqs.PowerLevel0 + i);
+					//Current = (AccessReqs)((int)AccessReqs.PowerLevel0 + i);
 				}
 			}
 
