@@ -7,6 +7,7 @@ using System.IO;
 using System.Diagnostics;
 using System.ComponentModel;
 using static System.Math;
+using System.Data.SqlTypes;
 
 namespace FFMQLib
 {
@@ -277,6 +278,7 @@ namespace FFMQLib
 		public byte GpMultiplier { get; set; }
 		public List<ElementsType> Resistances { get; set; }
 		public List<ElementsType> Weaknesses { get; set; }
+		private byte spByte;
 
 		public EnemyIds Id;
 
@@ -300,7 +302,7 @@ namespace FFMQLib
 			Accuracy = statsdata[0x0A];
 			Evade = statsdata[0x0B];
 			// Weakneses (1 byte)
-			// Sp Status (1 byte)
+			spByte = statsdata[0x0D];
 
 			Resistances = new();
 			Weaknesses = new();
@@ -330,7 +332,7 @@ namespace FFMQLib
 		}
 		public byte[] GetLevelMultBytes()
 		{
-			return new byte[] { Level,  XpMultiplier, GpMultiplier };
+			return new byte[] { Level, XpMultiplier, GpMultiplier };
 		}
 		public byte[] GetStatsBytes()
 		{
@@ -348,8 +350,7 @@ namespace FFMQLib
 			_rawBytes[0x0A] = Accuracy;
 			_rawBytes[0x0B] = Evade;
 			// Weaknesses (1 byte)
-			// SpecialStatus (1 byte)
-
+			_rawBytes[0x0E] = spByte;
 
 			int tempresist = 0;
 			int tempweak = 0;
