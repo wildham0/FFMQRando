@@ -180,10 +180,6 @@ namespace FFMQLib
 			var enemizerattacks = flags.EnemizerAttacks;
 			var enemizergroup = flags.EnemizerGroups;
 			var progressive = flags.ProgressiveEnemizer;
-			
-			enemizerattacks = EnemizerAttacks.Balanced;
-			enemizergroup = EnemizerGroups.MobsBosses;
-			progressive = false;
 
 			switch (enemizerattacks) 
 			{
