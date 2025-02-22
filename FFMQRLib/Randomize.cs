@@ -14,7 +14,7 @@ namespace FFMQLib
 		// X = Global Version
 		// YY = Release
 		// ZZ = Build
-		public static string Version = "1.06.24";
+		public static string Version = "1.06.25";
 		
 	}
 	public partial class FFMQRom : SnesRom
@@ -130,12 +130,12 @@ namespace FFMQLib
 			Overworld.UpdateOverworld(flags, GameLogic, Battlefields);
 
 			// Logic
-			GameLogic.CrawlRooms(flags, Overworld, EnemiesStats, Battlefields);
+			GameLogic.CrawlRooms(flags, Overworld, EnemiesStats, Companions, Battlefields);
 			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this);
 			EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
 			
 			// Items
-			ItemsPlacement itemsPlacement = new(flags, GameLogic.GameObjects, apconfigs, this, rng);
+			ItemsPlacement itemsPlacement = new(flags, GameLogic.GameObjects, Companions, apconfigs, this, rng);
 
 			SetStartingItems(itemsPlacement);
 			MapObjects.UpdateChests(itemsPlacement);

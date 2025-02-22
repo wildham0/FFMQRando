@@ -690,7 +690,7 @@
     object_id: 0
     type: "Trigger"
     on_trigger: ["Minotaur"]
-    access: ["Kaeli1"]
+    access: ["TreeWitherPerson"]
   - name: "Level Forest - Old Man"
     object_id: 0
     type: "NPC"
@@ -698,7 +698,7 @@
   - name: "Level Forest - Kaeli"
     object_id: 1
     type: "NPC"
-    access: ["Kaeli1", "Minotaur"]
+    access: ["TreeWitherPerson", "Minotaur"]
   links:
   - target_room: 220
     entrance: 28
@@ -742,13 +742,18 @@
   - name: "Kaeli Companion"
     object_id: 0
     type: "Trigger"
-    on_trigger: ["Kaeli1"]
+    on_trigger: ["Kaeli"]
     access: ["TreeWither"]
-  - name: "Kaeli 2"
+  - name: "Tree Wither Person"
     object_id: 0
     type: "Trigger"
-    on_trigger: ["Kaeli2"]
-    access: ["Kaeli1", "Minotaur", "Elixir"]
+    on_trigger: ["TreeWitherPerson"]
+    access: ["TreeWither"]
+  - name: "Sick Person"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["HealedPerson"]
+    access: ["TreeWitherPerson", "Minotaur", "Elixir"]
   links:
   - target_room: 16
     entrance: 46
@@ -1098,7 +1103,7 @@
   - name: "Phoebe Companion"
     object_id: 0
     type: "Trigger"
-    on_trigger: ["Phoebe1"]
+    on_trigger: ["Phoebe"]
     access: []
   links:
   - target_room: 221
@@ -1212,7 +1217,12 @@
   - name: "Wintry Cave 1F - Phoebe"
     object_id: 5
     type: "NPC"
-    access: ["Phoebe1"]
+    access: ["Phoebe"]
+  - name: "Wintry Cave Visite with Phoebe"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["PhoebeVisitedCave"]
+    access: ["Phoebe"]
   - name: "Wintry Cave 1F - 3F Entrance Bombed"
     object_id: 0
     type: "Trigger"
@@ -1903,7 +1913,7 @@
   - name: "Reuben Companion"
     object_id: 0
     type: "Trigger"
-    on_trigger: ["Reuben1"]
+    on_trigger: ["Reuben"]
     access: []
   - name: "Fireburg - Reuben's House Box"
     object_id: 0x75
@@ -2126,7 +2136,12 @@
   - name: "Mine - Reuben"
     object_id: 7
     type: "NPC"
-    access: ["Reuben1"]
+    access: ["Reuben"]
+  - name: "Mine visited with Reuben"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["ReubenVisitedMine"]
+    access: ["Reuben"]
   - name: "Reuben's dad Saved"
     object_id: 0
     type: "Trigger"
@@ -3345,7 +3360,7 @@
   - name: "Windia - Kaeli"
     object_id: 15
     type: "NPC"
-    access: ["Kaeli2"]
+    access: ["HealedPerson"]
   links:
   - target_room: 163
     entrance: 339
