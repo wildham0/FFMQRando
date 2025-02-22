@@ -105,7 +105,7 @@ namespace FFMQLib
 			return yaml;
 		}
 
-		public void CrawlRooms(Flags flags, Overworld overworld, Battlefields battlefields)
+		public void CrawlRooms(Flags flags, Overworld overworld, EnemiesStats enemies, Companions companions, Battlefields battlefields)
 		{
 			// Initialization
 			accessQueue = new();
@@ -114,6 +114,9 @@ namespace FFMQLib
 			regionRoomIds = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
 
 			var locationLinks = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).ToList();
+
+			// Add Quests to Logic
+			companions.AddQuestsToLogic(Rooms);
 
 			// Process Logic Access
 			if (flags.LogicOptions != LogicOptions.Expert)
@@ -130,6 +133,14 @@ namespace FFMQLib
                 // Add Sealed Temple Exit trick to logic in Expert mode
                 var exitTrickRoom = Rooms.Find(x => x.Id == 75);
 				exitTrickRoom.Links.Add(new RoomLink(74, new() { AccessReqs.ExitBook }));
+			}
+
+			// If map is shuffled, we block the one way access from Frozen Fields to Aquaria without wakewater
+			if (flags.MapShuffling != MapShufflingMode.None || flags.CrestShuffle)
+			{
+				var frozenFieldsRoom = Rooms.Find(x => x.Id == 223);
+				var aquariaAccess = frozenFieldsRoom.Links.Find(x => x.TargetRoom == 221);
+				aquariaAccess.Access.Add(AccessReqs.WakeWater);
 			}
 
 			// Giant Tree
@@ -250,6 +261,23 @@ namespace FFMQLib
 				windiaBosses.Add(AccessReqs.DualheadHydra);
 			}
 
+			foreach (var boss in enemies.BossesPower)
+			{
+				if (GameObjects.TryFind(o => o.OnTrigger.Contains(boss.Key), out var foundboss))
+				{
+					foundboss.AccessRequirements.ForEach(r => r.Add(boss.Value));
+				}
+			}
+
+			foreach (var battlefield in enemies.BattlefieldsPower)
+			{
+				if (GameObjects.TryFind(o => o.Location == battlefield.Key, out var foundbattlefield))
+				{
+					foundbattlefield.AccessRequirements.ForEach(r => r.Add(battlefield.Value));
+				}
+			}
+
+			/*
 			foreach (var gameobject in GameObjects)
 			{
 				foreach (var requirements in gameobject.AccessRequirements)
@@ -263,7 +291,7 @@ namespace FFMQLib
 						requirements.AddRange(progressCoin);
 					}
 				}
-			}
+			}*/
 
 			// Progressive Gear Logic
 			if (flags.ProgressiveGear)

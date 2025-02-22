@@ -164,6 +164,8 @@ namespace FFMQLib
 	}
 	public enum AccessReqs : int
 	{
+		None,
+
 		Elixir,
 		TreeWither,
 		WakeWater,
@@ -191,22 +193,41 @@ namespace FFMQLib
 		JumboBomb,
 		MegaGrenade,
 		
+		Kaeli,
 		Kaeli1,
 		Kaeli2,
 		Tristam,
-		TristamBoneItemGiven, 
+		TristamBoneItemGiven,
+		TristamQuestCompleted,
 		ReubenMine, // is TristamBoneItemGiven, but we switch it for compat with ap 1.4 (this is awful)
+		Phoebe,
+		PhoebeVisitedCave,
+		PhoebeQuestCompleted,
 		Phoebe1,
+		Reuben,
+		ReubenVisitedMine,
+		ReubenQuestCompleted,
 		Reuben1,
 		ReubenDadSaved,
 		Otto,
 		CaptainMac,
 		ShipSteeringWheel,
+		TreeWitherPerson,
+		HealedPerson,
+
+		TopOfVolcanoVisited,
+		ChocoboVisited,
+		LightTempleVisited,
+		PointlessLedgeVisited,
+		TreehouseVisited,
+		MountGaleVisited,
 
 		Minotaur,
 		FlamerusRex,
-		Phanquid,
-		FreezerCrab,
+		Phanquid, // Dont use, for ap comp only
+		Squidite, 
+		SnowCrab,
+		FreezerCrab, // Dont use, for ap comp only
 		IceGolem,
 		Jinn,
 		Medusa,
@@ -282,9 +303,11 @@ namespace FFMQLib
 		Pazuzu5F,
 		Pazuzu6F,
 
+		SkullrusRex,
 		StoneGolem,
 		TwinheadWyvern,
 		Zuh,
+		DarkKing,
 		
 		Gp150,
 		Gp200,
@@ -293,6 +316,29 @@ namespace FFMQLib
 		Gp600,
 		Gp900,
 		Gp1200,
+
+		PowerLevel0,
+		PowerLevel1,
+		PowerLevel2,
+		PowerLevel3,
+
+
+		KaeliLevelUp1,
+		KaeliLevelUp2,
+		KaeliLevelUp3,
+		KaeliLevelUp4,
+		TristamLevelUp1,
+		TristamLevelUp2,
+		TristamLevelUp3,
+		TristamLevelUp4,
+		PhoebeLevelUp1,
+		PhoebeLevelUp2,
+		PhoebeLevelUp3,
+		PhoebeLevelUp4,
+		ReubenLevelUp1,
+		ReubenLevelUp2,
+		ReubenLevelUp3,
+		ReubenLevelUp4,
 
 		Barred,
 	}
@@ -377,7 +423,7 @@ namespace FFMQLib
 		FlameArmor = 0x08,
 		BlackRobe = 0x09,
 		SteelShield = 0x0A,
-		VenusShield = 0x0C,
+		VenusShield = 0x0B,
 		AegisShield = 0x0C,
 		EtherShield = 0x0D,
 		Charm = 0x0E,

@@ -33,6 +33,7 @@ namespace FFMQLib
 			get => EnemizerAttacks == EnemizerAttacks.Normal ? EnemizerGroups.MobsOnly : internalEnemizerGroups;
 			set => internalEnemizerGroups = value;
 		}
+		public bool ProgressiveEnemizer { get; set; } = false;
 		public bool ShuffleResWeakType { get; set; } = false;
 		public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
 		public LevelingType CompanionLevelingType { get; set; } = LevelingType.Quests;
@@ -277,6 +278,7 @@ namespace FFMQLib
 		public bool DarkKingTrueForm { get; set; } = false;
 		public ushort WindowPalette { get; set; } = 0x5140;
 		public bool DumpGameInfoScreen { get; set; } = false;
+		public bool ReduceBattleFlash { get; set; } = false;
 		public bool AutoDownloadRom { get; set; } = false;
 		public string PlayerSprite { get; set; } = "default";	
 		public byte[] CustomSprites { get; set; } = new byte[0];

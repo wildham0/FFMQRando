@@ -62,3 +62,15 @@ body {
     background: linear-gradient(rgba(27,42,81,1), rgba(85,109,171,1)) no-repeat center fixed;
     background-size: cover;
 }
+
+.fa-circle-question:before {
+    content: "\f059";
+}
+
+.fa-floppy-disk::before {
+    content: "\f0c7";
+}
+
+.fa-square-up-right:before {
+    content: "\f360";
+}

@@ -36,13 +36,13 @@ namespace FFMQLib
 				},
 				new GameObjectData()
 				{
-					OnTrigger = new() { AccessReqs.Phoebe1 },
+					OnTrigger = new() { AccessReqs.Phoebe },
 					Type = GameObjectType.Trigger,
 					Name = "Phoebe Companion"
 				},
 				new GameObjectData()
 				{
-					OnTrigger = new() { AccessReqs.Reuben1 },
+					OnTrigger = new() { AccessReqs.Reuben },
 					Type = GameObjectType.Trigger,
 					Name = "Reuben Companion"
 				},
@@ -52,7 +52,7 @@ namespace FFMQLib
 			{
 				companions.Add(new GameObjectData()
 				{
-					OnTrigger = new() { AccessReqs.Kaeli1 },
+					OnTrigger = new() { AccessReqs.Kaeli },
 					Type = GameObjectType.Trigger,
 					Name = "Kaeli Companion",
 					Access = new() { AccessReqs.TreeWither }
@@ -66,7 +66,7 @@ namespace FFMQLib
 					Name = "Kaeli Companion",
 				});
 
-				Rooms.Find(r => r.Id == 17).GameObjects.Find(o => o.Name == "Kaeli Companion").Name = "Kaeli's Mom";
+				//Rooms.Find(r => r.Id == 17).GameObjects.Find(o => o.Name == "Kaeli Companion").Name = "Kaeli's Mom";
 			}
 
 			Rooms.ForEach(x => x.GameObjects.RemoveAll(o => o.OnTrigger.Intersect(companions.SelectMany(c => c.OnTrigger).ToList()).Any()));

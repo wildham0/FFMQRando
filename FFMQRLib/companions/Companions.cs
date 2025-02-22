@@ -107,10 +107,10 @@ namespace FFMQLib
 		public List<ArmorFlags> ArmorSet1 { get; set; }
 		public List<ArmorFlags> ArmorSet2 { get; set; }
 		public int HPBase { get; set; }
-		public int StrBase { get; set; }
-		public int StrMultiplier { get; set; }
-		public int ConBase { get; set; }
-		public int ConMultiplier { get; set; }
+		public int AttBase { get; set; }
+		public int AttMultiplier { get; set; }
+		public int DefBase { get; set; }
+		public int DefMultiplier { get; set; }
 		public int MagBase { get; set; }
 		public int MagMultiplier { get; set; }
 		public int SpdBase { get; set; }
@@ -133,12 +133,12 @@ namespace FFMQLib
 			var hpbase = Blob.FromUShorts(new ushort[] { (ushort)HPBase });
 			levelingdata.AddRange(hpbase.ToBytes());
 
-			levelingdata.Add((byte)StrMultiplier);
-			var strbase = Blob.FromUShorts(new ushort[] { (ushort)StrBase });
+			levelingdata.Add((byte)AttMultiplier);
+			var strbase = Blob.FromUShorts(new ushort[] { (ushort)AttBase });
 			levelingdata.AddRange(strbase.ToBytes());
 
-			levelingdata.Add((byte)ConMultiplier);
-			var conbase = Blob.FromUShorts(new ushort[] { (ushort)ConBase });
+			levelingdata.Add((byte)DefMultiplier);
+			var conbase = Blob.FromUShorts(new ushort[] { (ushort)DefBase });
 			levelingdata.AddRange(conbase.ToBytes());
 
 			levelingdata.Add((byte)SpdMultiplier);
@@ -220,10 +220,10 @@ namespace FFMQLib
 			{
 				Weapon = Items.GiantsAxe,
 				HPBase = 40,
-				StrBase = 3,
-				StrMultiplier = 3,
-				ConBase = 10,
-				ConMultiplier = 2,
+				AttBase = 3,
+				AttMultiplier = 3,
+				DefBase = 10,
+				DefMultiplier = 2,
 				MagBase = 0,
 				MagMultiplier = 2,
 				SpdBase = 15,
@@ -244,10 +244,10 @@ namespace FFMQLib
 			{
 				Weapon = Items.NinjaStar,
 				HPBase = 160,
-				StrBase = 2,
-				StrMultiplier = 3,
-				ConBase = 8,
-				ConMultiplier = 1,
+				AttBase = 2,
+				AttMultiplier = 3,
+				DefBase = 8,
+				DefMultiplier = 1,
 				MagBase = 8,
 				MagMultiplier = 1,
 				SpdBase = 10,
@@ -268,10 +268,10 @@ namespace FFMQLib
 			{
 				Weapon = Items.BowOfGrace,
 				HPBase = 80,
-				StrBase = 35,
-				StrMultiplier = 1,
-				ConBase = 5,
-				ConMultiplier = 1,
+				AttBase = 35,
+				AttMultiplier = 1,
+				DefBase = 5,
+				DefMultiplier = 1,
 				MagBase = 4,
 				MagMultiplier = 3,
 				SpdBase = 2,
@@ -292,10 +292,10 @@ namespace FFMQLib
 			{
 				Weapon = Items.MorningStar,
 				HPBase = 80,
-				StrBase = 38,
-				StrMultiplier = 2,
-				ConBase = 38,
-				ConMultiplier = 1,
+				AttBase = 38,
+				AttMultiplier = 2,
+				DefBase = 38,
+				DefMultiplier = 1,
 				MagBase = 10,
 				MagMultiplier = 1,
 				SpdBase = 38,
@@ -420,6 +420,76 @@ namespace FFMQLib
 			{
 				var targetroom = rooms.Find(r => r.GameObjects.Select(o => o.Name).ToList().Contains(companion.name));
 				Locations.Add(companion.id, locationRooms[targetroom.Id]);
+			}
+		}
+		public void UpdateLogic(List<Room> rooms)
+		{
+			Dictionary<CompanionsId, List<AccessReqs>> companionsAccess = new()
+			{
+				{ CompanionsId.Kaeli, new() { AccessReqs.KaeliLevelUp1, AccessReqs.KaeliLevelUp2, AccessReqs.KaeliLevelUp3, AccessReqs.KaeliLevelUp4 } },
+				{ CompanionsId.Tristam, new() { AccessReqs.TristamLevelUp1, AccessReqs.TristamLevelUp2, AccessReqs.TristamLevelUp3, AccessReqs.TristamLevelUp4 } },
+				{ CompanionsId.Phoebe, new() { AccessReqs.PhoebeLevelUp1, AccessReqs.PhoebeLevelUp2, AccessReqs.PhoebeLevelUp3, AccessReqs.PhoebeLevelUp4 } },
+				{ CompanionsId.Reuben, new() { AccessReqs.ReubenLevelUp1, AccessReqs.ReubenLevelUp2, AccessReqs.ReubenLevelUp3, AccessReqs.ReubenLevelUp4 } },
+			};
+
+			//var questsToProcess = Quests.Where(q => Available[q.Companion]).S
+			foreach (var companion in companionsAccess)
+			{
+				//var questsTo
+				
+				if (Available[companion.Key])
+				{
+					if (levelingType == LevelingType.Quests || levelingType == LevelingType.QuestsExtended)
+					{
+						foreach (var quest in Quests.Where(q => q.Companion == companion.Key))
+						{
+							switch (quest.Name)
+							{
+								case QuestsId.CureKaeli:
+									rooms.Find(r => r.Id == 17).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.Kaeli1, AccessReqs.Minotaur, AccessReqs.Elixir }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.VisitBoneDungeon:
+									rooms.Find(r => r.Id == 26).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.TristamBoneItemGiven }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.VisitWintryCave:
+									rooms.Find(r => r.Id == 45).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.Phoebe1 }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.VisitMine:
+									rooms.Find(r => r.Id == 91).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.Reuben1 }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.SaveCrystalofEarth:
+									rooms.Find(r => r.Id == 38).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.FlamerusRex }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.SaveCrystalofWater:
+									rooms.Find(r => r.Id == 70).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.IceGolem }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.SaveCrystalofFire:
+									rooms.Find(r => r.Id == 121).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.DualheadHydra }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.SaveCrystalofWind:
+									rooms.Find(r => r.Id == 179).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.Pazuzu }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+								case QuestsId.SaveQtyCrystals:
+									rooms.Find(r => r.Id == 179).GameObjects.Add(new GameObjectData(GameObjectType.Trigger, new() { companion.Value.First() }, new() { AccessReqs.Pazuzu }, "Level Up Quest"));
+									companion.Value.RemoveAt(0);
+									break;
+
+							}
+
+						}
+					
+					}
+				
+				}
+			
 			}
 		}
 		public void Write(FFMQRom rom)

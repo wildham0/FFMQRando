@@ -327,10 +327,10 @@ namespace FFMQLib
 		public TitleScreen(FFMQRom rom)
 		{
 			titleSprites = rom.GetFromBank(titleScreenBank, offsetSprites, lengthSprites * qtySprites).Chunk(lengthSprites);
-			versionText = "v" + FFMQLib.Metadata.Version + (rom.beta ? "b" : "");
+			versionText = "v" + (rom.beta ?
+				FFMQLib.Metadata.Version + "b" :
+				FFMQLib.Metadata.Version.Substring(0, FFMQLib.Metadata.Version.Length - 3));
 			UpdateSprites(rom.beta);
-			
-			//UpdateText();
 		}
 
 		public void Write(FFMQRom rom, string version, Blob seed, Flags flags)

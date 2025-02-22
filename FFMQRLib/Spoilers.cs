@@ -317,6 +317,7 @@ namespace FFMQLib
 					spoilers += "  " + elementgroup.Item1.ToString() + " > " + elementgroup.Item2.ToString() + "\n";
 				}
 
+				spoilers = spoilers.Replace("Zombie", "Holy");
 				spoilers += "\n";
 			}
 

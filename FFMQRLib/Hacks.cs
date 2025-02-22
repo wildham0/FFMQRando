@@ -19,13 +19,13 @@ namespace FFMQLib
 	
 	public partial class FFMQRom : SnesRom
 	{
-		public void GeneralModifications(Flags flags, bool apenabled, MT19337 rng)
+		public void GeneralModifications(Flags flags, Preferences prefs, bool apenabled, MT19337 rng)
 		{
 			ExpandRom();
 			FastMovement();
 			DefaultSettings();
 			RemoveClouds();
-			RemoveStrobing();
+			RemoveStrobing(prefs.ReduceBattleFlash);
 			SmallFixes();
 			BugFixes();
 			SystemBugFixes();
@@ -60,6 +60,14 @@ namespace FFMQLib
 			PutInBank(0x11, 0xFFE0, Blob.FromHex("E8E8E8E8E8E88E4F196B"));
 			// move starting position in the jump pos table by one so we end on the last intended position
 			PutInBank(0x00,0xF24C, Blob.FromHex("03006300C3002301")); // F251 > F24C
+
+			// Fix Up/Down sprite animation
+			PutInBank(0x00, 0xF420, Blob.FromHex("ff043c200008053c600808ffffffffffffffffffffffff043d60fb08053d200d08ffff80048005ff"));
+			// Fix Right sprite animation
+			PutInBank(0x00, 0xF458, Blob.FromHex("ff043c200008053c600808ffffffffffffffffffffffff043d60fb088005ffff8004ff"));
+			// Fix Left sprite animation
+			PutInBank(0x00, 0xF48B, Blob.FromHex("ff043c200008053c600808ffffffffffffffffffffffff8005043d200d08ffff8004ff"));
+
 
 			// Working hack for inmap room transition, except it slow down walking speed back at 16 frames vs 8, but it works!
 			PutInBank(0x11, 0x8200, Blob.FromHex("A9028D461AA00A008C9119A90F8D26196B"));
@@ -123,7 +131,7 @@ namespace FFMQLib
 			PutInBank(0x0B, 0x8599, Blob.FromHex("80"));
 			PutInBank(0x0B, 0x85A4, Blob.FromHex("80"));
 		}
-		public void RemoveStrobing()
+		public void RemoveStrobing(bool reducebattleflash)
 		{
 			// Crystal flash, simply skip the flash routine
 			PutInBank(0x01, 0xD4C9, Blob.FromHex("EAEAEA"));
@@ -138,6 +146,24 @@ namespace FFMQLib
 			PutInBank(0x01, 0xDC2A, Blob.FromHex("EAEAEA"));
 			PutInBank(0x01, 0xDC37, Blob.FromHex("EAEAEA"));
 			PutInBank(0x01, 0xDDBA, Blob.FromHex("60"));
+
+			// These are a bit more extreme and are only flash, not strobbing, so we add them as preference
+			if (reducebattleflash)
+			{
+				// Start of battle flash
+				PutInBank(0x02, 0xDA4E, Blob.FromHex("a2"));
+
+				// Weapon flash (Sword, Axe, MorningStar)
+				// Sword
+				PutInBank(0x0B, 0xED64, Blob.FromHex("1931"));
+				PutInBank(0x0B, 0xED68, Blob.FromHex("1932"));
+				// Axe
+				PutInBank(0x0B, 0xED71, Blob.FromHex("1935"));
+				PutInBank(0x0B, 0xED75, Blob.FromHex("1936"));
+				// Morning Star
+				PutInBank(0x0B, 0xEDDD, Blob.FromHex("194e"));
+				PutInBank(0x0B, 0xEDE3, Blob.FromHex("1950"));
+			}
 		}
 		public void SmallFixes()
 		{
@@ -527,6 +553,10 @@ namespace FFMQLib
 			// If the instruments data is full ($620, $20 bytes), when loading a new track the instruments will overflow and crash the spc chip by loading garbage data; the fix force the instrument data to be flushed to make space
 			PutInBank(0x0D, 0x8340, Blob.FromHex("22708811b016eaeaeaeaeaeaea"));
 			PutInBank(0x11, 0x8870, Blob.FromHex("a20000c220b528f009e8e8e02000d0f5386b186b"));
+
+			// Fix Mask/Mirror hanging on non enemies maps
+			PutInBank(0x01, 0x8DF3, Blob.FromHex("2240821160"));
+			PutInBank(0x11, 0x8240, Blob.FromHex("08e220c210af461a00d0fa286b"));
 		}
 		public void ShuffledFloorVanillaMonstersFix(Flags flags)
 		{
