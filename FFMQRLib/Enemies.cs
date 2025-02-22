@@ -350,7 +350,7 @@ namespace FFMQLib
 			_rawBytes[0x0A] = Accuracy;
 			_rawBytes[0x0B] = Evade;
 			// Weaknesses (1 byte)
-			_rawBytes[0x0E] = spByte;
+			_rawBytes[0x0D] = spByte;
 
 			int tempresist = 0;
 			int tempweak = 0;
