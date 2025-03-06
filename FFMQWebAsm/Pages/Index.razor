@@ -147,8 +147,9 @@
 		</Container>
 		<Container Class="flagColumn">
 			<BoolFlag UsePreset=usePreset Name="Tweak Frustrating Dungeons" @bind-Value="flags.TweakedDungeons" Tooltip="Make some small changes to a few of the most annoying dungeons.<br/><br/>Ice Pyramid: Add 3 shortcuts on the 1st floor.<br/><br/>Giant Tree: Add shortcuts on the 1st and 4th floors and curtail mushrooms population.<br/><br/>Pazuzu's Tower: Staircases are devoid of enemies (regardless of Enemies Density settings)." />
-			<EnumFlag UsePreset=usePreset Name="Maps Shuffle" @bind-Value="flags.MapShuffling" Tooltip="Shuffle locations.<br /><br />None: No shuffle.<br /><br />Overworld: Only shuffle the Overworld locations.<br /><br />Dungeons: Only shuffle the dungeons' floors amongst themselves. Temples and Towns aren't included.<br /><br />Overworld+Dungeons: Shuffle the Overworld and dungeons at the same time.<br /><br />Everything: Shuffle the Overworld, dungeons, temples and towns all amongst each others.<br/><br/>When dungeons are shuffled, defeating Pazuzu won't teleport you to the 7th floor, you have to get there normally to save the Crystal and get Pazuzu's Chest." />
-			<BoolFlag UsePreset=usePreset Name="Crests Shuffle" @bind-Value="flags.CrestShuffle" Tooltip="Shuffle the Crest tiles amongst themselves." />        
+			<BoolFlag UsePreset=usePreset Name="Crests Shuffle" @bind-Value="flags.CrestShuffle" Tooltip="Shuffle the Crest tiles amongst themselves." />
+			<BoolFlag UsePreset=usePreset Name="Overworld Shuffle" @bind-Value="flags.OverworldShuffle" Tooltip="Shuffle the Overworld." />
+			<EnumFlag UsePreset=usePreset Name="Maps Shuffle" @bind-Value="flags.MapShuffling" Tooltip="Shuffle locations.<br /><br />None: No shuffle.<br /><br />Dungeons Internal: Shuffle each individual dungeons' floors. Temples and Towns aren't included.<br /><br />Dungeons Mixed: Mix up all dungeons' floors amongst themselves. <br /><br />Everything: Shuffle the dungeons, temples and towns' floors all amongst each others.<br/><br/>When dungeons are shuffled, defeating Pazuzu won't teleport you to the 7th floor, you have to get there normally to save the Crystal and get Pazuzu's Chest. Some one ways have been blocked in Lava Dome, Giant Tree & Pazuzu's Tower to avoid softlock." />
 		</Container>
 	</Container>
 </Container>
