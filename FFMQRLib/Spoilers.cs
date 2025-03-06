@@ -324,7 +324,7 @@ namespace FFMQLib
 			return spoilers;
 		}
 
-		private string GenerateMapSpoiler(Flags flags, GameLogic gamelogic)
+		public string GenerateMapSpoiler(Flags flags, GameLogic gamelogic)
 		{
 			string spoilers = "--- Map Shuffling ---\n";
 

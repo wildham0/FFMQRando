@@ -918,7 +918,7 @@
   - target_room: 26
     entrance: 61
     teleporter: [89, 3]
-    access: ["BoneWaterwayBombed"]
+    access: [] # "BoneWaterwayBombed"
   - target_room: 30
     entrance: 60
     teleporter: [4, 2]
@@ -1289,7 +1289,7 @@
   - target_room: 47
     entrance: 104
     teleporter: [97, 3]
-    access: ["Wintry2FBombed"]
+    access: []
   - target_room: 50
     entrance: 103
     teleporter: [50, 0]
@@ -1309,7 +1309,7 @@
   - target_room: 45
     entrance: 105
     teleporter: [96, 3]
-    access: ["Wintry3FBombed"]
+    access: []
 - name: Wintry Cave 3F Bottom
   id: 50
   game_objects:
@@ -2696,7 +2696,7 @@
   - target_room: 105
     entrance: 250
     teleporter: [105, 3]
-    access: ["LavaDomePlate"]
+    access: [] # "LavaDomePlate"
   - target_room: 122
     entrance: 251
     teleporter: [138, 0]
@@ -2800,6 +2800,8 @@
     teleporter: [144, 0]
     access: []
   - target_room: 125
+    access: ["DragonClaw"]
+  - target_room: 126        # Technically not, but there's nothing there and we need minimum access
     access: ["DragonClaw"]
 - name: Giant Tree 1F Central Island
   id: 126

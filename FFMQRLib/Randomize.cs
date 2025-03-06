@@ -133,7 +133,10 @@ namespace FFMQLib
 			GameLogic.CrawlRooms(flags, Overworld, EnemiesStats, Companions, Battlefields);
 			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this);
 			EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
-			
+
+			var mapspoiler = new Spoilers();
+			string layout = mapspoiler.GenerateMapSpoiler(flags, GameLogic);
+
 			// Items
 			ItemsPlacement itemsPlacement = new(flags, GameLogic.GameObjects, Companions, apconfigs, this, rng);
 
