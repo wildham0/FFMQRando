@@ -109,7 +109,7 @@ namespace FFMQLib
 			}
 
 			Locations[(int)LocationIds.LibraBattlefield02].DirectionFlags[(int)NodeDirections.North] = (int)GameFlagsList.WakeWaterUsed;
-			if (flags.MapShuffling != MapShufflingMode.None || flags.CrestShuffle)
+			if (flags.MapShuffling != MapShufflingMode.None || flags.OverworldShuffle || flags.CrestShuffle)
 			{
 				Locations[(int)LocationIds.LibraBattlefield01].DirectionFlags[(int)NodeDirections.South] = (int)GameFlagsList.WakeWaterUsed;
 			}

@@ -219,9 +219,9 @@ namespace FFMQLib
 		{
 
 			// Set parameters
-			bool shuffleFloors = mapshuffling == MapShufflingMode.Dungeons || mapshuffling == MapShufflingMode.OverworldDungeons || mapshuffling == MapShufflingMode.Everything;
+			bool shuffleFloors = mapshuffling != MapShufflingMode.None;
 			bool includeTemplesTowns = mapshuffling == MapShufflingMode.Everything;
-			bool intradungeon = false;
+			bool intradungeon = mapshuffling == MapShufflingMode.DungeonsInternal;
 
 			if (!shuffleFloors || apenabled)
 			{
@@ -351,6 +351,8 @@ namespace FFMQLib
 			int macShipDeck = 187;
 			int macShipMaxSize = 4;
 
+			List<(LocationIds location, int targetroom, int baseroom)> crystalRooms = new() { (LocationIds.BoneDungeon, 38, 25), (LocationIds.IcePyramid, 70, 54), (LocationIds.LavaDome, 121, 100), (LocationIds.PazuzusTower, 179, 166) };
+
 			// Shuffle our core locations
 			var seedRooms = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).Where(l => l.Entrance >= 0).Select(l => l.TargetRoom).Except(new List<int> { 125 }).ToList();
 			var subRegionRooms = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
@@ -383,8 +385,8 @@ namespace FFMQLib
 			}
 			else
 			{
-				coreClusterRooms.AddRange(initialProgressClusterRooms.GetRange(0, seedClusterRoomsToShuffleProgress.Count));
-				coreClusterRooms.AddRange(initialDeadendClusterRooms.GetRange(0, seedClusterRoomsToShuffleDeadends.Count));
+				coreClusterRooms.AddRange(initialProgressClusterRooms.Where(r => !r.Rooms.Intersect(crystalRooms.Select(c => c.targetroom)).Any()).ToList().GetRange(0, seedClusterRoomsToShuffleProgress.Count));
+				coreClusterRooms.AddRange(initialDeadendClusterRooms.Where(r => !r.Rooms.Intersect(crystalRooms.Select(c => c.targetroom)).Any()).ToList().GetRange(0, seedClusterRoomsToShuffleDeadends.Count));
 			}
 
 			var validSeecClusterRoomsToSwitch = coreClusterRooms.Except(seedClusterRoomsToShuffle).ToList();
@@ -407,7 +409,39 @@ namespace FFMQLib
 				ConnectOverworldLink(location.Location, linkFromOverworld, linkToOverworld);
 			}
 
-			// Now connect those that weren't
+			var validCrystalSource = validSeecClusterRoomsToSwitch.Where(r => r.Links.Count > 1).ToList();
+
+			// Force connect to progress room for each crystal room location
+			for(int i = 0; i < crystalRooms.Count; i++)
+			{
+				List<LogicLink> linksFromOverworld = clusterRooms
+					.Where(r => r.Rooms.Intersect(subRegionRooms).Any())
+					.ToList()
+					.SelectMany(r => r.Links)
+					.ToList();
+
+				LogicLink linkFromOverworld;
+
+				// if we don't find a location, then it was a vanilla base room which is fine, we don't need to do anything
+				if (linksFromOverworld.TryFind(l => l.Current.Location == crystalRooms[i].location, out linkFromOverworld))
+				{
+					var progressRoom = rng.PickFrom(validCrystalSource);
+					var validLinks = progressRoom.Links.Where(x => x.Exit).ToList();
+					LogicLink linkToOverworld = validLinks.TryFind(l => l.PriorityExit, out var priorityLink) ? priorityLink : rng.PickFrom(validLinks);
+
+					// Update reference
+					crystalRooms[i] = (crystalRooms[i].location, crystalRooms[i].targetroom, progressRoom.Rooms.First());
+
+					progressRoom.Links.Remove(linkToOverworld);
+					clusterRooms.Find(r => r.Links.Contains(linkFromOverworld)).Links.Remove(linkFromOverworld);
+
+					ConnectOverworldLink(seedLinksLocations.Find(x => x.Entrance == linkFromOverworld.Current.Entrance).Location, linkFromOverworld, linkToOverworld);
+					validCrystalSource.Remove(progressRoom);
+					validSeecClusterRoomsToSwitch.Remove(progressRoom);
+				}
+			}
+
+			// Now connect the rest
 			foreach (var location in validSeecClusterRoomsToSwitch)
 			{
 				var validLinks = location.Links.Where(x => x.Exit).ToList();
@@ -542,6 +576,17 @@ namespace FFMQLib
 				ClusterLocation macShip = originLocations.Find(l => l.Rooms.SelectMany(r => r.Rooms).ToList().Contains(macShipDeck));
 				macShip.Rooms.ForEach(r => r.ForbiddenDestinations.AddRange(macShipBarredRooms));
 
+				// Remove crystal Room
+				bool skyCrystalRoomPlaced = false;
+				if (progressClusterRooms.TryFind(r => r.Rooms.Contains(crystalRooms[3].targetroom), out var skyCrystalRoom))
+				{
+					progressClusterRooms.Remove(skyCrystalRoom);
+				}
+				else
+				{
+					skyCrystalRoomPlaced = true;
+				}
+
 				// Place Progress Rooms
 				while (progressClusterRooms.Any())
 				{
@@ -567,6 +612,17 @@ namespace FFMQLib
 					ConnectLink(originLink, destinationLink);
 					originRoom.Merge(destinationRoom, originLink, destinationLink);
 					if (originRoom == macShip) macShipMergingCount++;
+				}
+
+				// Place Sky Crystal Room
+				if (!skyCrystalRoomPlaced)
+				{
+					var skyLocation = originLocations.Find(o => o.Rooms.Where(r => r.Rooms.Contains(crystalRooms[3].baseroom)).Any());
+					var destinationLink = rng.PickFrom(skyCrystalRoom.Links);
+					var originLink = rng.PickFrom(skyLocation.Links);
+
+					ConnectLink(originLink, destinationLink);
+					skyLocation.Merge(skyCrystalRoom, originLink, destinationLink);
 				}
 
 				// Place Crest tile deadends first (because they're more restricted)
@@ -597,6 +653,23 @@ namespace FFMQLib
 
 					ConnectLink(originLink, destinationLink);
 					originRoom.Merge(destinationRoom, originLink, destinationLink);
+				}
+
+				// Place the other crystal rooms
+				var crystalClusters = deadendClusterRooms.Where(r => r.Rooms.Intersect(crystalRooms.Select(c => c.targetroom).ToList()).Any()).ToList();
+				deadendClusterRooms = deadendClusterRooms.Except(crystalClusters).ToList();
+
+				foreach (var crystalCluster in crystalClusters)
+				{
+					var crystalRoom = crystalRooms.Find(c => crystalCluster.Rooms.Contains(c.targetroom));
+					var originRoom = originLocations.Find(o => o.Rooms.Where(r => r.Rooms.Contains(crystalRoom.baseroom)).Any());
+
+					var originLink = rng.PickFrom(originRoom.Links);
+
+					var destinationLink = rng.PickFrom(crystalCluster.Links);
+
+					ConnectLink(originLink, destinationLink);
+					originRoom.Merge(crystalCluster, originLink, destinationLink);
 				}
 
 				// Placed dead ends

@@ -102,6 +102,7 @@ namespace FFMQLib
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
 			GameMaps.LessObnoxiousMaps(flags.TweakedDungeons, MapObjects, rng);
+			GameMaps.ShuffledMapChanges(flags.MapShuffling, MapObjects);
 
 			// Enemies
 			MapObjects.SetEnemiesDensity(flags.EnemiesDensity, rng);

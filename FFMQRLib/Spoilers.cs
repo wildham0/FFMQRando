@@ -19,8 +19,8 @@ namespace FFMQLib
 			{
 				spoilers += GenerateItemsPlacementSpoiler(flags, itemsplacement) + "\n";
 				spoilers += GenerateInfoScreenSpoiler(gameinfo);
-				spoilers += GenerateCompanionSpoilers(gameinfo, gamelogic, flags.CompanionsLocations != CompanionsLocationType.Standard || (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld));
-				if (flags.MapShuffling != MapShufflingMode.None)
+				spoilers += GenerateCompanionSpoilers(gameinfo, gamelogic, flags.CompanionsLocations != CompanionsLocationType.Standard || (flags.MapShuffling != MapShufflingMode.None));
+				if ((flags.MapShuffling != MapShufflingMode.None) || flags.OverworldShuffle)
 				{
 					spoilers += GenerateMapSpoiler(flags, gamelogic) + "\n";
 				}
@@ -342,7 +342,7 @@ namespace FFMQLib
 					spoilers += "[" + battlefield + "]\n";
 				}
 
-				if (flags.MapShuffling == MapShufflingMode.Overworld)
+				if (flags.OverworldShuffle && flags.MapShuffling == MapShufflingMode.None)
 				{
 					foreach (var location in locationslist)
 					{
