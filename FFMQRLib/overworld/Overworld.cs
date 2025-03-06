@@ -36,7 +36,7 @@ namespace FFMQLib
 		}
 		public void UpdateBattlefieldsColor(Flags flags, Battlefields battlefields)
 		{
-			if (!flags.ShuffleBattlefieldRewards && (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Dungeons))
+			if (!flags.ShuffleBattlefieldRewards && (!flags.OverworldShuffle))
 			{
                 if (battlefields.QuestBattlefield != LocationIds.None)
                 {

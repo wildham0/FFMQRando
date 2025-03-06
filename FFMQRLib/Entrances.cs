@@ -309,7 +309,7 @@ namespace FFMQLib
 				targetEntrance.Teleporter = entrance.Item2;
 			}
 
-			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld)
+			if (flags.MapShuffling != MapShufflingMode.None)
 			{
 				UpdateVolcano();
 			}

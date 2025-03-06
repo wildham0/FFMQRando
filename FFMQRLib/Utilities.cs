@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Linq;
 using RomUtilities;
+using System.Dynamic;
+using System.Runtime.CompilerServices;
 
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
@@ -29,7 +31,9 @@ namespace FFMQLib
             return value;
         }
 
-        public static string GetDescription(this Enum value)
+		public static bool IsEmpty<T>(this IList<T> list) => list.Count == 0;
+
+		public static string GetDescription(this Enum value)
         {
             // Get the Description attribute value for the enum value
             FieldInfo fi = value.GetType().GetField(value.ToString());

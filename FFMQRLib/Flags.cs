@@ -59,6 +59,7 @@ namespace FFMQLib
 		public bool EnableSpoilers { get; set; } = false;
 		public ProgressiveFormationsModes ProgressiveFormations { get; set; } = ProgressiveFormationsModes.Disabled;
 		public MapShufflingMode MapShuffling { get; set; } = MapShufflingMode.None;
+		public bool OverworldShuffle { get; set; } = false;
 		public bool CrestShuffle { get; set; } = false;
 		public bool HiddenFlags { get; set; } = false;
 

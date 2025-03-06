@@ -148,7 +148,7 @@ namespace FFMQLib
             }
             else if (levelingType == LevelingType.QuestsExtended)
 			{
-				CreateExtendedQuests(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin, flags.DoomCastleShortcut, flags.KaelisMomFightMinotaur, flags.MapShuffling == MapShufflingMode.Overworld, rng);
+				CreateExtendedQuests(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin, flags.DoomCastleShortcut, flags.KaelisMomFightMinotaur, flags.OverworldShuffle, rng);
 				battlefields.QuestBattlefield = GetBattlefieldQuestLocation();
             }
 

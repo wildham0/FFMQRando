@@ -128,7 +128,7 @@ namespace FFMQLib
 				var frozenFieldRoom = Rooms.Find(x => x.Type == RoomType.Subregion && x.Region == SubRegions.AquariaFrozenField);
 				frozenFieldRoom.Links.RemoveAll(l => l.Access.Contains(AccessReqs.DualheadHydra));
 			}
-			else if((flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Dungeons) && !flags.CrestShuffle)
+			else if((flags.MapShuffling != MapShufflingMode.Everything) && !flags.OverworldShuffle && !flags.CrestShuffle)
 			{
                 // Add Sealed Temple Exit trick to logic in Expert mode
                 var exitTrickRoom = Rooms.Find(x => x.Id == 75);
@@ -136,7 +136,7 @@ namespace FFMQLib
 			}
 
 			// If map is shuffled, we block the one way access from Frozen Fields to Aquaria without wakewater
-			if (flags.MapShuffling != MapShufflingMode.None || flags.CrestShuffle)
+			if (flags.MapShuffling != MapShufflingMode.None || flags.CrestShuffle || flags.OverworldShuffle)
 			{
 				var frozenFieldsRoom = Rooms.Find(x => x.Id == 223);
 				var aquariaAccess = frozenFieldsRoom.Links.Find(x => x.TargetRoom == 221);
@@ -242,7 +242,7 @@ namespace FFMQLib
 			}
 
 			// Add Friendly logic extra requirements
-			if (flags.LogicOptions == LogicOptions.Friendly && (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Overworld))
+			if (flags.LogicOptions == LogicOptions.Friendly && (flags.MapShuffling == MapShufflingMode.None))
 			{
 				foreach (var location in AccessReferences.FriendlyAccessReqs)
 				{
@@ -256,7 +256,7 @@ namespace FFMQLib
 			otherBosses.AddRange(windiaBosses);
 			List<AccessReqs> progressCoin = new() { AccessReqs.SandCoin, AccessReqs.RiverCoin };
 
-			if (flags.MapShuffling != MapShufflingMode.None)
+			if (flags.MapShuffling != MapShufflingMode.None || flags.OverworldShuffle)
 			{
 				windiaBosses.Add(AccessReqs.DualheadHydra);
 			}

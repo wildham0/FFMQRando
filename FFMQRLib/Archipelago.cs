@@ -206,7 +206,7 @@ namespace FFMQLib
 
 	public partial class FFMQRom : SnesRom
 	{
-		public string GenerateRooms(bool crestshuffle, bool battlefieldshuffle, int mapshuffling, int companionshuffling, bool kaelismom, string seed)
+		public string GenerateRooms(bool crestshuffle, bool battlefieldshuffle, int mapshuffling, int companionshuffling, bool kaelismom, bool overworldshuffle, string seed)
 		{
 			ApConfigs apconfigs = new();
 			seed = seed.PadLeft(8, '0').Substring(0,8);
@@ -253,7 +253,7 @@ namespace FFMQLib
 			GameLogic.CompanionsShuffle((CompanionsLocationType)companionshuffling, kaelismom, apconfigs, rng);
 			GameLogic.CrestShuffle(crestshuffle, false, rng);
 			GameLogic.FloorShuffle((MapShufflingMode)mapshuffling, false, rng);
-			Overworld.ShuffleOverworld((MapShufflingMode)mapshuffling, GameLogic, Battlefields, new List<LocationIds>(),false, rng);
+			Overworld.ShuffleOverworld(overworldshuffle, (MapShufflingMode)mapshuffling, GameLogic, Battlefields, new List<LocationIds>(),false, rng);
 
 			return GameLogic.OutputRooms();
 		}

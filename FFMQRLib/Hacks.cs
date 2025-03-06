@@ -34,7 +34,7 @@ namespace FFMQLib
 			KeyItemWindow(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin);
 			GameStateIndicator();
 			ArchipelagoSupport(apenabled);
-			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
+			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None);
 			FixMultiplyingDarkKing();
 			PazuzuFixedFloorRng(rng);
 			ShuffledFloorVanillaMonstersFix(flags);
@@ -561,7 +561,7 @@ namespace FFMQLib
 		public void ShuffledFloorVanillaMonstersFix(Flags flags)
 		{
 			// Remove enemy on Pazuzu 6F blocking the way to avoid softlock when the floors are shuffled, but enemies' positions aren't
-			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld && !flags.ShuffleEnemiesPosition)
+			if (flags.MapShuffling != MapShufflingMode.None && !flags.ShuffleEnemiesPosition)
 			{
 				MapObjects[0x58][0x0A].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
 			}

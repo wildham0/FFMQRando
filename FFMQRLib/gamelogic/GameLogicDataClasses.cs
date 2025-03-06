@@ -38,12 +38,10 @@ namespace FFMQLib
 	{
 		[Description("None")]
 		None,
-		[Description("Overworld")]
-		Overworld,
-		[Description("Dungeons")]
-		Dungeons,
-		[Description("Overworld+Dungeons")]
-		OverworldDungeons,
+		[Description("Dungeons Internal")]
+		DungeonsInternal,
+		[Description("Dungeons Mixed")]
+		DungeonsMixed,
 		[Description("Everything")]
 		Everything
 	}

@@ -14,7 +14,7 @@ namespace FFMQLib
 		// X = Global Version
 		// YY = Release
 		// ZZ = Build
-		public static string Version = "1.06.28";
+		public static string Version = "1.06.30";
 		
 	}
 	public partial class FFMQRom : SnesRom
@@ -102,6 +102,7 @@ namespace FFMQLib
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
 			GameMaps.LessObnoxiousMaps(flags.TweakedDungeons, MapObjects, rng);
+			GameMaps.ShuffledMapChanges(flags.MapShuffling, MapObjects);
 
 			// Enemies
 			MapObjects.SetEnemiesDensity(flags.EnemiesDensity, rng);
@@ -126,14 +127,17 @@ namespace FFMQLib
 			// Map Shuffling
 			GameLogic.CrestShuffle(flags.CrestShuffle, apconfigs.ApEnabled, rng);
 			GameLogic.FloorShuffle(flags.MapShuffling, apconfigs.ApEnabled, rng);
-			Overworld.ShuffleOverworld(flags.MapShuffling, GameLogic, Battlefields, Companions.QuestEasyWinLocations, apconfigs.ApEnabled, rng);
+			Overworld.ShuffleOverworld(flags.OverworldShuffle, flags.MapShuffling, GameLogic, Battlefields, Companions.QuestEasyWinLocations, apconfigs.ApEnabled, rng);
 			Overworld.UpdateOverworld(flags, GameLogic, Battlefields);
 
 			// Logic
 			GameLogic.CrawlRooms(flags, Overworld, EnemiesStats, Companions, Battlefields);
 			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this);
 			EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
-			
+
+			var mapspoiler = new Spoilers();
+			string layout = mapspoiler.GenerateMapSpoiler(flags, GameLogic);
+
 			// Items
 			ItemsPlacement itemsPlacement = new(flags, GameLogic.GameObjects, Companions, apconfigs, this, rng);
 

@@ -408,7 +408,7 @@ namespace FFMQLib
 			GameMaps[(int)MapList.IcePyramidA].ModifyMap(0x15, 0x20, 0x05);
 
 			// Open 4F door to avoid softlock in floor shuffle
-			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld)
+			if (flags.MapShuffling != MapShufflingMode.None)
 			{ 
 				GameMaps[(int)MapList.IcePyramidA].ModifyMap(0x37, 0x06,
 					new()
@@ -752,7 +752,7 @@ namespace FFMQLib
 					"00"
 				}));
 
-			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld)
+			if (flags.MapShuffling != MapShufflingMode.None)
 			{
 				var volcanoTeleporter = EntrancesData.Entrances.Find(x => x.Id == 464).Teleporter;
 
@@ -840,7 +840,7 @@ namespace FFMQLib
 			/*** Living Forest ***/
 			GameFlags[(int)GameFlagsList.GiantTreeSet] = true;
 			GameFlags[(int)GameFlagsList.GiantTreeUnset] = false;
-			bool exitToGiantTree = flags.MapShuffling == MapShufflingMode.None;
+			bool exitToGiantTree = (flags.MapShuffling == MapShufflingMode.None && !flags.OverworldShuffle);
 
 			// Remove Giant Tree Script
 			TalkScripts.AddScript((int)TalkScriptsList.GiantTree,
@@ -895,7 +895,9 @@ namespace FFMQLib
 					"00"
 				}));
 
+			// We don't need these anymore since we collapse 2F/3F into a single one-way corridor
 			// Add check for Dragon Claw on 2F to avoid softlock
+			/*
 			PutInBank(0x06, 0x93F4, Blob.FromHex("4c4d5c5d")); // Add new tile+properties to execute script
 			GameMaps.TilesProperties[0x09][0x7D].Byte1 = 0x00;
 			GameMaps.TilesProperties[0x09][0x7D].Byte2 = 0x88;
@@ -909,10 +911,13 @@ namespace FFMQLib
 					"2C105000",
 					"0cee19000cef1916094cb20100" // Hack to excute the falling down routine
 				}));
+			*/
 
 			// Add hook on 3F to avoid softlock
+			/*
 			MapObjects[0x47].Add(new MapObject(MapObjects[0x47][0x15]));
 			MapObjects[0x47][0x16].Coord = (0x2D, 0x36);
+			*/
 
 			// Fight Gidrah
 			TalkScripts.AddScript((int)TalkScriptsList.FightGidrah,
@@ -1101,7 +1106,7 @@ namespace FFMQLib
 				}));
 
 			/*** Pazuzu's Tower ***/
-			bool skip7fteleport = flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld;
+			bool skip7fteleport = flags.MapShuffling != MapShufflingMode.None;
 			GameInfoScreen.PazuzuFloorWarning = skip7fteleport;
 
             var newResetflags = new ScriptBuilder(new List<string> {

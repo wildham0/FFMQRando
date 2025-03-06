@@ -58,6 +58,11 @@ namespace FFMQLib
 		}
 		public override bool Validate()
 		{
+			if (Data is null)
+			{
+				return false;
+			}
+			
 			using (SHA256 hasher = SHA256.Create())
 			{
 				byte[] dataToHash = new byte[0x80000];

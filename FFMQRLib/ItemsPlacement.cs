@@ -676,7 +676,7 @@ namespace FFMQLib
 
 				if (startingWeapon != Items.Bomb)
 				{
-					if (flags.MapShuffling == MapShufflingMode.None)
+					if (!flags.OverworldShuffle && flags.MapShuffling == MapShufflingMode.None)
 					{
 						// On standard map, raise odds to open up bone dungeon first
 						ProgressionCoins.Add(rng.TakeFrom(ProgressionBombs));

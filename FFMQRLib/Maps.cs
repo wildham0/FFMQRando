@@ -518,6 +518,33 @@ namespace FFMQLib
 				}
 			}*/
 		}
+		public void ShuffledMapChanges(MapShufflingMode mode, ObjectList gameobjects)
+		{
+			if (mode == MapShufflingMode.None)
+			{
+				return;
+			}
+
+			// Block Lava Dome Climbing tiles
+			_gameMaps[(int)MapList.LavaDomeExterior].ModifyMap(0x1F, 0x0E, new List<List<byte>>() { new() { 0x2E, 0x2E, 0x2E } });
+			_gameMaps[(int)MapList.LavaDomeExterior].ModifyMap(0x34, 0x07, new List<List<byte>>() { new() { 0x2E, 0x2E, 0x2E }, new() { 0x00, 0x00, 0x00 }, new() { 0x00, 0x00, 0x00 } });
+
+			// Block Giant Tree 1F Vine
+			_gameMaps[(int)MapList.GiantTreeA].ModifyMap(0x2E, 0x31, new List<List<byte>>() { new() { 0x35 }, new() { 0x7E }, new() { 0x7F } });
+
+			// Add Climbining tiles to worm room
+			_gameMaps[(int)MapList.GiantTreeA].ModifyMap(0x04, 0x25, new List<List<byte>>() { new() { 0x05 }, new() { 0x05 }, new() { 0x05 } });
+
+			// Move Pazuzu 1F hook ring
+			gameobjects[0x53][0x13].X = 0x34;
+			gameobjects[0x53][0x13].Y = 0x18;
+
+			// Remove 3F hook ring
+			gameobjects[0x55][0x13].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+
+			// Remove hole in Mac Ship corridor
+			_gameMaps[(int)MapList.MacShipInterior].ModifyMap(0x11, 0x20, new List<List<byte>>() { new() { 0x4B } });
+		}
 
 		public void UpdateCloudMap()
 		{
