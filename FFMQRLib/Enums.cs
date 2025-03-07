@@ -322,24 +322,6 @@ namespace FFMQLib
 		PowerLevel2,
 		PowerLevel3,
 
-
-		KaeliLevelUp1,
-		KaeliLevelUp2,
-		KaeliLevelUp3,
-		KaeliLevelUp4,
-		TristamLevelUp1,
-		TristamLevelUp2,
-		TristamLevelUp3,
-		TristamLevelUp4,
-		PhoebeLevelUp1,
-		PhoebeLevelUp2,
-		PhoebeLevelUp3,
-		PhoebeLevelUp4,
-		ReubenLevelUp1,
-		ReubenLevelUp2,
-		ReubenLevelUp3,
-		ReubenLevelUp4,
-
 		Barred,
 	}
 	public enum TreasureType : int

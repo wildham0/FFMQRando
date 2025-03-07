@@ -14,7 +14,7 @@ namespace FFMQLib
 			{ LocationIds.BoneDungeon, new List<AccessReqs> { AccessReqs.Bomb } },
 			{ LocationIds.WintryCave, new List<AccessReqs> { AccessReqs.Bomb, AccessReqs.Claw  } },
 			{ LocationIds.IcePyramid, new List<AccessReqs> { AccessReqs.Bomb, AccessReqs.Claw } },
-			{ LocationIds.Mine, new List<AccessReqs> { AccessReqs.MegaGrenade, AccessReqs.Claw, AccessReqs.Reuben1 } },
+			{ LocationIds.Mine, new List<AccessReqs> { AccessReqs.MegaGrenade, AccessReqs.Claw, AccessReqs.Reuben } },
 			{ LocationIds.LavaDome, new List<AccessReqs> { AccessReqs.MegaGrenade } },
 			{ LocationIds.GiantTree, new List<AccessReqs> { AccessReqs.Axe, AccessReqs.DragonClaw } },
 			{ LocationIds.MountGale, new List<AccessReqs> { AccessReqs.DragonClaw } },
@@ -182,8 +182,8 @@ namespace FFMQLib
 		public static List<AccessReqs> FavoredCompanionsAccess = new()
 		{
 			AccessReqs.Tristam,
-			AccessReqs.Phoebe1,
-			AccessReqs.Reuben1,
+			AccessReqs.Phoebe,
+			AccessReqs.Reuben,
 		};
 		public static List<LocationIds> StartingWeaponAccess = new()
 		{
