@@ -857,6 +857,13 @@ namespace FFMQLib
 				MapChanges.RemoveActionByFlag(0x43, 0x3C);
 			}
 
+			// Block Mobius Crest with trees to avoid axe softlock
+			if (flags.CrestShuffle)
+			{
+				GameMaps[(int)MapList.LevelAliveForest].ModifyMap(0x10, 0x09, new List<List<byte>>() { new() { 0x00, 0x03 }, new() { 0x03, 0x00 } });
+				GameMaps[(int)MapList.LevelAliveForest].ModifyMap(0x12, 0x0D, new List<List<byte>>() { new() { 0x03, 0x03 } } );
+			}
+
 			// Tree Houses Quest
 			var treehousesflag = Companions.GetQuestFlag(QuestsId.VisitTreeHouses);
 
