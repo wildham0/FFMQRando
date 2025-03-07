@@ -262,8 +262,6 @@ namespace FFMQLib
 	}
 	public class Enemy
 	{
-		private Blob _rawBytes;
-
 		public ushort HP { get; set; }
 		public byte Attack { get; set; }
 		public byte Defense { get; set; }
@@ -281,12 +279,6 @@ namespace FFMQLib
 		private byte spByte;
 
 		public EnemyIds Id;
-
-		private int _Id;
-
-		private const int EnemiesStatsAddress = 0xC275; // Bank 02
-		private const int EnemiesStatsBank = 0x02;
-		private const int EnemiesStatsLength = 0x0e;
 
 		public Enemy(int id, byte[] levelmult, byte[] statsdata)
 		{

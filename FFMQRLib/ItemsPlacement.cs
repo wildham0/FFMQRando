@@ -58,7 +58,6 @@ namespace FFMQLib
 		
 		private const int TreasuresOffset = 0x8000;
 		private int GpCount;
-		private AccessReqs CurrentPowerLevel = AccessReqs.PowerLevel0;
 		private PowerLevel PowerLevel;
 		private List<Items> PlacedItems;
 		private List<AccessReqs> ProcessedAccessReqs;

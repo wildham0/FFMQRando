@@ -83,8 +83,6 @@ namespace FFMQLib
 		private MT19337 Rng;
 		private List<int> winsA;
 		private List<int> winsB;
-		private List<int> protoWinsA;
-		private List<int> protoWinsB;
 		private CompanionsId currentCompanion;
 		private EnemiesStats enemies;
 		private EnemyAttackLinks scripts;

@@ -228,7 +228,6 @@ else if(loadingDone)
 	private long maxFileSize = 0x80200;
 	private bool loadingDone = false;
 	private bool usePreset = false;
-	private int titleHeight = 80;
 	private bool betaStatus = false;
 
 
@@ -239,7 +238,6 @@ else if(loadingDone)
 	private ApConfigs apConfigs = new();
 	private string seedMessage = "";
 	private string flagsMessage = "";
-	private List<string> titleLetters = new List<string> { "logo/mqlogoM.png", "logo/mqlogoy.png", "logo/mqlogos.png", "logo/mqlogot.png", "logo/mqlogoi.png", "logo/mqlogoc.png", "logo/mqlogoQ.png", "logo/mqlogou.png", "logo/mqlogoe.png", "logo/mqlogos2.png", "logo/mqlogot2.png" };
 	private bool updateFlagString = true;
 	private string tempFlagString;
 
@@ -366,8 +364,6 @@ else if(loadingDone)
 	{
 		var rng = new Random();
 		rng.NextBytes(seed);
-		MT19337 rng2 = new MT19337((uint)seed.ToUInts().Sum(x => x));
-		titleLetters.Shuffle(rng2);
 		showSeed = seed.ToHex();
 
 		if (usePreset)
