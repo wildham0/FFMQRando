@@ -43,24 +43,25 @@ namespace FFMQLib
 		public LocationIds Location { get; set; }
 		public List<LogicLink> Links => Rooms.SelectMany(r => r.Links).ToList();
 		public int Id { get; set; }
-		public int InitialRoom { get; set; }
+		//public int InitialRoom { get; set; }
+		public List<int> InitialRooms { get; set; }
 		public bool OddLinks => Rooms.Where(r => r.Links.Count % 2 == 1).Any();
 		public bool DeadEndRequired => Rooms.Where(r => r.Links.Where(l => !l.Exit).Any()).Any();
 		public ClusterLocation()
 		{
 			Rooms = new();
 			Id = 0;
-			InitialRoom = 0;
+			InitialRooms = new();
 			Location = LocationIds.None;
 		}
-		public ClusterLocation(int initialroom, ClusterRoom initialRoom)
+		public ClusterLocation(ClusterRoom initialRoom)
 		{
 			initialRoom = new ClusterRoom(initialRoom);
 
 			Rooms = new() { initialRoom };
 			Id = 0;
 			Location = initialRoom.Location;
-			InitialRoom = initialroom;
+			InitialRooms = initialRoom.Rooms.ToList();
 		}
 		public List<int> ForbiddenDestinations(LogicLink link)
 		{
@@ -489,27 +490,41 @@ namespace FFMQLib
 
 					List<(LogicLink origin, LogicLink target)> newLinkPairs = new();
 					bool validconfig = false;
+					
 					int loopcount = 0;
 
 					while (!validconfig)
 					{
 						loopcount++;
 						newLinkPairs = new();
-						var originCluster = new ClusterLocation(originRoom.Rooms.First(), originRoom);
+						var originCluster = new ClusterLocation(originRoom);
 						var tempAllLinks = originCluster.Links.ToList();
+						validconfig = true;
 
 						locationProgressClusters.Shuffle(rng);
 
 						// Progress
 						foreach (var progressCluster in locationProgressClusters)
 						{
+
 							var originLinks = originCluster.Links.ToList();
 							var originLink = rng.PickFrom(originLinks);
+
+							if (progressCluster.Rooms.Intersect(originCluster.ForbiddenDestinations(originLink)).Any())
+							{
+								validconfig = false;
+								break;
+							}
 
 							var targetLink = progressCluster.Links.TryFind(l => l.PriorityExit, out var priorityLink) ? priorityLink : rng.PickFrom(progressCluster.Links.Where(l => l.Exit).ToList());
 
 							originCluster.Merge(progressCluster, originLink, targetLink);
 							newLinkPairs.Add((originLink, targetLink));
+						}
+
+						if (!validconfig)
+						{
+							continue;
 						}
 
 						deadendClusters.Shuffle(rng);
@@ -536,13 +551,20 @@ namespace FFMQLib
 							var originLinks = noExit ? originLocation.Links.Where(l => !l.Exit).ToList() : originLocation.Links;
 
 							var originLink = rng.PickFrom(originLinks);
+
+							if (deadend.Rooms.Intersect(originCluster.ForbiddenDestinations(originLink)).Any())
+							{
+								validconfig = false;
+								break;
+							}
+
 							var destinationLink = rng.PickFrom(deadend.Links);
 							originCluster.Merge(deadend, originLink, destinationLink);
 							newLinkPairs.Add((originLink, destinationLink));
 						}
 
 						// Tie loose ends
-						if (originCluster.Rooms.Where(r => (r.Links.Count % 2) == 1).Any())
+						if (!validconfig || originCluster.Rooms.Where(r => (r.Links.Count % 2) == 1).Any())
 						{
 							continue;
 						}
@@ -557,7 +579,7 @@ namespace FFMQLib
 
 						var allroomids = originCluster.Rooms.SelectMany(r => r.Rooms).ToList();
 						List<AccessReqs> triggers = Rooms.Where(r => allroomids.Contains(r.Id)).SelectMany(r => r.GameObjects.Where(o => o.Type == GameObjectType.Trigger).SelectMany(o => o.OnTrigger)).ToList();
-						validconfig = ValidRoomCrawl(newLinkPairs, allroomids, originRoom.Rooms.First(), triggers);
+						//validconfig = ValidRoomCrawl(newLinkPairs, allroomids, originCluster.InitialRooms, triggers);
 					}
 
 					foreach (var linkpair in newLinkPairs)
@@ -569,7 +591,7 @@ namespace FFMQLib
 			else
 			{
 				// Create origin locations
-				var originLocations = coreClusterRooms.Select(r => new ClusterLocation(r.Rooms.First(), r)).ToList();
+				var originLocations = coreClusterRooms.Select(r => new ClusterLocation(r)).ToList();
 
 				// Process Mac Ship
 				int macShipMergingCount = 0;
@@ -790,14 +812,14 @@ namespace FFMQLib
 				Rooms.Find(x => x.Id == newlink.roomid).Links.Add(newlink.link);
 			}
 		}
-		private bool ValidRoomCrawl(List<(LogicLink origin, LogicLink target)> linkpairs, List<int> roomsToReach, int initialroom, List<AccessReqs> triggers)
+		private bool ValidRoomCrawl(List<(LogicLink origin, LogicLink target)> linkpairs, List<int> roomsToReach, List<int> initialrooms, List<AccessReqs> triggers)
 		{
 			List<int> visitedRoom = new();
 			List<AccessReqs> accessFound = triggers;
 			List<int> roomQueue = new();
 			List<(List<AccessReqs> access, int room)> blockedRooms = new();
 
-			roomQueue.Add(initialroom);
+			roomQueue.AddRange(initialrooms);
 
 			while (roomQueue.Any())
 			{
