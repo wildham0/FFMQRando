@@ -426,7 +426,13 @@ namespace FFMQLib
 				// if we don't find a location, then it was a vanilla base room which is fine, we don't need to do anything
 				if (linksFromOverworld.TryFind(l => l.Current.Location == crystalRooms[i].location, out linkFromOverworld))
 				{
-					var progressRoom = rng.PickFrom(validCrystalSource);
+					ClusterRoom progressRoom;
+					
+					if (!validCrystalSource.TryFind(r => r.Location == crystalRooms[i].location, out progressRoom))
+					{
+						progressRoom = rng.PickFrom(validCrystalSource);
+					}
+
 					var validLinks = progressRoom.Links.Where(x => x.Exit).ToList();
 					LogicLink linkToOverworld = validLinks.TryFind(l => l.PriorityExit, out var priorityLink) ? priorityLink : rng.PickFrom(validLinks);
 
