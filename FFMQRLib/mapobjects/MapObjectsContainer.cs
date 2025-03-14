@@ -218,7 +218,7 @@ namespace FFMQLib
 		public byte Sprite { get; set; }
 		public byte UnknownIndex { get; set; }
 		public byte Unknown4 { get; set; }
-		public byte Orientation { get; set; }
+		public FacingOrientation Facing { get; set; }
 		public byte Palette { get; set; }
 		public byte Behavior { get; set; }
 		public byte Layer { get; set; }
@@ -267,7 +267,7 @@ namespace FFMQLib
 			_array[0] = Gameflag;
 			_array[1] = Value;
 			_array[2] = (byte)((UnknownIndex * 64) + (Y & 0b0011_1111));
-			_array[3] = (byte)((Orientation * 64) + (X & 0b0011_1111));
+			_array[3] = (byte)(((byte)Facing * 64) + (X & 0b0011_1111));
 			_array[4] = (byte)(Palette * 32 + Unknown4 + Behavior);
 			_array[5] = (byte)(((int)Type * 8) + (Solid ? 0 : 0b0010_0000) + (Pushable ? 0b0100_0000 : 0) + (Layer & 0b0000_0111) + (_array[5] & 0b1000_0000));
 			_array[6] = (byte)((int)Sprite + (_array[6] & 0b1000_0000));
@@ -280,7 +280,7 @@ namespace FFMQLib
 			Y = (byte)(_array[2] & 0b0011_1111);
 			UnknownIndex = (byte)((_array[2] & 0b1100_0000) / 64);
 			X = (byte)(_array[3] & 0b0011_1111);
-			Orientation = (byte)((_array[3] & 0b1100_0000) / 64);
+			Facing = (FacingOrientation)((_array[3] & 0b1100_0000) / 64);
 			Palette = (byte)((_array[4] & 0b1110_0000) / 32);
 			Unknown4 = (byte)((_array[4] & 0b0001_0000));
 			Behavior = (byte)((_array[4] & 0b0000_1111));

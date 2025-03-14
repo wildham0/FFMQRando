@@ -156,6 +156,12 @@ namespace FFMQLib
 		ShowMedusaChest = 0x5D,
 		ShowDullahanChest = 0x2B,
 
+		ForestaHintGiven = 0xC1,
+		AquariaHintGiven = 0xC2,
+		FireburgHintGiven = 0xC3,
+		WindiaHintGiven = 0xC4,
+
+
 		// Tentative removed enemy flag
 		ShowEnemies = 0xF9,
 
@@ -719,7 +725,12 @@ namespace FFMQLib
 		ReubenMine,
 		ReubenFireburg2,
 		KaelisMomQuest,
-		KaelisMomWindia
+		KaelisMomWindia,
+		ForestaHinter,
+		AquariaHinter,
+		FireburgHinter,
+		WindiaHinter
+
 	}
 	public enum BattlefieldRewardType : byte
 	{

@@ -330,6 +330,7 @@ namespace FFMQLib
 			versionText = "v" + (rom.beta ?
 				FFMQLib.Metadata.Version + "b" :
 				FFMQLib.Metadata.Version.Substring(0, FFMQLib.Metadata.Version.Length - 3));
+			versionText = FFMQLib.Metadata.Version;
 			UpdateSprites(rom.beta);
 		}
 

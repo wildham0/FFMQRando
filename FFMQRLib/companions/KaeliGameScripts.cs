@@ -384,7 +384,7 @@ namespace FFMQLib
 				kaelismomobject.Value = (int)TalkScriptsList.KaelisMomWindia;
 				kaelismomobject.X = 0x1C;
 				kaelismomobject.Y = 0x3A;
-				kaelismomobject.Orientation = 0x01;
+				kaelismomobject.Facing = FacingOrientation.Right;
 
 				TalkScripts.AddScript((int)TalkScriptsList.KaelisMomWindia,
 					new ScriptBuilder(new List<string>

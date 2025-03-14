@@ -12,10 +12,14 @@ namespace FFMQLib
 	{
 		// X.YY.ZZ
 		// X = Global Version
-		// YY = Release
-		// ZZ = Build
-		public static string Version = "1.06.36";
-		
+		// Y = Major Release
+		// Z = Patch Release
+		public static string Version = "1.6.0";
+		public static string Beta = "36";
+		public static string BetaVersion => Version + "-b" + Beta;
+		public static string BetaVersionShort => Version + "-b" + Beta;
+		public static string BetaVersionLong => Version + "-b" + Beta;
+		public static string Release => Version.Substring(0, 4);
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -98,6 +102,7 @@ namespace FFMQLib
 			// General modifications
 			GeneralModifications(flags, preferences, apconfigs.ApEnabled, rng);
 			UnjankOverworld(GameMaps, MapChanges, MapPalettes);
+			HintsHacks(flags, MapSpriteSets, MapObjects, rng);
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
