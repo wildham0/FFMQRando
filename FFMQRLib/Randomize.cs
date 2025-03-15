@@ -10,16 +10,15 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		// X.YY.ZZ
+		// X.Y.Z
 		// X = Global Version
 		// Y = Major Release
 		// Z = Patch Release
+		// Increment Beta on every new builds, reset to zero on version increase
 		public static string Version = "1.6.0";
-		public static string Beta = "36";
-		public static string BetaVersion => Version + "-b" + Beta;
+		public static string Beta = "37";
 		public static string BetaVersionShort => Version + "-b" + Beta;
-		public static string BetaVersionLong => Version + "-b" + Beta;
-		public static string Release => Version.Substring(0, 4);
+		public static string BetaVersionLong => Version + "-beta" + Beta;
 	}
 	public partial class FFMQRom : SnesRom
 	{
