@@ -14,7 +14,7 @@ namespace FFMQLib
 		// X = Global Version
 		// YY = Release
 		// ZZ = Build
-		public static string Version = "1.06.37";
+		public static string Version = "1.06.38";
 		
 	}
 	public partial class FFMQRom : SnesRom

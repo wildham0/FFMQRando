@@ -696,8 +696,6 @@ namespace FFMQLib
 				ea.AttackPattern = 0x01;
 				ea.Attacks = Enumerable.Repeat(EnemyAttackIds.Selfdestruct, 6).ToList();
 			}
-
-			AnalyzeAttackLevel();
 		}
 
 		private List<EnemyAttackIds> safeAttacks = new()
