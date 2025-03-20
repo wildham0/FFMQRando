@@ -119,7 +119,7 @@
 		<Container Class="flagColumn">
 			<DoubleEnumFlag UsePreset=usePreset Name="Standard Enemies Scaling" @bind-Value="flags.EnemiesScalingLower" @bind-Value2="flags.EnemiesScalingUpper" Tooltip="Randomly adjust enemies stats by the selected range percentage.<br/><br/>Include mini-bosses' weaker clones." />
 			<DoubleEnumFlag UsePreset=usePreset Name="Bosses Scaling" @bind-Value="flags.BossesScalingLower" @bind-Value2="flags.BossesScalingUpper" Tooltip="Randomly adjust bosses stats by the selected range percentage.<br/><br/>Include Mini-Bosses, Bosses, Bosses' refights and the Dark King." />
-			<EnumFlag UsePreset=usePreset Name="Enemizer Attacks" @bind-Value="flags.EnemizerAttacks" Tooltip="Shuffles enemy attacks.<br /><br />Disabled: No shuffle.<br /><br />Safe Randomization: Randomize every attack, but remove self-destruct and multiply; only the Dark Castle's bosses can get Dark King attacks.<br /><br />Chaos Randomization: Randomize every attack. Any attack is possible.<br /><br />Self-destruct: Every enemy self destructs<br /><br />Script Shuffle: Shuffle the whole attack script between each enemies." />
+				<EnumFlag UsePreset=usePreset Name="Enemizer Attacks" @bind-Value="flags.EnemizerAttacks" Tooltip="Shuffles enemy attacks.<br /><br />Disabled: No shuffle.<br /><br />Balanced: Randomize every attack, but remove self-destruct and multiply; only the Dark Castle's bosses can get Dark King attacks.<br /><br />Balanced Expert: Same as balanced, but enemies tends to have stronger attacks.<br /><br />Chaos Randomization: Randomize every attack. Any attack is possible.<br /><br />Self-destruct: Every enemy self destructs<br /><br />Script Shuffle: Shuffle the whole attack script between each enemies." />
 				@if (flags.EnemizerAttacks != EnemizerAttacks.Normal)
 				{
 					<EnumFlag UsePreset=usePreset Name="Enemizer Groups" @bind-Value="flags.EnemizerGroups" Tooltip="Set which enemies groups will be affected by Enemizer." />
@@ -187,6 +187,7 @@
 		<Container Class="flagColumn">
 			<BoolFlag UsePreset=usePreset Name="Shuffle Battlefields Rewards" @bind-Value="flags.ShuffleBattlefieldRewards" Tooltip="Shuffle the type of reward (Item, XP, GP) given by battlefields and color code them by reward type.<br/><br/>Blue: Give an item.<br/><br/>Grey: Give XP.<br/><br/>Green: Give GP." />
 			<EnumFlag UsePreset=usePreset Name="Battlefields Battles Quantity" @bind-Value="flags.BattlesQuantity" Tooltip="Adjust the number of battles that need to be fought to get a battlefield's reward." />
+				<EnumFlag UsePreset=usePreset Name="Hint NPCs" @bind-Value="flags.HintMode" Tooltip="Four NPCs, one in each INN, will reveal the location of an item. NPCs will never hint for an item already in your inventory, so hints may change during playthrough.<br/>If Enemy Density is set to 0%, NPCs will refuse to give hints until you have enough GPs to also cover any remaining vendor items. <br/><br/>None: No Hints.<br/><br/>Free: Hints are given for free.<br/><br/>Fixed: All hints will cost that amount of GPs.<br/><br/>Progressive: Each time you buy a hint, the cost of the other hints will increment by that amount." />
 		</Container>
 	</Container>
 		</Container>

@@ -101,7 +101,6 @@ namespace FFMQLib
 			// General modifications
 			GeneralModifications(flags, preferences, apconfigs.ApEnabled, rng);
 			UnjankOverworld(GameMaps, MapChanges, MapPalettes);
-			HintsHacks(flags, MapSpriteSets, MapObjects, rng);
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
@@ -150,6 +149,7 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, Overworld.StartingLocation, apconfigs.ApEnabled, preferences.MusicMode == MusicMode.Mute, rng);
 			ChestsHacks(flags, itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
+			HintRobots(flags, MapSpriteSets, MapObjects, itemsPlacement, GameLogic, rng);
 
 			// Doom Castle
 			SetDoomCastleMode(flags.DoomCastleMode);

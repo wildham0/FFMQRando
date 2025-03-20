@@ -50,10 +50,15 @@ namespace FFMQLib
 				GameFlags[i] = false;
 			}
 
+			for (int i = (int)NewGameFlagsList.ForestaHintGiven; i <= (int)NewGameFlagsList.WindiaHintGiven; i++)
+			{
+				GameFlags[i] = false;
+			}
+
 			// [AP1.4] remove when api/apworld are updated
 			//if (!apenabled)
 			//{
-				GameFlags[(int)NewGameFlagsList.ShowFireburgTristam] = false;
+			GameFlags[(int)NewGameFlagsList.ShowFireburgTristam] = false;
 			//}
 
 			// Remove Mine Boulder
