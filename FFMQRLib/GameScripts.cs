@@ -329,6 +329,9 @@ namespace FFMQLib
 			MapChanges.Replace(0x03, Blob.FromHex("2a2534393960404040404040404040")); // Put script tile in after collapse
 
 			// Wintry Squid
+			MapSpriteSets[0x0B].AddAddressor(6, 0, 30, SpriteSize.Tiles16);
+			MapObjects[0x1F][0x01].Sprite = 0x42;
+
 			MapObjects[0x1F][0x0B].Gameflag = (int)NewGameFlagsList.ShowSquidChest;
 			GameFlags[(int)NewGameFlagsList.ShowSquidChest] = false;
 
@@ -363,15 +366,20 @@ namespace FFMQLib
 				}));
 
 			/*** Fall Basin ***/
-			// Put Chest under crab
+			// Update Crab and put Chest under crab
+			MapSpriteSets[0x0C].AddAddressor(6, 0, 30, SpriteSize.Tiles16);
 			MapObjects[0x21][0x07].X--;
+			MapObjects[0x21][0x07].Sprite = 0x43;
 
 			MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
 			MapObjects[0x21][0x0F].Y = MapObjects[0x21][0x07].Y;
 			MapObjects[0x21][0x0F].Gameflag = (int)NewGameFlagsList.ShowCrabChest;
             GameFlags[(int)NewGameFlagsList.ShowCrabChest] = false;
 
-            TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
+			
+
+
+			TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
 				new ScriptBuilder(new List<string>{
 					"04",
 					"05E43403",
@@ -691,6 +699,9 @@ namespace FFMQLib
 				}));
 
 			// Jinn Fight
+			MapSpriteSets[0x14].AddAddressor(6, 0, 31, SpriteSize.Tiles16);
+			MapObjects[0x32][0x08].Sprite = 0x40;
+
 			TileScripts.AddScript((int)TileScriptsList.FightJinn,
 				new ScriptBuilder(new List<string>
 				{
@@ -729,6 +740,9 @@ namespace FFMQLib
 
 			/*** Volcano Base ***/
 			// Medusa - Put medusa over chest
+			MapSpriteSets[0x16].AddAddressor(6, 0, 31, SpriteSize.Tiles16);
+			MapObjects[0x37][0x00].Sprite = 0x41;
+
 			MapObjects[0x37][0x00].X = MapObjects[0x37][0x0D].X;
 			MapObjects[0x37][0x00].Y = MapObjects[0x37][0x0D].Y;
 			MapObjects[0x37][0x0D].Gameflag = (int)NewGameFlagsList.ShowMedusaChest;
@@ -934,6 +948,9 @@ namespace FFMQLib
 			*/
 
 			// Fight Gidrah
+			MapSpriteSets[0x1F].AddAddressor(6, 0, 31, SpriteSize.Tiles16);
+			MapObjects[0x4B][0x01].Sprite = 0x43;
+
 			TalkScripts.AddScript((int)TalkScriptsList.FightGidrah,
 				new ScriptBuilder(new List<string> {
 					"04",
@@ -1088,6 +1105,9 @@ namespace FFMQLib
 
 			/*** Mount Gale ***/
 			// Headless Knight
+			MapSpriteSets[0x20].AddAddressor(6, 0, 31, SpriteSize.Tiles16);
+			MapObjects[0x4F][0x00].Sprite = 0x42;
+
 			MapObjects[0x4F][0x0C].X = MapObjects[0x4F][0x00].X;
 			MapObjects[0x4F][0x0C].Y = MapObjects[0x4F][0x00].Y;
 			MapObjects[0x4F][0x0C].Gameflag = (int)NewGameFlagsList.ShowDullahanChest;
