@@ -19,11 +19,11 @@
 
 
 <style>
-    body {
+	body {
 
-        background: linear-gradient(rgba(27,42,81,1),rgba(85,109,171,1)) no-repeat center fixed;
-        background-size: cover;
-    }
+	background: linear-gradient(rgba(27,42,81,1),rgba(85,109,171,1)) no-repeat center fixed;
+	background-size: cover;
+	}
 </style>
 
 @if (loadingDone)
@@ -36,41 +36,41 @@
 
 	<div><br /><br /></div>
 
-<Container class="sectionBox">
-    <div class="box-title text-secondary">Archipelago</div>
-    <Container Class="infoBox">
-            <div class="text-secondary">Upload your Archipelago config file (.apmq) to generate an AP compatible rom. Visit the <a href="https://archipelago.gg/tutorial/Final%20Fantasy%20Mystic%20Quest/setup/en" target="_blank" rel="noopener noreferrer" class="text-secondary" style="text-decoration: underline">FFMQ Multiworld Setup Guide <Icon Name="IconName.ExternalLinkSquareAlt" class="text-secondary" /></a> for more info.</div>
-    </Container>
-</Container>
+	<Container class="sectionBox">
+		<div class="box-title text-secondary">Archipelago</div>
+		<Container Class="infoBox">
+			<div class="text-secondary">Upload your Archipelago config file (.apmq) to generate an AP compatible rom. Visit the <a href="https://archipelago.gg/tutorial/Final%20Fantasy%20Mystic%20Quest/setup/en" target="_blank" rel="noopener noreferrer" class="text-secondary" style="text-decoration: underline">FFMQ Multiworld Setup Guide <Icon Name="IconName.ExternalLinkSquareAlt" class="text-secondary" /></a> for more info.</div>
+		</Container>
+	</Container>
 
-<div><br /></div>
+	<div><br /></div>
 }
 <Container class="sectionBox" Style=@(loadingDone ? "" : "display: none")>
-    <div class="box-title text-secondary">
-        Generation       
-    </div> 
+	<div class="box-title text-secondary">
+		Generation       
+	</div> 
 
-    <Container Class="flagBox">
-        <Container Class="flagColumn">
-            <GenerateButton Flags="flags" ApConfigs="apconfigs" Seed="seed" Preferences="preferences" Beta="@GetBetaStatus()" IsLoadFromMemoryDone="LoadFromMemoryDone" />
-        </Container>
-        <Container Class="flagColumn">
-            <Field Class="dropFlag">
-                <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">
-                    Load Archipelago Config File
-                    </FieldLabel>
-                    <FileEdit Filter=".apmq" AutoReset="false" Changed="@LoadApConfigFile"></FileEdit>
-                    <FieldHelp>@yamlMessage</FieldHelp>
-            </Field>
-        </Container>
-    </Container>
+	<Container Class="flagBox">
+		<Container Class="flagColumn">
+			<GenerateButton Flags="flags" ApConfigs="apconfigs" Seed="seed" Preferences="preferences" Beta="@GetBetaStatus()" IsLoadFromMemoryDone="LoadFromMemoryDone" />
+		</Container>
+		<Container Class="flagColumn">
+			<Field Class="dropFlag">
+				<FieldLabel TextColor="TextColor.Secondary" class="fw-bold">
+					Load Archipelago Config File
+				</FieldLabel>
+				<FileEdit Filter=".apmq" AutoReset="false" Changed="@LoadApConfigFile"></FileEdit>
+				<FieldHelp>@yamlMessage</FieldHelp>
+			</Field>
+		</Container>
+	</Container>
 </Container>
 
 @if (loadingDone)
 {
-    <div><br /></div>
+	<div><br /></div>
 
-<PreferencesSection preferences="@preferences" />
+	<PreferencesSection preferences="@preferences" />
 
 	<div><br /><br /><br /><br /></div>
 	<div><br /><br /><br /></div>
@@ -78,119 +78,132 @@
 }
 
 @code{
-    private long maxFileSize = 0x80200;
-    private bool loadingDone = false;
-    private bool betaStatus = false;
+	private long maxFileSize = 0x80200;
+	private bool loadingDone = false;
+	private bool betaStatus = false;
 
-    private Flags flags = new();
-    private Preferences preferences = new();
-    private ApConfigs apconfigs = new();
-    private Blob seed = new byte[4];
+	private Flags flags = new();
+	private Preferences preferences = new();
+	private ApConfigs apconfigs = new();
+	private Blob seed = new byte[4];
 
-    private string yamlPreset = "";
-    private string yamlMessage = "";
-    private string yamlName = "default";
+	private string yamlPreset = "";
+	private string yamlMessage = "";
+	private string yamlName = "default";
 
-    private bool GetBetaStatus()
-    {
-        var uri = new Uri(NavigationManager.Uri);
+	private bool GetBetaStatus()
+	{
+		var uri = new Uri(NavigationManager.Uri);
 
-        string fullUrl = uri.OriginalString;
-        int index = fullUrl.IndexOf("dev");
-        if (index >= 0)
-        {
-            return true;
-        }
+		string fullUrl = uri.OriginalString;
+		int index = fullUrl.IndexOf("dev");
+		if (index >= 0)
+		{
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    private async Task LoadYamlFromUpload(FileChangedEventArgs e)
-    {
-        try
-        {
-            using (StreamReader streamReader = new StreamReader(e.Files.First().OpenReadStream(maxFileSize), Encoding.UTF8))
-            {
-                await LoadYamlFromStreamReader(streamReader);
-            }
-        }
-        catch (Exception ex)
-        {
-            yamlMessage = ex.Message;
-            Console.WriteLine(ex.Message);
-        }
-    }
-    private async Task LoadYamlFromStreamReader(StreamReader streamReader)
-    {
-        try
-        {
-            using (streamReader)
-            {
-                yamlPreset = await streamReader.ReadToEndAsync();
-            }
+	private async Task LoadYamlFromUpload(FileChangedEventArgs e)
+	{
+		try
+		{
+			using (StreamReader streamReader = new StreamReader(e.Files.First().OpenReadStream(maxFileSize), Encoding.UTF8))
+			{
+				await LoadYamlFromStreamReader(streamReader);
+			}
+		}
+		catch (Exception ex)
+		{
+			yamlMessage = ex.Message;
+			Console.WriteLine(ex.Message);
+		}
+	}
+	private async Task LoadYamlFromStreamReader(StreamReader streamReader)
+	{
+		try
+		{
+			using (streamReader)
+			{
+				yamlPreset = await streamReader.ReadToEndAsync();
+			}
 
-            yamlName = flags.ReadYaml(yamlPreset, apconfigs.GetSeed());
-        }
-        catch (Exception ex)
-        {
-            yamlMessage = ex.Message;
-            Console.WriteLine(ex.Message);
-        }
-    }
+			//yamlName = flags.ReadApYaml(yamlPreset, apconfigs);
+		}
+		catch (Exception ex)
+		{
+			yamlMessage = ex.Message;
+			Console.WriteLine(ex.Message);
+		}
+	}
+	private void ProcessYamlFlags()
+	{
+		try
+		{
+			yamlName = flags.ReadApYaml(yamlPreset, apconfigs);
+		}
+		catch (Exception ex)
+		{
+			yamlMessage = ex.Message;
+			Console.WriteLine(ex.Message);
+		}
+	}
 
-    async void LoadApConfigFile(FileChangedEventArgs e)
-    {
-        try
-        {
-            MemoryStream memZip = new();
+	async void LoadApConfigFile(FileChangedEventArgs e)
+	{
+		try
+		{
+			MemoryStream memZip = new();
 
-            await e.Files.First().WriteToStreamAsync(memZip);
-            apconfigs.FileName = e.Files.First().Name.Split('.')[0];
-            using (ZipArchive configContainer = new ZipArchive(memZip))
-            {
-                foreach (var file in configContainer.Entries)
-                {
-                    if (file.Name == "itemplacement.yaml")
-                    {
-                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
-                        {
-                            apconfigs.ItemPlacementYaml = await streamReader.ReadToEndAsync();
-                        }
-                    }
-                    else if (file.Name == "startingitems.yaml")
-                    {
-                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
-                        {
-                            apconfigs.StartingItemsYaml = await streamReader.ReadToEndAsync();
-                        }
-                    }
-                    else if (file.Name == "flagset.yaml")
-                    {
-                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
-                        {
-                            await LoadYamlFromStreamReader(streamReader);
-                        }
-                    }
-                    else if (file.Name == "setup.yaml")
-                    {
-                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
-                        {
-                            apconfigs.SetupYaml = await streamReader.ReadToEndAsync();
-                        }
-                    }
-                    else if (file.Name == "rooms.yaml")
-                    {
-                        using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
-                        {
-                            apconfigs.RoomsYaml = await streamReader.ReadToEndAsync();
-                        }
-                    }
+			await e.Files.First().WriteToStreamAsync(memZip);
+			apconfigs.FileName = e.Files.First().Name.Split('.')[0];
+			using (ZipArchive configContainer = new ZipArchive(memZip))
+			{
+				foreach (var file in configContainer.Entries)
+				{
+					if (file.Name == "itemplacement.yaml")
+					{
+						using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
+						{
+							apconfigs.ItemPlacementYaml = await streamReader.ReadToEndAsync();
+						}
+					}
+					else if (file.Name == "startingitems.yaml")
+					{
+						using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
+						{
+							apconfigs.StartingItemsYaml = await streamReader.ReadToEndAsync();
+						}
+					}
+					else if (file.Name == "flagset.yaml")
+					{
+						using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
+						{
+							await LoadYamlFromStreamReader(streamReader);
+						}
+					}
+					else if (file.Name == "setup.yaml")
+					{
+						using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
+						{
+							apconfigs.SetupYaml = await streamReader.ReadToEndAsync();
+						}
+					}
+					else if (file.Name == "rooms.yaml")
+					{
+						using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
+						{
+							apconfigs.RoomsYaml = await streamReader.ReadToEndAsync();
+						}
+					}
 
-                }
-            }
+				}
+			}
 
-            apconfigs.ProcessYaml();
-            yamlMessage = "Archipelago Config File loaded successfully.";
+			apconfigs.ProcessYaml();
+			ProcessYamlFlags(); // Process flags after we got configs info
+			yamlMessage = "Archipelago Config File loaded successfully.";
 
             StateHasChanged();
         }

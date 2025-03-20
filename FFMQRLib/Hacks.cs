@@ -39,9 +39,6 @@ namespace FFMQLib
 			PazuzuFixedFloorRng(rng);
 			ShuffledFloorVanillaMonstersFix(flags);
 			Msu1Support();
-
-			// Zero out spriteset 0x42
-			PutInBank(0x04, 0xFD20, new byte[0x0180]);
 		}
 		
 		public void FastMovement()

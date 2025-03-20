@@ -210,7 +210,6 @@ namespace FFMQLib
 				Blob hash = hasher.ComputeHash(seed);
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
-
 			var input = new StringReader(yamlfile);
 
 			var yaml = new YamlStream();
@@ -271,8 +270,105 @@ namespace FFMQLib
 			var mapping2 = (YamlScalarNode)((YamlMappingNode)yaml.Documents[0].RootNode).Children["name"];
 			return ((YamlScalarNode)mapping2.Value).Value;
 		}
-	}
+		public string ReadApYaml(string yamlfile, ApConfigs apconfigs)
+		{
+			var seed = apconfigs.GetSeed();
+			MT19337 rng;
+			using (SHA256 hasher = SHA256.Create())
+			{
+				Blob hash = hasher.ComputeHash(seed);
+				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
+			}
+			var input = new StringReader(yamlfile);
 
+			var yaml = new YamlStream();
+			yaml.Load(input);
+
+			var mapping = (YamlMappingNode)((YamlMappingNode)yaml.Documents[0].RootNode).Children["Final Fantasy Mystic Quest"];
+
+			string newyaml = "";
+
+			foreach (var entry in mapping.Children)
+			{
+				if (entry.Value.NodeType == YamlNodeType.Mapping)
+				{
+					List<string> weightedChildren = new();
+					foreach (var child in (YamlMappingNode)entry.Value)
+					{
+						int weight = Convert.ToInt32(((YamlScalarNode)child.Value).Value);
+						string childname = ((YamlScalarNode)child.Key).Value;
+
+						weightedChildren.AddRange(Enumerable.Repeat(childname, weight));
+					}
+
+					if (weightedChildren.Any())
+					{
+						newyaml += ((YamlScalarNode)entry.Key).Value + ": " + rng.PickFrom(weightedChildren) + "\n";
+					}
+					else
+					{
+						Console.WriteLine("Yaml Error: No weighted options for:" + ((YamlScalarNode)entry.Key).Value);
+					}
+				}
+				else if (entry.Value.NodeType == YamlNodeType.Scalar)
+				{
+					newyaml += ((YamlScalarNode)entry.Key).Value + ": " + ((YamlScalarNode)entry.Value).Value + "\n";
+				}
+			}
+
+			// Ap Compatibility Layer
+			if (apconfigs.Version != "1.6")
+			{
+				newyaml = newyaml.Replace("Safe", "Balanced");
+
+				newyaml = newyaml.Replace("enable_spoilers: true", "disable_spoilers: false");
+				newyaml = newyaml.Replace("enable_spoilers: false", "disable_spoilers: true");
+
+				if (newyaml.Contains("Overworld"))
+				{
+					if (newyaml.Contains("OverworldDungeons"))
+					{
+						newyaml = newyaml.Replace("OverworldDungeons", "DungeonsMixed");
+					}
+					else
+					{
+						newyaml = newyaml.Replace("Overworld", "None");
+					}
+
+					newyaml = newyaml + "\noverworld_shuffle: true";
+				}
+				else
+				{
+					newyaml = newyaml.Replace("Dungeons", "DungeonsMixed");
+				}
+			}
+
+
+
+			var deserializer = new DeserializerBuilder()
+				.WithNamingConvention(UnderscoredNamingConvention.Instance)  // see height_in_inches in sample yml 
+				.Build();
+
+			Flags result = new();
+			try
+			{
+				result = deserializer.Deserialize<Flags>(newyaml);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.ToString());
+			}
+			var yamlFlags = result.GetType().GetProperties().ToList();
+
+			foreach (var flag in yamlFlags)
+			{
+				flag.SetValue(this, flag.GetValue(result, null));
+			}
+
+			var mapping2 = (YamlScalarNode)((YamlMappingNode)yaml.Documents[0].RootNode).Children["name"];
+			return ((YamlScalarNode)mapping2.Value).Value;
+		}
+	}
 	public class Preferences
 	{
 		public bool RandomBenjaminPalette { get; set; } = false;

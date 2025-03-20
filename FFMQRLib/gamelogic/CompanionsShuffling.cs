@@ -20,8 +20,7 @@ namespace FFMQLib
 	{
 		public void CompanionsShuffle(CompanionsLocationType shuffletype, bool kaelismom, ApConfigs apconfigs, MT19337 rng)
 		{
-            // [AP1.4] 1.4 temporary fix until api/apworld are updated
-            if ((shuffletype == CompanionsLocationType.Standard && !apconfigs.ApEnabled) || (apconfigs.ApEnabled && apconfigs.Version == "1.5"))
+            if ((shuffletype == CompanionsLocationType.Standard) || (apconfigs.ApEnabled))
             {
                 return;
             }
