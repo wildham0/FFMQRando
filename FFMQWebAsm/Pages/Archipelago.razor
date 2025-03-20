@@ -30,7 +30,7 @@
 {
 	<div class="@("center-logo")">
 		<img style="max-width:100%; height:140px; position: relative; margin-top:-40px" alt="FFMQ Randomizer Logo" src="logo/FFMQRLogo-Final-Web.svg" />
-		<h1 class="text-secondary" style="font-size: 1em; text-align: right">@("v" + @FFMQLib.Metadata.Version + (@betaStatus ? "-beta" : ""))</h1>
+		<h1 class="text-secondary" style="font-size: 1em; text-align: right">@("v" + (@betaStatus ? @FFMQLib.Metadata.BetaVersionLong : @FFMQLib.Metadata.Version))</h1>
 	</div>
 
 

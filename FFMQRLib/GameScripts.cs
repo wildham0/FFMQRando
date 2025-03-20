@@ -50,10 +50,15 @@ namespace FFMQLib
 				GameFlags[i] = false;
 			}
 
+			for (int i = (int)NewGameFlagsList.ForestaHintGiven; i <= (int)NewGameFlagsList.WindiaHintGiven; i++)
+			{
+				GameFlags[i] = false;
+			}
+
 			// [AP1.4] remove when api/apworld are updated
 			//if (!apenabled)
 			//{
-				GameFlags[(int)NewGameFlagsList.ShowFireburgTristam] = false;
+			GameFlags[(int)NewGameFlagsList.ShowFireburgTristam] = false;
 			//}
 
 			// Remove Mine Boulder
@@ -147,9 +152,11 @@ namespace FFMQLib
 			GameFlags[(int)NewGameFlagsList.ShowBarrelNotMoved] = true;
 
 			MapObjects[0x11][0x09].Gameflag = (byte)NewGameFlagsList.ShowBarrelNotMoved;
-			MapObjects[0x11].Add(new MapObject(MapObjects[0x11][0x09]));
-			MapObjects[0x11][0x0B].Gameflag = (byte)NewGameFlagsList.ShowBarrelMoved;
-			MapObjects[0x11][0x0B].X--;
+			var moveBarrel = new MapObject(MapObjects[0x11][0x09]);
+			moveBarrel.Gameflag = (byte)NewGameFlagsList.ShowBarrelMoved;
+			moveBarrel.X--;
+			MapObjects[0x11].Add(moveBarrel);
+
 
 			GameMaps[(int)MapList.ForestaInterior].ModifyMap(0x23, 0x1E, 0x36);
 

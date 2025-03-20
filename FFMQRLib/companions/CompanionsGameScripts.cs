@@ -25,7 +25,7 @@ namespace FFMQLib
 			public int MapObjectsSet { get; set; }
 			public int MapSpritesSet { get; set; }
 			public bool AddMapObject { get; set; }
-			public byte Facing { get; set; }
+			public FacingOrientation Facing { get; set; }
 			public List<(WalkDirection direction, int steps)> WalkOut { get; set; }
 			
 			public CompanionLocation(LocationIds loc, int gameobject, (int x, int y) pos, List<(WalkDirection, int)> walkout)
@@ -35,7 +35,7 @@ namespace FFMQLib
 				Position = pos;
 				WalkOut = walkout;
 			}
-			public CompanionLocation(int gameobject, int mapset, int spriteset, (int x, int y) pos, List<(WalkDirection, int)> walkout, byte facing, bool addobject)
+			public CompanionLocation(int gameobject, int mapset, int spriteset, (int x, int y) pos, List<(WalkDirection, int)> walkout, FacingOrientation facing, bool addobject)
 			{
 				GameObject = gameobject;
 				MapObjectsSet = mapset;
@@ -80,18 +80,18 @@ namespace FFMQLib
 
             Dictionary<LocationIds, CompanionLocation> companionsLocation = new()
 			{
-				{ LocationIds.SandTemple, new CompanionLocation(0, 0x12, sandtemplenewset, (0x39, 0x06), new() { (WalkDirection.Down, 3), (WalkDirection.Left, 3), (WalkDirection.Down, 5) }, 0x02, false) },
-				{ LocationIds.LibraTemple, new CompanionLocation(0, 0x17, 0x02, (0x0B, 0x04), new() { (WalkDirection.Down, 8) }, 0x02, false) },
-				{ LocationIds.LifeTemple, new CompanionLocation(2, 0x20, 0x02, (0x09, 0x28), new() { (WalkDirection.Down, 6) }, 0x02, false) },
-				{ LocationIds.Aquaria, new CompanionLocation(0, 0x1A, 0x09, (0x1C, 0x07), new() { (WalkDirection.Left, 1), (WalkDirection.Down, 3), (WalkDirection.Right, 2), (WalkDirection.Down, 2) }, 0x02, false) },
-				{ LocationIds.SealedTemple, new CompanionLocation(4, 0x35, 0x02, (0x3B, 0x23), new() { (WalkDirection.Down, 7) }, 0x02, true) }, // add mapobject
-				{ LocationIds.Fireburg, new CompanionLocation(4, 0x30, reubenhousenewset, (0x24, 0x28), new() { (WalkDirection.Down, 2), (WalkDirection.Left, 3), (WalkDirection.Down, 2) }, 0x03, true) }, // add mapobject, look left
-				{ LocationIds.WintryTemple, new CompanionLocation(0, 0x2E, 0x02, (0x08, 0x16), new() { (WalkDirection.Down, 2), (WalkDirection.Right, 1) }, 0x02, false) },
-				{ LocationIds.RopeBridge, new CompanionLocation(0, 0x42, 0x1C, (0x2A, 0x15), new() { (WalkDirection.Left, 3), (WalkDirection.Up, 6) }, 0x02, false) },
-				{ LocationIds.KaidgeTemple, new CompanionLocation(3, 0x4D, 0x02, (0x36, 0x39), new() { (WalkDirection.Right, 2), (WalkDirection.Up, 2) }, 0x02, true) }, // add mapobject
-				{ LocationIds.LightTemple, new CompanionLocation(3, 0x5F, 0x02, (0x13, 0x32), new() { (WalkDirection.Down, 1), (WalkDirection.Left, 1), (WalkDirection.Down, 1), (WalkDirection.Right, 7), (WalkDirection.Up, 3), (WalkDirection.Right, 3) }, 0x02, true) }, // add mapobject
-				{ LocationIds.WindholeTemple, new CompanionLocation(1, 0x4E, 0x02, (0x0A, 0x0F), new() { (WalkDirection.Left, 1), (WalkDirection.Down, 3), (WalkDirection.Left, 7), (WalkDirection.Down, 4) }, 0x02, true) }, // add mapobject
-				{ LocationIds.Foresta, new CompanionLocation(6, 0x10, 0x31, (0x0B, 0x0E), new() { (WalkDirection.Down, 6) }, 0x01, true) }, // add mapobject
+				{ LocationIds.SandTemple, new CompanionLocation(0, 0x12, sandtemplenewset, (0x39, 0x06), new() { (WalkDirection.Down, 3), (WalkDirection.Left, 3), (WalkDirection.Down, 5) }, FacingOrientation.Down, false) },
+				{ LocationIds.LibraTemple, new CompanionLocation(0, 0x17, 0x02, (0x0B, 0x04), new() { (WalkDirection.Down, 8) }, FacingOrientation.Down, false) },
+				{ LocationIds.LifeTemple, new CompanionLocation(2, 0x20, 0x02, (0x09, 0x28), new() { (WalkDirection.Down, 6) }, FacingOrientation.Down, false) },
+				{ LocationIds.Aquaria, new CompanionLocation(0, 0x1A, 0x09, (0x1C, 0x07), new() { (WalkDirection.Left, 1), (WalkDirection.Down, 3), (WalkDirection.Right, 2), (WalkDirection.Down, 2) }, FacingOrientation.Down, false) },
+				{ LocationIds.SealedTemple, new CompanionLocation(4, 0x35, 0x02, (0x3B, 0x23), new() { (WalkDirection.Down, 7) }, FacingOrientation.Down, true) }, // add mapobject
+				{ LocationIds.Fireburg, new CompanionLocation(4, 0x30, reubenhousenewset, (0x24, 0x28), new() { (WalkDirection.Down, 2), (WalkDirection.Left, 3), (WalkDirection.Down, 2) }, FacingOrientation.Left, true) }, // add mapobject, look left
+				{ LocationIds.WintryTemple, new CompanionLocation(0, 0x2E, 0x02, (0x08, 0x16), new() { (WalkDirection.Down, 2), (WalkDirection.Right, 1) }, FacingOrientation.Down, false) },
+				{ LocationIds.RopeBridge, new CompanionLocation(0, 0x42, 0x1C, (0x2A, 0x15), new() { (WalkDirection.Left, 3), (WalkDirection.Up, 6) }, FacingOrientation.Down, false) },
+				{ LocationIds.KaidgeTemple, new CompanionLocation(3, 0x4D, 0x02, (0x36, 0x39), new() { (WalkDirection.Right, 2), (WalkDirection.Up, 2) }, FacingOrientation.Down, true) }, // add mapobject
+				{ LocationIds.LightTemple, new CompanionLocation(3, 0x5F, 0x02, (0x13, 0x32), new() { (WalkDirection.Down, 1), (WalkDirection.Left, 1), (WalkDirection.Down, 1), (WalkDirection.Right, 7), (WalkDirection.Up, 3), (WalkDirection.Right, 3) }, FacingOrientation.Down, true) }, // add mapobject
+				{ LocationIds.WindholeTemple, new CompanionLocation(1, 0x4E, 0x02, (0x0A, 0x0F), new() { (WalkDirection.Left, 1), (WalkDirection.Down, 3), (WalkDirection.Left, 7), (WalkDirection.Down, 4) }, FacingOrientation.Down, true) }, // add mapobject
+				{ LocationIds.Foresta, new CompanionLocation(6, 0x10, 0x31, (0x0B, 0x0E), new() { (WalkDirection.Down, 6) }, FacingOrientation.Right, true) }, // add mapobject
 			};
 
 			List<CompanionScriptData> companionsData = new()
@@ -133,7 +133,7 @@ namespace FFMQLib
 			if (Companions.Locations[CompanionsId.Reuben] == LocationIds.Fireburg)
 			{
 				companionsLocation.Remove(LocationIds.Fireburg);
-				companionsLocation.Add(LocationIds.Fireburg, new CompanionLocation(1, 0x30, reubenhousenewset, (0x23, 0x27), new() { (WalkDirection.Left, 2), (WalkDirection.Down, 5) }, 0x02, false));
+				companionsLocation.Add(LocationIds.Fireburg, new CompanionLocation(1, 0x30, reubenhousenewset, (0x23, 0x27), new() { (WalkDirection.Left, 2), (WalkDirection.Down, 5) }, FacingOrientation.Down, false));
 			}
 
 			// Erase Companions
@@ -179,7 +179,7 @@ namespace FFMQLib
                 companionobject.Y = (byte)locationdata.Position.y;
                 companionobject.Value = companion.Value;
                 companionobject.Behavior = 0x0A;
-                companionobject.Orientation = locationdata.Facing;
+                companionobject.Facing = locationdata.Facing;
                 companionobject.UnknownIndex = 0x02;
                 companionobject.Sprite = companion.Sprite;
                 companionobject.Palette = 0x00;

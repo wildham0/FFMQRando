@@ -54,23 +54,23 @@ else
 
 
 @code{
-	[Parameter]
-	public Flags Flags { get; set; }
+		[Parameter]
+		public Flags Flags { get; set; }
 
-	[Parameter]
-	public Blob Seed { get; set; }
+		[Parameter]
+		public Blob Seed { get; set; }
 
-	[Parameter]
-	public Preferences Preferences { get; set; }
+		[Parameter]
+		public Preferences Preferences { get; set; }
 
-	[Parameter]
-	public ApConfigs ApConfigs { get; set; }
+		[Parameter]
+		public ApConfigs ApConfigs { get; set; }
 
-	[Parameter]
-	public bool Beta { get; set; }
+		[Parameter]
+		public bool Beta { get; set; }
 
-	[Parameter]
-	public Action<bool> IsLoadFromMemoryDone { get; set; }
+		[Parameter]
+		public Action<bool> IsLoadFromMemoryDone { get; set; }
 
 	private long maxFileSize = 0x80200;
 	private bool isLoadingRom = false;
@@ -179,10 +179,11 @@ else
 			{
 				rom.Randomize(Seed, Flags, Preferences, ApConfigs);
 
+				string versionString = (Beta ? FFMQLib.Metadata.BetaVersionShort : FFMQLib.Metadata.Version);
 				romMessage = "ROM file generated successfully.";
-				fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".sfc";
-				fileNameSpoilers = "FFMQR_Spoilers_" + FFMQLib.Metadata.Version + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".txt";
-				fileNameInfoDump = "FFMQR_GameInfo_" + FFMQLib.Metadata.Version + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".txt";
+				fileName = "FFMQR_" + versionString + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".sfc";
+				fileNameSpoilers = "FFMQR_Spoilers_" + versionString + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".txt";
+				fileNameInfoDump = "FFMQR_GameInfo_" + versionString + "_" + Seed.ToHex() + "_" + Flags.GenerateFlagString() + ".txt";
 			}
 
 			if (Preferences.AutoDownloadRom)
@@ -191,13 +192,12 @@ else
 				using var streamRef = new DotNetStreamReference(stream: fs);
 				await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
 			}
+			generatedRom = true;
         }
         catch (Exception ex)
         {
             romMessage = ex.Message;
         }
-
-        generatedRom = true;
     }
 
     private async Task LoadRomFromFile(FileChangedEventArgs e)

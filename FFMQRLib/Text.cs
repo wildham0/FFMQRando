@@ -328,8 +328,8 @@ namespace FFMQLib
 		{
 			titleSprites = rom.GetFromBank(titleScreenBank, offsetSprites, lengthSprites * qtySprites).Chunk(lengthSprites);
 			versionText = "v" + (rom.beta ?
-				FFMQLib.Metadata.Version + "b" :
-				FFMQLib.Metadata.Version.Substring(0, FFMQLib.Metadata.Version.Length - 3));
+				FFMQLib.Metadata.BetaVersionShort :
+				FFMQLib.Metadata.Version);
 			UpdateSprites(rom.beta);
 		}
 

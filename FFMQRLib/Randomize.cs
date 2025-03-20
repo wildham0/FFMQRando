@@ -10,12 +10,15 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		// X.YY.ZZ
+		// X.Y.Z
 		// X = Global Version
-		// YY = Release
-		// ZZ = Build
-		public static string Version = "1.06.39";
-		
+		// Y = Major Release
+		// Z = Patch Release
+		// Increment Beta on every new builds, reset to zero on version increase
+		public static string Version = "1.6.0";
+		public static string Beta = "40";
+		public static string BetaVersionShort => Version + "-b" + Beta;
+		public static string BetaVersionLong => Version + "-beta" + Beta;
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -146,6 +149,7 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, Overworld.StartingLocation, apconfigs.ApEnabled, preferences.MusicMode == MusicMode.Mute, rng);
 			ChestsHacks(flags, itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
+			HintRobots(flags, MapSpriteSets, MapObjects, itemsPlacement, GameLogic, rng);
 
 			// Doom Castle
 			SetDoomCastleMode(flags.DoomCastleMode);
