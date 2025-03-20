@@ -740,6 +740,12 @@ namespace FFMQLib
 					List<ClusterRoom> destinationRooms = deadendClusterRooms.Where(x =>
 						!x.Rooms.Intersect(originRoom.ForbiddenDestinations(originLink)).Any()
 						).ToList();
+					
+					List<ClusterRoom> machsipForbiddenRooms = destinationRooms.Where(x =>
+						!x.Rooms.Intersect(macShipBarredRooms).Any()
+						).ToList();
+
+					destinationRooms = machsipForbiddenRooms.Any() ? machsipForbiddenRooms : destinationRooms;
 
 					if (!destinationRooms.Any())
 					{
