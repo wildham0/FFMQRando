@@ -137,7 +137,17 @@ namespace FFMQLib
 			var stream = new MemoryStream();
 			var writer = new StreamWriter(stream);
 				
-			writer.Write(spoilersText);
+			writer.Write(SpoilersText);
+			writer.Flush();
+			stream.Position = 0;
+			return stream;
+		}
+		public Stream GameinfoStream()
+		{
+			var stream = new MemoryStream();
+			var writer = new StreamWriter(stream);
+
+			writer.Write(GameinfoText);
 			writer.Flush();
 			stream.Position = 0;
 			return stream;

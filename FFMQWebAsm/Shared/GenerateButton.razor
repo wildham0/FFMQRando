@@ -40,13 +40,10 @@ else
 		<FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel>
 		<FieldHelp>@fileName generated successfully.</FieldHelp>
 		<div class="text-secondary"><a href="" @onclick="@DownloadRom" @onclick:preventDefault class="text-secondary" style="text-decoration: underline">Download ROM file</a></div>
+		<div class="text-secondary"><a href="" @onclick="@DownloadGameInfo" @onclick:preventDefault class="text-secondary" style="text-decoration: underline">Download GameInfo Screen file</a></div>
 		@if (!Flags.DisableSpoilers)
 		{
 			<div class="text-secondary"><a href="" @onclick="@DownloadSpoilers" @onclick:preventDefault class="text-secondary" style="text-decoration: underline">Download Spoilers file</a></div>
-		}
-		else
-		{
-			<div class="text-secondary"><a href="" @onclick="@DownloadGameInfo" @onclick:preventDefault class="text-secondary" style="text-decoration: underline">Download GameInfo Screen file</a></div>
 		}
 		<div class="text-secondary"><a href="" @onclick="@ResetRom" @onclick:preventDefault class="text-secondary" style="text-decoration: underline">Generate new seed</a></div>
 	</Field>
@@ -101,7 +98,7 @@ else
 	}
 	private async void DownloadGameInfo()
 	{
-		var fsSpoilers = rom.SpoilerStream();
+		var fsSpoilers = rom.GameinfoStream();
 		using var streamRefSpoilers = new DotNetStreamReference(stream: fsSpoilers);
 		await JS.InvokeVoidAsync("downloadFileFromStream", fileNameInfoDump, streamRefSpoilers);
 	}

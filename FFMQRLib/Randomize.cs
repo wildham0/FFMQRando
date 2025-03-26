@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -45,7 +46,8 @@ namespace FFMQLib
 		private byte[] originalData;
 		public bool beta = false;
 		public bool spoilers = false;
-		public string spoilersText;
+		public string SpoilersText;
+		public string GameinfoText;
 		private string hashString;
 		public void Randomize(Blob seed, Flags flags, Preferences preferences, ApConfigs apconfigs)
 		{
@@ -192,8 +194,9 @@ namespace FFMQLib
 			titleScreen.Write(this, Metadata.Version, hashString, flags);
 
 			// Spoilers
-			Spoilers spoilersGenerator = new();
-			spoilersText = spoilersGenerator.GenerateSpoilers(flags, titleScreen, seed.ToHex(), hashString, itemsPlacement, GameInfoScreen, GameLogic, Battlefields);
+			Spoilers spoilersGenerator = new(flags, titleScreen, seed.ToHex(), hashString, itemsPlacement, GameInfoScreen, GameLogic, Battlefields);
+			SpoilersText = spoilersGenerator.SpoilersText;
+			GameinfoText = spoilersGenerator.GameinfoText;
 
 			if (apconfigs.ApEnabled)
 			{

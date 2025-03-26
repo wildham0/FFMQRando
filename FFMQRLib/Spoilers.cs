@@ -11,28 +11,38 @@ namespace FFMQLib
 {
 	class Spoilers
 	{
-		public string GenerateSpoilers(Flags flags, TitleScreen titlescreen, string seed, string hash, ItemsPlacement itemsplacement, GameInfoScreen gameinfo, GameLogic gamelogic, Battlefields battlefields)
+		public string SpoilersText;
+		public string GameinfoText;
+
+		public Spoilers(Flags flags, TitleScreen titlescreen, string seed, string hash, ItemsPlacement itemsplacement, GameInfoScreen gameinfo, GameLogic gamelogic, Battlefields battlefields)
 		{
-			string spoilers = "";
-			spoilers += GenerateRomData(flags, titlescreen.versionText, hash, seed) + "\n";
+			GenerateSpoilers(flags, titlescreen, seed, hash, itemsplacement, gameinfo, gamelogic, battlefields);
+		}
+
+		private void GenerateSpoilers(Flags flags, TitleScreen titlescreen, string seed, string hash, ItemsPlacement itemsplacement, GameInfoScreen gameinfo, GameLogic gamelogic, Battlefields battlefields)
+		{
+			SpoilersText = "";
+			GameinfoText = "";
+
+			string romdata = GenerateRomData(flags, titlescreen.versionText, hash, seed) + "\n";
+			
+			SpoilersText += romdata + "\n";
+			GameinfoText += romdata + "\n";
+
 			if (!flags.DisableSpoilers)
 			{
-				spoilers += GenerateItemsPlacementSpoiler(flags, itemsplacement) + "\n";
-				spoilers += GenerateInfoScreenSpoiler(gameinfo);
-				spoilers += GenerateCompanionSpoilers(gameinfo, gamelogic, flags.CompanionsLocations != CompanionsLocationType.Standard || (flags.MapShuffling != MapShufflingMode.None));
+				SpoilersText += GenerateItemsPlacementSpoiler(flags, itemsplacement) + "\n";
+				SpoilersText += GenerateInfoScreenSpoiler(gameinfo);
+				SpoilersText += GenerateCompanionSpoilers(gameinfo, gamelogic, flags.CompanionsLocations != CompanionsLocationType.Standard || (flags.MapShuffling != MapShufflingMode.None));
 				if ((flags.MapShuffling != MapShufflingMode.None) || flags.OverworldShuffle)
 				{
-					spoilers += GenerateMapSpoiler(flags, gamelogic) + "\n";
+					SpoilersText += GenerateMapSpoiler(flags, gamelogic) + "\n";
 				}
-				spoilers += GenerateAllItemsPlacementSpoiler(flags, itemsplacement, gamelogic, battlefields);
-			}
-			else
-			{
-				spoilers += GenerateInfoScreenSpoiler(gameinfo);
-				spoilers += GenerateCompanionSpoilers(gameinfo, gamelogic, false);
+				SpoilersText += GenerateAllItemsPlacementSpoiler(flags, itemsplacement, gamelogic, battlefields);
 			}
 
-			return spoilers;
+			GameinfoText += GenerateInfoScreenSpoiler(gameinfo);
+			GameinfoText += GenerateCompanionSpoilers(gameinfo, gamelogic, false);
 		}
 		
 		private string GenerateRomData(Flags flags, string version, string hash, string seed)
