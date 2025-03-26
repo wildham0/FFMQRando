@@ -322,7 +322,6 @@ namespace FFMQLib
 		private List<Blob> titleSprites;
 
 		public string versionText;
-		public string hashText;
 
 		public TitleScreen(FFMQRom rom)
 		{
@@ -333,7 +332,7 @@ namespace FFMQLib
 			UpdateSprites(rom.beta);
 		}
 
-		public void Write(FFMQRom rom, string version, Blob seed, Flags flags)
+		public void Write(FFMQRom rom, string version, string hash, Flags flags)
 		{
 
 			rom.PutInBank(titleScreenBank, offsetSprites, titleSprites.SelectMany(x => x.ToBytes()).ToArray());
@@ -345,17 +344,9 @@ namespace FFMQLib
 			rom.PutInBank(titleScreenBank, offsetVersion, Blob.FromHex(rom.TextToHex(versionText.Substring(0,8))));
 			rom.PutInBank(titleScreenBank, offsetVersionBranch, Blob.FromHex(rom.TextToHex(versionText.Substring(8, 2))));
 
-			byte[] hash;
-
-			using (SHA256 hasher = SHA256.Create())
-			{
-				hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
-			}
-
-			hashText = EncodeTo32(hash).Substring(0, 8);
-			rom.PutInBank(titleScreenBank, offsetHash, rom.TextToByte(hashText, false));
+			rom.PutInBank(titleScreenBank, offsetHash, rom.TextToByte(hash, false));
 		}
-		private string EncodeTo32(byte[] bytesToEncode)
+		public static string EncodeTo32(byte[] bytesToEncode)
 		{
 			string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 

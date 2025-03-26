@@ -71,6 +71,9 @@ namespace FFMQLib
 
 			var priceMode = prices[flags.HintMode];
 
+			// Debt Hack
+			TemporalDebtHack();
+
 			// Robot Sprite
 			PutInBank(0x16, 0x8020, Blob.FromHex("600057002c001b0017007f00df40df4000201304080062620600ea003400d800e800fe00fd04fd040004c82010004646ff60f300f0009000f860ff607f050f00620c0f6f67600000ff06cf000f060f001900ff06ff66f6004630f6f0e606060000000f0033006f20df40bf01bf02be0000000c30605152511000be10fa90f4c0f8e0f8303810d800001094c8e030d020fb0283028f019900560636003d103f00067e71662f090200f890f8b0f870b820f000e820f8b0f80090b070600010000000000f0033006f20df40bf01bf02be0000000c30605152511000be10fa90f4c0f8e0f8303810d800001094c8e030d020fb0283028302830243003e003e143f00067e7e7e3c010100f890f8b0f8b0f8a03000d8c0d800b80090b0b0a0c0e0204037002c0017001b007d009e00950097000013080402616a68ec001400e800d800be007900a900e90000e81020408656169703ff6bff0cff0fff67ff607f050f006b6b0c0f67600000e9c0ffd6ff30fff6ffe0ff06ff66f600d6d630f6e0060600"));
 
@@ -81,19 +84,24 @@ namespace FFMQLib
 			// Hinter Routines
 			// Set price part
 			string progressiveskip = (priceMode.prog) ? "eaeaea" : "4c3091";
-			string priceroutine = $"08c2309c03159c0615a9{(priceMode.price % 0x100):X2}{(priceMode.price / 0x100):X2}8d0115{progressiveskip}a9c1004822769700f00aad01151869{(priceMode.price % 0x100):X2}{(priceMode.price / 0x100):X2}8d0115681ac9c40090e84c3091";
+			string priceroutine = $"08c2309c03159c0615a9{(priceMode.price % 0x100):X2}{(priceMode.price / 0x100):X2}8d0115{progressiveskip}a901004820c090900aad01151869{(priceMode.price % 0x100):X2}{(priceMode.price / 0x100):X2}8d0115680ac9100090e94c3091";
 				
-			PutInBank(0x16, 0x9100, Blob.FromHex(priceroutine));
+			PutInBank(0x16, 0x9080, Blob.FromHex(priceroutine));
+
+			// Flags Routine
+			PutInBank(0x16, 0x90C0, Blob.FromHex("08e2202fe21f70f003283860281860")); // Check Flag
+			PutInBank(0x16, 0x90D0, Blob.FromHex("e220ad9e000fe21f708fe21f706b")); // Set Flag from script
+			PutInBank(0x16, 0x90E0, Blob.FromHex("e220ad9e0020c0909006a9008d9e006ba9ff8d9e006b")); // Check Flag from script
 
 			// can afford routine
 			string densityfloor = ((flags.EnemiesDensity == EnemiesDensity.None) && (priceMode.price != 0)) ?
 				"eaea" :
 				"8039";
 
-			PutInBank(0x16, 0x9130, Blob.FromHex($"a900008d0415{densityfloor}a9d00022769700d00aad04151869c8008d0415a9d10022769700d00aad04151869f4018d0415a9d20022769700d00aad041518692c018d0415ad0115186d04158d0415e220c210ad860ed019c230ad840ecd0415b00fcd0115b005a9ff00800aa901008005c230a900008d9e00286b")); // 0x80
+			PutInBank(0x16, 0x9130, Blob.FromHex($"a900008d0415{densityfloor}a9d00022769700d00aad04151869c8008d0415a9d10022769700d00aad04151869f4018d0415a9d20022769700d00aad041518692c018d0415ad0115186d04158d0415e220c21022008f16ad1215d019c230ad1015cd0415b00fcd0115b005a9ff00800aa901008005c230a900008d9e00286b")); // 0x80
 
 			// Take Money
-			PutInBank(0x16, 0x91C0, Blob.FromHex("08c230ad840e38ed01158d840ee220c210ad860ee9008d860e286b")); // 0x20
+			PutInBank(0x16, 0x91C0, Blob.FromHex("08c230ad01156fe01f708fe01f70286b")); // 0x20
 
 			// Move hint address
 			PutInBank(0x16, 0x91E0, Blob.FromHex("08e220c210ad07158d9e00ad08158d9f00ad09158da000286b")); // 0x20
@@ -352,14 +360,17 @@ namespace FFMQLib
 			
 			bool freehints = priceMode.price == 0;
 
+			List<string> robotFlags = new() { "01", "02", "04", "08" };
+
 			for (int i = 0; i < 4; i++)
 			{
 				TalkScripts.AddScript((int)TalkScriptsList.ForestaHinter + i,
 					new ScriptBuilder(new List<string>()
 					{
-						$"2E{((int)NewGameFlagsList.ForestaHintGiven + i):X2}[16]",
+						$"053B{robotFlags[i]}09E090160B00[16]",
+						//$"2E{((int)NewGameFlagsList.ForestaHintGiven + i):X2}[16]",
 						// Check Money
-						"09009116",
+						"09809016",
 						// Read $9e for money result
 						"0BFF[14]", // FF = Not Enough Money Message
 						"0B01[15]", // 01 = Vendor Gate
@@ -375,7 +386,8 @@ namespace FFMQLib
 						// take money
 						freehints ? "" : $"09C09116",
 						// set flag
-						$"23{((int)NewGameFlagsList.ForestaHintGiven + i):X2}",
+						$"053B{robotFlags[i]}09D09016",
+						//$"23{((int)NewGameFlagsList.ForestaHintGiven + i):X2}",
 						// fetch hint address
 						"09E09116",
 						// jump to hint text
@@ -473,6 +485,79 @@ namespace FFMQLib
 			{
 				return HintCheckType.Armor;
 			}
+		}
+
+		private void TemporalDebtHack()
+		{
+			// we add a permanent debt when you use the hint robots so players can't savescum
+			// this only enabled with the hint feature
+			
+			// Compute debt and store actual GPs at $1510
+			PutInBank(0x16, 0x8F00, Blob.FromHex("08c230ad840e38efe01f708d1015ad860ee900008d1215b009a900008d10158d1215286b"));
+
+			var vendorGpScript = new ScriptBuilder(new List<string>()
+			{
+				"09008f16",
+				"05aa1015[05]",
+				"2bfd",
+				"053bff",
+				"00",
+				"053b00",
+				"00"
+			});
+
+			var vendorMaxGpScript = new ScriptBuilder(new List<string>()
+			{
+				"05401015",
+			});
+
+			var vendorJump = new ScriptBuilder(new List<string>()
+			{
+				"07408f16",
+				"0b000cfe",
+				"00",
+			});
+
+			var innGpScript = new ScriptBuilder(new List<string>()
+			{
+				"09008f16",
+				"05401015",
+				"05c45f0000[05]",
+				"053bff",
+				"00",
+				"053b00",
+				"00"
+			});
+
+			var innJump = new ScriptBuilder(new List<string>()
+			{
+				"07608f16",
+				"0b00effb",
+				"0a97fb",
+			});
+
+			var statusScreenGpScript = new ScriptBuilder(new List<string>()
+			{
+				"09008f16",
+				"05401015",
+				"00"
+			});
+
+			var statusJump = new ScriptBuilder(new List<string>()
+			{
+				"07808f16",
+			});
+
+
+			vendorGpScript.WriteAt(0x16, 0x8F40, this);
+			innGpScript.WriteAt(0x16, 0x8F60, this);
+			statusScreenGpScript.WriteAt(0x16, 0x8F80, this);
+
+			vendorMaxGpScript.WriteAt(0x03, 0x8BC6, this);
+			vendorMaxGpScript.WriteAt(0x03, 0x8C2D, this);
+			vendorJump.WriteAt(0x03, 0xFE03, this);
+			innJump.WriteAt(0x03, 0xFB8C, this);
+			statusJump.WriteAt(0x03, 0x9BD5, this);
 		}
 	}
 }

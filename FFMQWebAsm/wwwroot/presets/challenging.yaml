@@ -68,7 +68,7 @@ Final Fantasy Mystic Quest:
     Triple: 0
   enemizer_attacks:
     Normal: 0
-    Safe: 1
+    Balanced: 1
     Chaos: 0
     SelfDestruct: 0
     SimpleShuffle: 0

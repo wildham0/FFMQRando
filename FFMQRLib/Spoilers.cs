@@ -11,10 +11,10 @@ namespace FFMQLib
 {
 	class Spoilers
 	{
-		public string GenerateSpoilers(Flags flags, TitleScreen titlescreen, string seed, ItemsPlacement itemsplacement, GameInfoScreen gameinfo, GameLogic gamelogic, Battlefields battlefields)
+		public string GenerateSpoilers(Flags flags, TitleScreen titlescreen, string seed, string hash, ItemsPlacement itemsplacement, GameInfoScreen gameinfo, GameLogic gamelogic, Battlefields battlefields)
 		{
 			string spoilers = "";
-			spoilers += GenerateRomData(flags, titlescreen.versionText, titlescreen.hashText, seed) + "\n";
+			spoilers += GenerateRomData(flags, titlescreen.versionText, hash, seed) + "\n";
 			if (!flags.DisableSpoilers)
 			{
 				spoilers += GenerateItemsPlacementSpoiler(flags, itemsplacement) + "\n";

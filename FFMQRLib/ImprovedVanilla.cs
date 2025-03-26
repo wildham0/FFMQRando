@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace FFMQLib
 {
-
 	public partial class FFMQRom : SnesRom
 	{
 		public void Improve(bool enablebugfix, Preferences preferences)
@@ -27,6 +26,7 @@ namespace FFMQLib
 			using (SHA256 hasher = SHA256.Create())
 			{
 				Blob hash = hasher.ComputeHash(seed);
+				hashString = TitleScreen.EncodeTo32(hash).Substring(0, 8);
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
             sillyrng = new MT19337((uint)Guid.NewGuid().GetHashCode());
@@ -74,7 +74,7 @@ namespace FFMQLib
 			GameFlags.Write(this);
 
 			credits.Write(this);
-			titleScreen.Write(this, Metadata.Version, seed, new Flags());
+			titleScreen.Write(this, Metadata.Version, hashString, new Flags());
 			
 			// Remove header if any
 			this.Header = Array.Empty<byte>();
@@ -91,10 +91,11 @@ namespace FFMQLib
                 BugFixes();
             }
 			SystemBugFixes();
-            GameStateIndicator();
+            GameStateIndicator(hashString);
             //PazuzuFixedFloorRng(rng);
             Msu1Support();
-        }
+			SaveFileReduction();
+		}
     }
     public partial class ObjectList
     {

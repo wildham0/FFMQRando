@@ -32,13 +32,14 @@ namespace FFMQLib
 			CompanionRoutines(flags.KaelisMomFightMinotaur, apenabled);
 			DummyRoom();
 			KeyItemWindow(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin);
-			GameStateIndicator();
+			GameStateIndicator(hashString);
 			ArchipelagoSupport(apenabled);
 			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None);
 			FixMultiplyingDarkKing();
 			PazuzuFixedFloorRng(rng);
 			ShuffledFloorVanillaMonstersFix(flags);
 			Msu1Support();
+			SaveFileReduction();
 		}
 		
 		public void FastMovement()
@@ -395,13 +396,19 @@ namespace FFMQLib
 			PutInBank(0x0C, 0xA82E, Blob.FromHex(inputseries));
 			PutInBank(0x0C, 0xA8C0, Blob.FromHex("33"));
 		}
-		public void GameStateIndicator()
+		public void GameStateIndicator(string hash)
 		{
 			// Game state byte is at 0x7E3749, initialized at 0, then set to 1 after loading a save or starting a new game, set to 0 if giving up after a battle
 			// Initialize game state byte and rando validation "FFMQR", at 0x7E374A
-			PutInBank(0x11, 0x8B00, Blob.FromHex("08e230a9008f49377e8ff01f708ff11f708ff21f70c230a2308ba04a37a90400547e1128a9008f67367e3a8f68367e6b"));
-			PutInBank(0x11, 0x8B30, Blob.FromHex("46464d5152")); // Validation code
+			PutInBank(0x11, 0x8B00, Blob.FromHex("08e230a9008f49377e8ff01f708ff11f708ff21f70c230a2f08ba04a37a90400547e1120008c28a9008f67367e3a8f68367e6b"));
+			PutInBank(0x11, 0x8BF0, Blob.FromHex("46464d5152" + TextToHex(hash, false))); // Validation code
 			PutInBank(0x00, 0x8009, Blob.FromHex("22008B11eaeaeaeaeaeaea"));
+
+			// Validate hash in sram
+			PutInBank(0x11, 0x8C00, Blob.FromHex("20408c900320108c60"));
+			PutInBank(0x11, 0x8C10, Blob.FromHex("08c230a20000a900009fe01f70e8e8e00a00d0f52860")); // Reset hint data
+			// Validate hash and write if it doesn't match
+			PutInBank(0x11, 0x8C40, Blob.FromHex("08c230a200008007e8e8e00800f00cbff58b11dff31f70f0ef8003281860a200008007e8e8e00800f00abff58b119ff31f7080ef283860"));
 
 			// Set when starting new game
 			PutInBank(0x11, 0x8B40, Blob.FromHex("08e230a9018f49377e285cb8c7006b"));
@@ -453,6 +460,15 @@ namespace FFMQLib
 			};
 
 			GameMaps[(int)MapList.ForestaInterior].ModifyMap(0x28, 0x35, dummyroomTiny);
+		}
+		public void SaveFileReduction()
+		{
+			// The game writes 3 copies of the savefile to sram; when loading a savefile if the first copy fail (validation check or bad checksum), it will move to the next copy; this is a bit overzealous, so we reduce this to 2 copies to reclaim some SRAM
+			// Free SRAM start at 701C62
+			
+			PutInBank(0x00, 0xCA00, Blob.FromHex("0200"));
+			PutInBank(0x00, 0xCA74, Blob.FromHex("0200"));
+
 		}
 		public void PazuzuFixedFloorRng(MT19337 rng)
 		{

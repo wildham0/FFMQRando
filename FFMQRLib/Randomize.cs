@@ -16,7 +16,7 @@ namespace FFMQLib
 		// Z = Patch Release
 		// Increment Beta on every new builds, reset to zero on version increase
 		public static string Version = "1.6.0";
-		public static string Beta = "43";
+		public static string Beta = "45";
 		public static string BetaVersionShort => Version + "-b" + Beta;
 		public static string BetaVersionLong => Version + "-beta" + Beta;
 	}
@@ -42,11 +42,11 @@ namespace FFMQLib
 		public Companions Companions;
 		public GameInfoScreen GameInfoScreen;
 
-
 		private byte[] originalData;
 		public bool beta = false;
 		public bool spoilers = false;
 		public string spoilersText;
+		private string hashString;
 		public void Randomize(Blob seed, Flags flags, Preferences preferences, ApConfigs apconfigs)
 		{
 			// Convert 1.0 rom to 1.1 for compatibility
@@ -63,6 +63,7 @@ namespace FFMQLib
 			using (SHA256 hasher = SHA256.Create())
 			{
 				Blob hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
+				hashString = TitleScreen.EncodeTo32(hash).Substring(0, 8);
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 				sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
@@ -87,8 +88,6 @@ namespace FFMQLib
 			MapPalettes = new(this);
 			Companions = new(flags.CompanionLevelingType);
 			GameInfoScreen = new();
-
-			//Battle battle = new(EnemiesStats, EnemyAttackLinks, rng);
 
 			Credits credits = new(this);
 			TitleScreen titleScreen = new(this);
@@ -137,9 +136,6 @@ namespace FFMQLib
 			GameLogic.CrawlRooms(flags, Overworld, EnemiesStats, Companions, Battlefields);
 			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this);
 			EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
-
-			//var spoilers = new Spoilers();
-			//var floors = spoilers.GenerateMapSpoiler(flags, GameLogic);
 
 			// Items
 			ItemsPlacement itemsPlacement = new(flags, GameLogic.GameObjects, Companions, apconfigs, this, rng);
@@ -193,11 +189,11 @@ namespace FFMQLib
 			GameInfoScreen.Write(this);
 
 			credits.Write(this);
-			titleScreen.Write(this, Metadata.Version, seed, flags);
+			titleScreen.Write(this, Metadata.Version, hashString, flags);
 
 			// Spoilers
 			Spoilers spoilersGenerator = new();
-			spoilersText = spoilersGenerator.GenerateSpoilers(flags, titleScreen, seed.ToHex(), itemsPlacement, GameInfoScreen, GameLogic, Battlefields);
+			spoilersText = spoilersGenerator.GenerateSpoilers(flags, titleScreen, seed.ToHex(), hashString, itemsPlacement, GameInfoScreen, GameLogic, Battlefields);
 
 			if (apconfigs.ApEnabled)
 			{

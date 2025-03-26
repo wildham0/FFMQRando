@@ -328,34 +328,37 @@ namespace FFMQLib
 				switchList.Add(tempmobB, tempmobA);
 			}
 
-			List<EnemyIds> dkbosses = (group == EnemizerGroups.MobsBossesDK) ? DarkCastleBosses.Concat(DarkKing).ToList() : DarkCastleBosses;
+			List<EnemyIds> dkbosses = new();
+			List<EnemyIds> bosses = new();
 
-			if (group == EnemizerGroups.MobsBossesDK)
+			switch (group)
 			{
-				while (dkbosses.Count > 1)
-				{
-					var tempbossA = rng.TakeFrom(dkbosses);
-					var tempbossB = rng.TakeFrom(dkbosses);
-
-					switchList.Add(tempbossA, tempbossB);
-					switchList.Add(tempbossB, tempbossA);
-				}
+				case EnemizerGroups.MobsBosses:
+					bosses = Bosses.Concat(DarkCastleBosses).ToList();
+					break;
+				case EnemizerGroups.MobsBossesDK:
+					dkbosses = DarkCastleBosses.Concat(DarkKing).ToList();
+					bosses = Bosses.ToList();
+					break;
 			}
 
-			if (group == EnemizerGroups.MobsBosses)
+			while (dkbosses.Count > 1)
 			{
-				var bosses = Bosses.Concat(dkbosses).ToList();
+				var tempbossA = rng.TakeFrom(dkbosses);
+				var tempbossB = rng.TakeFrom(dkbosses);
 
-				while (bosses.Count > 1)
-				{
-					var tempbossA = rng.TakeFrom(bosses);
-					var tempbossB = rng.TakeFrom(bosses);
-
-					switchList.Add(tempbossA, tempbossB);
-					switchList.Add(tempbossB, tempbossA);
-				}
+				switchList.Add(tempbossA, tempbossB);
+				switchList.Add(tempbossB, tempbossA);
 			}
 
+			while (bosses.Count > 1)
+			{
+				var tempbossA = rng.TakeFrom(bosses);
+				var tempbossB = rng.TakeFrom(bosses);
+
+				switchList.Add(tempbossA, tempbossB);
+				switchList.Add(tempbossB, tempbossA);
+			}
 
 			foreach (var link in _EnemyAttackLinks)
 			{

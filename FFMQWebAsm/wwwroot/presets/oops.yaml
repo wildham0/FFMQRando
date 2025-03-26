@@ -69,7 +69,8 @@ Final Fantasy Mystic Quest:
     Triple: 1
   enemizer_attacks:
     Normal: 8
-    Safe: 8
+    Balanced: 8
+    BalancedExpert: 8
     Chaos: 6
     SelfDestruct: 1
     SimpleShuffle: 0
@@ -171,10 +172,12 @@ Final Fantasy Mystic Quest:
     RegionsKeepType: 1
   map_shuffling:
     None: 10
-    Overworld: 6
-    Dungeons: 3
-    OverworldDungeons: 2
+    DungeonsInternal: 6
+    DungeonsMixed: 3
     Everything: 1
+  overworld_shuffle:
+    true: 5
+    false: 5
   crest_shuffle:
     true: 1
     false: 5

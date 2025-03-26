@@ -180,9 +180,6 @@ namespace FFMQLib
 			{
 				MapSpriteSets.Add(new MapSpriteSet(rom.GetFromBank(MapSpriteSetBank, MapSpriteSetPointersAddress + (i * 2), 2).ToUShorts()[0], MapSpriteSetLongBaseAddress, rom));
 			}
-
-			var highersets = MapSpriteSets.Where(s => s.AdressorList.Where(a => a.SpriteGraphic > 0x42).Any()).ToList();
-			MapSpriteSetLongBaseAddress = MapSpriteSetLongBaseAddress;
 		}
         public MapSpriteSet this[int id]
         {
