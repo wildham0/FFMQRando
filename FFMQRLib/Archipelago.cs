@@ -19,6 +19,7 @@ namespace FFMQLib
 		public string Player { get; set; }
 		public int PlayerId { get; set; }
 		public string ItemName { get; set; }
+		public string LocationName { get; set; }
 		public ApObject()
 		{
 			Content = Items.None;
@@ -27,6 +28,7 @@ namespace FFMQLib
 			ItemName = "";
 			ObjectId = 0;
 			Type = GameObjectType.Dummy;
+			LocationName = "";
 		}
 		public ApObject(Items content, LocationIds location)
 		{
@@ -37,16 +39,19 @@ namespace FFMQLib
 			ObjectId = 0;
 			Type = GameObjectType.Dummy;
 			Location = location;
+			LocationName = "";
 		}
 	}
 	
 	public class ApConfigs
 	{ 
 		public string ItemPlacementYaml { get; set; }
+		public string ExternalPlacementYaml { get; set; }
 		public string StartingItemsYaml { get; set; }
 		public string SetupYaml { get; set; }
 		public string RoomsYaml { get; set; }
 		public List<ApObject> ItemPlacement { get; set; }
+		public List<ApObject> ExternalPlacement { get; set; }
 		public List<Items> StartingItems { get; set; }
 		public bool ApEnabled { get; set; }
 		public string Seed;
@@ -59,10 +64,12 @@ namespace FFMQLib
 		{
 			ItemPlacementYaml = "";
 			StartingItemsYaml = "";
+			ExternalPlacementYaml = "";
 			SetupYaml = "";
 			RoomsYaml = "";
 			ItemPlacement = new();
 			StartingItems = new();
+			ExternalPlacement = new();
 			ApEnabled = false;
 			Seed = "";
 			Name = "";
@@ -83,6 +90,18 @@ namespace FFMQLib
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
+			}
+
+			if (ExternalPlacementYaml.Length > 0)
+			{
+				try
+				{
+					ExternalPlacement = deserializer.Deserialize<List<ApObject>>(ExternalPlacementYaml);
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex.ToString());
+				}
 			}
 
 			try

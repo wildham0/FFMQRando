@@ -197,6 +197,13 @@
 							apconfigs.RoomsYaml = await streamReader.ReadToEndAsync();
 						}
 					}
+					else if (file.Name == "externalplacement.yaml")
+					{
+						using (var streamReader = new StreamReader(file.Open(), Encoding.UTF8))
+						{
+							apconfigs.ExternalPlacementYaml = await streamReader.ReadToEndAsync();
+						}
+					}
 
 				}
 			}

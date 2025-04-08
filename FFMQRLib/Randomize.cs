@@ -17,7 +17,7 @@ namespace FFMQLib
 		// Z = Patch Release
 		// Increment Beta on every new builds, reset to zero on version increase
 		public static string Version = "1.6.0";
-		public static string Beta = "46";
+		public static string Beta = "47";
 		public static string BetaVersionShort => Version + "-b" + Beta;
 		public static string BetaVersionLong => Version + "-beta" + Beta;
 	}
@@ -147,7 +147,7 @@ namespace FFMQLib
 			UpdateScripts(flags, itemsPlacement, Overworld.StartingLocation, apconfigs.ApEnabled, preferences.MusicMode == MusicMode.Mute, rng);
 			ChestsHacks(flags, itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
-			HintRobots(flags, MapSpriteSets, MapObjects, itemsPlacement, GameLogic, rng);
+			HintRobots(flags, MapSpriteSets, MapObjects, itemsPlacement, GameLogic, apconfigs, rng);
 
 			// Doom Castle
 			SetDoomCastleMode(flags.DoomCastleMode);

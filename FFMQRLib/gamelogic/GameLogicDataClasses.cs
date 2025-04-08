@@ -25,7 +25,8 @@ namespace FFMQLib
 		Trigger,
 		Companion,
 		Quest,
-		Dummy
+		Dummy,
+		ApLocation,
 	}
 	public enum RoomType : int
 	{

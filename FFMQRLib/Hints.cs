@@ -51,12 +51,14 @@ namespace FFMQLib
 			ArmorX3G3 = 0x09,
 		}
 
-		public void HintRobots(Flags flags, MapSprites mapsprites,  ObjectList gameobjects, ItemsPlacement itemplacement, GameLogic gamelogic, MT19337 rng)
+		public void HintRobots(Flags flags, MapSprites mapsprites,  ObjectList gameobjects, ItemsPlacement itemplacement, GameLogic gamelogic, ApConfigs apconfigs,MT19337 rng)
 		{
 			if(flags.HintMode == HintModes.None)
 			{
 				return;
 			}
+
+			bool includeSkyCoin = flags.SkyCoinMode == SkyCoinModes.Standard;
 
 			Dictionary<HintModes, (int price, bool prog)> prices = new()
 			{
@@ -75,7 +77,7 @@ namespace FFMQLib
 			TemporalDebtHack();
 
 			// Robot Sprite
-			PutInBank(0x16, 0x8020, Blob.FromHex("600057002c001b0017007f00df40df4000201304080062620600ea003400d800e800fe00fd04fd040004c82010004646ff60f300f0009000f860ff607f050f00620c0f6f67600000ff06cf000f060f001900ff06ff66f6004630f6f0e606060000000f0033006f20df40bf01bf02be0000000c30605152511000be10fa90f4c0f8e0f8303810d800001094c8e030d020fb0283028f019900560636003d103f00067e71662f090200f890f8b0f870b820f000e820f8b0f80090b070600010000000000f0033006f20df40bf01bf02be0000000c30605152511000be10fa90f4c0f8e0f8303810d800001094c8e030d020fb0283028302830243003e003e143f00067e7e7e3c010100f890f8b0f8b0f8a03000d8c0d800b80090b0b0a0c0e0204037002c0017001b007d009e00950097000013080402616a68ec001400e800d800be007900a900e90000e81020408656169703ff6bff0cff0fff67ff607f050f006b6b0c0f67600000e9c0ffd6ff30fff6ffe0ff06ff66f600d6d630f6e0060600"));
+			PutInBank(0x16, 0x8020, Blob.FromHex("600057002c041b0817007f00df40df400020170c080062620600ea003420d810e800fe00fd04fd040004e83010004646f760fb08fc049202f860ff607f050f006a0c0f6f67600000ef06df103f264f401900ff06ff66f6005630f6f0e606060000000f0033006f20df40bf01bf02be0000000c30605152511000be10fa90f4c0f8e0f8303810d800001094c8e030d020fb028302b7018900560636003d103f00067e69762f090200f890f8b0f870b820f000e820f8b0f80090b070600010000000000f0033006f20df40bf01bf02be0000000c30605152511000be10fa90f4c0f8e0f8303810d800001094c8e030d020fb028302b302830243003e003e143f00067e6e7e3c010100f890f8b0f8b0f8a03000d8c0d800b80090b0b0a0c0e0204037002c0017001b007d009e00950097000013080402616a68ec001400e800d800be007900a900eb0200e8102040865616d743ff6bff0cff0fff67ff607f050f006b6b0c0f67600000ebc2ffd6ff30fff6ffe0ff06ff66f600d6d630f6e0060600"));
 
 			// Sprite loading hack, if sprite == 44, load at bank 16 instead, should extend tho 
 			PutInBank(0x16, 0x9000, Blob.FromHex("ad2a19c90044f00ba602a404a90f00547f046be220c210a9168506c23018a502690080aaa404a90f00547f166b")); // 0x30
@@ -117,10 +119,15 @@ namespace FFMQLib
 			PutInBank(0x16, 0x9280, Blob.FromHex("0092109220923092429241924092629261926092")); // check routines pointers
 
 			// Main checker loop
-			PutInBank(0x16, 0x9310, Blob.FromHex("c8c8c8c8c8b98193c9fff00ec9fef0250aaab98093fc8092d0e6b980938d0015b982938d0715b983938d0815b984938d0915ab286b08c230b98293a82880c7")); // 0x40
+			PutInBank(0x16, 0x9310, Blob.FromHex("c8c8c8c8c8b98193c9fff00ec9fef0250aaab98093fc8092d0e6b980938d0015b982938d0715b983938d0815b984938d0915ab286b08c230b98293a82880c6")); // 0x40
 
 			// generate hints first , 1 item > 1 entry
 			var keyitems = itemplacement.ItemsLocations.Where(l => (l.Content >= Items.Elixir && l.Content < Items.CurePotion) || (l.Content >= Items.ExitBook && l.Content <= Items.CupidLocket)).Select(l => (l.Content, l.Name, l.Type, l.Location)).ToList();
+			if (!includeSkyCoin)
+			{
+				keyitems = keyitems.Where(k => k.Content != Items.SkyCoin).ToList();
+			}
+			
 			List<(Items item, ushort address)> hintaddresses = new();
 
 			byte[] endstring = Blob.FromHex("3600");
@@ -168,6 +175,14 @@ namespace FFMQLib
 				{ LocationIds.WintryTemple, 0x10 },
 			};
 
+			if (apconfigs.ApEnabled)
+			{
+				foreach (var item in apconfigs.ExternalPlacement)
+				{
+					keyitems.Add((item.Content, SanitizeString(item.LocationName + " in " + item.Player + "'s World"), GameObjectType.ApLocation, LocationIds.None));
+				}
+			}
+
 			foreach (var item in keyitems)
 			{
 				byte[] hintstring;
@@ -178,6 +193,10 @@ namespace FFMQLib
 					hintpart = TextToByte(" is with " + item.Name + " at ", true).Concat(new byte[] { 0x1F, locationCode[item.Location] }).Concat(TextToByte(".", true)).ToArray();
 				}
 				else if (item.Type == GameObjectType.BattlefieldItem)
+				{
+					hintpart = TextToByte(" is at " + item.Name + ".", true);
+				}
+				else if (item.Type == GameObjectType.ApLocation)
 				{
 					hintpart = TextToByte(" is at " + item.Name + ".", true);
 				}
@@ -214,9 +233,14 @@ namespace FFMQLib
 			List<Items> claws = new() { Items.CatClaw, Items.CharmClaw };
 			List<Items> bombs = new() { Items.Bomb, Items.JumboBomb };
 
-			List<Items> progressionItems = new() { Items.DragonClaw, Items.MegaGrenade, Items.SandCoin, Items.RiverCoin, Items.SunCoin, Items.SunCoin, Items.MultiKey, Items.LibraCrest, Items.GeminiCrest, Items.MobiusCrest, Items.Wakewater, Items.CaptainsCap, Items.ThunderRock };
+			List<Items> progressionItems = new() { Items.DragonClaw, Items.MegaGrenade, Items.SandCoin, Items.RiverCoin, Items.SunCoin, Items.MultiKey, Items.LibraCrest, Items.GeminiCrest, Items.MobiusCrest, Items.Wakewater, Items.CaptainsCap, Items.ThunderRock };
 
 			List<Items> progmodeItems = new();
+
+			if (includeSkyCoin)
+			{
+				progressionItems.Add(Items.SkyCoin);
+			}
 
 			if (flags.NpcsShuffle != ItemShuffleNPCsBattlefields.Exclude)
 			{
@@ -278,7 +302,6 @@ namespace FFMQLib
 			var shipaccessItems = shipaccess.SelectMany(a => AccessReferences.AccessReqItem.TryGetValue(a, out var itemlist) ? itemlist : new()).Distinct().ToList();
 
 			List<Items> goModeItems = new();
-			bool includeSkyCoin = flags.SkyCoinMode == SkyCoinModes.Standard;
 			bool progressiveGear = flags.ProgressiveGear;
 			bool doomCastleShortcut = flags.DoomCastleShortcut;
 			bool doomCastleMaze = flags.DoomCastleMode == DoomCastleModes.Standard;
