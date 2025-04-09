@@ -10,6 +10,9 @@ using System.IO;
 using System.Windows.Forms;
 using FFMQLib;
 using RomUtilities;
+using System.Configuration;
+using System.IO.Pipes;
+using static System.Net.Mime.MediaTypeNames;
 
 
 namespace FFMQRWin
@@ -32,6 +35,7 @@ namespace FFMQRWin
 			var rng = new Random();
 			rng.NextBytes(seed);
 			textBox2.Text = seed.ToHex();
+			/*
 			comboBox1.DataSource = Enum.GetValues<FFMQLib.EnemiesDensity>();
 			comboBox2.DataSource = Enum.GetValues<FFMQLib.BattlesQty>();
 
@@ -47,8 +51,55 @@ namespace FFMQRWin
 			trackBar3.Maximum = Enum.GetValues<FFMQLib.LevelingCurve>().Length - 1;
 			trackBar3.Minimum = 0;
 			trackBar3.Value = (int)flags.LevelingCurve;
+			*/
 
-			textBox3.Text = flags.GenerateFlagString();
+			if (Settings.Default.RomFileLocation != "")
+			{
+				var rompath = Settings.Default.RomFileLocation;
+				textBox1.Text = rompath;
+				newRom = new();
+				FileStream fileStream;
+				try
+				{
+					fileStream = new FileStream(rompath, FileMode.Open);
+					newRom.Load(fileStream);
+				}
+				catch (Exception ex)
+				{
+					label5.Text = ex.Message;
+				}
+
+				if (newRom.Validate())
+				{
+					label5.Text = "ROM file loaded successfully.";
+					newRom.BackupOriginalData();
+
+					var filePath = rompath.Split('\\');
+					for (int i = 0; i < (filePath.Length - 1); i++)
+					{
+						directoryPath += filePath[i] + "\\";
+					}
+				}
+				else
+				{
+					newRom = new();
+					label5.Text = "Saved path was invalid.";
+				}
+			}
+
+			if (Settings.Default.LastFlagset != "")
+			{
+				var flagstring = Settings.Default.LastFlagset;
+				flags = new();
+				flags.ReadFlagString(flagstring);
+				textBox3.Text = flagstring;
+
+			}
+			else
+			{
+				textBox3.Text = flags.GenerateFlagString();
+			}
+			
 			label5.Text = "FFMQ Randomzier launched succesfully.";
 		}
 
@@ -86,6 +137,8 @@ namespace FFMQRWin
 						label5.Text = "ROM file loaded successfully.";
 
 						newRom.BackupOriginalData();
+						Settings.Default.RomFileLocation = openFileDialog.FileName;
+						Settings.Default.Save();
 					}
 					else
 					{
@@ -176,6 +229,9 @@ namespace FFMQRWin
 				comboBox2.SelectedItem = flags.BattlesQuantity;
 				trackBar3.Value = (int)flags.LevelingCurve;
 				label8.Text = "Leveling Curve: " + flags.LevelingCurve.GetDescription();
+
+				Settings.Default.LastFlagset = ((TextBox)sender).Text;
+				Settings.Default.Save();
 			}
 			catch (Exception ex)
 			{

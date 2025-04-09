@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace FFMQLib
 {
-
 	public partial class FFMQRom : SnesRom
 	{
 		public void Improve(bool enablebugfix, Preferences preferences)
@@ -27,6 +26,7 @@ namespace FFMQLib
 			using (SHA256 hasher = SHA256.Create())
 			{
 				Blob hash = hasher.ComputeHash(seed);
+				hashString = TitleScreen.EncodeTo32(hash).Substring(0, 8);
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
             sillyrng = new MT19337((uint)Guid.NewGuid().GetHashCode());
@@ -47,7 +47,7 @@ namespace FFMQLib
 			DarkKingTrueForm darkKingTrueForm = new();
 
             // General modifications
-            ImprovedModifications(enablebugfix, rng);
+            ImprovedModifications(enablebugfix, preferences.ReduceBattleFlash, rng);
 
 			// Enemies
 			MapObjects.SetEnemiesDensity(EnemiesDensity.Half, rng);
@@ -58,7 +58,7 @@ namespace FFMQLib
 			SetLevelingCurve(LevelingCurve.Double);
 
 			// Preferences			
-			RandomizeTracks(preferences.RandomMusic, sillyrng);
+			SetMusicMode(preferences.MusicMode, sillyrng);
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			WindowPalette(preferences.WindowPalette);
 			playerSprites.SetPlayerSprite(playerSprite, this);
@@ -74,27 +74,28 @@ namespace FFMQLib
 			GameFlags.Write(this);
 
 			credits.Write(this);
-			titleScreen.Write(this, Metadata.Version, seed, new Flags());
+			titleScreen.Write(this, Metadata.Version, hashString, new Flags());
 			
 			// Remove header if any
 			this.Header = Array.Empty<byte>();
 		}
-        public void ImprovedModifications(bool enablebugfixes, MT19337 rng)
+        public void ImprovedModifications(bool enablebugfixes, bool reducebattleflash, MT19337 rng)
         {
             ExpandRom();
             FastMovement();
             DefaultSettings();
-            RemoveStrobing();
+            RemoveStrobing(reducebattleflash);
 			//SmallFixes();
 			if (enablebugfixes)
 			{
                 BugFixes();
             }
 			SystemBugFixes();
-            GameStateIndicator();
+            GameStateIndicator(hashString);
             //PazuzuFixedFloorRng(rng);
             Msu1Support();
-        }
+			SaveFileReduction();
+		}
     }
     public partial class ObjectList
     {

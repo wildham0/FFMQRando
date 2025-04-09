@@ -156,6 +156,12 @@ namespace FFMQLib
 		ShowMedusaChest = 0x5D,
 		ShowDullahanChest = 0x2B,
 
+		ForestaHintGiven = 0xC1,
+		AquariaHintGiven = 0xC2,
+		FireburgHintGiven = 0xC3,
+		WindiaHintGiven = 0xC4,
+
+
 		// Tentative removed enemy flag
 		ShowEnemies = 0xF9,
 
@@ -164,6 +170,8 @@ namespace FFMQLib
 	}
 	public enum AccessReqs : int
 	{
+		None,
+
 		Elixir,
 		TreeWither,
 		WakeWater,
@@ -191,22 +199,41 @@ namespace FFMQLib
 		JumboBomb,
 		MegaGrenade,
 		
+		Kaeli,
 		Kaeli1,
 		Kaeli2,
 		Tristam,
-		TristamBoneItemGiven, 
+		TristamBoneItemGiven,
+		TristamQuestCompleted,
 		ReubenMine, // is TristamBoneItemGiven, but we switch it for compat with ap 1.4 (this is awful)
+		Phoebe,
+		PhoebeVisitedCave,
+		PhoebeQuestCompleted,
 		Phoebe1,
+		Reuben,
+		ReubenVisitedMine,
+		ReubenQuestCompleted,
 		Reuben1,
 		ReubenDadSaved,
 		Otto,
 		CaptainMac,
 		ShipSteeringWheel,
+		TreeWitherPerson,
+		HealedPerson,
+
+		TopOfVolcanoVisited,
+		ChocoboVisited,
+		LightTempleVisited,
+		PointlessLedgeVisited,
+		TreehouseVisited,
+		MountGaleVisited,
 
 		Minotaur,
 		FlamerusRex,
-		Phanquid,
-		FreezerCrab,
+		Phanquid, // Dont use, for ap comp only
+		Squidite, 
+		SnowCrab,
+		FreezerCrab, // Dont use, for ap comp only
 		IceGolem,
 		Jinn,
 		Medusa,
@@ -282,9 +309,11 @@ namespace FFMQLib
 		Pazuzu5F,
 		Pazuzu6F,
 
+		SkullrusRex,
 		StoneGolem,
 		TwinheadWyvern,
 		Zuh,
+		DarkKing,
 		
 		Gp150,
 		Gp200,
@@ -293,6 +322,11 @@ namespace FFMQLib
 		Gp600,
 		Gp900,
 		Gp1200,
+
+		PowerLevel0,
+		PowerLevel1,
+		PowerLevel2,
+		PowerLevel3,
 
 		Barred,
 	}
@@ -377,7 +411,7 @@ namespace FFMQLib
 		FlameArmor = 0x08,
 		BlackRobe = 0x09,
 		SteelShield = 0x0A,
-		VenusShield = 0x0C,
+		VenusShield = 0x0B,
 		AegisShield = 0x0C,
 		EtherShield = 0x0D,
 		Charm = 0x0E,
@@ -691,7 +725,12 @@ namespace FFMQLib
 		ReubenMine,
 		ReubenFireburg2,
 		KaelisMomQuest,
-		KaelisMomWindia
+		KaelisMomWindia,
+		ForestaHinter,
+		AquariaHinter,
+		FireburgHinter,
+		WindiaHinter
+
 	}
 	public enum BattlefieldRewardType : byte
 	{

@@ -19,6 +19,7 @@ namespace FFMQLib
 		public string Player { get; set; }
 		public int PlayerId { get; set; }
 		public string ItemName { get; set; }
+		public string LocationName { get; set; }
 		public ApObject()
 		{
 			Content = Items.None;
@@ -27,6 +28,7 @@ namespace FFMQLib
 			ItemName = "";
 			ObjectId = 0;
 			Type = GameObjectType.Dummy;
+			LocationName = "";
 		}
 		public ApObject(Items content, LocationIds location)
 		{
@@ -37,16 +39,19 @@ namespace FFMQLib
 			ObjectId = 0;
 			Type = GameObjectType.Dummy;
 			Location = location;
+			LocationName = "";
 		}
 	}
 	
 	public class ApConfigs
 	{ 
 		public string ItemPlacementYaml { get; set; }
+		public string ExternalPlacementYaml { get; set; }
 		public string StartingItemsYaml { get; set; }
 		public string SetupYaml { get; set; }
 		public string RoomsYaml { get; set; }
 		public List<ApObject> ItemPlacement { get; set; }
+		public List<ApObject> ExternalPlacement { get; set; }
 		public List<Items> StartingItems { get; set; }
 		public bool ApEnabled { get; set; }
 		public string Seed;
@@ -59,10 +64,12 @@ namespace FFMQLib
 		{
 			ItemPlacementYaml = "";
 			StartingItemsYaml = "";
+			ExternalPlacementYaml = "";
 			SetupYaml = "";
 			RoomsYaml = "";
 			ItemPlacement = new();
 			StartingItems = new();
+			ExternalPlacement = new();
 			ApEnabled = false;
 			Seed = "";
 			Name = "";
@@ -83,6 +90,18 @@ namespace FFMQLib
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
+			}
+
+			if (ExternalPlacementYaml.Length > 0)
+			{
+				try
+				{
+					ExternalPlacement = deserializer.Deserialize<List<ApObject>>(ExternalPlacementYaml);
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex.ToString());
+				}
 			}
 
 			try
@@ -206,7 +225,7 @@ namespace FFMQLib
 
 	public partial class FFMQRom : SnesRom
 	{
-		public string GenerateRooms(bool crestshuffle, bool battlefieldshuffle, int mapshuffling, int companionshuffling, bool kaelismom, string seed)
+		public string GenerateRooms(bool crestshuffle, bool battlefieldshuffle, int mapshuffling, int companionshuffling, bool kaelismom, bool? refoverworldshuffle, string seed)
 		{
 			ApConfigs apconfigs = new();
 			seed = seed.PadLeft(8, '0').Substring(0,8);
@@ -220,40 +239,280 @@ namespace FFMQLib
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
 
-			bool ap14used = false;
-			if (companionshuffling == -1)
+			bool ap15used = false;
+			bool overworldshuffle = false;
+			if (refoverworldshuffle is null)
 			{
-				companionshuffling = 0;
-				ap14used = true;
-            }
+				ap15used = true;
+			}
+			else
+			{
+				overworldshuffle = (bool)refoverworldshuffle;
+			}
 
 			Battlefields = new();
 			Overworld = new();
 			GameLogic = new();
 
-			if (ap14used)
+			// Parse options if on 1.5
+			if (ap15used)
 			{
-				var gameobjects = GameLogic.Rooms.SelectMany(r => r.GameObjects).ToList();
-				foreach (var gameobject in gameobjects)
+				switch (mapshuffling)
 				{
-					if (gameobject.Access.Contains(AccessReqs.TristamBoneItemGiven))
-					{
-						gameobject.Access.Remove(AccessReqs.TristamBoneItemGiven);
-                        gameobject.Access.Add(AccessReqs.ReubenMine);
-                    }
-                    if (gameobject.OnTrigger.Contains(AccessReqs.TristamBoneItemGiven))
-                    {
-                        gameobject.OnTrigger.Remove(AccessReqs.TristamBoneItemGiven);
-                        gameobject.OnTrigger.Add(AccessReqs.ReubenMine);
-                    }
-                }
+					case 0:
+						overworldshuffle = false;
+						mapshuffling = 0;
+						break;
+					case 1:
+						overworldshuffle = true;
+						mapshuffling = 0;
+						break;
+					case 2:
+						overworldshuffle = false;
+						mapshuffling = 2;
+						break;
+					case 3:
+						overworldshuffle = true;
+						mapshuffling = 2;
+						break;
+					case 4:
+						overworldshuffle = true;
+						mapshuffling = 3;
+						break;
+				}
 			}
 			// Locations & Logic
 			Battlefields.ShuffleBattlefieldRewards(battlefieldshuffle, GameLogic, apconfigs, rng);
 			GameLogic.CompanionsShuffle((CompanionsLocationType)companionshuffling, kaelismom, apconfigs, rng);
 			GameLogic.CrestShuffle(crestshuffle, false, rng);
 			GameLogic.FloorShuffle((MapShufflingMode)mapshuffling, false, rng);
-			Overworld.ShuffleOverworld((MapShufflingMode)mapshuffling, GameLogic, Battlefields, new List<LocationIds>(),false, rng);
+			Overworld.ShuffleOverworld(overworldshuffle, (MapShufflingMode)mapshuffling, GameLogic, Battlefields, new List<LocationIds>(),false, rng);
+
+			// Update Logic Requirements to old logic if still on 1.5
+			if (ap15used)
+			{
+				var gameobjects = GameLogic.Rooms.SelectMany(r => r.GameObjects).ToList();
+				var links = GameLogic.Rooms.SelectMany(r => r.Links).ToList();
+
+				foreach (var gameobject in gameobjects)
+				{
+					if (gameobject.Access.Contains(AccessReqs.TreeWitherPerson))
+					{
+						gameobject.Access.Remove(AccessReqs.TreeWitherPerson);
+						gameobject.Access.Add(AccessReqs.Kaeli1);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.TreeWitherPerson))
+					{
+						gameobject.OnTrigger.Remove(AccessReqs.TreeWitherPerson);
+						gameobject.OnTrigger.Add(AccessReqs.Kaeli1);
+					}
+
+					if (gameobject.Access.Contains(AccessReqs.HealedPerson))
+					{
+						gameobject.Access.Remove(AccessReqs.HealedPerson);
+						gameobject.Access.Add(AccessReqs.Kaeli2);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.HealedPerson))
+					{
+						gameobject.OnTrigger.Remove(AccessReqs.HealedPerson);
+						gameobject.OnTrigger.Add(AccessReqs.Kaeli2);
+					}
+
+					if (gameobject.Access.Contains(AccessReqs.Kaeli))
+					{
+						gameobject.Access.Remove(AccessReqs.Kaeli);
+						gameobject.Access.Add(AccessReqs.Kaeli1);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.Kaeli))
+					{
+						gameobject.OnTrigger.Remove(AccessReqs.Kaeli);
+						gameobject.OnTrigger.Add(AccessReqs.Kaeli1);
+					}
+
+					if (gameobject.Access.Contains(AccessReqs.Reuben))
+					{
+						gameobject.Access.Remove(AccessReqs.Reuben);
+						gameobject.Access.Add(AccessReqs.Reuben1);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.Reuben))
+					{
+						gameobject.OnTrigger.Remove(AccessReqs.Reuben);
+						gameobject.OnTrigger.Add(AccessReqs.Reuben1);
+					}
+
+					if (gameobject.Access.Contains(AccessReqs.Phoebe))
+					{
+						gameobject.Access.Remove(AccessReqs.Phoebe);
+						gameobject.Access.Add(AccessReqs.Phoebe1);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.Phoebe))
+					{
+						gameobject.OnTrigger.Remove(AccessReqs.Phoebe);
+						gameobject.OnTrigger.Add(AccessReqs.Phoebe1);
+					}
+
+					if (gameobject.Access.Contains(AccessReqs.BoneWaterwayBombed))
+					{
+						gameobject.Access.Remove(AccessReqs.BoneWaterwayBombed);
+						gameobject.Access.Add(AccessReqs.Bomb);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.BoneWaterwayBombed))
+					{
+						GameLogic.Rooms.Find(r => r.GameObjects.Contains(gameobject)).GameObjects.Remove(gameobject);
+					}
+
+					
+					if (gameobject.Access.Contains(AccessReqs.Skull3Bombed))
+					{
+						gameobject.Access.Remove(AccessReqs.Skull3Bombed);
+						gameobject.Access.Add(AccessReqs.Bomb);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.Skull3Bombed))
+					{
+						GameLogic.Rooms.Find(r => r.GameObjects.Contains(gameobject)).GameObjects.Remove(gameobject); ;
+					}
+
+					if (gameobject.Access.Contains(AccessReqs.Wintry3FBombed))
+					{
+						gameobject.Access.Remove(AccessReqs.Wintry3FBombed);
+						gameobject.Access.Add(AccessReqs.Bomb);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.Wintry3FBombed))
+					{
+						GameLogic.Rooms.Find(r => r.GameObjects.Contains(gameobject)).GameObjects.Remove(gameobject);
+					}
+
+					if (gameobject.Access.Contains(AccessReqs.Wintry2FBombed))
+					{
+						gameobject.Access.Remove(AccessReqs.Wintry2FBombed);
+						gameobject.Access.Add(AccessReqs.Bomb);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.Wintry2FBombed))
+					{
+						GameLogic.Rooms.Find(r => r.GameObjects.Contains(gameobject)).GameObjects.Remove(gameobject);
+					}
+
+					if (gameobject.Access.Contains(AccessReqs.MineParallelBombed))
+					{
+						gameobject.Access.Remove(AccessReqs.MineParallelBombed);
+						gameobject.Access.Add(AccessReqs.Bomb);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.MineParallelBombed))
+					{
+						GameLogic.Rooms.Find(r => r.GameObjects.Contains(gameobject)).GameObjects.Remove(gameobject);
+					}
+
+					if (gameobject.Access.Contains(AccessReqs.MineClimbingBombed))
+					{
+						gameobject.Access.Remove(AccessReqs.MineClimbingBombed);
+						gameobject.Access.Add(AccessReqs.Bomb);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.MineClimbingBombed))
+					{
+						GameLogic.Rooms.Find(r => r.GameObjects.Contains(gameobject)).GameObjects.Remove(gameobject);
+					}
+
+					if (gameobject.Access.Contains(AccessReqs.MineCrescentBombed))
+					{
+						gameobject.Access.Remove(AccessReqs.MineCrescentBombed);
+						gameobject.Access.Add(AccessReqs.Bomb);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.MineCrescentBombed))
+					{
+						GameLogic.Rooms.Find(r => r.GameObjects.Contains(gameobject)).GameObjects.Remove(gameobject);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.PhoebeVisitedCave))
+					{
+						GameLogic.Rooms.Find(r => r.GameObjects.Contains(gameobject)).GameObjects.Remove(gameobject);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.ReubenVisitedMine))
+					{
+						GameLogic.Rooms.Find(r => r.GameObjects.Contains(gameobject)).GameObjects.Remove(gameobject);
+					}
+
+					if (gameobject.Access.Contains(AccessReqs.Squidite))
+					{
+						gameobject.Access.Remove(AccessReqs.Squidite);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.Squidite))
+					{
+						GameLogic.Rooms.Find(r => r.GameObjects.Contains(gameobject)).GameObjects.Remove(gameobject);
+					}
+
+					if (gameobject.Access.Contains(AccessReqs.SnowCrab))
+					{
+						gameobject.Access.Remove(AccessReqs.SnowCrab);
+						gameobject.Access.Add(AccessReqs.FreezerCrab);
+					}
+
+					if (gameobject.OnTrigger.Contains(AccessReqs.SnowCrab))
+					{
+						gameobject.OnTrigger.Remove(AccessReqs.SnowCrab);
+						gameobject.OnTrigger.Add(AccessReqs.FreezerCrab);
+						gameobject.Name = "Freezer Crab";
+					}
+				}
+
+				foreach (var link in links)
+				{
+					if (link.Access.Contains(AccessReqs.BoneWaterwayBombed))
+					{
+						link.Access.Remove(AccessReqs.BoneWaterwayBombed);
+						link.Access.Add(AccessReqs.Bomb);
+					}
+
+					if (link.Access.Contains(AccessReqs.Skull3Bombed))
+					{
+						link.Access.Remove(AccessReqs.Skull3Bombed);
+						link.Access.Add(AccessReqs.Bomb);
+					}
+
+					if (link.Access.Contains(AccessReqs.Wintry2FBombed))
+					{
+						link.Access.Remove(AccessReqs.Wintry2FBombed);
+						link.Access.Add(AccessReqs.Bomb);
+					}
+
+					if (link.Access.Contains(AccessReqs.Wintry3FBombed))
+					{
+						link.Access.Remove(AccessReqs.Wintry3FBombed);
+						link.Access.Add(AccessReqs.Bomb);
+					}
+
+					if (link.Access.Contains(AccessReqs.MineParallelBombed))
+					{
+						link.Access.Remove(AccessReqs.MineParallelBombed);
+						link.Access.Add(AccessReqs.Bomb);
+					}
+
+					if (link.Access.Contains(AccessReqs.MineClimbingBombed))
+					{
+						link.Access.Remove(AccessReqs.MineClimbingBombed);
+						link.Access.Add(AccessReqs.Bomb);
+					}
+
+					if (link.Access.Contains(AccessReqs.MineCrescentBombed))
+					{
+						link.Access.Remove(AccessReqs.MineCrescentBombed);
+						link.Access.Add(AccessReqs.Bomb);
+					}
+				}
+			}
 
 			return GameLogic.OutputRooms();
 		}

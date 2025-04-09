@@ -8,7 +8,7 @@ namespace FFMQLib
 {
 	public partial class FFMQRom : SnesRom
 	{
-		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, LocationIds startinglocation, bool apenabled, MT19337 rng)
+		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, LocationIds startinglocation, bool apenabled, bool nomusic, MT19337 rng)
 		{
 			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
             /*** Overworld ***/
@@ -50,11 +50,12 @@ namespace FFMQLib
 				GameFlags[i] = false;
 			}
 
-			// [AP1.4] remove when api/apworld are updated
-			//if (!apenabled)
-			//{
-				GameFlags[(int)NewGameFlagsList.ShowFireburgTristam] = false;
-			//}
+			for (int i = (int)NewGameFlagsList.ForestaHintGiven; i <= (int)NewGameFlagsList.WindiaHintGiven; i++)
+			{
+				GameFlags[i] = false;
+			}
+
+			GameFlags[(int)NewGameFlagsList.ShowFireburgTristam] = false;
 
 			// Remove Mine Boulder
 			for (int i = 0; i < 6; i++)
@@ -147,9 +148,11 @@ namespace FFMQLib
 			GameFlags[(int)NewGameFlagsList.ShowBarrelNotMoved] = true;
 
 			MapObjects[0x11][0x09].Gameflag = (byte)NewGameFlagsList.ShowBarrelNotMoved;
-			MapObjects[0x11].Add(new MapObject(MapObjects[0x11][0x09]));
-			MapObjects[0x11][0x0B].Gameflag = (byte)NewGameFlagsList.ShowBarrelMoved;
-			MapObjects[0x11][0x0B].X--;
+			var moveBarrel = new MapObject(MapObjects[0x11][0x09]);
+			moveBarrel.Gameflag = (byte)NewGameFlagsList.ShowBarrelMoved;
+			moveBarrel.X--;
+			MapObjects[0x11].Add(moveBarrel);
+
 
 			GameMaps[(int)MapList.ForestaInterior].ModifyMap(0x23, 0x1E, 0x36);
 
@@ -322,6 +325,9 @@ namespace FFMQLib
 			MapChanges.Replace(0x03, Blob.FromHex("2a2534393960404040404040404040")); // Put script tile in after collapse
 
 			// Wintry Squid
+			MapSpriteSets[0x0B].AddAddressor(6, 0, 30, SpriteSize.Tiles16);
+			MapObjects[0x1F][0x01].Sprite = 0x42;
+
 			MapObjects[0x1F][0x0B].Gameflag = (int)NewGameFlagsList.ShowSquidChest;
 			GameFlags[(int)NewGameFlagsList.ShowSquidChest] = false;
 
@@ -356,15 +362,20 @@ namespace FFMQLib
 				}));
 
 			/*** Fall Basin ***/
-			// Put Chest under crab
+			// Update Crab and put Chest under crab
+			MapSpriteSets[0x0C].AddAddressor(6, 0, 30, SpriteSize.Tiles16);
 			MapObjects[0x21][0x07].X--;
+			MapObjects[0x21][0x07].Sprite = 0x43;
 
 			MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
 			MapObjects[0x21][0x0F].Y = MapObjects[0x21][0x07].Y;
 			MapObjects[0x21][0x0F].Gameflag = (int)NewGameFlagsList.ShowCrabChest;
             GameFlags[(int)NewGameFlagsList.ShowCrabChest] = false;
 
-            TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
+			
+
+
+			TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
 				new ScriptBuilder(new List<string>{
 					"04",
 					"05E43403",
@@ -408,7 +419,7 @@ namespace FFMQLib
 			GameMaps[(int)MapList.IcePyramidA].ModifyMap(0x15, 0x20, 0x05);
 
 			// Open 4F door to avoid softlock in floor shuffle
-			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld)
+			if (flags.MapShuffling != MapShufflingMode.None)
 			{ 
 				GameMaps[(int)MapList.IcePyramidA].ModifyMap(0x37, 0x06,
 					new()
@@ -684,6 +695,9 @@ namespace FFMQLib
 				}));
 
 			// Jinn Fight
+			MapSpriteSets[0x14].AddAddressor(6, 0, 31, SpriteSize.Tiles16);
+			MapObjects[0x32][0x08].Sprite = 0x40;
+
 			TileScripts.AddScript((int)TileScriptsList.FightJinn,
 				new ScriptBuilder(new List<string>
 				{
@@ -722,6 +736,9 @@ namespace FFMQLib
 
 			/*** Volcano Base ***/
 			// Medusa - Put medusa over chest
+			MapSpriteSets[0x16].AddAddressor(6, 0, 31, SpriteSize.Tiles16);
+			MapObjects[0x37][0x00].Sprite = 0x41;
+
 			MapObjects[0x37][0x00].X = MapObjects[0x37][0x0D].X;
 			MapObjects[0x37][0x00].Y = MapObjects[0x37][0x0D].Y;
 			MapObjects[0x37][0x0D].Gameflag = (int)NewGameFlagsList.ShowMedusaChest;
@@ -752,7 +769,7 @@ namespace FFMQLib
 					"00"
 				}));
 
-			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld)
+			if (flags.MapShuffling != MapShufflingMode.None)
 			{
 				var volcanoTeleporter = EntrancesData.Entrances.Find(x => x.Id == 464).Teleporter;
 
@@ -840,7 +857,7 @@ namespace FFMQLib
 			/*** Living Forest ***/
 			GameFlags[(int)GameFlagsList.GiantTreeSet] = true;
 			GameFlags[(int)GameFlagsList.GiantTreeUnset] = false;
-			bool exitToGiantTree = flags.MapShuffling == MapShufflingMode.None;
+			bool exitToGiantTree = (flags.MapShuffling == MapShufflingMode.None && !flags.OverworldShuffle);
 
 			// Remove Giant Tree Script
 			TalkScripts.AddScript((int)TalkScriptsList.GiantTree,
@@ -857,6 +874,13 @@ namespace FFMQLib
 				MapChanges.RemoveActionByFlag(0x43, 0x3C);
 			}
 
+			// Block Mobius Crest with trees to avoid axe softlock
+			if (flags.CrestShuffle)
+			{
+				GameMaps[(int)MapList.LevelAliveForest].ModifyMap(0x10, 0x09, new List<List<byte>>() { new() { 0x00, 0x03 }, new() { 0x03, 0x00 } });
+				GameMaps[(int)MapList.LevelAliveForest].ModifyMap(0x12, 0x0D, new List<List<byte>>() { new() { 0x03, 0x03 } } );
+			}
+
 			// Tree Houses Quest
 			var treehousesflag = Companions.GetQuestFlag(QuestsId.VisitTreeHouses);
 
@@ -866,7 +890,7 @@ namespace FFMQLib
 				List<byte> treehousesnpclook = new() { 0x60, 0x64, 0x68, 0x6C, 0x70, 0x74 };
 
 				MapObjects[0x11].Add(new MapObject(MapObjects[0x11][0x01]));
-				MapObjects[0x11][0x0C].Coord = rng.PickFrom(treehouseslocations);
+				MapObjects[0x11][0x0C].Coord = treehouseslocations[Companions.PickedTreeHouse];
 				MapObjects[0x11][0x0C].Sprite = rng.PickFrom(treehousesnpclook);
 				MapObjects[0x11][0x0C].Value = (byte)TalkScriptsList.TreeHouseQuestNPC;
 			}
@@ -895,7 +919,9 @@ namespace FFMQLib
 					"00"
 				}));
 
+			// We don't need these anymore since we collapse 2F/3F into a single one-way corridor
 			// Add check for Dragon Claw on 2F to avoid softlock
+			/*
 			PutInBank(0x06, 0x93F4, Blob.FromHex("4c4d5c5d")); // Add new tile+properties to execute script
 			GameMaps.TilesProperties[0x09][0x7D].Byte1 = 0x00;
 			GameMaps.TilesProperties[0x09][0x7D].Byte2 = 0x88;
@@ -909,12 +935,18 @@ namespace FFMQLib
 					"2C105000",
 					"0cee19000cef1916094cb20100" // Hack to excute the falling down routine
 				}));
+			*/
 
 			// Add hook on 3F to avoid softlock
+			/*
 			MapObjects[0x47].Add(new MapObject(MapObjects[0x47][0x15]));
 			MapObjects[0x47][0x16].Coord = (0x2D, 0x36);
+			*/
 
 			// Fight Gidrah
+			MapSpriteSets[0x1F].AddAddressor(6, 0, 31, SpriteSize.Tiles16);
+			MapObjects[0x4B][0x01].Sprite = 0x43;
+
 			TalkScripts.AddScript((int)TalkScriptsList.FightGidrah,
 				new ScriptBuilder(new List<string> {
 					"04",
@@ -1069,6 +1101,9 @@ namespace FFMQLib
 
 			/*** Mount Gale ***/
 			// Headless Knight
+			MapSpriteSets[0x20].AddAddressor(6, 0, 31, SpriteSize.Tiles16);
+			MapObjects[0x4F][0x00].Sprite = 0x42;
+
 			MapObjects[0x4F][0x0C].X = MapObjects[0x4F][0x00].X;
 			MapObjects[0x4F][0x0C].Y = MapObjects[0x4F][0x00].Y;
 			MapObjects[0x4F][0x0C].Gameflag = (int)NewGameFlagsList.ShowDullahanChest;
@@ -1101,7 +1136,7 @@ namespace FFMQLib
 				}));
 
 			/*** Pazuzu's Tower ***/
-			bool skip7fteleport = flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld;
+			bool skip7fteleport = flags.MapShuffling != MapShufflingMode.None;
 			GameInfoScreen.PazuzuFloorWarning = skip7fteleport;
 
             var newResetflags = new ScriptBuilder(new List<string> {
@@ -1230,7 +1265,7 @@ namespace FFMQLib
 			MapObjects[0x06][0x01].Y = 0x0F;
 			MapObjects[0x06][0x01].Gameflag = 0xF4;
 
-			string darkKingFight = "29950C0106030800801A0020504DCA40C0B8B842B442BFB465531B7AA2C1B7B8B8B74D4F4CC158FF55CABC4AC64B67C0B8533166B7547E3F477DC6C26FB040CA547EB4BFBF58FF5546C5C87B43C5FFB05CBFB7D2329ABFB4C64DC6BCBFBF59BBC87AC1C64D66C06DC657C54078C74BC5BCB5BF40C6B8B6C5B8C7CE305BB442A9C5C2C3BBB8B6CCCF019ABA60FFB4BA726665B4C5C76870C5C8C05CCE30B076B669404641C3586A5A9DB4C5BEC160C6CE23E405E4CE000C010600080080";
+			string darkKingFight = $"29950C0106{(nomusic ? "00" : "03")}0800801A0020504DCA40C0B8B842B442BFB465531B7AA2C1B7B8B8B74D4F4CC158FF55CABC4AC64B67C0B8533166B7547E3F477DC6C26FB040CA547EB4BFBF58FF5546C5C87B43C5FFB05CBFB7D2329ABFB4C64DC6BCBFBF59BBC87AC1C64D66C06DC657C54078C74BC5BCB5BF40C6B8B6C5B8C7CE305BB442A9C5C2C3BBB8B6CCCF019ABA60FFB4BA726665B4C5C76870C5C8C05CCE30B076B669404641C3586A5A9DB4C5BEC160C6CE23E405E4CE000C010600080080";
 			string flagSwitch = "6123022304235923572B7F2B802B582B542355";
 
 			TileScripts.AddScript((int)TileScriptsList.FightDarkKing,
@@ -1238,7 +1273,8 @@ namespace FFMQLib
 					darkKingFight,
 					flagSwitch,
 					"2A0121FFFF",
-					"0C010618080080",
+					"0C0106" + (nomusic ? "00" : "18"),
+					"080080",
 					"2A3027005402443055024507251427FFFF",
 					"05E8",
 					"08EE85",
@@ -1262,13 +1298,13 @@ namespace FFMQLib
 					"2A5052090150502053105230531050805310503053520130520144FFFF",
 					"09A09411",
 					"2A6050140120536050505310501105FFFF",
-					"0C010614",
+					"0C0106" + (nomusic ? "00" : "14"),
 					"080080",
 					"2AC050205300541442FFFF",
 					"2B80",
 					"09A09411",
 					"2AB05220514052FFFF",
-					"0C010618",
+					"0C0106" + (nomusic ? "00" : "18"),
 					"080080",
 					"2A110606FF530106FF1054FFFF",
 					"09A09411",
@@ -1296,13 +1332,13 @@ namespace FFMQLib
 					"09A09411",
 					"2A4050205440404140A0543050B0541050510106FFE055A054B3E15001FFFF",
 					"0920940C",
-					"0C010613",
+					"0C0106" + (nomusic ? "00" : "13"),
 					"080080",
 					"2A51013055105406FF305406FF1054B3E13146814300541142FFFF",
 					"09A09411",
 					"2CE055",
 					"2C5001",
-					"0C010619",
+					"0C0106" + (nomusic ? "00" : "19"),
 					"080080",
 					"0994940C",
 				}));

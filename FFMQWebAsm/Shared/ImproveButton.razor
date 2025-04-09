@@ -32,7 +32,7 @@
             <FieldLabel TextColor="TextColor.Secondary" class="fw-bold">ROM</FieldLabel>
         <Button Color="Color.Primary" Loading="@isGenerating" Clicked="@OnGenerate" class="romBtn">Generate</Button>
             <FieldHelp>@romMessage</FieldHelp>
-        <a href="" @onclick="@UnloadRom" @onclick:preventDefault>Use a different ROM file</a>
+        <div class="text-secondary"><a href="" @onclick="@UnloadRom" @onclick:preventDefault class="text-secondary" style="text-decoration: underline">Use a different ROM file</a></div>
         </Field>
     }
 
@@ -50,7 +50,7 @@
     public Action<bool> IsLoadFromMemoryDone { get; set; }
 
     private long maxFileSize = 0x80200;
-    private bool isLoadingRom = false;
+    //private bool isLoadingRom = false;
     private bool isGenerating = false;
     private bool romLoaded = false;
 
@@ -121,7 +121,7 @@
     private async Task LoadRomFromFile(FileChangedEventArgs e)
     {
         romMessage = "Loading...";
-        isLoadingRom = true;
+        //isLoadingRom = true;
         StateHasChanged();
         try
         {
@@ -129,13 +129,13 @@
             if (!rom.Validate())
             {
                 romMessage = "Invalid ROM file.";
-                isLoadingRom = false;
+                //isLoadingRom = false;
                 return;
             }
             else
             {
                 romMessage = "ROM file loaded succesfully.";
-                isLoadingRom = false;
+                //isLoadingRom = false;
                 romLoaded = true;
                 rom.BackupOriginalData();
                 SaveRom();
@@ -184,7 +184,7 @@
 
             rom.Load(savedRom);
             romMessage = "Loading...";
-            isLoadingRom = true;
+            //isLoadingRom = true;
             StateHasChanged();
 
             try
@@ -192,14 +192,14 @@
                 if (!await rom.ValidateRom())
                 {
                     romMessage = "Invalid ROM file.";
-                    isLoadingRom = false;
+                    //isLoadingRom = false;
                     romLoaded = false;
                     return true;
                 }
                 else
                 {
                     romMessage = "ROM file loaded from memory succesfully.";
-                    isLoadingRom = false;
+                    //isLoadingRom = false;
                     romLoaded = true;
                     rom.BackupOriginalData();
                     StateHasChanged();

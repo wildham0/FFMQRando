@@ -3,31 +3,43 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using RomUtilities;
+using System.ComponentModel;
 
 namespace FFMQLib
 {
+	public enum MusicMode : int
+	{
+		[Description("Normal")]
+		Normal,
+		[Description("Shuffle Tracks")]
+		Shuffle,
+		[Description("Mute Music")]
+		Mute,
+	}
+	
 	public partial class FFMQRom : SnesRom
 	{
-		public void GeneralModifications(Flags flags, bool apenabled, MT19337 rng)
+		public void GeneralModifications(Flags flags, Preferences prefs, bool apenabled, MT19337 rng)
 		{
 			ExpandRom();
 			FastMovement();
 			DefaultSettings();
 			RemoveClouds();
-			RemoveStrobing();
+			RemoveStrobing(prefs.ReduceBattleFlash);
 			SmallFixes();
 			BugFixes();
 			SystemBugFixes();
 			CompanionRoutines(flags.KaelisMomFightMinotaur, apenabled);
 			DummyRoom();
 			KeyItemWindow(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin);
-			GameStateIndicator();
+			GameStateIndicator(hashString);
 			ArchipelagoSupport(apenabled);
-			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld);
+			NonSpoilerDemoplay(flags.MapShuffling != MapShufflingMode.None);
 			FixMultiplyingDarkKing();
 			PazuzuFixedFloorRng(rng);
 			ShuffledFloorVanillaMonstersFix(flags);
 			Msu1Support();
+			SaveFileReduction();
 		}
 		
 		public void FastMovement()
@@ -49,6 +61,14 @@ namespace FFMQLib
 			PutInBank(0x11, 0xFFE0, Blob.FromHex("E8E8E8E8E8E88E4F196B"));
 			// move starting position in the jump pos table by one so we end on the last intended position
 			PutInBank(0x00,0xF24C, Blob.FromHex("03006300C3002301")); // F251 > F24C
+
+			// Fix Up/Down sprite animation
+			PutInBank(0x00, 0xF420, Blob.FromHex("ff043c200008053c600808ffffffffffffffffffffffff043d60fb08053d200d08ffff80048005ff"));
+			// Fix Right sprite animation
+			PutInBank(0x00, 0xF458, Blob.FromHex("ff043c200008053c600808ffffffffffffffffffffffff043d60fb088005ffff8004ff"));
+			// Fix Left sprite animation
+			PutInBank(0x00, 0xF48B, Blob.FromHex("ff043c200008053c600808ffffffffffffffffffffffff8005043d200d08ffff8004ff"));
+
 
 			// Working hack for inmap room transition, except it slow down walking speed back at 16 frames vs 8, but it works!
 			PutInBank(0x11, 0x8200, Blob.FromHex("A9028D461AA00A008C9119A90F8D26196B"));
@@ -112,7 +132,7 @@ namespace FFMQLib
 			PutInBank(0x0B, 0x8599, Blob.FromHex("80"));
 			PutInBank(0x0B, 0x85A4, Blob.FromHex("80"));
 		}
-		public void RemoveStrobing()
+		public void RemoveStrobing(bool reducebattleflash)
 		{
 			// Crystal flash, simply skip the flash routine
 			PutInBank(0x01, 0xD4C9, Blob.FromHex("EAEAEA"));
@@ -127,6 +147,24 @@ namespace FFMQLib
 			PutInBank(0x01, 0xDC2A, Blob.FromHex("EAEAEA"));
 			PutInBank(0x01, 0xDC37, Blob.FromHex("EAEAEA"));
 			PutInBank(0x01, 0xDDBA, Blob.FromHex("60"));
+
+			// These are a bit more extreme and are only flash, not strobbing, so we add them as preference
+			if (reducebattleflash)
+			{
+				// Start of battle flash
+				PutInBank(0x02, 0xDA4E, Blob.FromHex("a2"));
+
+				// Weapon flash (Sword, Axe, MorningStar)
+				// Sword
+				PutInBank(0x0B, 0xED64, Blob.FromHex("1931"));
+				PutInBank(0x0B, 0xED68, Blob.FromHex("1932"));
+				// Axe
+				PutInBank(0x0B, 0xED71, Blob.FromHex("1935"));
+				PutInBank(0x0B, 0xED75, Blob.FromHex("1936"));
+				// Morning Star
+				PutInBank(0x0B, 0xEDDD, Blob.FromHex("194e"));
+				PutInBank(0x0B, 0xEDE3, Blob.FromHex("1950"));
+			}
 		}
 		public void SmallFixes()
 		{
@@ -358,13 +396,19 @@ namespace FFMQLib
 			PutInBank(0x0C, 0xA82E, Blob.FromHex(inputseries));
 			PutInBank(0x0C, 0xA8C0, Blob.FromHex("33"));
 		}
-		public void GameStateIndicator()
+		public void GameStateIndicator(string hash)
 		{
 			// Game state byte is at 0x7E3749, initialized at 0, then set to 1 after loading a save or starting a new game, set to 0 if giving up after a battle
 			// Initialize game state byte and rando validation "FFMQR", at 0x7E374A
-			PutInBank(0x11, 0x8B00, Blob.FromHex("08e230a9008f49377e8ff01f708ff11f708ff21f70c230a2308ba04a37a90400547e1128a9008f67367e3a8f68367e6b"));
-			PutInBank(0x11, 0x8B30, Blob.FromHex("46464d5152")); // Validation code
+			PutInBank(0x11, 0x8B00, Blob.FromHex("08e230a9008f49377e8ff01f708ff11f708ff21f70c230a2f08ba04a37a90400547e1120008c28a9008f67367e3a8f68367e6b"));
+			PutInBank(0x11, 0x8BF0, Blob.FromHex("46464d5152" + TextToHex(hash, false))); // Validation code
 			PutInBank(0x00, 0x8009, Blob.FromHex("22008B11eaeaeaeaeaeaea"));
+
+			// Validate hash in sram
+			PutInBank(0x11, 0x8C00, Blob.FromHex("20408c900320108c60"));
+			PutInBank(0x11, 0x8C10, Blob.FromHex("08c230a20000a900009fe01f70e8e8e00a00d0f52860")); // Reset hint data
+			// Validate hash and write if it doesn't match
+			PutInBank(0x11, 0x8C40, Blob.FromHex("08c230a200008007e8e8e00800f00cbff58b11dff31f70f0ef8003281860a200008007e8e8e00800f00abff58b119ff31f7080ef283860"));
 
 			// Set when starting new game
 			PutInBank(0x11, 0x8B40, Blob.FromHex("08e230a9018f49377e285cb8c7006b"));
@@ -416,6 +460,15 @@ namespace FFMQLib
 			};
 
 			GameMaps[(int)MapList.ForestaInterior].ModifyMap(0x28, 0x35, dummyroomTiny);
+		}
+		public void SaveFileReduction()
+		{
+			// The game writes 3 copies of the savefile to sram; when loading a savefile if the first copy fail (validation check or bad checksum), it will move to the next copy; this is a bit overzealous, so we reduce this to 2 copies to reclaim some SRAM
+			// Free SRAM start at 701C62
+			
+			PutInBank(0x00, 0xCA00, Blob.FromHex("0200"));
+			PutInBank(0x00, 0xCA74, Blob.FromHex("0200"));
+
 		}
 		public void PazuzuFixedFloorRng(MT19337 rng)
 		{
@@ -516,11 +569,15 @@ namespace FFMQLib
 			// If the instruments data is full ($620, $20 bytes), when loading a new track the instruments will overflow and crash the spc chip by loading garbage data; the fix force the instrument data to be flushed to make space
 			PutInBank(0x0D, 0x8340, Blob.FromHex("22708811b016eaeaeaeaeaeaea"));
 			PutInBank(0x11, 0x8870, Blob.FromHex("a20000c220b528f009e8e8e02000d0f5386b186b"));
+
+			// Fix Mask/Mirror hanging on non enemies maps
+			PutInBank(0x01, 0x8DF3, Blob.FromHex("2240821160"));
+			PutInBank(0x11, 0x8240, Blob.FromHex("08e220c210af461a00d0fa286b"));
 		}
 		public void ShuffledFloorVanillaMonstersFix(Flags flags)
 		{
 			// Remove enemy on Pazuzu 6F blocking the way to avoid softlock when the floors are shuffled, but enemies' positions aren't
-			if (flags.MapShuffling != MapShufflingMode.None && flags.MapShuffling != MapShufflingMode.Overworld && !flags.ShuffleEnemiesPosition)
+			if (flags.MapShuffling != MapShufflingMode.None && !flags.ShuffleEnemiesPosition)
 			{
 				MapObjects[0x58][0x0A].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
 			}
@@ -538,30 +595,37 @@ namespace FFMQLib
 
 			PutInBank(0x10, 0x8000, Blob.FromHex($"{loadrandomtrack}A501C505D0045C8A810D20C2809044AFF0FF7FC501D00664015C8A810D9C0620A5018FF0FF7F8D04209C0520A9012C002070F9AD00202908D01DA9FF8D0620A501C915D004A9018005201081A9038D072064015CED810DA9008FF0FF7F5CED810D8D4021C9F0D0079C07205CD9850D5CED850DA6064820C2809009AD00202908D002686BAFF0FF7FF00D68A501201081A9008FF0FF7F6B682012816BA501D01620C280900FAFF0FF7FF0099C41219C024285056BA5018D412185058D02426BAD0220C953D025AD0320C92DD01EAD0420C94DD017AD0520C953D010AD0620C955D009AD0720C931D00238601860DA08E230A501AABF208110291F850128FA60DA08E230AABF408110291F28FA60A501{saverandomtrack}850960"));
 		}
-		public void RandomizeTracks(bool randomizesong, MT19337 rng)
+		public void SetMusicMode(MusicMode mode, MT19337 rng)
 		{
-			if (randomizesong)
+			if (mode == MusicMode.Normal)
 			{
-				List<byte> tracks = Enumerable.Range(0, 0x1A).Select(x => (byte)x).ToList();
-				List<byte> goodordertracks = Enumerable.Range(0, 0x1B).Select(x => (byte)x).ToList();
-				tracks.Remove(0x00);
-				tracks.Remove(0x04);
-				tracks.Remove(0x15);
-
-				tracks.Shuffle(rng);
-				tracks.Insert(0x00, 0x00);
-				tracks.Insert(0x04, 0x04);
-				tracks.Insert(0x15, 0x15);
-				tracks.Add(0x1A);
-				List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
-
-				PutInBank(0x10, 0x8240, completetracks.OrderBy(x => x.Item1).Select(x => x.Item2).ToArray());
-				PutInBank(0x00, 0x928A, Blob.FromHex("22008210eaeaeaea")); // normal track loading routine
-				PutInBank(0x10, 0x8200, Blob.FromHex("aabf4082108d0106a6018e02066b"));
-				PutInBank(0x02, 0xDAC3, Blob.FromHex("22108210ea")); // battle track loading routine
-				PutInBank(0x10, 0x8210, Blob.FromHex("08e230aabf4082108d0b05a908286b"));
-				//PutInBank(0x10, 0x8140, completetracks.OrderBy(x => x.Item2).Select(x => x.Item1).ToArray());
+				return;
 			}
+
+			List<byte> tracks = Enumerable.Range(0, 0x1A).Select(x => (byte)x).ToList();
+			List<byte> goodordertracks = Enumerable.Range(0, 0x1B).Select(x => (byte)x).ToList();
+			tracks.Remove(0x00);
+			tracks.Remove(0x04);
+			tracks.Remove(0x15);
+
+			tracks.Shuffle(rng);
+			tracks.Insert(0x00, 0x00);
+			tracks.Insert(0x04, 0x04);
+			tracks.Insert(0x15, 0x15);
+			tracks.Add(0x1A);
+			List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
+
+			if (mode == MusicMode.Mute)
+			{
+				completetracks = Enumerable.Repeat((byte)0x00, 0x1B).Select(x => (x, x)).ToList();
+			}
+
+			PutInBank(0x10, 0x8240, completetracks.OrderBy(x => x.Item1).Select(x => x.Item2).ToArray());
+			PutInBank(0x00, 0x928A, Blob.FromHex("22008210eaeaeaea")); // normal track loading routine
+			PutInBank(0x10, 0x8200, Blob.FromHex("aabf4082108d0106a6018e02066b"));
+			PutInBank(0x02, 0xDAC3, Blob.FromHex("22108210ea")); // battle track loading routine
+			PutInBank(0x10, 0x8210, Blob.FromHex("08e230aabf4082108d0b05a908286b"));
+			//PutInBank(0x10, 0x8140, completetracks.OrderBy(x => x.Item2).Select(x => x.Item1).ToArray());
 		}
 	}
 }

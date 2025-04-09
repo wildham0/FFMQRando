@@ -70,7 +70,7 @@ Final Fantasy Mystic Quest:
   enemizer_attacks:
     Normal: 0
     SimpleShuffle: 0
-    Safe: 1
+    Balanced: 1
     Chaos: 0
     SelfDestruct: 0
   enemizer_groups:
@@ -161,7 +161,7 @@ Final Fantasy Mystic Quest:
     High32: 0
     RandomNarrow: 1
     RandomWide: 0
-  enable_spoilers:
+  disable_spoilers:
     true: 0
     false: 1
   progressive_formations:
@@ -170,10 +170,8 @@ Final Fantasy Mystic Quest:
     RegionsKeepType: 1
   map_shuffling:
     None: 0
-    Overworld: 1
-    Dungeons: 0
-    OverworldDungeons: 0
-    Everything: 0
+  overworld_shuffle:
+    true: 1
   crest_shuffle:
     true: 0
     false: 1

@@ -105,7 +105,7 @@ namespace FFMQLib
 			return yaml;
 		}
 
-		public void CrawlRooms(Flags flags, Overworld overworld, Battlefields battlefields)
+		public void CrawlRooms(Flags flags, Overworld overworld, EnemiesStats enemies, Companions companions, Battlefields battlefields)
 		{
 			// Initialization
 			accessQueue = new();
@@ -114,6 +114,9 @@ namespace FFMQLib
 			regionRoomIds = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
 
 			var locationLinks = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).ToList();
+
+			// Add Quests to Logic
+			companions.AddQuestsToLogic(Rooms);
 
 			// Process Logic Access
 			if (flags.LogicOptions != LogicOptions.Expert)
@@ -125,11 +128,19 @@ namespace FFMQLib
 				var frozenFieldRoom = Rooms.Find(x => x.Type == RoomType.Subregion && x.Region == SubRegions.AquariaFrozenField);
 				frozenFieldRoom.Links.RemoveAll(l => l.Access.Contains(AccessReqs.DualheadHydra));
 			}
-			else if((flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Dungeons) && !flags.CrestShuffle)
+			else if((flags.MapShuffling != MapShufflingMode.Everything) && !flags.OverworldShuffle && !flags.CrestShuffle)
 			{
                 // Add Sealed Temple Exit trick to logic in Expert mode
                 var exitTrickRoom = Rooms.Find(x => x.Id == 75);
 				exitTrickRoom.Links.Add(new RoomLink(74, new() { AccessReqs.ExitBook }));
+			}
+
+			// If map is shuffled, we block the one way access from Frozen Fields to Aquaria without wakewater
+			if (flags.MapShuffling != MapShufflingMode.None || flags.CrestShuffle || flags.OverworldShuffle)
+			{
+				var frozenFieldsRoom = Rooms.Find(x => x.Id == 223);
+				var aquariaAccess = frozenFieldsRoom.Links.Find(x => x.TargetRoom == 221);
+				aquariaAccess.Access.Add(AccessReqs.WakeWater);
 			}
 
 			// Giant Tree
@@ -199,7 +210,10 @@ namespace FFMQLib
 				{ 
 					if (gamedata.Type == GameObjectType.BattlefieldXp)
 					{
-						continue;
+						var bflocation = overworld.Locations.Find(l => l.LocationId == gamedata.Location);
+						var battlefieldTrigger = new GameObject(gamedata, bflocation, finalAccess);
+						battlefieldTrigger.Type = GameObjectType.Trigger;
+						GameObjects.Add(battlefieldTrigger);
 					}
 					else if (gamedata.Type == GameObjectType.BattlefieldItem)
 					{
@@ -228,7 +242,7 @@ namespace FFMQLib
 			}
 
 			// Add Friendly logic extra requirements
-			if (flags.LogicOptions == LogicOptions.Friendly && (flags.MapShuffling == MapShufflingMode.None || flags.MapShuffling == MapShufflingMode.Overworld))
+			if (flags.LogicOptions == LogicOptions.Friendly && (flags.MapShuffling == MapShufflingMode.None))
 			{
 				foreach (var location in AccessReferences.FriendlyAccessReqs)
 				{
@@ -242,11 +256,28 @@ namespace FFMQLib
 			otherBosses.AddRange(windiaBosses);
 			List<AccessReqs> progressCoin = new() { AccessReqs.SandCoin, AccessReqs.RiverCoin };
 
-			if (flags.MapShuffling != MapShufflingMode.None)
+			if (flags.MapShuffling != MapShufflingMode.None || flags.OverworldShuffle)
 			{
 				windiaBosses.Add(AccessReqs.DualheadHydra);
 			}
 
+			foreach (var boss in enemies.BossesPower)
+			{
+				if (GameObjects.TryFind(o => o.OnTrigger.Contains(boss.Key), out var foundboss))
+				{
+					foundboss.AccessRequirements.ForEach(r => r.Add(boss.Value));
+				}
+			}
+
+			foreach (var battlefield in enemies.BattlefieldsPower)
+			{
+				if (GameObjects.TryFind(o => o.Location == battlefield.Key, out var foundbattlefield))
+				{
+					foundbattlefield.AccessRequirements.ForEach(r => r.Add(battlefield.Value));
+				}
+			}
+
+			/*
 			foreach (var gameobject in GameObjects)
 			{
 				foreach (var requirements in gameobject.AccessRequirements)
@@ -260,7 +291,7 @@ namespace FFMQLib
 						requirements.AddRange(progressCoin);
 					}
 				}
-			}
+			}*/
 
 			// Progressive Gear Logic
 			if (flags.ProgressiveGear)
@@ -530,7 +561,47 @@ namespace FFMQLib
 				ProcessRoomForCompanions(reqcount + link.Access.Count, link.TargetRoom, companionlist, visitedrooms);
 			}
 		}
+		public List<(CompanionsId, LocationIds, List<string>)> CrawlForCompanionSpoiler()
+		{
+			List<(CompanionsId id, string name)> companionList = new() { (CompanionsId.Kaeli, "Kaeli Companion"), (CompanionsId.Tristam, "Tristam Companion"), (CompanionsId.Phoebe, "Phoebe Companion"), (CompanionsId.Reuben, "Reuben Companion") };
+			List<(CompanionsId, LocationIds, List<string>)> resultingPaths = new();
+			List<LocationIds> barredLocations = new() { LocationIds.LifeTemple, LocationIds.LightTemple, LocationIds.ShipDock };
 
+			foreach (var companion in companionList)
+			{
+				if (Rooms.TryFind(r => r.GameObjects.Where(o => o.Name == companion.name).Any(), out var originRoom))
+				{
+					List<(LocationIds location, List<int> rooms)> validPaths = new();
+					List<int> visitedRooms = new();
+
+					ProcessCompanionSpoiler(originRoom.Id, validPaths, visitedRooms);
+
+					validPaths = validPaths.Where(p => !barredLocations.Contains(p.location)).OrderBy(p => p.rooms.Count).ToList();
+					resultingPaths.Add((companion.id, validPaths.First().location, validPaths.First().rooms.Select(r => Rooms.Find(t => t.Id == r).Name).Reverse().ToList()));
+				}
+			}
+
+			return resultingPaths;
+		}
+		public void ProcessCompanionSpoiler(int roomid, List<(LocationIds, List<int>)> validpaths, List<int> visitedrooms)
+		{
+			var currentRoom = Rooms.Find(x => x.Id == roomid);
+
+			if (currentRoom.Type == RoomType.Subregion)
+			{
+				if (currentRoom.Links.TryFind(l => l.TargetRoom == visitedrooms.Last(), out var locationLink))
+				{
+					validpaths.Add((locationLink.Location, new(visitedrooms)));
+				}
+			}
+			else
+			{
+				foreach (var link in currentRoom.Links.Where(l => !visitedrooms.Contains(l.TargetRoom)))
+				{
+					ProcessCompanionSpoiler(link.TargetRoom, validpaths, visitedrooms.Append(roomid).ToList());
+				}
+			}
+		}
 		public List<AccessReqs> CrawlForRequirements(LocationIds location)
 		{
 

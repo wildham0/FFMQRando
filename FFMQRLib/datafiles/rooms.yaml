@@ -309,13 +309,13 @@
     location: "WindiaBattlefield01"
     location_slot: "WindiaBattlefield01"
     type: "BattlefieldXp"
-    access: ["SandCoin", "RiverCoin"]
+    access: [] # Add SandCoin/RiverCoin if power level logic is a failure
   - name: "South of Windia Battlefield"
     object_id: 0x14
     location: "WindiaBattlefield02"
     location_slot: "WindiaBattlefield02"
     type: "BattlefieldXp"
-    access: ["SandCoin", "RiverCoin"]
+    access: [] # Add SandCoin/RiverCoin if power level logic is a failure
   links:
   - target_room: 9   # Focus Tower Windia
     location: "FocusTowerWindia"
@@ -690,7 +690,7 @@
     object_id: 0
     type: "Trigger"
     on_trigger: ["Minotaur"]
-    access: ["Kaeli1"]
+    access: ["TreeWitherPerson"]
   - name: "Level Forest - Old Man"
     object_id: 0
     type: "NPC"
@@ -698,7 +698,7 @@
   - name: "Level Forest - Kaeli"
     object_id: 1
     type: "NPC"
-    access: ["Kaeli1", "Minotaur"]
+    access: ["TreeWitherPerson", "Minotaur"]
   links:
   - target_room: 220
     entrance: 28
@@ -742,13 +742,18 @@
   - name: "Kaeli Companion"
     object_id: 0
     type: "Trigger"
-    on_trigger: ["Kaeli1"]
+    on_trigger: ["Kaeli"]
     access: ["TreeWither"]
-  - name: "Kaeli 2"
+  - name: "Tree Wither Person"
     object_id: 0
     type: "Trigger"
-    on_trigger: ["Kaeli2"]
-    access: ["Kaeli1", "Minotaur", "Elixir"]
+    on_trigger: ["TreeWitherPerson"]
+    access: ["TreeWither"]
+  - name: "Sick Person"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["HealedPerson"]
+    access: ["TreeWitherPerson", "Minotaur", "Elixir"]
   links:
   - target_room: 16
     entrance: 46
@@ -913,7 +918,7 @@
   - target_room: 26
     entrance: 61
     teleporter: [89, 3]
-    access: ["BoneWaterwayBombed"]
+    access: [] # "BoneWaterwayBombed"
   - target_room: 30
     entrance: 60
     teleporter: [4, 2]
@@ -1098,7 +1103,7 @@
   - name: "Phoebe Companion"
     object_id: 0
     type: "Trigger"
-    on_trigger: ["Phoebe1"]
+    on_trigger: ["Phoebe"]
     access: []
   links:
   - target_room: 221
@@ -1212,7 +1217,12 @@
   - name: "Wintry Cave 1F - Phoebe"
     object_id: 5
     type: "NPC"
-    access: ["Phoebe1"]
+    access: ["Phoebe"]
+  - name: "Wintry Cave Visite with Phoebe"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["PhoebeVisitedCave"]
+    access: ["Phoebe"]
   - name: "Wintry Cave 1F - 3F Entrance Bombed"
     object_id: 0
     type: "Trigger"
@@ -1279,7 +1289,7 @@
   - target_room: 47
     entrance: 104
     teleporter: [97, 3]
-    access: ["Wintry2FBombed"]
+    access: []
   - target_room: 50
     entrance: 103
     teleporter: [50, 0]
@@ -1299,18 +1309,18 @@
   - target_room: 45
     entrance: 105
     teleporter: [96, 3]
-    access: ["Wintry3FBombed"]
+    access: []
 - name: Wintry Cave 3F Bottom
   id: 50
   game_objects:
   - name: "Wintry Cave 3F - Squidite Chest"
     object_id: 0x09
     type: "Chest"
-    access: ["Phanquid"]
-  - name: "Phanquid"
+    access: ["Squidite"]
+  - name: "Squidite"
     object_id: 0
     type: "Trigger"
-    on_trigger: ["Phanquid"]
+    on_trigger: ["Squidite"]
     access: []
   - name: "Wintry Cave 3F - Before Boss Box"
     object_id: 0x4D
@@ -1347,11 +1357,11 @@
   - name: "Falls Basin - Snow Crab Chest"
     object_id: 0x0A
     type: "Chest"
-    access: ["FreezerCrab"]
-  - name: "Freezer Crab"
+    access: ["SnowCrab"]
+  - name: "SnowCrab"
     object_id: 0
     type: "Trigger"
-    on_trigger: ["FreezerCrab"]
+    on_trigger: ["SnowCrab"]
     access: []
   - name: "Falls Basin - Box"
     object_id: 0x4F
@@ -1903,7 +1913,7 @@
   - name: "Reuben Companion"
     object_id: 0
     type: "Trigger"
-    on_trigger: ["Reuben1"]
+    on_trigger: ["Reuben"]
     access: []
   - name: "Fireburg - Reuben's House Box"
     object_id: 0x75
@@ -2126,7 +2136,12 @@
   - name: "Mine - Reuben"
     object_id: 7
     type: "NPC"
-    access: ["Reuben1"]
+    access: ["Reuben"]
+  - name: "Mine visited with Reuben"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["ReubenVisitedMine"]
+    access: ["Reuben"]
   - name: "Reuben's dad Saved"
     object_id: 0
     type: "Trigger"
@@ -2681,7 +2696,7 @@
   - target_room: 105
     entrance: 250
     teleporter: [105, 3]
-    access: ["LavaDomePlate"]
+    access: [] # "LavaDomePlate"
   - target_room: 122
     entrance: 251
     teleporter: [138, 0]
@@ -2785,6 +2800,8 @@
     teleporter: [144, 0]
     access: []
   - target_room: 125
+    access: ["DragonClaw"]
+  - target_room: 126        # Technically not, but there's nothing there and we need minimum access
     access: ["DragonClaw"]
 - name: Giant Tree 1F Central Island
   id: 126
@@ -3345,7 +3362,7 @@
   - name: "Windia - Kaeli"
     object_id: 15
     type: "NPC"
-    access: ["Kaeli2"]
+    access: ["HealedPerson"]
   links:
   - target_room: 163
     entrance: 339

@@ -67,16 +67,8 @@ Final Fantasy Mystic Quest:
     Double: 0
     DoubleAndHalf: 0
     Triple: 0
-  enemizer_attacks:
-    Normal: 0
-    SimpleShuffle: 0
-    Safe: 1
-    Chaos: 0
-    SelfDestruct: 0
-  enemizer_groups:
-    MobsOnly: 0
-    MobsBosses: 0
-    MobsBossesDK: 1
+  enemizer_attacks: "Balanced"
+  enemizer_groups: MobsBossesDK
   shuffle_res_weak_type:
     true: 0
     false: 1
@@ -88,14 +80,7 @@ Final Fantasy Mystic Quest:
     DoubleAndHalf: 0
     Triple: 1
     Quadruple: 0
-  companion_leveling_type:
-    Quests: 0
-    QuestsExtended: 1
-    SaveCrystalsIndividual: 0
-    SaveCrystalsAll: 0
-    BenPlus0: 0
-    BenPlus5: 0
-    BenPlus10: 0
+  companion_leveling_type: QuestsExtended
   companion_spellbook_type:
     Standard: 0
     Extended: 1
@@ -162,7 +147,7 @@ Final Fantasy Mystic Quest:
     High32: 0
     RandomNarrow: 0
     RandomWide: 0
-  enable_spoilers:
+  disable_spoilers:
     true: 0
     false: 1
   progressive_formations:
@@ -171,10 +156,8 @@ Final Fantasy Mystic Quest:
     RegionsKeepType: 0
   map_shuffling:
     None: 0
-    Overworld: 1
-    Dungeons: 0
-    OverworldDungeons: 0
-    Everything: 0
+  overworld_shuffle:
+    true: 1
   crest_shuffle:
     true: 0
     false: 1

@@ -58,6 +58,9 @@ namespace FFMQLib
 		
 		private const int TreasuresOffset = 0x8000;
 		private int GpCount;
+		private PowerLevel PowerLevel;
+		private List<Items> PlacedItems;
+		private List<AccessReqs> ProcessedAccessReqs;
 
 		private class RegionWeight
 		{ 
@@ -70,7 +73,7 @@ namespace FFMQLib
 				Weight = _weight;
 			}
 		}
-		public ItemsPlacement(Flags flags, List<GameObject> initialGameObjects, ApConfigs apconfigs, FFMQRom rom, MT19337 rng)
+		public ItemsPlacement(Flags flags, List<GameObject> initialGameObjects, Companions companions, ApConfigs apconfigs, FFMQRom rom, MT19337 rng)
 		{
 			if (apconfigs.ApEnabled)
 			{
@@ -78,10 +81,10 @@ namespace FFMQLib
             }
 			else
 			{
-				PlaceItems(flags, initialGameObjects, rom, rng);
+				PlaceItems(flags, initialGameObjects, companions, rom, rng);
 			}
 		}
-		public void PlaceItems(Flags flags, List<GameObject> initialGameObjects, FFMQRom rom, MT19337 rng)
+		public void PlaceItems(Flags flags, List<GameObject> initialGameObjects, Companions companions, FFMQRom rom, MT19337 rng)
 		{
 			bool badPlacement = true;
 			int counter = 0;
@@ -89,7 +92,8 @@ namespace FFMQLib
 			int prioritizedLocationsCount = 0;
 			int prioritizedItemsCount = 0;
 			int looseItemsCount = 0;
-			GpCount = 0;
+
+			PowerLevel = new(flags.CompanionLevelingType, flags.ProgressiveGear, companions);
 
 			List<Items> consumableList = rom.GetFromBank(0x01, 0x801E, 0xDD).ToBytes().Select(x => (Items)x).ToList();
 			List<Items> finalConsumables = rom.GetFromBank(0x01, 0x80F2, 0x04).ToBytes().Select(x => (Items)x).ToList();
@@ -113,9 +117,10 @@ namespace FFMQLib
 				regionsWeight.Find(x => x.Region == MapRegions.Fireburg).Weight = 1;
 				regionsWeight.Find(x => x.Region == MapRegions.Windia).Weight = 1;
 
-
 				ItemsList itemsList = new(flags, rng);
 				StartingItems = itemsList.Starting;
+				GpCount = 0;
+				PowerLevel.Initialize();
 
 				ItemsLocations = new(initialItemlocations.Select(x => new GameObject(x)));
 
@@ -124,22 +129,18 @@ namespace FFMQLib
 				looseItemsCount = Max(0, itemsList.Count - prioritizedLocationsCount);
 				prioritizedItemsCount = Min(prioritizedLocationsCount, itemsList.Count);
 
-				List<Items> placedItems = new();
+				PlacedItems = new();
+				ProcessedAccessReqs = new();
 
 				List<Items> nonRequiredItems = flags.SkyCoinMode == SkyCoinModes.Standard ? itemsList.Starting : itemsList.Starting.Append(Items.SkyCoin).ToList();
 
 				List<AccessReqs> accessReqsToProcess = new();
+				
 				// Apply starting items access
 				foreach (var item in nonRequiredItems)
 				{
-					List<AccessReqs> result;
-					if(AccessReferences.ItemAccessReq.TryGetValue(item, out result))
-					{
-						accessReqsToProcess.AddRange(result);
-					}
+					ProcessRequirements(item, ItemsLocations);
 				}
-
-				ProcessRequirements(accessReqsToProcess);
 
 				while (itemsList.Count > 0)
 				{
@@ -230,15 +231,32 @@ namespace FFMQLib
 					{ 
 						targetLocation.Type = GameObjectType.Chest;
 					}
-					placedItems.Add(itemToPlace);
+					
+					PlacedItems.Add(itemToPlace);
 					//Console.WriteLine(Enum.GetName(targetLocation.Location) + "_" + targetLocation.ObjectId + " - " + Enum.GetName(itemToPlace));
 
-					List<AccessReqs> result;
+					ProcessRequirements(itemToPlace, ItemsLocations);
 
-					if (AccessReferences.ItemAccessReq.TryGetValue(itemToPlace, out result))
+					/*
+
+
+					List<AccessReqs> powerLevelsToProcess = UpdatePowerLevel(PlacedItems);
+
+					List<AccessReqs> result = new();
+
+					if (AccessReferences.ItemAccessReq.TryGetValue(itemToPlace, out result) || powerLevelsToProcess.Any())
 					{
+						if (result != null)
+						{
+							result = result.Concat(powerLevelsToProcess).ToList();
+						}
+						else
+						{
+							result = powerLevelsToProcess;
+						}
+						
 						ProcessRequirements(result);
-					}
+					}*/
 				}
 
 				
@@ -322,7 +340,7 @@ namespace FFMQLib
 				finalChests[i].IsPlaced = true;
 			}
 		}
-		private void ProcessRequirements(List<AccessReqs> accessReqToProcess)
+		private void ProcessRequirements2(List<AccessReqs> accessReqToProcess)
 		{
 			while (accessReqToProcess.Any())
 			{
@@ -354,6 +372,51 @@ namespace FFMQLib
 				}
 
 				accessReqToProcess.Remove(currentReq);
+			}
+		}
+		private void ProcessRequirements(Items itemToPlace, List<GameObject> locations)
+		{
+			List<AccessReqs> accessReqToProcess = new();
+
+			if (AccessReferences.ItemAccessReq.TryGetValue(itemToPlace, out var result))
+			{
+				accessReqToProcess.AddRange(result);
+			}
+
+			accessReqToProcess.AddRange(PowerLevel.GetNewPowerLevel(itemToPlace, locations));
+
+			while (accessReqToProcess.Any())
+			{
+				AddGp(accessReqToProcess);
+
+				if (!accessReqToProcess.Any())
+				{
+					break;
+				}
+
+				var currentReq = accessReqToProcess.First();
+
+				// Update Locations
+				List<GameObject> unaccessibleLocations = ItemsLocations.Where(x => x.Accessible == false).ToList();
+				for (int i = 0; i < unaccessibleLocations.Count; i++)
+				{
+					for (int j = 0; j < unaccessibleLocations[i].AccessRequirements.Count; j++)
+					{
+						unaccessibleLocations[i].AccessRequirements[j] = unaccessibleLocations[i].AccessRequirements[j].Where(x => x != currentReq).ToList();
+						if (!unaccessibleLocations[i].AccessRequirements[j].Any())
+						{
+							unaccessibleLocations[i].Accessible = true;
+							if (unaccessibleLocations[i].Type == GameObjectType.Trigger)
+							{
+								accessReqToProcess.AddRange(unaccessibleLocations[i].OnTrigger);
+							}
+						}
+					}
+				}
+
+				//ProcessedAccessReqs.Add(currentReq);
+				accessReqToProcess.Remove(currentReq);
+				accessReqToProcess.AddRange(PowerLevel.GetNewPowerLevel(currentReq, locations));
 			}
 		}
 		private void AddGp(List<AccessReqs> accessReqToProcess)
@@ -612,7 +675,7 @@ namespace FFMQLib
 
 				if (startingWeapon != Items.Bomb)
 				{
-					if (flags.MapShuffling == MapShufflingMode.None)
+					if (!flags.OverworldShuffle && flags.MapShuffling == MapShufflingMode.None)
 					{
 						// On standard map, raise odds to open up bone dungeon first
 						ProgressionCoins.Add(rng.TakeFrom(ProgressionBombs));

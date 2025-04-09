@@ -65,7 +65,8 @@
 					<FieldHelp>@dkMessage</FieldHelp>
 				</Field>
 			}
-			<BoolFlag UsePreset=false Name="Randomize Music" @bind-Value="preferences.RandomMusic" Tooltip="Shuffle the music tracks." />
+
+			<EnumFlag UsePreset=false Name="Music Mode" @bind-Value="preferences.MusicMode" Tooltip="Set Music mode.<br/><br/>Normal: Normal game music is played.<br/><br/>Shuffle: Music tracks are shuffled.<br/><br/>Mute: Music is muted." />
 			<Field>
 				<Text TextColor="TextColor.Secondary" class="fw-bold">Default Window Palette</Text>
 				<Tooltip Text="Set the Window starting palette.<br/><br/>Default blue is RGB 0, 80, 160 (#0050A0)." Inline Multiline Placement="TooltipPlacement.Right">
@@ -78,7 +79,8 @@
 			</Field>
 		</Container>
 		<Container Class="flagColumn">
-			<BoolFlag UsePreset=false Name="Dump GameInfo Screen to File" @bind-Value="preferences.DumpGameInfoScreen" Tooltip="Dump the information available in the GameInfo Screen menu into a txt file. If Generate Spoiler File is enabled, it will be included in the same file instead." />
+			<BoolFlag UsePreset=false Name="Automatically Download ROM" @bind-Value="preferences.AutoDownloadRom" Tooltip="Automatically download the ROM file once it's generated instead of having to click the download button." />
+			<BoolFlag UsePreset=false Name="Reduce Battle Flashes" @bind-Value="preferences.ReduceBattleFlash" Tooltip="Remove flash effects at the start of battle and when swinging the Sword, the Axe and the Morning Star." />
 		</Container>
 	</Container>
 </Container>
@@ -211,6 +213,21 @@
 					pref.SetValue(preferences, value);
 				}
 
+			}
+			else if (pref.PropertyType.IsEnum)
+			{
+				int? value = localStorage.GetItem<int?>(pref.Name);
+				if (value != null)
+				{
+					var enumValues = pref.PropertyType.GetEnumValues();
+					foreach (var enumValue in enumValues)
+					{
+						if (Convert.ToInt32(enumValue) == value)
+						{
+							pref.SetValue(preferences, enumValue);
+						}
+					}
+				}
 			}
 			else if (pref.PropertyType == typeof(string))
 			{

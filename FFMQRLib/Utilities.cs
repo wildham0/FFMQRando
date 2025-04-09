@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Linq;
 using RomUtilities;
+using System.Dynamic;
+using System.Runtime.CompilerServices;
 
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
@@ -29,7 +31,9 @@ namespace FFMQLib
             return value;
         }
 
-        public static string GetDescription(this Enum value)
+		public static bool IsEmpty<T>(this IList<T> list) => list.Count == 0;
+
+		public static string GetDescription(this Enum value)
         {
             // Get the Description attribute value for the enum value
             FieldInfo fi = value.GetType().GetField(value.ToString());
@@ -41,7 +45,22 @@ namespace FFMQLib
                 return value.ToString();
         }
 
-        public static Blob Reverse(this Blob orderedBlob)
+		[DebuggerStepThrough]
+		public static bool TryFind<T>(this IList<T> fromList, Predicate<T> query, out T result)
+		{
+			int resultIndex = fromList.ToList().FindIndex(query);
+			if (resultIndex < 0)
+			{
+				result = default;
+				return false;
+			}
+			else
+			{
+				result = fromList[resultIndex];
+				return true;
+			}
+		}
+		public static Blob Reverse(this Blob orderedBlob)
         {
             Blob _reversedBlob = new byte[orderedBlob.Length];
             for (int i = 0; i < orderedBlob.Length; i++)

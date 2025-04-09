@@ -14,7 +14,7 @@ namespace FFMQLib
 			{ LocationIds.BoneDungeon, new List<AccessReqs> { AccessReqs.Bomb } },
 			{ LocationIds.WintryCave, new List<AccessReqs> { AccessReqs.Bomb, AccessReqs.Claw  } },
 			{ LocationIds.IcePyramid, new List<AccessReqs> { AccessReqs.Bomb, AccessReqs.Claw } },
-			{ LocationIds.Mine, new List<AccessReqs> { AccessReqs.MegaGrenade, AccessReqs.Claw, AccessReqs.Reuben1 } },
+			{ LocationIds.Mine, new List<AccessReqs> { AccessReqs.MegaGrenade, AccessReqs.Claw, AccessReqs.Reuben } },
 			{ LocationIds.LavaDome, new List<AccessReqs> { AccessReqs.MegaGrenade } },
 			{ LocationIds.GiantTree, new List<AccessReqs> { AccessReqs.Axe, AccessReqs.DragonClaw } },
 			{ LocationIds.MountGale, new List<AccessReqs> { AccessReqs.DragonClaw } },
@@ -173,6 +173,31 @@ namespace FFMQLib
 			{ Items.MegaGrenade, new List<AccessReqs> { AccessReqs.Bomb, AccessReqs.MegaGrenade } },
 			{ Items.ExitBook, new List<AccessReqs> { AccessReqs.ExitBook } },
 		};
+		public static Dictionary<AccessReqs, List<Items>> AccessReqItem => new Dictionary<AccessReqs, List<Items>>
+		{
+			{ AccessReqs.Elixir, new List<Items> { Items.Elixir } },
+			{ AccessReqs.TreeWither, new List<Items> { Items.TreeWither } },
+			{ AccessReqs.WakeWater, new List<Items> { Items.Wakewater } },
+			{ AccessReqs.VenusKey, new List<Items> { Items.VenusKey } },
+			{ AccessReqs.MultiKey, new List<Items> { Items.MultiKey } },
+			{ AccessReqs.ThunderRock, new List<Items> { Items.ThunderRock } },
+			{ AccessReqs.CaptainCap, new List<Items> { Items.CaptainsCap } },
+			{ AccessReqs.LibraCrest, new List<Items> { Items.LibraCrest } },
+			{ AccessReqs.GeminiCrest, new List<Items> { Items.GeminiCrest } },
+			{ AccessReqs.MobiusCrest, new List<Items> { Items.MobiusCrest } },
+			{ AccessReqs.SandCoin, new List<Items> { Items.SandCoin } },
+			{ AccessReqs.RiverCoin, new List<Items> { Items.RiverCoin } },
+			{ AccessReqs.SunCoin, new List<Items> { Items.SunCoin } },
+			{ AccessReqs.SkyCoin, new List<Items> { Items.SkyCoin } },
+			{ AccessReqs.Sword, new List<Items> { Items.SteelSword, Items.KnightSword, Items.Excalibur } },
+			{ AccessReqs.Axe, new List<Items> { Items.Axe, Items.BattleAxe, Items.GiantsAxe } },
+			{ AccessReqs.Claw, new List<Items> { Items.CatClaw, Items.CharmClaw } },
+			{ AccessReqs.DragonClaw, new List<Items> { Items.DragonClaw } },
+			{ AccessReqs.Bomb, new List<Items> { Items.Bomb, Items.JumboBomb } },
+			{ AccessReqs.SmallBomb, new List<Items> { Items.Bomb, Items.JumboBomb } },
+			{ AccessReqs.MegaGrenade, new List<Items> { Items.MegaGrenade } },
+			{ AccessReqs.ExitBook, new List<Items> { Items.ExitBook } },
+		};
 		public static List<AccessReqs> CrestsAccess = new()
 		{
 			AccessReqs.LibraCrest,
@@ -182,8 +207,8 @@ namespace FFMQLib
 		public static List<AccessReqs> FavoredCompanionsAccess = new()
 		{
 			AccessReqs.Tristam,
-			AccessReqs.Phoebe1,
-			AccessReqs.Reuben1,
+			AccessReqs.Phoebe,
+			AccessReqs.Reuben,
 		};
 		public static List<LocationIds> StartingWeaponAccess = new()
 		{

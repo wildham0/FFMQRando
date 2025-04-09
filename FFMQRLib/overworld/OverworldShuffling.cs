@@ -9,10 +9,8 @@ namespace FFMQLib
 {
 	public partial class Overworld
 	{
-		public void ShuffleOverworld(MapShufflingMode mapshufflingmode, GameLogic gamelogic, Battlefields battlefields, List<LocationIds> questEasyWins, bool apenabled, MT19337 rng)
+		public void ShuffleOverworld(bool shuffleOverworld, MapShufflingMode mapshufflingmode, GameLogic gamelogic, Battlefields battlefields, List<LocationIds> questEasyWins, bool apenabled, MT19337 rng)
 		{
-			bool shuffleOverworld = mapshufflingmode != MapShufflingMode.None && mapshufflingmode != MapShufflingMode.Dungeons;
-			
 			if (!shuffleOverworld || apenabled)
 			{
 				return;
@@ -66,7 +64,7 @@ namespace FFMQLib
 			List<LocationIds> guaranteedChestLocations = new();
 
 			
-			guaranteedChestLocations = (mapshufflingmode == MapShufflingMode.Overworld) ?
+			guaranteedChestLocations = (mapshufflingmode == MapShufflingMode.None) ?
 				new() { rng.PickFrom(AccessReferences.StartingWeaponAccess) } :
 				locationRating.GetRange(0, 2).Select(x => x.Item1).ToList();
 

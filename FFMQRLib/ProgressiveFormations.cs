@@ -50,6 +50,11 @@ namespace FFMQLib
 		Medusa,
 		Knight,
 		Chimera,
+		Rex,
+		Golem,
+		Hydra,
+		Zu,
+		DarkKing
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -178,7 +183,7 @@ namespace FFMQLib
 			};
 
 
-			var categories = Enum.GetValues<EnemyCategory>().ToList();
+			var categories = Enum.GetValues<EnemyCategory>().Where(c => c < EnemyCategory.Rex).ToList();
 
 			List<(EnemyCategory, List<EnemyCategory>)> sprites = new();
 			List<(EnemyCategory, List<byte>)> formations = new();

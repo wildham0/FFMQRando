@@ -110,6 +110,7 @@ namespace FFMQLib
 		public int QuestQuantity { get; set; }
 		public List<LocationIds> QuestEasyWinLocations { get; set; } = new();
 		public List<Quest> Quests { get; set; }
+		public int PickedTreeHouse { get; set; }
 		private QuestScriptsManager questsScripts;
 		private List<CompanionsId> companionslist = new() { CompanionsId.Kaeli, CompanionsId.Tristam, CompanionsId.Phoebe, CompanionsId.Reuben };
 		private Dictionary<CompanionsId, string> CompanionRoutines = new()
@@ -147,7 +148,7 @@ namespace FFMQLib
             }
             else if (levelingType == LevelingType.QuestsExtended)
 			{
-				CreateExtendedQuests(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin, flags.DoomCastleShortcut, flags.KaelisMomFightMinotaur, flags.MapShuffling == MapShufflingMode.Overworld, rng);
+				CreateExtendedQuests(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin, flags.DoomCastleShortcut, flags.KaelisMomFightMinotaur, flags.OverworldShuffle, rng);
 				battlefields.QuestBattlefield = GetBattlefieldQuestLocation();
             }
 
@@ -212,6 +213,8 @@ namespace FFMQLib
 			int easybattlefieldsqty = rng.Between(4, 7);
 			int mediumbattlefieldsqty = rng.Between(10, 14);
 			int hardbattlefieldsqty = rng.Between(14, 18);
+
+			PickedTreeHouse = rng.Between(0, 2);
 
 			List<Quest> availableQuests = new()
 			{
@@ -434,6 +437,103 @@ namespace FFMQLib
                 Description = "Save the Crystal of Wind"
             });
         }
+		public void AddQuestsToLogic(List<Room> rooms)
+		{
+			Quest foundquest;
+
+			if (Quests.TryFind(q => q.Name == QuestsId.VisitBoneDungeon, out foundquest))
+			{
+				rooms.Find(r => r.Id == 82)
+					.GameObjects.Add(new GameObjectData(
+						GameObjectType.Trigger,
+						new() { AccessReqs.TristamQuestCompleted },
+						new() { AccessReqs.Tristam, AccessReqs.TristamBoneItemGiven },
+						"Quest - Tristam"));
+			}
+
+			if (Quests.TryFind(q => q.Name == QuestsId.VisitChocobo, out foundquest))
+			{
+				rooms.Find(r => r.Id == 156)
+					.GameObjects.Add(new GameObjectData(
+						GameObjectType.Trigger,
+						new() { AccessReqs.ChocoboVisited },
+						new() { AccessReqs.DragonClaw },
+						"Quest - Visit Chocobo"));
+			}
+
+			if (Quests.TryFind(q => q.Name == QuestsId.VisitLightTemple, out foundquest))
+			{
+				rooms.Find(r => r.Id == 185)
+					.GameObjects.Add(new GameObjectData(
+						GameObjectType.Trigger,
+						new() { AccessReqs.LightTempleVisited },
+						new(),
+						"Quest - Visit Light Temple"));
+			}
+
+			if (Quests.TryFind(q => q.Name == QuestsId.VisitMine, out foundquest))
+			{
+				rooms.Find(r => r.Id == 77)
+					.GameObjects.Add(new GameObjectData(
+						GameObjectType.Trigger,
+						new() { AccessReqs.ReubenQuestCompleted },
+						new() { AccessReqs.ReubenVisitedMine },
+						"Quest - Reuben"));
+			}
+
+			if (Quests.TryFind(q => q.Name == QuestsId.VisitMountGale, out foundquest))
+			{
+				rooms.Find(r => r.Id == 155)
+					.GameObjects.Add(new GameObjectData(
+						GameObjectType.Trigger,
+						new() { AccessReqs.MountGaleVisited },
+						new() { AccessReqs.DragonClaw },
+						"Quest - Visit Mount Gale"));
+			}
+
+			if (Quests.TryFind(q => q.Name == QuestsId.VisitPointlessLedge, out foundquest))
+			{
+				rooms.Find(r => r.Id == 110)
+					.GameObjects.Add(new GameObjectData(
+						GameObjectType.Trigger,
+						new() { AccessReqs.PointlessLedgeVisited },
+						new(),
+						"Quest - Visit Pointless Ledge"));
+			}
+
+			if (Quests.TryFind(q => q.Name == QuestsId.VisitTopOfVolcano, out foundquest))
+			{
+				rooms.Find(r => r.Id == 95)
+					.GameObjects.Add(new GameObjectData(
+						GameObjectType.Trigger,
+						new() { AccessReqs.TopOfVolcanoVisited },
+						new(),
+						"Quest - Visit Top of Volcano"));
+			}
+
+			if (Quests.TryFind(q => q.Name == QuestsId.VisitTreeHouses, out foundquest))
+			{
+				//gemini, libra, mobius
+				List<int> houseids = new() { 22, 21, 23 };
+				
+				rooms.Find(r => r.Id == houseids[PickedTreeHouse])
+					.GameObjects.Add(new GameObjectData(
+						GameObjectType.Trigger,
+						new() { AccessReqs.TreehouseVisited },
+						new(),
+						"Quest - Visit Treehouse"));
+			}
+
+			if (Quests.TryFind(q => q.Name == QuestsId.VisitWintryCave, out foundquest))
+			{
+				rooms.Find(r => r.Id == 163)
+					.GameObjects.Add(new GameObjectData(
+						GameObjectType.Trigger,
+						new() { AccessReqs.PhoebeQuestCompleted },
+						new() { AccessReqs.PhoebeVisitedCave },
+						"Quest - Phoebe"));
+			}
+		}
         private void QuestRoutines(FFMQRom rom)
 		{
 			// Write Scripts

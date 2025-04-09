@@ -1,4 +1,34 @@
 SetFlag = $00974E
+ComputeAmmoQty = $8E00 ; this is just a copy of the routine in bank $00
+
+DoNothing = $DBD6
+GiveSpell = $DB8E
+GiveWeapon = $DB9C
+GiveArmor = $DBBE
+
+ .ORG $00DACC  ; Modify the GiveItem routine
+  PHP
+  REP #$30
+  PHX
+  PHY
+  JSL GiveItemQuantity
+  LDA $9E
+  CMP #$14
+  BCC DoNothing
+  CMP #$20
+  BCC IsSpell
+  CMP #$2F
+  BCC IsWeapon
+  CMP #$DD
+  BCC IsArmor
+IsConsumableKeyItem:
+  JMP DoNothing                 ; We already gave the approriate amount with GiveItemQuantity
+IsSpell:
+  JMP GiveSpell
+Isweapon:
+  JMP GiveWeapon
+IsArmor:
+  JMP GiveArmor
 
  .ORG $DB82
   JSL KeyItemRoutine
@@ -8,6 +38,41 @@ SetFlag = $00974E
   NOP
   NOP
   NOP
+
+ .ORG $118E30
+
+GiveItemQuantity:
+  JSL ItemQuantityRoutine  ; 22509011
+  SEP #$30             ; e2
+  LDA $9E              ; a59e
+  CMP #$10             ; c910
+  BCC IsKeyitem        ; 90ff
+  CMP #$14             ; c914
+  BCC IsConsumable     ; 90ff
+  CMP #$DD             ; c9dd
+  BCC IsKeyItem        ; 90ff
+  BEQ IsBenAmmo        ; f0ff
+IsCompanionAmmo:
+  LDX #$80             ; a280
+  BRA DoAmmo           ; 8002
+IsBenAmmo:
+  LDX #$00             ; a200
+DoAmmo:
+  LDA $1030,X          ; bd3010
+  JSR ComputeAmmoQty   ; 20008e
+  STA $1030,X          ; 9d3010
+  RTL                  ; 6b
+IsConsumable:
+  JSL #$00DA65         ; 2265da00
+  LDA $9E              ; a59e
+  STA $0E9E,X          ; 9d9e0e
+  LDA $0E9F,X          ; bd9e0f
+  JSR ComputeAmmoQty   ; 20008e
+  STA $0E9F,X          ; 9d9e0f
+  RTL                  ; 6b
+IsKeyItem:
+  JSL KeyItemRoutine   ; 22009211
+  RTL                  ; 60
 
  .ORG $9050
 ItemQuantityRoutine:
@@ -47,7 +112,7 @@ finalize_nocount:
   sta $0165  
   rtl
 
- .ORG $9200
+ .ORG $119200
 
 KeyItemRoutine
   PHA
@@ -100,39 +165,3 @@ Mirror:
 SkyFragments:
   INC $0E93
   BRA NormalGiveItem
-
-
-
-
-GiveItem
- ItemQuantityRoutine  ; 22509011
- sep #$20             ; e2
- lda $9e              ; a59e
- CMP #$10             ; c910
- BCC iskeyitem        ; 90ff
- CMP #$14             ; c914
- BCC IsConsumable     ; 90ff
- CMP #$DD             ; c9dd
- BCC IsKeyItem        ; 90ff
- BEQ isBenAmmo        ; f0ff
-isCompanionAmmo:  (dae1  
- LDX #$80             ; a280
- BRA doAmmo           ; 8002
-isbenammo:
- Ldx #$00             ; a200
-doAmmo:
- lda $1030, x         ; bd3010
- JSR ComputeAmmoQty   ; 2005db
- sta $1030, x         ; 9d3010
- rts                  ; 60
-isconsumable:
- JSL code_00da65      ; 2265da00
- lda $9e              ; a59e
- sta $0e9e,x          ; 9d9e0e
- lda $0e9f,x          ; bd9e0f
- JSR computeammo      ; 2005db
- sta $0e9f,x          ; 9d9e0f
- rts
-iskeyitem:
- JSL KeyItemRoutine   ; 22009211
- rts                  ; 60

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -10,7 +11,15 @@ namespace FFMQLib
 {
 	public static class Metadata
 	{
-		public static string Version = "1.5.07";
+		// X.Y.Z
+		// X = Global Version
+		// Y = Major Release
+		// Z = Patch Release
+		// Increment Beta on every new builds, reset to zero on version increase
+		public static string Version = "1.6.0";
+		public static string Beta = "47";
+		public static string BetaVersionShort => Version + "-b" + Beta;
+		public static string BetaVersionLong => Version + "-beta" + Beta;
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -27,6 +36,7 @@ namespace FFMQLib
 		public EnemyAttackLinks EnemyAttackLinks;
 		public Attacks Attacks;
 		public EnemiesStats EnemiesStats;
+		public FormationsData FormationsData;
 		public GameLogic GameLogic;
 		public EntrancesData EntrancesData;
 		public MapPalettes MapPalettes;
@@ -36,7 +46,9 @@ namespace FFMQLib
 		private byte[] originalData;
 		public bool beta = false;
 		public bool spoilers = false;
-		public string spoilersText;
+		public string SpoilersText;
+		public string GameinfoText;
+		private string hashString;
 		public void Randomize(Blob seed, Flags flags, Preferences preferences, ApConfigs apconfigs)
 		{
 			// Convert 1.0 rom to 1.1 for compatibility
@@ -53,14 +65,16 @@ namespace FFMQLib
 			using (SHA256 hasher = SHA256.Create())
 			{
 				Blob hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
+				hashString = TitleScreen.EncodeTo32(hash).Substring(0, 8);
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 				sillyrng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
 			asyncrng = new MT19337((uint)Guid.NewGuid().GetHashCode());
 
 			Attacks = new(this);
-			EnemyAttackLinks = new(this);
 			EnemiesStats = new(this);
+			FormationsData = new(this);
+			EnemyAttackLinks = new(this);
 			GameMaps = new(this);
 			MapObjects = new(this);
 			GameFlags = new(this);
@@ -86,19 +100,20 @@ namespace FFMQLib
 			DarkKingTrueForm darkKingTrueForm = new();
 
 			// General modifications
-			GeneralModifications(flags, apconfigs.ApEnabled, rng);
+			GeneralModifications(flags, preferences, apconfigs.ApEnabled, rng);
 			UnjankOverworld(GameMaps, MapChanges, MapPalettes);
 
 			// Maps Changes
 			GameMaps.RandomGiantTreeMessage(rng);
 			GameMaps.LessObnoxiousMaps(flags.TweakedDungeons, MapObjects, rng);
+			GameMaps.ShuffledMapChanges(flags.MapShuffling, MapObjects);
 
 			// Enemies
 			MapObjects.SetEnemiesDensity(flags.EnemiesDensity, rng);
 			MapObjects.ShuffleEnemiesPosition(flags.ShuffleEnemiesPosition, GameMaps, rng);
-			EnemyAttackLinks.ShuffleAttacks(flags.EnemizerAttacks, flags.EnemizerGroups, rng);
 			EnemiesStats.ScaleEnemies(flags, rng);
 			EnemiesStats.ShuffleResistWeakness(flags.ShuffleResWeakType, GameInfoScreen, rng);
+			EnemyAttackLinks.ShuffleAttacks(flags, EnemiesStats, FormationsData, rng);
 
 			// Companions
 			GameLogic.CompanionsShuffle(flags.CompanionsLocations, flags.KaelisMomFightMinotaur, apconfigs, rng);
@@ -116,22 +131,23 @@ namespace FFMQLib
 			// Map Shuffling
 			GameLogic.CrestShuffle(flags.CrestShuffle, apconfigs.ApEnabled, rng);
 			GameLogic.FloorShuffle(flags.MapShuffling, apconfigs.ApEnabled, rng);
-			Overworld.ShuffleOverworld(flags.MapShuffling, GameLogic, Battlefields, Companions.QuestEasyWinLocations, apconfigs.ApEnabled, rng);
+			Overworld.ShuffleOverworld(flags.OverworldShuffle, flags.MapShuffling, GameLogic, Battlefields, Companions.QuestEasyWinLocations, apconfigs.ApEnabled, rng);
 			Overworld.UpdateOverworld(flags, GameLogic, Battlefields);
 
 			// Logic
-			GameLogic.CrawlRooms(flags, Overworld, Battlefields);
+			GameLogic.CrawlRooms(flags, Overworld, EnemiesStats, Companions, Battlefields);
 			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this);
 			EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
-			
+
 			// Items
-			ItemsPlacement itemsPlacement = new(flags, GameLogic.GameObjects, apconfigs, this, rng);
+			ItemsPlacement itemsPlacement = new(flags, GameLogic.GameObjects, Companions, apconfigs, this, rng);
 
 			SetStartingItems(itemsPlacement);
 			MapObjects.UpdateChests(itemsPlacement);
-			UpdateScripts(flags, itemsPlacement, Overworld.StartingLocation, apconfigs.ApEnabled, rng);
+			UpdateScripts(flags, itemsPlacement, Overworld.StartingLocation, apconfigs.ApEnabled, preferences.MusicMode == MusicMode.Mute, rng);
 			ChestsHacks(flags, itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
+			HintRobots(flags, MapSpriteSets, MapObjects, itemsPlacement, GameLogic, apconfigs, rng);
 
 			// Doom Castle
 			SetDoomCastleMode(flags.DoomCastleMode);
@@ -145,7 +161,7 @@ namespace FFMQLib
 			ProgressiveFormation(flags.ProgressiveFormations, Overworld, rng);
 
 			// Preferences			
-			RandomizeTracks(preferences.RandomMusic, new MT19337(sillyrng.Next()));
+			SetMusicMode(preferences.MusicMode, new MT19337(sillyrng.Next()));
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, new MT19337(sillyrng.Next()));
 			WindowPalette(preferences.WindowPalette);
 			playerSprites.SetPlayerSprite(playerSprite, this);
@@ -175,12 +191,12 @@ namespace FFMQLib
 			GameInfoScreen.Write(this);
 
 			credits.Write(this);
-			titleScreen.Write(this, Metadata.Version, seed, flags);
+			titleScreen.Write(this, Metadata.Version, hashString, flags);
 
 			// Spoilers
-			Spoilers spoilersGenerator = new();
-			spoilersText = spoilersGenerator.GenerateSpoilers(flags, titleScreen, seed.ToHex(), itemsPlacement, GameInfoScreen, GameLogic);
-			spoilers = (flags.EnableSpoilers || preferences.DumpGameInfoScreen);
+			Spoilers spoilersGenerator = new(flags, titleScreen, seed.ToHex(), hashString, itemsPlacement, GameInfoScreen, GameLogic, Battlefields);
+			SpoilersText = spoilersGenerator.SpoilersText;
+			GameinfoText = spoilersGenerator.GameinfoText;
 
 			if (apconfigs.ApEnabled)
 			{

@@ -206,6 +206,26 @@ namespace FFMQLib
 
 			return text;
 		}
+
+		List<char> validChars = new() { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '!', '?', ',', '\'', '.', ';', ':', '/', '-', '&', '>', '%', ' ' };
+		public string SanitizeString(string text)
+		{
+			string sanitizedtext = "";
+
+			for (int i = 0; i < text.Length; i++)
+			{
+				if (validChars.Contains(text[i]))
+				{
+					sanitizedtext += text[i];
+				}
+				else
+				{
+					sanitizedtext += '?';
+				}
+			}
+
+			return sanitizedtext;
+		}
 	}
 
 	public class Credits
@@ -270,6 +290,7 @@ namespace FFMQLib
 				"rabite\n" +
 				"DarkmoonEX\n" +
 				"Chanigan\n" +
+				"Giga Otomia\n" +
 				"abyssonym\n" +
 				"The FFR Dev Team\n" +
 				"The FFR Community\n" +
@@ -322,18 +343,17 @@ namespace FFMQLib
 		private List<Blob> titleSprites;
 
 		public string versionText;
-		public string hashText;
 
 		public TitleScreen(FFMQRom rom)
 		{
 			titleSprites = rom.GetFromBank(titleScreenBank, offsetSprites, lengthSprites * qtySprites).Chunk(lengthSprites);
-			versionText = "v" + FFMQLib.Metadata.Version + (rom.beta ? "b" : "");
+			versionText = "v" + (rom.beta ?
+				FFMQLib.Metadata.BetaVersionShort :
+				FFMQLib.Metadata.Version);
 			UpdateSprites(rom.beta);
-			
-			//UpdateText();
 		}
 
-		public void Write(FFMQRom rom, string version, Blob seed, Flags flags)
+		public void Write(FFMQRom rom, string version, string hash, Flags flags)
 		{
 
 			rom.PutInBank(titleScreenBank, offsetSprites, titleSprites.SelectMany(x => x.ToBytes()).ToArray());
@@ -345,17 +365,10 @@ namespace FFMQLib
 			rom.PutInBank(titleScreenBank, offsetVersion, Blob.FromHex(rom.TextToHex(versionText.Substring(0,8))));
 			rom.PutInBank(titleScreenBank, offsetVersionBranch, Blob.FromHex(rom.TextToHex(versionText.Substring(8, 2))));
 
-			byte[] hash;
-
-			using (SHA256 hasher = SHA256.Create())
-			{
-				hash = hasher.ComputeHash(seed + flags.EncodedFlagString());
-			}
-
-			hashText = EncodeTo32(hash).Substring(0, 8);
-			rom.PutInBank(titleScreenBank, offsetHash, rom.TextToByte(hashText, false));
+			rom.PutInBank(titleScreenBank, offsetHash, rom.TextToByte(hash, false));
 		}
-		private string EncodeTo32(byte[] bytesToEncode)
+
+		public static string EncodeTo32(byte[] bytesToEncode)
 		{
 			string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 

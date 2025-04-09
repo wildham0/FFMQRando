@@ -58,6 +58,11 @@ namespace FFMQLib
 		}
 		public override bool Validate()
 		{
+			if (Data is null)
+			{
+				return false;
+			}
+			
 			using (SHA256 hasher = SHA256.Create())
 			{
 				byte[] dataToHash = new byte[0x80000];
@@ -129,20 +134,23 @@ namespace FFMQLib
 		public byte[] DataReadOnly { get => Data; }
 		public Stream SpoilerStream()
 		{
-			if (spoilers)
-			{
-				var stream = new MemoryStream();
-				var writer = new StreamWriter(stream);
+			var stream = new MemoryStream();
+			var writer = new StreamWriter(stream);
 				
-				writer.Write(spoilersText);
-				writer.Flush();
-				stream.Position = 0;
-				return stream;
-			}
-			else
-			{
-				return null;
-			}
+			writer.Write(SpoilersText);
+			writer.Flush();
+			stream.Position = 0;
+			return stream;
+		}
+		public Stream GameinfoStream()
+		{
+			var stream = new MemoryStream();
+			var writer = new StreamWriter(stream);
+
+			writer.Write(GameinfoText);
+			writer.Flush();
+			stream.Position = 0;
+			return stream;
 		}
 		public void PutInBank(int bank, int address, Blob data)
 		{
