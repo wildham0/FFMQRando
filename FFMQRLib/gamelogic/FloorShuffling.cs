@@ -47,9 +47,11 @@ namespace FFMQLib
 		public List<int> InitialRooms { get; set; }
 		public bool OddLinks => Rooms.Where(r => r.Links.Count % 2 == 1).Any();
 		public bool DeadEndRequired => Rooms.Where(r => r.Links.Where(l => !l.Exit).Any()).Any();
+		private List<ClusterRoom> BackupRooms;
 		public ClusterLocation()
 		{
 			Rooms = new();
+			BackupRooms = new();
 			Id = 0;
 			InitialRooms = new();
 			Location = LocationIds.None;
@@ -59,9 +61,18 @@ namespace FFMQLib
 			initialRoom = new ClusterRoom(initialRoom);
 
 			Rooms = new() { initialRoom };
+			BackupRooms = new();
 			Id = 0;
 			Location = initialRoom.Location;
 			InitialRooms = initialRoom.Rooms.ToList();
+		}
+		public void BackUpState()
+		{
+			BackupRooms = Rooms.Select(r => new ClusterRoom(r)).ToList();
+		}
+		public void RestoreBackup()
+		{
+			Rooms = BackupRooms.Select(r => new ClusterRoom(r)).ToList();
 		}
 		public List<int> ForbiddenDestinations(LogicLink link)
 		{
@@ -701,71 +712,105 @@ namespace FFMQLib
 				}
 
 				// Placed dead ends
-				int deadendInsanity = 0;
-				while (deadendClusterRooms.Any())
+				List<(LogicLink origin, LogicLink target)> deadEndLinkPairs = new();
+				bool validDeadends = false;
+
+				originLocations.ForEach(l => l.BackUpState());
+
+				while (!validDeadends)
 				{
-					bool removeMacShip = (macShipMergingCount >= (macShipMaxSize)) && !macShip.OddLinks && !macShip.DeadEndRequired;
+					// We create a state backup to reset if we hit some softlocked scenarios
+					originLocations.ForEach(l => l.RestoreBackup());
+					var deadendRoomsToProcess = deadendClusterRooms.ToList();
+					deadEndLinkPairs = new();
 
-					var availableLocations = originLocations.Where(l => l.Rooms.Where(r => r.Links.Any()).ToList().Any() &&
-						(removeMacShip ? l != macShip : true)).ToList();
-					var oddLinksLocations = availableLocations.Where(l => l.OddLinks).ToList();
-					var noExitLocations = availableLocations.Where(l => l.DeadEndRequired).ToList();
-					bool noExit = false;
-					bool oddLinks = false;
+					int deadendInsanity = 0;
+					bool abortRun = false;
 
-					if (noExitLocations.Any())
+					while (deadendRoomsToProcess.Any())
 					{
-						availableLocations = noExitLocations;
-						noExit = true;
-					}
-					else if (oddLinksLocations.Any())
-					{
-						availableLocations = oddLinksLocations;
-						oddLinks = true;
-					}
+						bool removeMacShip = (macShipMergingCount >= (macShipMaxSize)) && !macShip.OddLinks && !macShip.DeadEndRequired;
 
-					var originRoom = rng.PickFrom(availableLocations);
-					var originLinks = originRoom.Links;
-					if (noExit)
-					{
-						originLinks = originRoom.Links.Where(l => !l.Exit).ToList();
-					}
-					else if (oddLinks)
-					{
-						originLinks = originRoom.Rooms.Where(r => r.Links.Count % 2 == 1).SelectMany(r => r.Links).ToList();
-					}
+						var availableLocations = originLocations.Where(l => l.Rooms.Where(r => r.Links.Any()).ToList().Any() &&
+							(removeMacShip ? l != macShip : true)).ToList();
+						var oddLinksLocations = availableLocations.Where(l => l.OddLinks).ToList();
+						var noExitLocations = availableLocations.Where(l => l.DeadEndRequired).ToList();
+						bool noExit = false;
+						bool oddLinks = false;
 
-					var originLink = rng.PickFrom(originLinks);
-
-					List<ClusterRoom> destinationRooms = deadendClusterRooms.Where(x =>
-						!x.Rooms.Intersect(originRoom.ForbiddenDestinations(originLink)).Any()
-						).ToList();
-					
-					List<ClusterRoom> machsipForbiddenRooms = destinationRooms.Where(x =>
-						!x.Rooms.Intersect(macShipBarredRooms).Any()
-						).ToList();
-
-					destinationRooms = machsipForbiddenRooms.Any() ? machsipForbiddenRooms : destinationRooms;
-
-					if (!destinationRooms.Any())
-					{
-						deadendInsanity++;
-						if (deadendInsanity > 100)
+						if (noExitLocations.Any())
 						{
-							// There's a remote situation where mac ship is the only location left and there's still dead ends to place, this is it
-							throw new Exception("Map Shuffling Loop Error, try another seed.");
+							availableLocations = noExitLocations;
+							noExit = true;
 						}
-						continue;
+						else if (oddLinksLocations.Any())
+						{
+							availableLocations = oddLinksLocations;
+							oddLinks = true;
+						}
+
+						var originRoom = rng.PickFrom(availableLocations);
+						var originLinks = originRoom.Links;
+						if (noExit)
+						{
+							originLinks = originRoom.Links.Where(l => !l.Exit).ToList();
+						}
+						else if (oddLinks)
+						{
+							originLinks = originRoom.Rooms.Where(r => r.Links.Count % 2 == 1).SelectMany(r => r.Links).ToList();
+						}
+
+						var originLink = rng.PickFrom(originLinks);
+
+						List<ClusterRoom> destinationRooms = deadendRoomsToProcess.Where(x =>
+							!x.Rooms.Intersect(originRoom.ForbiddenDestinations(originLink)).Any()
+							).ToList();
+
+						List<ClusterRoom> machsipForbiddenRooms = destinationRooms.Where(x =>
+							!x.Rooms.Intersect(macShipBarredRooms).Any()
+							).ToList();
+
+						destinationRooms = machsipForbiddenRooms.Any() ? machsipForbiddenRooms : destinationRooms;
+
+						if (!destinationRooms.Any())
+						{
+							deadendInsanity++;
+							if (deadendInsanity > 20)
+							{
+								abortRun = true;
+								// There's a remote situation where mac ship is the only location left and there's still dead ends to place, this is it
+								//throw new Exception("Map Shuffling Loop Error, try another seed.");
+							}
+							else
+							{
+								continue;
+							}
+						}
+
+						if (abortRun)
+						{
+							break;
+						}
+
+						var destinationRoom = rng.PickFrom(destinationRooms);
+						deadendRoomsToProcess.Remove(destinationRoom);
+
+						var destinationLink = rng.PickFrom(destinationRoom.Links);
+						deadEndLinkPairs.Add((originLink, destinationLink));
+
+						originRoom.Merge(destinationRoom, originLink, destinationLink);
+						if (originRoom == macShip) macShipMergingCount++;
 					}
 
-					var destinationRoom = rng.PickFrom(destinationRooms);
-					deadendClusterRooms.Remove(destinationRoom);
+					if (!deadendRoomsToProcess.Any())
+					{
+						validDeadends = true;
+					}
+				}
 
-					var destinationLink = rng.PickFrom(destinationRoom.Links);
-
-					ConnectLink(originLink, destinationLink);
-					originRoom.Merge(destinationRoom, originLink, destinationLink);
-					if (originRoom == macShip) macShipMergingCount++;
+				foreach (var pair in deadEndLinkPairs)
+				{
+					ConnectLink(pair.origin, pair.target);
 				}
 
 				// Check loose ends
