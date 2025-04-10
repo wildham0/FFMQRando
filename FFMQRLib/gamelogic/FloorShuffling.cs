@@ -653,6 +653,23 @@ namespace FFMQLib
 					skyLocation.Merge(skyCrystalRoom, originLink, destinationLink);
 				}
 
+				// Place the other crystal rooms
+				var crystalClusters = deadendClusterRooms.Where(r => r.Rooms.Intersect(crystalRooms.Select(c => c.targetroom).ToList()).Any()).ToList();
+				deadendClusterRooms = deadendClusterRooms.Except(crystalClusters).ToList();
+
+				foreach (var crystalCluster in crystalClusters)
+				{
+					var crystalRoom = crystalRooms.Find(c => crystalCluster.Rooms.Contains(c.targetroom));
+					var originRoom = originLocations.Find(o => o.Rooms.Where(r => r.Rooms.Contains(crystalRoom.baseroom)).Any());
+
+					var originLink = rng.PickFrom(originRoom.Links);
+
+					var destinationLink = rng.PickFrom(crystalCluster.Links);
+
+					ConnectLink(originLink, destinationLink);
+					originRoom.Merge(crystalCluster, originLink, destinationLink);
+				}
+
 				// Place Crest tile deadends first (because they're more restricted)
 				var crestClusters = deadendClusterRooms.Where(r => r.Rooms.Intersect(crestRooms).Any()).ToList();
 				deadendClusterRooms = deadendClusterRooms.Except(crestClusters).ToList();
@@ -681,23 +698,6 @@ namespace FFMQLib
 
 					ConnectLink(originLink, destinationLink);
 					originRoom.Merge(destinationRoom, originLink, destinationLink);
-				}
-
-				// Place the other crystal rooms
-				var crystalClusters = deadendClusterRooms.Where(r => r.Rooms.Intersect(crystalRooms.Select(c => c.targetroom).ToList()).Any()).ToList();
-				deadendClusterRooms = deadendClusterRooms.Except(crystalClusters).ToList();
-
-				foreach (var crystalCluster in crystalClusters)
-				{
-					var crystalRoom = crystalRooms.Find(c => crystalCluster.Rooms.Contains(c.targetroom));
-					var originRoom = originLocations.Find(o => o.Rooms.Where(r => r.Rooms.Contains(crystalRoom.baseroom)).Any());
-
-					var originLink = rng.PickFrom(originRoom.Links);
-
-					var destinationLink = rng.PickFrom(crystalCluster.Links);
-
-					ConnectLink(originLink, destinationLink);
-					originRoom.Merge(crystalCluster, originLink, destinationLink);
 				}
 
 				// Placed dead ends

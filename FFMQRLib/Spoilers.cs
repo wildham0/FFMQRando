@@ -19,6 +19,100 @@ namespace FFMQLib
 			GenerateSpoilers(flags, titlescreen, seed, hash, itemsplacement, gameinfo, gamelogic, battlefields);
 		}
 
+		public static string MapSpoiler(GameLogic gamelogic)
+		{
+			string spoilers = "--- Map Shuffling ---\n";
+
+			List<SubRegions> subregions = new() { SubRegions.Foresta, SubRegions.Aquaria, SubRegions.LifeTemple, SubRegions.AquariaFrozenField, SubRegions.SpencerCave, SubRegions.Fireburg, SubRegions.VolcanoBattlefield, SubRegions.Windia, SubRegions.LightTemple, SubRegions.ShipDock, SubRegions.MacShip, SubRegions.DoomCastle };
+
+			foreach (var subregion in subregions)
+			{
+				spoilers += "*** " + subregion.ToString() + " ***\n";
+				var subregionroom = gamelogic.Rooms.Find(x => x.Type == RoomType.Subregion && x.Region == subregion);
+				var locationslist = subregionroom.Links.Where(l => l.Entrance > 0).Select(l => l.Location).ToList();
+				var battlefieldslist = subregionroom.GameObjects.Select(o => o.Name).ToList();
+
+				foreach (var battlefield in battlefieldslist)
+				{
+					spoilers += "[" + battlefield + "]\n";
+				}
+
+			
+					if (battlefieldslist.Any())
+					{
+						spoilers += "\n";
+					}
+
+					foreach (var location in locationslist)
+					{
+						var spoilerRooms = gamelogic.CrawlForSpoilers(location);
+						//List<int> processedrooms = new();
+
+						spoilers += "[" + location.ToString() + "]\n";
+
+						//string baseindent = "";
+
+						List<string> locationspoiler = new();
+
+						spoilerRooms = spoilerRooms.OrderBy(x => x.ComputedDewy).ToList();
+						spoilerRooms.Reverse();
+
+						List<bool> touchedDepths = Enumerable.Repeat(false, 40).ToList();
+
+						foreach (var room in spoilerRooms)
+						{
+							string indent = "";
+							string tempspoiler = "";
+							touchedDepths = touchedDepths.Select((x, i) => i <= room.Depth && x).ToList();
+
+							if (room.Depth > 0)
+							{
+								indent += "  ";
+
+								for (int i = 1; i < room.Depth; i++)
+								{
+									if (touchedDepths[i])
+									{
+										indent += "║ ";
+									}
+									else
+									{
+										indent += "  ";
+									}
+								}
+
+								if (touchedDepths[room.Depth])
+								{
+									indent += "╟>";
+								}
+								else
+								{
+									indent += "╚>";
+									touchedDepths[room.Depth] = true;
+								}
+							}
+							else
+							{
+								indent += " >";
+							}
+
+							//string actualindent = string.Join("", Enumerable.Repeat("  ", (room.Depth - 1)).ToList());
+							tempspoiler += indent;
+							tempspoiler += room.Access.Any() ? "[" + string.Join(", ", room.Access.Select(a => a.ToString())) + "] " + room.Description : room.Description;
+							tempspoiler += "\n";
+							//processedrooms.Add(room.RoomId);
+
+							locationspoiler.Add(tempspoiler);
+						}
+
+						locationspoiler.Reverse();
+						spoilers += string.Join("", locationspoiler);
+						spoilers += "\n";
+					}
+			}
+
+			return spoilers;
+		}
 		private void GenerateSpoilers(Flags flags, TitleScreen titlescreen, string seed, string hash, ItemsPlacement itemsplacement, GameInfoScreen gameinfo, GameLogic gamelogic, Battlefields battlefields)
 		{
 			SpoilersText = "";
