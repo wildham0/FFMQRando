@@ -286,6 +286,7 @@ namespace FFMQLib
 			GameLogic.CompanionsShuffle((CompanionsLocationType)companionshuffling, kaelismom, apconfigs, rng);
 			GameLogic.CrestShuffle(crestshuffle, false, rng);
 			GameLogic.FloorShuffle((MapShufflingMode)mapshuffling, false, rng);
+			//var mapspoiler = Spoilers.MapSpoiler(GameLogic);
 			Overworld.ShuffleOverworld(overworldshuffle, (MapShufflingMode)mapshuffling, GameLogic, Battlefields, new List<LocationIds>(),false, rng);
 
 			// Update Logic Requirements to old logic if still on 1.5

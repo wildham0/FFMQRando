@@ -556,7 +556,7 @@ namespace FFMQLib
 				companionlist.Add(reqcount + companion.Access.Count);
 			}
 
-			foreach (var link in currentRoom.Links.Where(l => !visitedrooms.Contains(l.TargetRoom) && !l.Access.Intersect(AccessReferences.CrestsAccess).Any()))
+			foreach (var link in currentRoom.Links.Where(l => !visitedrooms.Contains(l.TargetRoom)))
 			{
 				ProcessRoomForCompanions(reqcount + link.Access.Count, link.TargetRoom, companionlist, visitedrooms);
 			}
