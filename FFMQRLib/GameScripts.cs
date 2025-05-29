@@ -399,7 +399,7 @@ namespace FFMQLib
 				});
 
 			// Exit Fall Basin
-			GameMaps.TilesProperties[0x0A][0x22].Byte2 = 0x08;
+			GameMaps.TilesProperties[0x0A][0x22].PropertyByte2 = 0x08;
 
 			/*** Ice Pyramid ***/
 			// Ice Pyramid Entrance
@@ -430,7 +430,7 @@ namespace FFMQLib
 			}
 
 			// Change tile properties from falling tile to script tile
-			GameMaps.TilesProperties[0x06][0x1E].Byte2 = 0x88;
+			GameMaps.TilesProperties[0x06][0x1E].PropertyByte2 = 0x88;
 
 			TileScripts.AddScript((int)TileScriptsList.IcePyramidCheckStatue,
 				new ScriptBuilder(new List<string>
