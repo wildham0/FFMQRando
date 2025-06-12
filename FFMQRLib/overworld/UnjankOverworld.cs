@@ -61,11 +61,21 @@ namespace FFMQLib
 			PutInBank(0x05, 0xF484, Blob.FromHex("44")); // Mountain ? does it matter since we don't use these anymore?
 
 			// Update overworld map
+
+			byte[,] owcliff = {
+				{ 0x34, 0x12, 0x6D, fullcliff, fullcliff, fullcliff, eastvoid },
+				{ 0x34, 0x6D, eastvoid, southvoid, southvoid, southvoid, fullvoid },
+				{ 0x34, eastvoid, 0x68, 0x68, 0x68, 0x68, 0x68 },
+			};
+
+			mapchanges.Modify(0, 0, 3, owcliff);
+
+			/*
 			mapchanges.Modify(0, 0x1B, new List<byte> {
 				fullcliff, fullcliff, fullcliff, eastvoid,
 				0x34, 0x6D, eastvoid, southvoid, southvoid, southvoid, fullvoid,
 				0x34, eastvoid
-			});
+			});*/
 
 			maps[0].ReplaceAll(0x27, 0x26);
 			maps[0].ModifyMap(0x1C, 0x29, southvoid);
