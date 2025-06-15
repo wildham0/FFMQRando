@@ -334,7 +334,7 @@ namespace FFMQLib
 
 			// On the fly palette switcher
 			PutInBank(0x01, 0x8F6F, Blob.FromHex("22809911ea"));
-			PutInBank(0x11, 0x9980, Blob.FromHex("ad910ed00f08e23020d09920009a28a9d08d21216b"));
+			PutInBank(0x11, 0x9980, Blob.FromHex("ad910ed00a08e23020d09920009a28a9d08d21216b"));
 			PutInBank(0x11, 0x99D0, Blob.FromHex("a90122769700f013ad8a0ec913b007a20f20509A8005a21420509A60")); // Mountain Tiles
 			PutInBank(0x11, 0x9A00, Blob.FromHex("a90422769700f02aa90222769700d022ad8a0ec918b007a20020509A8014a90122769700f007a20520509A8005a20a20509A60")); // Corner/Lake Tiles
 			PutInBank(0x11, 0x9A50, Blob.FromHex("8ba91148abbd709a8d2121e8a004bd709a8d2221e888d0f6ab60")); // Palette Updater
