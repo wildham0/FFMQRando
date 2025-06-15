@@ -115,11 +115,14 @@ namespace FFMQLib
 			PutInBank(0x16, 0x9230, Blob.FromHex("0bf438102b38e914225a97002b1a3a60")); // Spells
 			PutInBank(0x16, 0x9240, Blob.FromHex("3a3aaa201092d00d8a1aaa201092d0058a1a20109260")); // 3 weapons
 			PutInBank(0x16, 0x9260, Blob.FromHex("3a3aaa202092d00d8a1aaa202092d0058a1a20209260")); // 3 armors
+			PutInBank(0x16, 0x9280, Blob.FromHex("0bf4c80e2baabd0e92225a97002b1a3a60")); // Chests
+			PutInBank(0x16, 0x9280, Blob.FromHex("0bf4a80e2baabd0e92225a97002b1a3a60")); // NPC
+			PutInBank(0x16, 0x9280, Blob.FromHex("aabd0e92aabdd40ff003a90060a9ff60")); // Battlefield
 
-			PutInBank(0x16, 0x9280, Blob.FromHex("0092109220923092429241924092629261926092")); // check routines pointers
+			PutInBank(0x16, 0x9300, Blob.FromHex("0092109220923092429241924092629261926092")); // check routines pointers
 
 			// Main checker loop
-			PutInBank(0x16, 0x9310, Blob.FromHex("c8c8c8c8c8b98193c9fff00ec9fef0250aaab98093fc8092d0e6b980938d0015b982938d0715b983938d0815b984938d0915ab286b08c230b98293a82880c6")); // 0x40
+			PutInBank(0x16, 0x93A0, Blob.FromHex("c8c8c8c8c8b90194c9fff00ec9fef0250aaab90094fc0093d0e6b900948d0015b902948d0715b903948d0815b904948d0915ab286b08c230b90294a82880c6")); // 0x40
 
 			// generate hints first , 1 item > 1 entry
 			var keyitems = itemplacement.ItemsLocations.Where(l => (l.Content >= Items.Elixir && l.Content < Items.CurePotion) || (l.Content >= Items.ExitBook && l.Content <= Items.CupidLocket)).Select(l => (l.Content, l.Name, l.Type, l.Location)).ToList();
@@ -131,8 +134,8 @@ namespace FFMQLib
 			List<(Items item, ushort address)> hintaddresses = new();
 
 			byte[] endstring = Blob.FromHex("3600");
-			byte[] itemname = Blob.FromHex("077DFE03");
-			int pointeraddress = 0x9800;
+			byte[] itemname = flags.ProgressiveGear ? Blob.FromHex("07008E16") : Blob.FromHex("077DFE03");
+			int pointeraddress = 0x9900;
 
 			List<byte[]> allHints = new();
 
@@ -217,7 +220,7 @@ namespace FFMQLib
 				throw new Exception("Hints text to large.");
 			}
 
-			PutInBank(0x16, 0x9800, allHints.SelectMany(h => h).ToArray());
+			PutInBank(0x16, 0x9900, allHints.SelectMany(h => h).ToArray());
 
 			// generate logic lists
 			var hintListAddress = 0x0000;
@@ -343,22 +346,22 @@ namespace FFMQLib
 			var randomAdress = goModeAddress + goModeList.Length;
 			var randomList = hintaddresses.SelectMany(h => new byte[] { (byte)h.item, (byte)GetHintType(h.item, false), (byte)(h.address % 0x100), (byte)(h.address / 0x100), 0x16 }).Concat(endOfList).ToArray();
 
-			PutInBank(0x16, 0x9380 + flatListAddress, flatList);
-			PutInBank(0x16, 0x9380 + logicProgressionAddress, logicProgressionList);
-			PutInBank(0x16, 0x9380 + spellProgressionAddress, spellProgressionList);
-			PutInBank(0x16, 0x9380 + goModeAddress, goModeList);
-			PutInBank(0x16, 0x9380 + randomAdress, randomList);
+			PutInBank(0x16, 0x9400 + flatListAddress, flatList);
+			PutInBank(0x16, 0x9400 + logicProgressionAddress, logicProgressionList);
+			PutInBank(0x16, 0x9400 + spellProgressionAddress, spellProgressionList);
+			PutInBank(0x16, 0x9400 + goModeAddress, goModeList);
+			PutInBank(0x16, 0x9400 + randomAdress, randomList);
 
-			if (0x9380 + randomAdress + randomList.Length > pointeraddress)
+			if (0x9400 + randomAdress + randomList.Length > pointeraddress)
 			{
 				throw new Exception("Hint Logic Lists are too large.");
 			}
 
 			// Entrance point for each hinter
-			PutInBank(0x16, 0x9290, Blob.FromHex($"088be220c210a91648aba900eba0{(logicProgressionAddress % 0x100):X2}{(logicProgressionAddress / 0x100):X2}4c1593"));
-			PutInBank(0x16, 0x92B0, Blob.FromHex($"088be220c210a91648aba900eba0{(spellProgressionAddress % 0x100):X2}{(spellProgressionAddress / 0x100):X2}4c1593"));
-			PutInBank(0x16, 0x92D0, Blob.FromHex($"088be220c210a91648aba900eba0{(randomAdress % 0x100):X2}{(randomAdress / 0x100):X2}4c1593"));
-			PutInBank(0x16, 0x92F0, Blob.FromHex($"088be220c210a91648aba900eba0{(goModeAddress % 0x100):X2}{(goModeAddress / 0x100):X2}4c1593"));
+			PutInBank(0x16, 0x9320, Blob.FromHex($"088be220c210a91648aba900eba0{(logicProgressionAddress % 0x100):X2}{(logicProgressionAddress / 0x100):X2}4ca593"));
+			PutInBank(0x16, 0x9340, Blob.FromHex($"088be220c210a91648aba900eba0{(spellProgressionAddress % 0x100):X2}{(spellProgressionAddress / 0x100):X2}4ca593"));
+			PutInBank(0x16, 0x9360, Blob.FromHex($"088be220c210a91648aba900eba0{(randomAdress % 0x100):X2}{(randomAdress / 0x100):X2}4ca593"));
+			PutInBank(0x16, 0x9380, Blob.FromHex($"088be220c210a91648aba900eba0{(goModeAddress % 0x100):X2}{(goModeAddress / 0x100):X2}4ca593"));
 
 			// Generate scripts
 			List<string> nohintsleft = new()
@@ -398,11 +401,11 @@ namespace FFMQLib
 						"0BFF[14]", // FF = Not Enough Money Message
 						"0B01[15]", // 01 = Vendor Gate
 						// We have enough money, ask if they want it
-						$"09{(0x90+(i*0x20)):X2}9216", // compute hint, address at $1507
+						$"09{(0x20+(i*0x20)):X2}9316", // compute hint, address at $1507
 						"0F00150BFF[17]",
 						freehints ?
-							TextToHex("Want to know where the ") + "077DFE03" + TextToHex(" is?") :
-							TextToHex("Want to know where the ") + "077DFE03" + TextToHex(" is for ") + "072CFF03" + TextToHex("?"), // todo
+							TextToHex("Want to know where the ") + (flags.ProgressiveGear ? "07008E16" : "077DFE03") + TextToHex(" is?") :
+							TextToHex("Want to know where the ") + (flags.ProgressiveGear ? "07008E16" : "077DFE03") + TextToHex(" is for ") + "072CFF03" + TextToHex("?"), // todo
 						"07D0FD03", // yes/no
 						"050BFB[10]",
 						"00", // no, we done
@@ -425,6 +428,32 @@ namespace FFMQLib
 						TextToHex(rng.TakeFrom(nohintsleft)) + "3600",
 					}));
 			}
+			// Progressive items script
+			var progitemname = new ScriptBuilder(new List<string>()
+			{
+				"0F0015",
+				"050620[11]",
+				"05043F[11]",
+				"050623[12]",
+				"050626[13]",
+				"050629[14]",
+				"05062C[15]",
+				"050632[16]",
+				"050639[17]",
+				"05063D[18]",
+				"050640[19]",
+				"05027DFE03",
+				TextToHex("Progressive Sword") + "00",
+				TextToHex("Progressive Axe") + "00",
+				TextToHex("Progressive Claw") + "00",
+				TextToHex("Progressive Bomb") + "00",
+				TextToHex("Progressive Helmet") + "00",
+				TextToHex("Progressive Armor") + "00",
+				TextToHex("Progressive Shield") + "00",
+				TextToHex("Progressive Accessory") + "00",
+			});
+
+			progitemname.WriteAt(0x16, 0x8E00, this);
 
 			// Create NPCs
 			mapsprites[0x31].AdressorList.Add(new SpriteAddressor(9, 0, 0x44, SpriteSize.Tiles16));
