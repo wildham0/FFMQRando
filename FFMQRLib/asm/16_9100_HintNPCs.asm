@@ -232,7 +232,7 @@ CheckLocationChest:
   RTS
 
    .ORG $9230  
-CheckLocationNPC:
+CheckLocationNPCOn:
   PHD
   PEA #$0EA8
   PLD
@@ -242,6 +242,24 @@ CheckLocationNPC:
   PLD
   INC
   DEC
+  RTS
+
+  .ORG $9230  
+CheckLocationNPCOff:
+  PHD
+  PEA #$0EA8
+  PLD
+  TAX
+  LDA lut_LocationFlag, X
+  JSL CheckFlag
+  PLD
+  INC
+  DEC
+  BEQ AtZero
+    LDA #$00
+	RTS
+AtZero:
+  LDA #RFF
   RTS
 
      .ORG $9230  

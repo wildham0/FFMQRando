@@ -49,7 +49,31 @@ namespace FFMQLib
 			ArmorX3G1 = 0x07,
 			ArmorX3G2 = 0x08,
 			ArmorX3G3 = 0x09,
+			Chest,
+			NPCOn,
+			NPCOff,
+			Battlefield
 		}
+
+		Dictionary<ItemGivingNPCs, (byte flag, bool oncheck)> ItemNPCflags = new()
+		{
+			{ ItemGivingNPCs.BoulderOldMan, (0x13, true) },
+			{ ItemGivingNPCs.VenusChest, ((byte)NewGameFlagsList.VenusChestUnopened, false) },
+			{ ItemGivingNPCs.WomanAquaria, ((byte)NewGameFlagsList.AquariaSellerItemBought, true) },
+			{ ItemGivingNPCs.MysteriousManLifeTemple, (0xCE, false) },
+			{ ItemGivingNPCs.Spencer, ((byte)NewGameFlagsList.SpencerItemGiven, true) },
+			{ ItemGivingNPCs.TristamSpencersPlace, ((byte)NewGameFlagsList.TristamChestUnopened, false) },
+			{ ItemGivingNPCs.ArionFireburg, ((byte)NewGameFlagsList.ArionItemGiven, true) },
+			{ ItemGivingNPCs.WomanFireburg, ((byte)NewGameFlagsList.FireburgSellerItemBought, true) },
+			{ ItemGivingNPCs.MegaGrenadeDude, (0x74, true) },
+			{ ItemGivingNPCs.PhoebeFallBasin, ((byte)NewGameFlagsList.ReubenMineItemGiven, true) },
+			{ ItemGivingNPCs.GirlWindia, ((byte)NewGameFlagsList.WindiaSellerItemBought, true) },
+			{ ItemGivingNPCs.KaeliForesta, ((byte)GameFlagsList.MinotaurDefeated, true) },
+			{ ItemGivingNPCs.KaeliWindia, ((byte)NewGameFlagsList.KaeliSecondItemGiven, true) },
+			{ ItemGivingNPCs.PhoebeWintryCave, ((byte)NewGameFlagsList.PhoebeWintryItemGiven, true) },
+			{ ItemGivingNPCs.TristamBoneDungeonBomb, ((byte)NewGameFlagsList.TristamBoneDungeonItemGiven, true) },
+			{ ItemGivingNPCs.TristamFireburg, ((byte)NewGameFlagsList.TristamFireburgItemGiven, true) },
+		};
 
 		public void HintRobots(Flags flags, MapSprites mapsprites,  ObjectList gameobjects, ItemsPlacement itemplacement, GameLogic gamelogic, ApConfigs apconfigs,MT19337 rng)
 		{
@@ -59,6 +83,7 @@ namespace FFMQLib
 			}
 
 			bool includeSkyCoin = flags.SkyCoinMode == SkyCoinModes.Standard;
+			bool progGear = flags.ProgressiveGear;
 
 			Dictionary<HintModes, (int price, bool prog)> prices = new()
 			{
@@ -115,11 +140,14 @@ namespace FFMQLib
 			PutInBank(0x16, 0x9230, Blob.FromHex("0bf438102b38e914225a97002b1a3a60")); // Spells
 			PutInBank(0x16, 0x9240, Blob.FromHex("3a3aaa201092d00d8a1aaa201092d0058a1a20109260")); // 3 weapons
 			PutInBank(0x16, 0x9260, Blob.FromHex("3a3aaa202092d00d8a1aaa202092d0058a1a20209260")); // 3 armors
-			PutInBank(0x16, 0x9280, Blob.FromHex("0bf4c80e2baabd0e92225a97002b1a3a60")); // Chests
-			PutInBank(0x16, 0x9280, Blob.FromHex("0bf4a80e2baabd0e92225a97002b1a3a60")); // NPC
-			PutInBank(0x16, 0x9280, Blob.FromHex("aabd0e92aabdd40ff003a90060a9ff60")); // Battlefield
+			PutInBank(0x16, 0x9280, Blob.FromHex("0bf4c80e2baabdc092225a97002b1a3a60")); // Chests
+			PutInBank(0x16, 0x9291, Blob.FromHex("0bf4a80e2baabdc092225a97002b1a3a60")); // NPC On
+			PutInBank(0x16, 0x92A2, Blob.FromHex("0bf4a80e2baabdc092225a97002b1a3a90060a9ff60")); // NPC Off
+			PutInBank(0x16, 0x92B8, Blob.FromHex("aabdc092aabdd40ff003a90060a9ff60")); // Battlefield
 
-			PutInBank(0x16, 0x9300, Blob.FromHex("0092109220923092429241924092629261926092")); // check routines pointers
+
+
+			PutInBank(0x16, 0x9300, Blob.FromHex("009210922092309242924192409262926192609280929192A292B892")); // check routines pointers
 
 			// Main checker loop
 			PutInBank(0x16, 0x93A0, Blob.FromHex("c8c8c8c8c8b90194c9fff00ec9fef0250aaab90094fc0093d0e6b900948d0015b902948d0715b903948d0815b904948d0915ab286b08c230b90294a82880c6")); // 0x40
@@ -130,11 +158,40 @@ namespace FFMQLib
 			{
 				keyitems = keyitems.Where(k => k.Content != Items.SkyCoin).ToList();
 			}
-			
-			List<(Items item, ushort address)> hintaddresses = new();
+
+			List<byte> progGearFlagsList = new();
+
+			for (int i = (int)Items.SteelSword; i <= (int)Items.CupidLocket; i++)
+			{
+				GameObject gameobject;
+				if (itemplacement.ItemsLocations.TryFind(l => l.Content == (Items)i, out gameobject))
+				{
+					if (gameobject.Type == GameObjectType.BattlefieldItem)
+					{
+						progGearFlagsList.Add((byte)(gameobject.Location - 1));
+					}
+					else if (gameobject.Type == GameObjectType.Chest || gameobject.Type == GameObjectType.Box)
+					{
+						progGearFlagsList.Add((byte)gameobject.ObjectId);
+					}
+					else if (gameobject.Type == GameObjectType.NPC)
+					{
+						//itemNPCflags[(ItemGivingNPCs)gameobject.ObjectId].flag;
+						progGearFlagsList.Add(ItemNPCflags[(ItemGivingNPCs)gameobject.ObjectId].flag);
+					}
+				}
+				else
+				{
+					progGearFlagsList.Add(0xFF);
+				}
+			}
+
+			PutInBank(0x16, 0x92E0, progGearFlagsList.ToArray());
+
+			List<(Items item, HintCheckType type, ushort address)> hintaddresses = new();
 
 			byte[] endstring = Blob.FromHex("3600");
-			byte[] itemname = flags.ProgressiveGear ? Blob.FromHex("07008E16") : Blob.FromHex("077DFE03");
+			byte[] itemname = progGear ? Blob.FromHex("07008E16") : Blob.FromHex("077DFE03");
 			int pointeraddress = 0x9900;
 
 			List<byte[]> allHints = new();
@@ -182,7 +239,12 @@ namespace FFMQLib
 			{
 				foreach (var item in apconfigs.ExternalPlacement)
 				{
-					keyitems.Add((item.Content, SanitizeString(item.LocationName + " in " + item.Player + "'s World"), GameObjectType.ApLocation, LocationIds.None));
+					// Exclude progressive gear in AP
+					if (!progGear || item.Content < Items.SteelSword || item.Content > Items.CupidLocket)
+					{
+						keyitems.Add((item.Content, SanitizeString(item.LocationName + " in " + item.Player + "'s World"), GameObjectType.ApLocation, LocationIds.None));
+
+					}
 				}
 			}
 
@@ -191,13 +253,27 @@ namespace FFMQLib
 				byte[] hintstring;
 				byte[] hintpart;
 
+				bool isProgGear = progGear && item.Content >= Items.SteelSword && item.Content <= Items.CupidLocket;
+				HintCheckType defaulType = GetHintType(item.Content, false);
+
 				if (item.Type == GameObjectType.NPC)
 				{
 					hintpart = TextToByte(" is with " + item.Name + " at ", true).Concat(new byte[] { 0x1F, locationCode[item.Location] }).Concat(TextToByte(".", true)).ToArray();
+
+					if (isProgGear)
+					{
+						var npcMode = ItemNPCflags[(ItemGivingNPCs)itemplacement.ItemsLocations.Find(i => i.Content == item.Content).ObjectId];
+						defaulType = npcMode.oncheck ? HintCheckType.NPCOn : HintCheckType.NPCOff;
+					}
 				}
 				else if (item.Type == GameObjectType.BattlefieldItem)
 				{
 					hintpart = TextToByte(" is at " + item.Name + ".", true);
+
+					if (isProgGear)
+					{
+						defaulType = HintCheckType.Battlefield;
+					}
 				}
 				else if (item.Type == GameObjectType.ApLocation)
 				{
@@ -206,9 +282,14 @@ namespace FFMQLib
 				else
 				{
 					hintpart = TextToByte(" is in " + item.Name + " at ", true).Concat(new byte[] { 0x1F, locationCode[item.Location] }).Concat(TextToByte(".", true)).ToArray();
+
+					if (isProgGear)
+					{
+						defaulType = HintCheckType.Chest;
+					}
 				}
 
-				hintaddresses.Add((item.Content, (ushort)pointeraddress));
+				hintaddresses.Add((item.Content, defaulType, (ushort)pointeraddress));
 				hintstring = TextToByte("The ", true).Concat(itemname).Concat(hintpart).Concat(endstring).ToArray();
 				pointeraddress += hintstring.Length;
 
@@ -228,7 +309,7 @@ namespace FFMQLib
 
 			// flat list, since we always return to this
 			var flatListAddress = hintListAddress;
-			var flatList = hintaddresses.SelectMany(h => new byte[] { (byte)h.item, (byte)GetHintType(h.item, false), (byte)(h.address % 0x100), (byte)(h.address / 0x100), 0x16 }).ToArray().Concat(endOfList).ToArray();
+			var flatList = hintaddresses.SelectMany(h => new byte[] { (byte)h.item, (byte)h.type, (byte)(h.address % 0x100), (byte)(h.address / 0x100), 0x16 }).ToArray().Concat(endOfList).ToArray();
 
 			// progression list
 			List<Items> swords = new() { Items.SteelSword, Items.KnightSword, Items.Excalibur };
@@ -250,27 +331,24 @@ namespace FFMQLib
 				progressionItems.AddRange(new List<Items>() { Items.TreeWither, Items.Elixir, Items.VenusKey });
 			}
 
-			if (flags.ProgressiveGear)
+			if (hintaddresses.TryFind(h => swords.Contains(h.item), out var logicSword))
 			{
-				progressionItems.AddRange(swords);
-				progressionItems.AddRange(axes);
-				progressionItems.AddRange(claws);
-				progressionItems.AddRange(bombs);
+				progressionItems.Add(logicSword.item);
+				progmodeItems.Add(logicSword.item);
+			}
+
+			if (hintaddresses.TryFind(h => swords.Contains(h.item), out var logicAxe))
+			{
+				progressionItems.Add(logicAxe.item);
+				progmodeItems.Add(logicAxe.item);
+			}
+
+			if (progGear)
+			{
+				progressionItems.AddRange(new List<Items>() { Items.CharmClaw, Items.CatClaw, Items.Bomb, Items.JumboBomb });
 			}
 			else
 			{
-				if (hintaddresses.TryFind(h => swords.Contains(h.item), out var logicSword))
-				{
-					progressionItems.Add(logicSword.item);
-					progmodeItems.Add(logicSword.item);
-				}
-
-				if (hintaddresses.TryFind(h => swords.Contains(h.item), out var logicAxe))
-				{
-					progressionItems.Add(logicAxe.item);
-					progmodeItems.Add(logicAxe.item);
-				}
-
 				if (hintaddresses.TryFind(h => claws.Contains(h.item), out var logicClaw))
 				{
 					progressionItems.Add(logicClaw.item);
@@ -288,7 +366,7 @@ namespace FFMQLib
 
 			byte[] jumpToFlatList = new byte[] { 0xFE, 0xFE, (byte)(flatListAddress % 0x100), (byte)(flatListAddress / 0x100), 0x16 };
 			var logicProgressionAddress = hintListAddress + flatList.Length;
-			var logicProgressionList = logicProgression.SelectMany(h => new byte[] { (byte)h.item, (byte)GetHintType(h.item, progmodeItems.Contains(h.item)), (byte)(h.address % 0x100), (byte)(h.address / 0x100), 0x16 }).Concat(jumpToFlatList).ToArray();
+			var logicProgressionList = logicProgression.SelectMany(h => new byte[] { (byte)h.item, (byte)ConvertToProg(h.item, h.type, progmodeItems), (byte)(h.address % 0x100), (byte)(h.address / 0x100), 0x16 }).Concat(jumpToFlatList).ToArray();
 
 			// spells + progression list
 			List<Items> spellsGood = new() { Items.ExitBook, Items.LifeBook, Items.AeroBook, Items.MeteorSeal, Items.WhiteSeal, Items.FlareSeal };
@@ -298,7 +376,7 @@ namespace FFMQLib
 			spellProgression.Shuffle(rng);
 
 			var spellProgressionAddress = logicProgressionAddress + logicProgressionList.Length;
-			var spellProgressionList = spellProgression.SelectMany(h => new byte[] { (byte)h.item, (byte)GetHintType(h.item, progmodeItems.Contains(h.item)), (byte)(h.address % 0x100), (byte)(h.address / 0x100), 0x16 }).Concat(jumpToFlatList).ToArray();
+			var spellProgressionList = spellProgression.SelectMany(h => new byte[] { (byte)h.item, (byte)ConvertToProg(h.item, h.type, progmodeItems), (byte)(h.address % 0x100), (byte)(h.address / 0x100), 0x16 }).Concat(jumpToFlatList).ToArray();
 
 			// go mode list
 			var shipaccess = gamelogic.GameObjects.Find(o => o.OnTrigger.Contains(AccessReqs.ShipDockAccess)).AccessRequirements.SelectMany(a => a).ToList();
@@ -327,9 +405,10 @@ namespace FFMQLib
 
 			if (doomCastleMaze)
 			{
-				if (hintaddresses.TryFind(h => swords.Contains(h.item), out var logicSword))
+				if (hintaddresses.TryFind(h => swords.Contains(h.item), out var logicSwordDoom))
 				{
-					goModeItems.Add(logicSword.item);
+					goModeItems.Add(logicSwordDoom.item);
+					progmodeItems.Add(logicSwordDoom.item);
 				}
 			}
 
@@ -339,12 +418,12 @@ namespace FFMQLib
 			byte[] jumpToProgList = new byte[] { 0xFE, 0xFE, (byte)(logicProgressionAddress % 0x100), (byte)(logicProgressionAddress / 0x100), 0x16 };
 
 			var goModeAddress = spellProgressionAddress + spellProgressionList.Length;
-			var goModeList = goMode.SelectMany(h => new byte[] { (byte)h.item, (byte)GetHintType(h.item, progmodeItems.Contains(h.item)), (byte)(h.address % 0x100), (byte)(h.address / 0x100), 0x16 }).Concat(jumpToFlatList).ToArray();
+			var goModeList = goMode.SelectMany(h => new byte[] { (byte)h.item, (byte)ConvertToProg(h.item, h.type, progmodeItems), (byte)(h.address % 0x100), (byte)(h.address / 0x100), 0x16 }).Concat(jumpToFlatList).ToArray();
 
 			// random list
 			hintaddresses.Shuffle(rng);
 			var randomAdress = goModeAddress + goModeList.Length;
-			var randomList = hintaddresses.SelectMany(h => new byte[] { (byte)h.item, (byte)GetHintType(h.item, false), (byte)(h.address % 0x100), (byte)(h.address / 0x100), 0x16 }).Concat(endOfList).ToArray();
+			var randomList = hintaddresses.SelectMany(h => new byte[] { (byte)h.item, (byte)h.type, (byte)(h.address % 0x100), (byte)(h.address / 0x100), 0x16 }).Concat(endOfList).ToArray();
 
 			PutInBank(0x16, 0x9400 + flatListAddress, flatList);
 			PutInBank(0x16, 0x9400 + logicProgressionAddress, logicProgressionList);
@@ -496,6 +575,35 @@ namespace FFMQLib
 			// this one gets clobbered by phoebe a bit, but it should be fine since you can't talk from the north
 			mapsprites[0x23].AdressorList.Add(new SpriteAddressor(7, 0, 0x44, SpriteSize.Tiles16));
 			MapObjects[0x52].Add(windiaRobot);
+		}
+		private static HintCheckType ConvertToProg(Items item, HintCheckType defaultype, List<Items> progModeItems)
+		{
+			if (progModeItems.Contains(item))
+			{
+				List<Items> baseWeapons = new() { Items.SteelSword, Items.Axe, Items.CatClaw, Items.Bomb };
+
+				if (baseWeapons.Contains(item))
+				{
+					return HintCheckType.WeaponX3G1;
+				}
+				else if (baseWeapons.Contains((Items)(item - 1)))
+				{
+					return HintCheckType.WeaponX3G2;
+				}
+				else if (baseWeapons.Contains((Items)(item - 2)))
+				{
+					return HintCheckType.WeaponX3G3;
+				}
+				else
+				{
+					// should never happens
+					return defaultype;
+				}
+			}
+			else
+			{
+				return defaultype;
+			}
 		}
 		private static HintCheckType GetHintType(Items item, bool progmode)
 		{
