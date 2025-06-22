@@ -125,13 +125,14 @@ namespace FFMQLib
 				"eaea" :
 				"8039";
 
-			PutInBank(0x16, 0x9130, Blob.FromHex($"a900008d0415{densityfloor}a9d00022769700d00aad04151869c8008d0415a9d10022769700d00aad04151869f4018d0415a9d20022769700d00aad041518692c018d0415ad0115186d04158d0415e220c21022008f16ad1215d019c230ad1015cd0415b00fcd0115b005a9ff00800aa901008005c230a900008d9e00286b")); // 0x80
+			PutInBank(0x16, 0x9130, Blob.FromHex($"a900008d0415{densityfloor}a9d00022769700d00aad04151869c8008d0415a9d10022769700d00aad04151869f4018d0415a9d20022769700d00aad041518692c018d0415ad0115186d04158d0415e220c21022008f16ad1215d019c230ad1015cd0415b00fcd0115b005a9ff00800aa901008005c230a900008d9e00286b")); // 0x70
 
 			// Take Money
-			PutInBank(0x16, 0x91C0, Blob.FromHex("08c230ad01156fe01f708fe01f70286b")); // 0x20
+			PutInBank(0x16, 0x91B0, Blob.FromHex("08c230ad01156fe01f708fe01f70286b")); // 0x20
 
 			// Move hint address
-			PutInBank(0x16, 0x91E0, Blob.FromHex("08e220c210ad07158d9e00ad08158d9f00ad09158da000286b")); // 0x20
+			PutInBank(0x16, 0x91D0, Blob.FromHex("08e220c210ad9e000aaaad00159fe31f70ad07158d9e009fe41f70ad08158d9f009fe51f70ad09158da000286b")); // 0x30
+			PutInBank(0x16, 0x9100, Blob.FromHex("08e220c210ad9e000aaabfe31f708d0015bfe41f708d9e00bfe51f708d9f00a9168da000286b")); // 0x30
 
 			// Hint seeker
 			PutInBank(0x16, 0x9200, Blob.FromHex("0bf4a60e2b225a97002b1a3a60")); // Items
@@ -144,8 +145,6 @@ namespace FFMQLib
 			PutInBank(0x16, 0x9291, Blob.FromHex("0bf4a80e2baabdc092225a97002b1a3a60")); // NPC On
 			PutInBank(0x16, 0x92A2, Blob.FromHex("0bf4a80e2baabdc092225a97002b1a3a90060a9ff60")); // NPC Off
 			PutInBank(0x16, 0x92B8, Blob.FromHex("aabdc092aabdd40ff003a90060a9ff60")); // Battlefield
-
-
 
 			PutInBank(0x16, 0x9300, Blob.FromHex("009210922092309242924192409262926192609280929192A292B892")); // check routines pointers
 
@@ -176,7 +175,6 @@ namespace FFMQLib
 					}
 					else if (gameobject.Type == GameObjectType.NPC)
 					{
-						//itemNPCflags[(ItemGivingNPCs)gameobject.ObjectId].flag;
 						progGearFlagsList.Add(ItemNPCflags[(ItemGivingNPCs)gameobject.ObjectId].flag);
 					}
 				}
@@ -473,7 +471,6 @@ namespace FFMQLib
 					new ScriptBuilder(new List<string>()
 					{
 						$"053B{robotFlags[i]}09E090160B00[16]",
-						//$"2E{((int)NewGameFlagsList.ForestaHintGiven + i):X2}[16]",
 						// Check Money
 						"09809016",
 						// Read $9e for money result
@@ -489,24 +486,24 @@ namespace FFMQLib
 						"050BFB[10]",
 						"00", // no, we done
 						// take money
-						freehints ? "" : $"09C09116",
+						freehints ? "" : $"09B09116",
 						// set flag
 						$"053B{robotFlags[i]}09D09016",
-						//$"23{((int)NewGameFlagsList.ForestaHintGiven + i):X2}",
 						// fetch hint address
-						"09E09116",
+						$"053B{i:X2}09D09116",
 						// jump to hint text
 						$"050300",
 						// Not Enough Money
 						TextToHex("Come back when you have enough GPs. I'll reveal the location of an item.") + "3600",
 						// Vendor Gate
 						TextToHex("You have enough GPs for a hint, but you might need that money for a vendor's item. Come back when you have more GPs!") + "3600",
-						// Hint already given
-						TextToHex(rng.TakeFrom(hintgiven)) + "3600",
+						// Hint already given, repeat hint
+						$"053B{i:X2}09009116050300",
 						// Nothing left to hint for
 						TextToHex(rng.TakeFrom(nohintsleft)) + "3600",
 					}));
 			}
+
 			// Progressive items script
 			var progitemname = new ScriptBuilder(new List<string>()
 			{

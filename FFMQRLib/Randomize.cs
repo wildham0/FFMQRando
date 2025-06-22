@@ -17,7 +17,7 @@ namespace FFMQLib
 		// Z = Patch Release
 		// Increment Beta on every new builds, reset to zero on version increase
 		public static string Version = "1.6.1";
-		public static string Beta = "04";
+		public static string Beta = "05";
 		public static string BetaVersionShort => Version + "-b" + Beta;
 		public static string BetaVersionLong => Version + "-beta" + Beta;
 	}
