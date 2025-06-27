@@ -131,8 +131,8 @@ namespace FFMQLib
 			PutInBank(0x16, 0x91B0, Blob.FromHex("08c230ad01156fe01f708fe01f70286b")); // 0x20
 
 			// Move hint address
-			PutInBank(0x16, 0x91D0, Blob.FromHex("08e220c210ad9e000aaaad00159fe31f70ad07158d9e009fe41f70ad08158d9f009fe51f70ad09158da000286b")); // 0x30
-			PutInBank(0x16, 0x9100, Blob.FromHex("08e220c210ad9e000aaabfe31f708d0015bfe41f708d9e00bfe51f708d9f00a9168da000286b")); // 0x30
+			PutInBank(0x16, 0x91D0, Blob.FromHex("08e220c210ad9e000a6d9e00aaad00159fe31f70ad07158d9e009fe41f70ad08158d9f009fe51f70ad09158da000286b")); // 0x30
+			PutInBank(0x16, 0x9100, Blob.FromHex("08e220c210ad9e000a6d9e00aabfe31f708d0015bfe41f708d9e00bfe51f708d9f00a9168da000286b")); // 0x30
 
 			// Hint seeker
 			PutInBank(0x16, 0x9200, Blob.FromHex("0bf4a60e2b225a97002b1a3a60")); // Items
