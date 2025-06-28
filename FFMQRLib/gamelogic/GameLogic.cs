@@ -140,7 +140,7 @@ namespace FFMQLib
 			{
 				var frozenFieldsRoom = Rooms.Find(x => x.Id == 223);
 				var aquariaAccess = frozenFieldsRoom.Links.Find(x => x.TargetRoom == 221);
-				aquariaAccess.Access.Add(AccessReqs.WakeWater);
+				aquariaAccess.Access.Add(AccessReqs.SummerAquaria);
 			}
 
 			// Giant Tree
