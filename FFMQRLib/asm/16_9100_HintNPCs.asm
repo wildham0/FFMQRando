@@ -216,9 +216,71 @@ Check3Armors:
   INC
   JSR CheckArmor
 HaveArmor:  
-  RTS  
+  RTS
 
- .ORG $9280
+   .ORG $9230  
+CheckLocationChest:
+  PHD
+  PEA #$0ec8
+  PLD
+  TAX
+  LDA lut_LocationFlag,X
+  JSL CheckFlag
+  PLD
+  INC
+  DEC
+  RTS
+
+   .ORG $9230  
+CheckLocationNPCOn:
+  PHD
+  PEA #$0EA8
+  PLD
+  TAX
+  LDA lut_LocationFlag, X
+  JSL CheckFlag
+  PLD
+  INC
+  DEC
+  RTS
+
+  .ORG $9230  
+CheckLocationNPCOff:
+  PHD
+  PEA #$0EA8
+  PLD
+  TAX
+  LDA lut_LocationFlag, X
+  JSL CheckFlag
+  PLD
+  INC
+  DEC
+  BEQ AtZero
+    LDA #$00
+	RTS
+AtZero:
+  LDA #RFF
+  RTS
+
+     .ORG $9230  
+CheckLocationBattlefield:
+  TAX
+  LDA lut_LocationFlag,X
+  TAX
+  LDA $0FD4, X
+  BEQ AtZero
+    LDA #$00
+	RTS
+AtZero:
+  LDA #RFF
+  RTS
+
+ .ORG #92E0
+lut_LocationFlag:
+; #$20 bytes
+
+
+ .ORG $9300
 lut_CheckRoutines:
 ; pointers to all check routines
 

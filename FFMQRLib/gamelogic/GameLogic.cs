@@ -140,7 +140,7 @@ namespace FFMQLib
 			{
 				var frozenFieldsRoom = Rooms.Find(x => x.Id == 223);
 				var aquariaAccess = frozenFieldsRoom.Links.Find(x => x.TargetRoom == 221);
-				aquariaAccess.Access.Add(AccessReqs.WakeWater);
+				aquariaAccess.Access.Add(AccessReqs.SummerAquaria);
 			}
 
 			// Giant Tree
@@ -154,7 +154,7 @@ namespace FFMQLib
 
 			// Clean Up Access
 			List<(int, (LocationIds, int), List<AccessReqs>, int)> accessToKeep = new();
-
+			
 			foreach (var room in Rooms)
 			{
 				var accessToCompare = accessQueue.Where(x => x.Item1 == room.Id).OrderBy(x => x.Item3.Count).ToList();
@@ -375,59 +375,72 @@ namespace FFMQLib
 
 			accessQueue.Add((roomid, locPriority, access, 0));
 		}
-		private void ProcessRoom2(int roomid, List<int> origins, List<AccessReqs> access, (LocationIds, int) locPriority, (int, LocationIds) location)
+		private void ProcessRoom2(int roomid, List<int> origins, List<AccessReqs> access, (LocationIds location, int priority) locPriority, (int seekId, LocationIds locId) location)
 		{
+			// Get the room
 			var targetroom = Rooms.Find(x => x.Id == roomid);
 
-			(int, LocationIds) newLocation = location;
-			//LocationIds newLocation = location.Item1;
-
+			// cycle each links
 			foreach (var children in targetroom.Links)
 			{
+				// crawled location id, and location
+				(int seekId, LocationIds locId) newLocation = (location.seekId, location.locId);
+
 				bool reachLocation = false;
+
+				// if we're in a region room, add a new location (do links have their locations set correctly?)
+				// set that we reached a location
 				if (regionRoomIds.Contains(targetroom.Id))
 				{
 					if (children.Entrance >= 0)
 					{
 						locationCount++;
 						locationQueue.Add((locationCount, children.Location));
-
 						newLocation = (locationCount, children.Location);
 
 						reachLocation = true;
 					}
 				}
 
+				// did we visit that room before?
 				if (!origins.Contains(children.TargetRoom))
 				{
-					if ((targetroom.Type != RoomType.Overworld && targetroom.Type != RoomType.Subregion) && regionRoomIds.Contains(children.TargetRoom) && locPriority.Item2 > 0)
+					// if current room isn't a region and the link is targeting a region AND the current priority is higher than zero
+					// Get that region location and update the current location
+					if ((targetroom.Type != RoomType.Overworld && targetroom.Type != RoomType.Subregion) && regionRoomIds.Contains(children.TargetRoom) && locPriority.priority > 0)
 					{
 						var location2 = Rooms.Find(x => x.Id == children.TargetRoom).Links.Find(l => l.TargetRoom == targetroom.Id).Location;
 
-						locationQueue.RemoveAll(l => l.Item1 == location.Item1);
-						locationQueue.Add((location.Item1, location2));
-						newLocation = (location.Item1, location2);
+						locationQueue.RemoveAll(l => l.Item1 == location.seekId);
+						locationQueue.Add((location.seekId, location2));
+						newLocation = (location.seekId, location2);
 					}
 
 					bool traverseCrest = false;
-
+					
+					// are we moving through a crest tile?
+					// if so, create a new location
 					if (children.Access.Contains(AccessReqs.LibraCrest) || children.Access.Contains(AccessReqs.GeminiCrest) || children.Access.Contains(AccessReqs.MobiusCrest))
 					{
 						traverseCrest = true;
 						locationCount++;
-						locationQueue.Add((locationCount, location.Item2));
-						newLocation = (locationCount, location.Item2);
-						//newLocation = locationCount;
+
+						locationQueue.Add((locationCount, location.locId));
+						newLocation = (locationCount, location.locId);
 					}
+					
+					// Go down the link
+					// if we reached a new location, use that
+					// if we traversed a crest tile, increase priority
 					ProcessRoom2(children.TargetRoom,
 						origins.Concat(new List<int> { roomid }).ToList(),
 						access.Concat(children.Access).ToList(),
-						(reachLocation ? newLocation.Item2 : locPriority.Item1, traverseCrest ? locPriority.Item2 + 1 : locPriority.Item2),
+						(reachLocation ? newLocation.locId : locPriority.location, traverseCrest ? locPriority.priority + 1 : locPriority.priority),
 						newLocation);
 				}
 			}
 
-			accessQueue.Add((roomid, locPriority, access, location.Item1));
+			accessQueue.Add((roomid, locPriority, access, location.seekId));
 		}
 		public LocationIds FindTriggerLocation(AccessReqs trigger)
 		{

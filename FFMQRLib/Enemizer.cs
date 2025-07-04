@@ -376,12 +376,15 @@ namespace FFMQLib
 			var zuhScript = _EnemyAttackLinks.Find(e => e.Id == EnemyIds.Zuh);
 			zuhScript.Attacks[0x05] = EnemyAttackIds.HurricanePlus;
 
-			// Extend Behemoth, Minotaur and DK1 attack list to avoid softlock
+			// Extend Behemoth, Minotaur, StoneGolem and DK1 attack list to avoid softlock
 			var behemothScript = _EnemyAttackLinks.Find(e => e.Id == EnemyIds.Behemoth);
 			behemothScript.Attacks = Enumerable.Repeat(EnemyAttackIds.Horn, 6).ToList();
 
 			var minotaurScript = _EnemyAttackLinks.Find(e => e.Id == EnemyIds.Minotaur);
 			minotaurScript.Attacks = new() { EnemyAttackIds.Axe, EnemyAttackIds.Roundhouse, EnemyAttackIds.Scream, EnemyAttackIds.Axe, EnemyAttackIds.Roundhouse, EnemyAttackIds.Scream };
+
+			var stoneGolemScript = _EnemyAttackLinks.Find(e => e.Id == EnemyIds.StoneGolem);
+			minotaurScript.Attacks = new() { EnemyAttackIds.ThunderSpell, EnemyAttackIds.StoneBlock, EnemyAttackIds.Stare, EnemyAttackIds.CorrodeGas, EnemyAttackIds.StoneBlock, EnemyAttackIds.ThunderSpell };
 
 			var dk1Script = _EnemyAttackLinks.Find(e => e.Id == EnemyIds.DarkKing);
 			dk1Script.Attacks[0x04] = rng.PickFrom(new List<EnemyAttackIds>() { EnemyAttackIds.DarkCane, EnemyAttackIds.IronNail, EnemyAttackIds.Spark });

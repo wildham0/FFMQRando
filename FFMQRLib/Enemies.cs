@@ -199,8 +199,24 @@ namespace FFMQLib
 
 			info.ShuffledElementsType = allPairList;
 		}
+		public void NerfBosses(bool enemizer)
+		{
+			if (!enemizer)
+			{
+				return;
+			}
+
+			// Wyvern
+			_enemies[0x4D].Attack -= 50;
+			_enemies[0x4D].Magic -= 100;
+
+			// Zuh
+			_enemies[0x4F].Attack -= 50;
+		}
 		public void ScaleEnemies(Flags flags, MT19337 rng)
 		{
+			NerfBosses((flags.EnemizerGroups != EnemizerGroups.MobsOnly) && (flags.EnemizerAttacks != EnemizerAttacks.Normal));
+
 			List<int> enemiesId = Enumerable.Range(0, 0x40).ToList();
 			List<int> bossesId  = Enumerable.Range(0x40, EnemiesStatsQty - enemiesId.Count).ToList();
 
