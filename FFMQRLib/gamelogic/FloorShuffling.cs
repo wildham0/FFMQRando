@@ -583,6 +583,7 @@ namespace FFMQLib
 						// Tie loose ends
 						if (!validconfig || originCluster.Rooms.Where(r => (r.Links.Count % 2) == 1).Any())
 						{
+							validconfig = false;
 							continue;
 						}
 

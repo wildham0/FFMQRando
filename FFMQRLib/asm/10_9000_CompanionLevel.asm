@@ -29,6 +29,7 @@ DoLeveling:
   JSR ComputeStats
   JSR SetEquipSpells
   JSR UpdateActiveStats
+  JSR PhoebeResistBadHack
   PLP
   RTS
 
@@ -303,6 +304,25 @@ HpUp:
   STA companioncurhp
   PLP
   RTS
+
+PhoebeResistBadHack:
+  PHP
+  REP #$30
+  LDX $1090 ; companion level
+  CPX #$FF
+  BEQ NotPhoebe23
+  CPX #$17
+  BCC NotPhoebe23
+  LDA #$03
+  CMP $0e92 ; current companion id
+  BNE NotPhoebe23
+  SEP #$30
+  LDA #$3158 ; resist value with aether shield
+  STA $10BA ; companion resist
+NotPhoebe23:
+  PLP
+  RTS
+
 
 lut_CompanionStats:                ; 0x40 bytes
   ; HP Multiplier (1 byte),
