@@ -487,7 +487,7 @@ namespace FFMQLib
 			List<int> chestsList = new();
 			List<int> visitedRooms = regionRooms;
 
-			ProcessRoomForChests(0, initialRoom, chestsList, visitedRooms);
+			ProcessRoomForChests(0, initialRoom, chestsList, visitedRooms, AccessReqs.None);
 
 			int rating = 0;
 
@@ -495,7 +495,7 @@ namespace FFMQLib
 			{
 				if (chest == 0)
 				{
-					rating += 10;
+					rating += 20;
 				}
 				else if (chest == 1)
 				{
@@ -509,8 +509,69 @@ namespace FFMQLib
 
 			return (location, rating);
 		}
+		private static List<AccessReqs> StarterWeapons = new() { AccessReqs.Sword, AccessReqs.Axe, AccessReqs.Claw, AccessReqs.Bomb };
+		private static List<AccessReqs> Bosses = new() { AccessReqs.FlamerusRex, AccessReqs.Squidite, AccessReqs.SnowCrab, AccessReqs.IceGolem, AccessReqs.Medusa, AccessReqs.Jinn, AccessReqs.DualheadHydra, AccessReqs.Gidrah, AccessReqs.Dullahan, AccessReqs.Pazuzu };
+		public (LocationIds, int) CrawlForChestRating2(LocationIds location)
+		{
+			var regionRooms = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
+			var initialRoom = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).ToList().Find(l => l.Location == location).TargetRoom;
 
-		public void ProcessRoomForChests(int reqcount, int roomid, List<int> chestlist, List<int> visitedrooms)
+			int chestCount = 0;
+
+			foreach (var weapon in StarterWeapons)
+			{
+				List<int> chestsList = new();
+				List<int> visitedRooms = regionRooms;
+				ProcessRoomForChests2(initialRoom, chestsList, visitedRooms, new() { weapon });
+				Console.WriteLine(location + ": " + chestsList.Count +  "(" + weapon + ")");
+				chestCount += chestsList.Count;
+			}
+
+			return (location, chestCount);
+		}
+		public bool ProcessRoomForChests2(int roomid, List<int> accessedChests, List<int> visitedRooms, List<AccessReqs> accessAcquired)
+		{
+			var currentRoom = Rooms.Find(x => x.Id == roomid);
+
+			bool newaccess = true;
+			int accessCount = accessAcquired.Count;
+
+			while (newaccess)
+			{
+				newaccess = false;
+				foreach (var link in currentRoom.Links.Where(l => !visitedRooms.Contains(l.TargetRoom) && !l.Access.Intersect(AccessReferences.CrestsAccess).Any()))
+				{
+					if (!link.Access.Except(accessAcquired).Any())
+					{
+						if (ProcessRoomForChests2(link.TargetRoom, accessedChests, visitedRooms.Append(roomid).ToList(), accessAcquired))
+						{
+							newaccess = true;
+						};
+					}
+				}
+
+				foreach (var trigger in currentRoom.GameObjects.Where(o => o.Type == GameObjectType.Trigger))
+				{
+					if (!trigger.OnTrigger.Intersect(Bosses).Any() && trigger.OnTrigger.Except(accessAcquired).Any() && !trigger.Access.Except(accessAcquired).Any())
+					{
+						accessAcquired.AddRange(trigger.OnTrigger);
+						newaccess = true;
+					}
+				}
+
+				foreach (var chest in currentRoom.GameObjects.Where(o => o.Type == GameObjectType.Chest && !accessedChests.Contains(o.ObjectId)))
+				{
+					if (!chest.Access.Except(accessAcquired).Any())
+					{ 
+						accessedChests.Add(chest.ObjectId);
+						Console.WriteLine(chest.Name + ": " + String.Join(", ", accessAcquired));
+					}
+				}
+			}
+
+			return (accessCount < accessAcquired.Count);
+		}
+		public void ProcessRoomForChests(int reqcount, int roomid, List<int> chestlist, List<int> visitedrooms, AccessReqs earlyWeapons)
 		{
 			var currentRoom = Rooms.Find(x => x.Id == roomid);
 
@@ -518,12 +579,26 @@ namespace FFMQLib
 
 			foreach (var chest in currentRoom.GameObjects.Where(o => o.Type == GameObjectType.Chest))
 			{
-				chestlist.Add(reqcount + chest.Access.Count);
+				if (reqcount == 0 && chest.Access.Count == 1 && StarterWeapons.Contains(chest.Access.First()) && (earlyWeapons == AccessReqs.None || earlyWeapons == chest.Access.First()))
+				{
+					chestlist.Add(reqcount);
+				}
+				else
+				{
+					chestlist.Add(reqcount + chest.Access.Count);
+				}
 			}
 
 			foreach (var link in currentRoom.Links.Where(l => !visitedrooms.Contains(l.TargetRoom) && !l.Access.Intersect(AccessReferences.CrestsAccess).Any()))
 			{
-				ProcessRoomForChests(reqcount + link.Access.Count, link.TargetRoom, chestlist, visitedrooms);
+				if (reqcount == 0 && link.Access.Count == 1 && StarterWeapons.Contains(link.Access.First()) && (earlyWeapons == AccessReqs.None || earlyWeapons == link.Access.First()))
+				{
+					ProcessRoomForChests(reqcount, link.TargetRoom, chestlist, visitedrooms, link.Access.First());
+				}
+				else
+				{
+					ProcessRoomForChests(reqcount + link.Access.Count, link.TargetRoom, chestlist, visitedrooms, earlyWeapons);
+				}
 			}
 		}
 

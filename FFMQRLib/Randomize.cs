@@ -16,10 +16,10 @@ namespace FFMQLib
 		// Y = Major Release
 		// Z = Patch Release
 		// Increment Beta on every new builds, reset to zero on version increase
-		public static string Version = "1.6.2";
-		public static string Beta = "02";
-		public static string BetaVersionShort => Version + "-b" + Beta;
-		public static string BetaVersionLong => Version + "-beta" + Beta;
+		public static string Version = "1.6.3";
+		public static string Build = "03";
+		public static string BetaVersionShort => Version + "-b" + Build;
+		public static string BetaVersionLong => Version + "-beta" + Build;
 	}
 	public partial class FFMQRom : SnesRom
 	{
