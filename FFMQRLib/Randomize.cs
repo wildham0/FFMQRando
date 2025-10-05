@@ -17,7 +17,7 @@ namespace FFMQLib
 		// Z = Patch Release
 		// Increment Beta on every new builds, reset to zero on version increase
 		public static string Version = "1.6.3";
-		public static string Build = "04";
+		public static string Build = "05";
 		public static string BetaVersionShort => Version + "-b" + Build;
 		public static string BetaVersionLong => Version + "-beta" + Build;
 	}
@@ -131,7 +131,7 @@ namespace FFMQLib
 			// Map Shuffling
 			GameLogic.CrestShuffle(flags.CrestShuffle, apconfigs.ApEnabled, rng);
 			GameLogic.FloorShuffle(flags.MapShuffling, apconfigs.ApEnabled, rng);
-			Overworld.ShuffleOverworld(flags.OverworldShuffle, flags.MapShuffling, GameLogic, Battlefields, Companions.QuestEasyWinLocations, apconfigs.ApEnabled, rng);
+			Overworld.ShuffleOverworld(flags.OverworldShuffle, flags.MapShuffling, GameLogic, Battlefields, Companions.QuestEasyWinLocations, flags.KaelisMomFightMinotaur, apconfigs.ApEnabled, rng);
 			Overworld.UpdateOverworld(flags, GameLogic, Battlefields);
 
 			// Logic

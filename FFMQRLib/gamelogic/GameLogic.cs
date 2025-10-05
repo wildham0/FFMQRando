@@ -602,7 +602,7 @@ namespace FFMQLib
 			}
 		}
 
-		public (LocationIds, int) CrawlForCompanionRating(LocationIds location)
+		public (LocationIds, int) CrawlForCompanionRating(LocationIds location, bool includekaeli)
 		{
 			var regionRooms = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
 			var initialRoom = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).ToList().Find(l => l.Location == location).TargetRoom;
@@ -610,7 +610,7 @@ namespace FFMQLib
 			List<int> companionsList = new();
 			List<int> visitedRooms = regionRooms;
 
-			ProcessRoomForCompanions(0, initialRoom, companionsList, visitedRooms);
+			ProcessRoomForCompanions(0, initialRoom, companionsList, visitedRooms, includekaeli);
 
 			int rating = 0;
 
@@ -633,20 +633,21 @@ namespace FFMQLib
 			return (location, rating);
 		}
 
-		public void ProcessRoomForCompanions(int reqcount, int roomid, List<int> companionlist, List<int> visitedrooms)
+		public void ProcessRoomForCompanions(int reqcount, int roomid, List<int> companionlist, List<int> visitedrooms, bool includekaeli)
 		{
 			var currentRoom = Rooms.Find(x => x.Id == roomid);
+			var validCompanions = includekaeli ? AccessReferences.FavoredCompanionsAccess.Append(AccessReqs.Kaeli).ToList() : AccessReferences.FavoredCompanionsAccess;
 
 			visitedrooms.Add(roomid);
 
-			foreach (var companion in currentRoom.GameObjects.Where(o => o.Type == GameObjectType.Trigger && o.OnTrigger.Intersect(AccessReferences.FavoredCompanionsAccess).Any()))
+			foreach (var companion in currentRoom.GameObjects.Where(o => o.Type == GameObjectType.Trigger && o.OnTrigger.Intersect(validCompanions).Any()))
 			{
 				companionlist.Add(reqcount + companion.Access.Count);
 			}
 
-			foreach (var link in currentRoom.Links.Where(l => !visitedrooms.Contains(l.TargetRoom)))
+			foreach (var link in currentRoom.Links.Where(l => !visitedrooms.Contains(l.TargetRoom) && !l.Access.Intersect(AccessReferences.CrestsAccess).Any()))
 			{
-				ProcessRoomForCompanions(reqcount + link.Access.Count, link.TargetRoom, companionlist, visitedrooms);
+				ProcessRoomForCompanions(reqcount + link.Access.Count, link.TargetRoom, companionlist, visitedrooms, includekaeli);
 			}
 		}
 		public List<(CompanionsId, LocationIds, List<string>)> CrawlForCompanionSpoiler()

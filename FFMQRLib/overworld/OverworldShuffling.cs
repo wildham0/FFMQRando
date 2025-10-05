@@ -9,7 +9,7 @@ namespace FFMQLib
 {
 	public partial class Overworld
 	{
-		public void ShuffleOverworld(bool shuffleOverworld, MapShufflingMode mapshufflingmode, GameLogic gamelogic, Battlefields battlefields, List<LocationIds> questEasyWins, bool apenabled, MT19337 rng)
+		public void ShuffleOverworld(bool shuffleOverworld, MapShufflingMode mapshufflingmode, GameLogic gamelogic, Battlefields battlefields, List<LocationIds> questEasyWins, bool kaelismom, bool apenabled, MT19337 rng)
 		{
 			if (!shuffleOverworld || apenabled)
 			{
@@ -44,7 +44,7 @@ namespace FFMQLib
 
 			foreach (var location in shuffleLocations.Where(x => x > LocationIds.HillOfDestiny))
 			{
-				companionsRating.Add(gamelogic.CrawlForCompanionRating(location));
+				companionsRating.Add(gamelogic.CrawlForCompanionRating(location, kaelismom));
 			}
 			
 			companionsRating.Shuffle(rng);
