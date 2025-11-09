@@ -52,9 +52,19 @@ namespace FFMQLib
 					Name = "Kaeli Companion",
 					Access = kaelismom ? new() : new() { AccessReqs.TreeWither }
 				},
-			 }; 
+			 };
 
-			Rooms.ForEach(x => x.GameObjects.RemoveAll(o => o.OnTrigger.Intersect(companions.SelectMany(c => c.OnTrigger).ToList()).Any()));
+			var treewitherperson = new GameObjectData()
+			{
+				OnTrigger = new() { AccessReqs.TreeWitherPerson },
+				Type = GameObjectType.Trigger,
+				Name = "Tree Wither Person",
+				Access = new() { AccessReqs.TreeWither }
+			};
+
+			var npcstoremove = kaelismom ? companions : companions.Append(treewitherperson);
+
+			Rooms.ForEach(x => x.GameObjects.RemoveAll(o => o.OnTrigger.Intersect(npcstoremove.SelectMany(c => c.OnTrigger).ToList()).Any()));
 
 			List<(MapRegions region, int room)> validRooms = new()
 			{
@@ -95,6 +105,11 @@ namespace FFMQLib
 			{
 				var newroom = rng.TakeFrom(validRooms);
                 Rooms.Find(r => r.Id == newroom.room).GameObjects.Add(companion);
+
+				if (companion.OnTrigger.Contains(AccessReqs.Kaeli) && !kaelismom)
+				{
+					Rooms.Find(r => r.Id == newroom.room).GameObjects.Add(treewitherperson);
+				}
             }
 		}
 	}
