@@ -327,9 +327,11 @@ namespace FFMQLib
 			// Wintry Squid
 			MapSpriteSets[0x0B].AddAddressor(6, 0, 30, SpriteSize.Tiles16);
 			MapObjects[0x1F][0x01].Sprite = 0x42;
+			MapObjects[0x1F][0x01].Y = 0x1B;
 
+			// Squid Chest
 			MapObjects[0x1F][0x0B].Gameflag = (int)NewGameFlagsList.ShowSquidChest;
-			GameFlags[(int)NewGameFlagsList.ShowSquidChest] = false;
+			GameFlags[(int)NewGameFlagsList.ShowSquidChest] = true;
 
 			TalkScripts.AddScript((int)TalkScriptsList.FightSquid,
 				new ScriptBuilder(new List<string>{
@@ -364,16 +366,13 @@ namespace FFMQLib
 			/*** Fall Basin ***/
 			// Update Crab and put Chest under crab
 			MapSpriteSets[0x0C].AddAddressor(6, 0, 30, SpriteSize.Tiles16);
-			MapObjects[0x21][0x07].X--;
+			MapObjects[0x21][0x07].Y++;
 			MapObjects[0x21][0x07].Sprite = 0x43;
 
-			MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
-			MapObjects[0x21][0x0F].Y = MapObjects[0x21][0x07].Y;
+			//MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
+			//MapObjects[0x21][0x0F].Y = MapObjects[0x21][0x07].Y;
 			MapObjects[0x21][0x0F].Gameflag = (int)NewGameFlagsList.ShowCrabChest;
-            GameFlags[(int)NewGameFlagsList.ShowCrabChest] = false;
-
-			
-
+            GameFlags[(int)NewGameFlagsList.ShowCrabChest] = true;
 
 			TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
 				new ScriptBuilder(new List<string>{
@@ -735,14 +734,22 @@ namespace FFMQLib
 				}));
 
 			/*** Volcano Base ***/
-			// Medusa - Put medusa over chest
+			// Modify Chest Ledge
+			GameMaps[(int)MapList.VolcanoTop].ModifyMap(0x22, 0x0E, new List<List<byte>>() { new() { 0x38, 0x50, 0x41 }, new() { 0x00, 0x00, 0x20 }, new() { 0x07, 0x02, 0x11 } });
+
+			// Medusa - Medusa Block Path
 			MapSpriteSets[0x16].AddAddressor(6, 0, 31, SpriteSize.Tiles16);
 			MapObjects[0x37][0x00].Sprite = 0x41;
+			MapObjects[0x37][0x00].X = 0x25;
+			MapObjects[0x37][0x00].Y = 0x0F;
 
-			MapObjects[0x37][0x00].X = MapObjects[0x37][0x0D].X;
-			MapObjects[0x37][0x00].Y = MapObjects[0x37][0x0D].Y;
+			// Move back chest
+			MapObjects[0x37][0x0D].Y--;
+
+			//MapObjects[0x37][0x00].X = MapObjects[0x37][0x0D].X;
+			//MapObjects[0x37][0x00].Y = MapObjects[0x37][0x0D].Y;
 			MapObjects[0x37][0x0D].Gameflag = (int)NewGameFlagsList.ShowMedusaChest;
-            GameFlags[(int)NewGameFlagsList.ShowMedusaChest] = false;
+            GameFlags[(int)NewGameFlagsList.ShowMedusaChest] = true;
 
             TalkScripts.AddScript((int)TalkScriptsList.FightMedusa,
 				new ScriptBuilder(new List<string>{
@@ -1107,9 +1114,11 @@ namespace FFMQLib
 			MapObjects[0x4F][0x0C].X = MapObjects[0x4F][0x00].X;
 			MapObjects[0x4F][0x0C].Y = MapObjects[0x4F][0x00].Y;
 			MapObjects[0x4F][0x0C].Gameflag = (int)NewGameFlagsList.ShowDullahanChest;
-            GameFlags[(int)NewGameFlagsList.ShowDullahanChest] = false;
+            GameFlags[(int)NewGameFlagsList.ShowDullahanChest] = true;
 
-            TalkScripts.AddScript((int)TalkScriptsList.FightHeadlessKnight,
+			MapObjects[0x4F][0x00].Y++;
+
+			TalkScripts.AddScript((int)TalkScriptsList.FightHeadlessKnight,
 				new ScriptBuilder(new List<string>{
 					"04",
 					"1A54" + TextToHex("The horseman comes! And tonight he comes for you!\nWatch your head!"),
