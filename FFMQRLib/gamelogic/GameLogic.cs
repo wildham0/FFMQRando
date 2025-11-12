@@ -143,6 +143,19 @@ namespace FFMQLib
 				aquariaAccess.Access.Add(AccessReqs.SummerAquaria);
 			}
 
+			// Ship Access
+			if (flags.DoomCastleAccess == DoomCastleAccess.FreedShip)
+			{
+				var shipregions = Rooms.Where(x => x.Id == 228 || x.Id == 229).ToList();
+				foreach (var shipregion in shipregions)
+				{
+					foreach (var link in shipregion.Links)
+					{
+						link.Access.Remove(AccessReqs.ShipLiberated);
+					}
+				}
+			}
+
 			// Giant Tree
 			var giantTreeLink = locationLinks.Find(l => l.Location == LocationIds.GiantTree);
 			Rooms.Find(x => x.Type == RoomType.Subregion && x.Region == SubRegions.Windia).Links.Remove(giantTreeLink);

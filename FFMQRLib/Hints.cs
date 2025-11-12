@@ -382,7 +382,7 @@ namespace FFMQLib
 
 			List<Items> goModeItems = new();
 			bool progressiveGear = flags.ProgressiveGear;
-			bool doomCastleShortcut = flags.DoomCastleShortcut;
+			var doomCastleAccess = flags.DoomCastleAccess;
 			bool doomCastleMaze = flags.DoomCastleMode == DoomCastleModes.Standard;
 
 			if (includeSkyCoin)
@@ -390,16 +390,23 @@ namespace FFMQLib
 				goModeItems.Add(Items.SkyCoin);
 			}
 
-			if (!doomCastleShortcut)
+
+			if (doomCastleAccess == DoomCastleAccess.Standard)
 			{
 				goModeItems.AddRange(new List<Items>() { Items.MegaGrenade, Items.DragonClaw, Items.SunCoin, Items.ThunderRock, Items.CaptainsCap });
 				goModeItems.AddRange(shipaccessItems);
-
 				if (progressiveGear)
 				{
 					goModeItems.AddRange(new List<Items>() { Items.Bomb, Items.JumboBomb, Items.CatClaw, Items.CharmClaw });
 				}
+				;
 			}
+			else if (doomCastleAccess == DoomCastleAccess.FreedShip)
+			{
+				goModeItems.AddRange(new List<Items>() { Items.SunCoin, Items.CaptainsCap });
+				goModeItems.AddRange(shipaccessItems);
+			}
+
 
 			if (doomCastleMaze)
 			{

@@ -104,9 +104,10 @@ Final Fantasy Mystic Quest:
     Standard: 1
     BossRush: 0
     DarkKingOnly: 0
-  doom_castle_shortcut:
-    true: 0
-    false: 1
+  doom_castle_access:
+    Standard: 1
+    FreedShip: 0
+    FocusTowerShortcut: 0
   sky_coin_mode:
     Standard: 1
     StartWith: 0

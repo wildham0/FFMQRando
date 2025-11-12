@@ -11,6 +11,7 @@ namespace FFMQLib
 		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, LocationIds startinglocation, bool apenabled, bool nomusic, MT19337 rng)
 		{
 			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
+
             /*** Overworld ***/
             // GameStart - Starting Companion + Skip Mountain collapse
             Dictionary<CompanionsId, NewGameFlagsList> startingcompanionflags = new()
@@ -66,8 +67,15 @@ namespace FFMQLib
 			// Put bridge to access temple
 			GameMaps[(int)MapList.Overworld].ModifyMap(0x0F, 0x0E, 0x56);
 
-            // Companions Scripts
-            UpdateCompanionScripts(flags, fullItemsPlacement, startinglocation, apenabled, rng);
+			// Free the Ship
+			GameFlags[0x4A] = flags.DoomCastleAccess != DoomCastleAccess.FreedShip; // don't show ledge ship
+			GameFlags[0x54] = flags.DoomCastleAccess == DoomCastleAccess.FreedShip; // show ship at dock (ow)
+
+			// Spencer Cave Flag
+			GameFlags[(int)NewGameFlagsList.SpencerCaveBombed] = false;
+
+			// Companions Scripts
+			UpdateCompanionScripts(flags, fullItemsPlacement, startinglocation, apenabled, rng);
 
             /*** Level Forest ***/
             // Copy over Cloudman+Oldman
@@ -516,16 +524,18 @@ namespace FFMQLib
 			MapSpriteSets[0x10].Palette.Insert(0x01, 0x1E);
 
 			// Enter Tile
+			bool spencershowow = flags.DoomCastleAccess != DoomCastleAccess.FreedShip;
 			TileScripts.AddScript((int)TileScriptsList.EnterSpencersPlace,
 				new ScriptBuilder(new List<string> {
-					"2E04[09]",
+					$"2E{(int)NewGameFlagsList.SpencerCaveBombed:X2}[09]",
 					"2C0E01",
 					"2D" + ScriptItemFlags[Items.MegaGrenade].Item1,
 					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[05]",
 					"00",
 					"2304",
-					"231A",
-					"2A105033463054182521255EFF07062A250F0161FFFFFF",
+					$"23{(int)NewGameFlagsList.SpencerCaveBombed:X2}",
+					$"2304",
+					spencershowow ? "231A2A105033463054182521255EFF07062A250F0161FFFFFF" : "2A105033463054182521255EFF0F0161FFFFFF",
 					"00",
 					"2C0F01",
 					"00"
@@ -1229,8 +1239,8 @@ namespace FFMQLib
 			}
 
 			/*** Ship's Dock ***/
-			GameFlags[0x1A] = false; // Mac Ship
-			GameFlags[0x56] = false; // Mac Ship
+			GameFlags[0x1A] = flags.DoomCastleAccess == DoomCastleAccess.FreedShip; // Mac Ship
+			GameFlags[0x56] = flags.DoomCastleAccess == DoomCastleAccess.FreedShip; // Mac Ship
 			MapObjects[0x60][0x03].Gameflag = 0xFE; // Hide ship because cutescene enable it's flag anyway
 
 			/*** Mac's Ship ***/
@@ -1249,7 +1259,7 @@ namespace FFMQLib
 					"1A75" + TextToHex("%&?! youngster think you can just take my craik like that? &?!%! Leave this old salt alone!") + "36",
 					"00",
 					"1A75" + TextToHex("My &%!? cap! Alright, you can have her, but you bring her back in one piece, ?!&% skip-jack!") + "36",
-					"235923572B7F2B802B58",
+					"2304235923572B7F2B802B58",
 					"00",
 					"1A75" + TextToHex("Gonna hit the bunk now.") + "36",
 					"00"

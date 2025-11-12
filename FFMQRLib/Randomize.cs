@@ -16,8 +16,8 @@ namespace FFMQLib
 		// Y = Major Release
 		// Z = Patch Release
 		// Increment Beta on every new builds, reset to zero on version increase
-		public static string Version = "1.6.3";
-		public static string Build = "07";
+		public static string Version = "1.7.0";
+		public static string Build = "01";
 		public static string BetaVersionShort => Version + "-b" + Build;
 		public static string BetaVersionLong => Version + "-beta" + Build;
 	}
@@ -151,7 +151,7 @@ namespace FFMQLib
 
 			// Doom Castle
 			SetDoomCastleMode(flags.DoomCastleMode);
-			DoomCastleShortcut(flags.DoomCastleShortcut);
+			DoomCastleShortcut(flags.DoomCastleAccess);
 
 			// Various
 			SetLevelingCurve(flags.LevelingCurve);
