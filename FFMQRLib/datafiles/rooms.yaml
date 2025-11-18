@@ -1739,7 +1739,7 @@
   links:
   - target_room: 72
     entrance: 143
-    teleporter: [81, 0]
+    teleporter: [105, 8]
     access: []
   - target_room: 40
     entrance: 145

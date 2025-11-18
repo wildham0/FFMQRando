@@ -632,6 +632,7 @@ namespace FFMQLib
 		EnterWindiaInnBedroom,
 		KaeliCuttingTree,
 		VolcanoSummitQuest,
+		SpencerEntranceFromWaterfall
 	}
 
 	public enum TalkScriptsList : int
