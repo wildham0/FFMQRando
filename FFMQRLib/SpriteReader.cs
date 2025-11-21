@@ -10,6 +10,8 @@ using RomUtilities;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using BigGustave;
+using System.Drawing;
 
 namespace FFMQLib
 {
@@ -137,6 +139,101 @@ namespace FFMQLib
 			}
 
 			return encodedline;
+		}
+		private byte[] EncodeLine2bpp(byte[] pixelline)
+		{
+			List<byte> palettemask = new() { 0x01, 0x02, 0x04 };
+
+			byte[] encodedline = new byte[2];
+			for (int i = 0; i < pixelline.Length; i++)
+			{
+
+				if (pixelline[i] == 0x01 || pixelline[i] == 0x03)
+				{
+					encodedline[0] |= bitmask[i];
+				}
+
+				if (pixelline[i] == 0x02 || pixelline[i] == 0x03)
+				{
+					encodedline[1] |= bitmask[i];
+				}
+			}
+
+			return encodedline;
+		}
+		private byte[] EncodeRow2bpp(byte[] row)
+		{
+			var sections = row.Chunk(8).ToList();
+
+			List<byte[]> encodedRow = new();
+
+			foreach (var section in sections)
+			{
+				encodedRow.Add(EncodeLine2bpp(section));
+			}
+
+			return encodedRow.SelectMany(s => s).ToArray();
+		}
+		private byte[] EncodeImage2bpp(byte[] image)
+		{
+			var rows = image.Chunk(infoWidth).ToList();
+
+			List<byte[]> encodedImage = new();
+
+			foreach (var row in rows)
+			{
+				encodedImage.Add(EncodeRow2bpp(row));
+			}
+
+			return encodedImage.SelectMany(r => r).ToArray();
+		}
+		private void ReadPNG(Stream rawdata)
+		{
+			Png image = Png.Open(rawdata);
+
+			palette = new();
+			pixelcolors = new();
+			infoWidth = image.Width;
+			infoHeight = image.Height - 1;
+
+			Dictionary<Pixel, byte> palettes = new();
+			//List<(Pixel, Pixel)> palettes = new();
+
+			for (int i = 0; i < 4; i++)
+			{
+				var pixel = image.GetPixel(infoWidth - 4 + i, infoHeight);
+				palettes.Add(pixel, (byte)i);
+			}
+
+			byte[] rawimage = new byte[infoWidth * infoHeight];
+
+			for (int y = 0; y < infoHeight; y++)
+			{
+				for (int x = 0; x < infoWidth; x++)
+				{
+					var pixel = image.GetPixel(x, y);
+					if (palettes.TryGetValue(pixel, out var rawbyte))
+					{
+						rawimage[y * infoWidth + x] = rawbyte;
+					}
+				}
+			}
+
+			data = EncodeImage2bpp(rawimage);
+		}
+		public void ReadPNGFile()
+		{
+			//string metadatayaml = "";
+			var assembly = Assembly.GetExecutingAssembly();
+			string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("noobimage.png"));
+			using (Stream imagefile = assembly.GetManifestResourceStream(filepath))
+			{
+				ReadPNG(imagefile);
+			}
+		}
+		public void WriteAt(int bank, int offset, FFMQRom rom)
+		{
+			rom.PutInBank(bank, offset, data);
 		}
 		private byte[] EncodeTile((int x, int y) tilePosition, int paletteid)
 		{

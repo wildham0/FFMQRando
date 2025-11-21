@@ -6,609 +6,55 @@ using RomUtilities;
 using System.Diagnostics;
 using static System.Math;
 using System.Xml.Linq;
+using System.Text.Json;
+using System.IO;
+using System.Reflection;
+using static System.Collections.Specialized.BitVector32;
+using System.Drawing;
 
 namespace FFMQLib
 {
-	public class TilesProperties
-	{
-		private List<List<SingleTile>> _tilesProperties;
-		private const int MapTileDataOffset = 0x032800;
-
-
-		public TilesProperties(FFMQRom rom)
-		{
-			_tilesProperties = rom.Get(MapTileDataOffset, 0x10 * 0x100).Chunk(0x100).Select(x => x.Chunk(0x02).Select(y => new SingleTile(y)).ToList()).ToList();
-		}
-
-		public List<SingleTile> this[int propTableID]
-		{
-			get => _tilesProperties[propTableID];
-			set => _tilesProperties[propTableID] = value;
-		}
-
-		public void Write(FFMQRom rom)
-		{
-			rom.Put(MapTileDataOffset, _tilesProperties.SelectMany(x => x.SelectMany(y => y.GetBytes())).ToArray());
-		}
-	}
-
-	public class SingleTile
-	{ 
-		public byte Byte1 { get; set; }
-		public byte Byte2 { get; set; }
-
-		public SingleTile(byte[] tileprop)
-		{
-			Byte1 = tileprop[0];
-			Byte2 = tileprop[1];
-		}
-
-		public byte[] GetBytes()
-		{
-			return new byte[] { Byte1, Byte2 };
-		}
-	}
-
-	public class GameMaps
-	{
-		private List<Map> _gameMaps;
-		public TilesProperties TilesProperties { get; set; }
-        private const int MapDataAddressesOffset = 0x8735;
-        private const int MapDataAddressesBank = 0x0B;
-        private const int MapAttributesOffset = 0x8CD9;
-        private const int MapAttributesBank = 0x0B;
-        //private const int MapAttributesQty = 0x0A;
-        private const int MapAttributesLength = 0x0A;
-        private const int MapDimensionsTableOffset = 0x8540;
-        private const int MapDimensionsTableBank = 0x0B;
-
-		private const int CloudMapBank = 0x07;
-		private const int CloudMapOffset = 0xF6D1;
-        private const int NewCloudMapBank = 0x13;
-        private const int NewCloudMapOffset = 0xE000;
-        public RLEMap CloudsMap { get; set; }
-        public GameMaps(FFMQRom rom)
-		{
-			TilesProperties = new TilesProperties(rom);
-			_gameMaps = new();
-			var mapAttributesData = rom.GetFromBank(MapAttributesBank, MapAttributesOffset, MapAttributesLength * 0x2C).Chunk(MapAttributesLength).Select(a => new MapAttributes(a)).ToList();
-            var mapDataPointers = rom.GetFromBank(MapDataAddressesBank, MapDataAddressesOffset, 3 * 0x2C).Chunk(3);
-            var dimensions = rom.GetFromBank(MapDimensionsTableBank, MapDimensionsTableOffset, 2 * 16).Chunk(2);
-            //byte[] _mapAddressRaw = rom.Get(MapDataAddressesOffset + (mapID * 3), 3);
-            // _mapAddress = _mapAddressRaw[2] * 0x8000 + (_mapAddressRaw[1] * 0x100 + _mapAddressRaw[0] - 0x8000);
-            //var tempdimensions = rom.Get(MapDimensionsTableOffset + (Attributes.MapDimensionId * 2), 2);
-
-            //var tempdimensions = rom.Get(MapDimensionsTableOffset + (_mapAttributes[0] & 0xF0) / 8, 2);
-            //_dimensions = (tempdimensions[0], tempdimensions[1]);
-
-            for (int i = 0; i < 0x2C; i++)
-			{
-                //var tempdimensions = rom.GetFromBank(MapDimensionsTableOffset + (Attributes.MapDimensionId * 2), 2);
-
-                _gameMaps.Add(new Map(i,
-					(dimensions[mapAttributesData[i].MapDimensionId][0], dimensions[mapAttributesData[i].MapDimensionId][1]),
-					TilesProperties,
-					mapAttributesData[i],
-					mapDataPointers[i][2],
-					mapDataPointers[i][1] * 0x100 + mapDataPointers[i][0],
-                    rom));
-			}
-
-			CloudsMap = new RLEMap((dimensions[mapAttributesData[0].MapDimensionId][0], dimensions[mapAttributesData[0].MapDimensionId][1]),
-					CloudMapBank,
-					CloudMapOffset,
-					rom);
-        }
-
-		public Map this[int mapID]
-		{
-			get => _gameMaps[mapID];
-			set => _gameMaps[mapID] = value;
-		}
-		public void RandomGiantTreeMessage(MT19337 rng)
-		{
-			Dictionary<char, List<List<byte>>> letters = new()
-			{
-				{
-					'A',
-					new List<List<byte>> { 
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },}
-				},
-				{
-					'B',
-					new List<List<byte>> { 
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },}
-				},
-				{
-					'C',
-					new List<List<byte>> { 
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },}
-				},
-				{
-					'D',
-					new List<List<byte>> { 
-					new List<byte> { 0x03, 0x03, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x00, 0x00 },}
-				},
-				{
-					'E',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },}
-				},
-				{
-					'F',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },}
-				},
-				{
-					'G',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },}
-				},
-				{
-					'H',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },}
-				},
-				{
-					'I',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00 },}
-				},
-				{
-					'J',
-					new List<List<byte>> {
-					new List<byte> { 0x00, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x00, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x00, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },}
-				},
-				{
-					'K',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },}
-				},
-				{
-					'L',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },}
-				},
-				{
-					'M',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x03, 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00, 0x03, 0x00 },}
-				},
-				{
-					'N',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },}
-				},
-				{
-					'O',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },}
-				},
-				{
-					'P',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },}
-				},
-				{
-					'Q',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x00, 0x03, 0x03, 0x00 },}
-				},
-				{
-					'R',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },}
-				},
-				{
-					'S',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x00, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },}
-				},
-				{
-					'T',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x00, 0x03, 0x00, 0x00 },
-					new List<byte> { 0x00, 0x03, 0x00, 0x00 },
-					new List<byte> { 0x00, 0x03, 0x00, 0x00 },
-					new List<byte> { 0x00, 0x03, 0x00, 0x00 },}
-				},
-				{
-					'U',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },}
-				},
-				{
-					'V',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x00, 0x03, 0x00, 0x00 },}
-				},
-				{
-					'W',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x00, 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x03, 0x03, 0x00 },}
-				},
-				{
-					'X',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x00, 0x03, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },}
-				},
-				{
-					'Y',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x00, 0x03, 0x00, 0x00 },
-					new List<byte> { 0x00, 0x03, 0x00, 0x00 },}
-				},
-				{
-					'Z',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x00, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x00, 0x03, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },}
-				},
-				{
-					'!',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00 },
-					new List<byte> { 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00 },}
-				},
-				{
-					'.',
-					new List<List<byte>> {
-					new List<byte> { 0x00, 0x00 },
-					new List<byte> { 0x00, 0x00 },
-					new List<byte> { 0x00, 0x00 },
-					new List<byte> { 0x00, 0x00 },
-					new List<byte> { 0x03, 0x00 },}
-				},
-				{
-					'?',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x03, 0x03, 0x00 },
-					new List<byte> { 0x00, 0x00, 0x03, 0x00 },
-					new List<byte> { 0x00, 0x03, 0x00, 0x00 },
-					new List<byte> { 0x00, 0x00, 0x00, 0x00 },
-					new List<byte> { 0x00, 0x03, 0x00, 0x00 },}
-				},
-				{
-					'\'',
-					new List<List<byte>> {
-					new List<byte> { 0x03, 0x00 },
-					new List<byte> { 0x03, 0x00 },
-					new List<byte> { 0x00, 0x00 },
-					new List<byte> { 0x00, 0x00 },
-					new List<byte> { 0x00, 0x00 },}
-				},
-				{
-					' ',
-					new List<List<byte>> {
-					new List<byte> { 0x00, 0x00 },
-					new List<byte> { 0x00, 0x00 },
-					new List<byte> { 0x00, 0x00 },
-					new List<byte> { 0x00, 0x00 },
-					new List<byte> { 0x00, 0x00 },}
-				},
-			};
-
-
-			List<string> customMessages = new()
-			{
-				// 6 letters on first line, 4 on second (to cover the whole message)
-				" GO ON+KID!!",  // original
-
-				"BORK?+BORK",    // wildham
-				" GOOD+ DAY!",   // guardianmarcus
-				" WOOP+WOOP",    // Chanigan
-				" JERK+BIRD",    // DarkPaladin
-				" BEST+ FF!",    // keddril
-				" SCI+ENCE",     // kaiten619
-				" FLY+HIGH",     // JJBlu
-				" LOG+ IN!",     // x10power
-			};
-
-			string newMessage = rng.PickFrom(customMessages);
-
-			List<int> xPositions = new() { 0x09, 0x11 };
-			List<int> yPositions = new() { 0x03, 0x09 };
-
-			int currentYindex = 0;
-			int currentX = xPositions[currentYindex];
-
-			foreach (char c in newMessage)
-			{
-				if (c == '+')
-				{
-					for ( ; currentX < 30; currentX += 2)
-					{
-						_gameMaps[(int)MapList.BackgroundD].ModifyMap(currentX, yPositions[currentYindex], letters[' ']);
-					}
-					
-					currentYindex++;
-					currentX = xPositions[currentYindex];
-					continue;
-				}
-
-				_gameMaps[(int)MapList.BackgroundD].ModifyMap(currentX, yPositions[currentYindex], letters[c]);
-
-				currentX += letters[c][0].Count;
-			}
-
-			for (; currentX < 30; currentX += 2)
-			{
-				_gameMaps[(int)MapList.BackgroundD].ModifyMap(currentX, yPositions[currentYindex], letters[' ']);
-			}
-		}
-		public void MoveCloudMap(FFMQRom rom)
-		{
-			rom.PutInBank(0x0B, 0x85AD, Blob.FromSBytes(new sbyte[] { NewCloudMapBank }));
-            rom.PutInBank(0x0B, 0x8586, Blob.FromUShorts(new ushort[] { NewCloudMapOffset }));
-        }
-		public void LessObnoxiousMaps(bool enable, ObjectList mapobjects, MT19337 rng)
-		{
-			if (!enable)
-			{
-				return;
-			}
-
-			// Ice Pyramid
-			// Add shortcuts to 1F
-			_gameMaps[(int)MapList.IcePyramidA].ModifyMap(0x26, 0x17, new List<List<byte>> {
-				new List<byte> { 0x06 },
-				new List<byte> { 0x06 },
-				new List<byte> { 0x07 },
-			});
-
-			_gameMaps[(int)MapList.IcePyramidA].ModifyMap(0x1B, 0x0A, new List<List<byte>> {
-				new List<byte> { 0x06, 0x05 },
-				new List<byte> { 0x06, 0x05 },
-				new List<byte> { 0x07, 0x05 },
-			});
-
-			_gameMaps[(int)MapList.IcePyramidA].ModifyMap(0x04, 0x16, new List<List<byte>> {
-				new List<byte> { 0x04, 0x06, 0x05, 0x04, 0x04 },
-				new List<byte> { 0x14, 0x07, 0x05, 0x14, 0x14 },
-				new List<byte> { 0x05, 0x05, 0x05, 0x05, 0x05 },
-			});
-
-			// Giant Tree
-			// Trim down mushrooms
-			_gameMaps[(int)MapList.GiantTreeA].RandomReplaceTile(rng, 0x08, 0x10, 0.5f);
-			_gameMaps[(int)MapList.GiantTreeA].RandomReplaceTile(rng, 0x3C, 0x1E, 0.5f);
-			_gameMaps[(int)MapList.GiantTreeB].RandomReplaceTile(rng, 0x08, 0x10, 0.5f);
-
-			// Extend platform on 1F to reach hook
-			_gameMaps[(int)MapList.GiantTreeA].ModifyMap(0x17, 0x05, new List<List<byte>> { 
-				new List<byte> { 0x1C, 0x02 },
-				new List<byte> { 0x1C, 0x1E },
-				new List<byte> { 0x1C, 0x1E },
-				new List<byte> { 0x0A, 0x0A },
-				new List<byte> { 0x1A, 0x1A },
-			});
-
-			// Move Hook
-			mapobjects[0x44][0x14].X = 0x11;
-			mapobjects[0x44][0x14].Y = 0x05;
-
-			// Open up passage on 5F
-			_gameMaps[(int)MapList.GiantTreeB].ModifyMap(0x0A, 0x13, new List<List<byte>> {
-				new List<byte> { 0x21 },
-				new List<byte> { 0x22 },
-				new List<byte> { 0x1E },
-			});
-
-			// Pazuzu's Tower
-			// Remove enemies from stair cases
-			for (int i = 0x5A; i < 0x5F; i++)
-			{
-				mapobjects[i].Where(x => x.Type == MapObjectType.Battle).ToList().ForEach(x => x.Gameflag = 0xFE);
-			}
-
-			// Mine Interior
-			// Reduce enemies count for legacy reasons, maybe not needed, keep an eye on it
-			/*
-			for (int i = 0; i < mapobjects[0x2E].Count; i++)
-			{
-				var enemiescollection = mapobjects[0x2E].Where(x => x.Type == MapObjectType.Battle).ToList();
-				int totalcount = enemiescollection.Count;
-				int toremove = ((100 - 25) * totalcount) / 100;
-
-				for (int j = 0; j < toremove; j++)
-				{
-					rng.TakeFrom(enemiescollection).Gameflag = (byte)NewGameFlagsList.ShowEnemies;
-				}
-			}*/
-		}
-		public void ShuffledMapChanges(MapShufflingMode mode, ObjectList gameobjects)
-		{
-			if (mode == MapShufflingMode.None)
-			{
-				return;
-			}
-
-			// Block Lava Dome Climbing tiles
-			_gameMaps[(int)MapList.LavaDomeExterior].ModifyMap(0x1F, 0x0E, new List<List<byte>>() { new() { 0x2E, 0x2E, 0x2E } });
-			_gameMaps[(int)MapList.LavaDomeExterior].ModifyMap(0x34, 0x07, new List<List<byte>>() { new() { 0x2E, 0x2E, 0x2E }, new() { 0x00, 0x00, 0x00 }, new() { 0x00, 0x00, 0x00 } });
-
-			// Block Giant Tree 1F Vine
-			_gameMaps[(int)MapList.GiantTreeA].ModifyMap(0x2E, 0x31, new List<List<byte>>() { new() { 0x35 }, new() { 0x7E }, new() { 0x7F } });
-
-			// Add Climbining tiles to worm room
-			_gameMaps[(int)MapList.GiantTreeA].ModifyMap(0x04, 0x25, new List<List<byte>>() { new() { 0x05 }, new() { 0x05 }, new() { 0x05 } });
-
-			// Move Pazuzu 1F hook ring
-			gameobjects[0x53][0x13].X = 0x34;
-			gameobjects[0x53][0x13].Y = 0x18;
-
-			// Remove 3F hook ring
-			gameobjects[0x55][0x13].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
-
-			// Remove hole in Mac Ship corridor
-			_gameMaps[(int)MapList.MacShipInterior].ModifyMap(0x11, 0x20, new List<List<byte>>() { new() { 0x4B } });
-		}
-
-		public void UpdateCloudMap()
-		{
-			// We do this manually since we change a lot of things
-			List<byte> CloudMap = new() {
-			};
-		}
-		public void Write(FFMQRom rom)
-		{
-			List<int> validBanks = new() { 0x08, 0x13 };
-			int currentBank = 0;
-			int currentAddress = 0x8000;
-
-			List<byte> newPointersTable = new();
-			List<byte> mapattributes = new();
-
-			foreach (var map in _gameMaps)
-			{
-				if (map.ModifiedMap)
-				{
-					map.CompressMap();
-				}
-
-				if (currentAddress + map.CompressedMapSize > 0xFFFF)
-				{
-					currentBank++;
-					currentAddress = 0x8000;
-				}
-
-				newPointersTable.AddRange(new List<byte>() { (byte)(currentAddress % 0x100), (byte)(currentAddress / 0x100), (byte)validBanks[currentBank] });
-
-				rom.PutInBank(validBanks[currentBank], currentAddress, map.GetArray());
-				currentAddress += map.CompressedMapSize;
-
-                mapattributes.AddRange(map.Attributes.ToArray());
-			}
-
-			rom.PutInBank(MapDataAddressesBank, MapDataAddressesOffset, newPointersTable.ToArray());
-			rom.PutInBank(MapAttributesBank, MapAttributesOffset, mapattributes.ToArray());
-
-			CloudsMap.Compress();
-            rom.PutInBank(NewCloudMapBank, NewCloudMapOffset, CloudsMap.GetArray());
-
-            TilesProperties.Write(rom);
-		}
-	}
-
 	public class MapAttributes
 	{ 
 		public int TilesProperties { get; set; }
 		public List<byte> GraphicRows { get; set; }
         public int MapDimensionId { get; set; }
-        public byte UnknowByte1 { get; set; }
+        public byte Palette { get; set; }
 		//private int length = 0x0A;
 		public MapAttributes(byte[] data)
 		{
 			TilesProperties = (data[0] & 0x0F);
             MapDimensionId = (data[0] & 0xF0) / 16;
-			UnknowByte1 = data[1];
+			Palette = data[1];
 			GraphicRows = data.Take(new Range(2, 10)).ToList();
         }
+		public MapAttributes()
+		{
+			GraphicRows = new();
+		}
 		public byte[] ToArray()
 		{
-			return new byte[] {	(byte)((MapDimensionId * 16) | (TilesProperties & 0x0F)), UnknowByte1 }.Concat(GraphicRows.Concat(Enumerable.Repeat((byte)0xFF, 8)).Take(8)).ToArray();
+			return new byte[] {	(byte)((MapDimensionId * 16) | (TilesProperties & 0x0F)), Palette }.Concat(GraphicRows.Concat(Enumerable.Repeat((byte)0xFF, 8)).Take(8)).ToArray();
+		}
+	}
+
+	public class JsonMap
+	{ 
+		public string Map { get; set; }
+		public MapAttributes Attributes { get; set; }
+
+		public JsonMap()
+		{
+			Attributes = new();
+		}
+		public JsonMap(MapAttributes mapattributes, string maptiles)
+		{
+			Attributes = new MapAttributes(mapattributes.ToArray());
+			Map = maptiles;
+		}
+		public byte[] GetMapBytes()
+		{
+			return Convert.FromBase64String(Map);
 		}
 	}
 
@@ -638,22 +84,34 @@ namespace FFMQLib
 			Attributes = attributes;
 
             _mapId = mapID;
-
-
-
-            //byte[] _mapAddressRaw = rom.Get(MapDataAddressesOffset + (mapID * 3), 3);
-            //byte[] _mapAddressRaw = rom.GetFromBank(bank, offset, 3);
-            //_mapAddress = _mapAddressRaw[2] * 0x8000 + (_mapAddressRaw[1] * 0x100 + _mapAddressRaw[0] - 0x8000);
-
 			_tileData = tileprop[Attributes.TilesProperties];
 
 			ModifiedMap = false;
 
-			//var tempdimensions = rom.Get(MapDimensionsTableOffset + (Attributes.MapDimensionId * 2), 2);
 			_dimensions = dimensions;
-
 			UncompressMapData(bank, offset, rom);
         }
+		public JsonMap ConvertToJson()
+		{
+			return new JsonMap(Attributes, Convert.ToBase64String(_mapUncompressed.ToArray()));
+		}
+		public void LoadJson(string filename)
+		{
+			var assembly = Assembly.GetExecutingAssembly();
+			string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith(filename));
+			JsonMap mapdata;
+			//StreamReader mapfile = new StreamReader(assembly.GetManifestResourceStream(filepath), Encoding.UTF8);
+
+			using (StreamReader mapfile = new StreamReader(assembly.GetManifestResourceStream(filepath), Encoding.UTF8))
+			{
+				mapdata = JsonSerializer.Deserialize<JsonMap>(mapfile.ReadToEnd());
+			}
+
+			Attributes = mapdata.Attributes;
+			_mapUncompressed = mapdata.GetMapBytes().ToList();
+			ModifiedMap = true;
+
+		}
 		private void UncompressMapData(int bank, int offset, FFMQRom rom)
 		{
             _mapCompressedData = new();
@@ -962,7 +420,7 @@ namespace FFMQLib
 		{
 			for (int i = 0; i < (_dimensions.Item2); i++)
 			{
-				var tempmap = _mapUncompressed.GetRange((i * _dimensions.Item1), _dimensions.Item1).Select(x => ((_tileData[(x & 0x7F)].Byte1 & 0x07) == 0x07) ? 0xFF : (_tileData[(x & 0x7F)].Byte1 & 0x0F));
+				var tempmap = _mapUncompressed.GetRange((i * _dimensions.Item1), _dimensions.Item1).Select(x => ((_tileData[(x & 0x7F)].PropertyByte1 & 0x07) == 0x07) ? 0xFF : (_tileData[(x & 0x7F)].PropertyByte1 & 0x0F));
 
 				string myStringOutput = String.Join("", tempmap.Select(p => p.ToString("X2")).ToArray());
 
@@ -971,7 +429,7 @@ namespace FFMQLib
 		}
 		public byte WalkableByte(int x, int y)
 		{
-			return (byte)(_tileData[_mapUncompressed[(y * _dimensions.Item1) + x] & 0x7F].Byte1 & 0x07);
+			return (byte)(_tileData[_mapUncompressed[(y * _dimensions.Item1) + x] & 0x7F].PropertyByte1 & 0x07);
 		}
 		public byte this[int x, int y]
 		{
@@ -979,7 +437,7 @@ namespace FFMQLib
 		}
 		public bool IsScriptTile(int x, int y)
 		{
-			return (_tileData[_mapUncompressed[(y * _dimensions.Item1) + x] & 0x7F].Byte2 & 0x80) == 0x80;
+			return (_tileData[_mapUncompressed[(y * _dimensions.Item1) + x] & 0x7F].PropertyByte2 & 0x80) == 0x80;
 		}
 		public byte TileValue(int x, int y)
 		{
@@ -1015,7 +473,7 @@ namespace FFMQLib
 		}
 		public void CreateAreas()
 		{
-			var tempmap = _mapUncompressed.GetRange(0,(_dimensions.Item1 * _dimensions.Item2)).Select(x => tileconverter(new byte[] { _tileData[(x & 0x7F)].Byte1, _tileData[x & 0x7F].Byte2 })).ToArray();
+			var tempmap = _mapUncompressed.GetRange(0,(_dimensions.Item1 * _dimensions.Item2)).Select(x => tileconverter(new byte[] { _tileData[(x & 0x7F)].PropertyByte1, _tileData[x & 0x7F].PropertyByte2 })).ToArray();
 
 			byte marker = 0x10;
 			//int start = 0;
@@ -1089,9 +547,9 @@ namespace FFMQLib
 			else
 				return false;
 		}
-		public void ChestLocationDump(FFMQLib.ObjectList mapobjects)
+		public void ChestLocationDump(FFMQLib.Areas mapobjects)
 		{
-			var tempmap = _mapUncompressed.GetRange(0, _dimensions.Item1 * _dimensions.Item2).Select(x => ((_tileData[(x & 0x7F)].Byte1 & 0x07) == 0x07) ? 0xFF : 0x00).ToArray();
+			var tempmap = _mapUncompressed.GetRange(0, _dimensions.Item1 * _dimensions.Item2).Select(x => ((_tileData[(x & 0x7F)].PropertyByte1 & 0x07) == 0x07) ? 0xFF : 0x00).ToArray();
 			/*
 			for (int i = 0; i < 0x6B; i++)
 			{
@@ -1276,192 +734,6 @@ namespace FFMQLib
 			return Blob.FromUShorts(new ushort[] { _length }) + _compressedMap.ToArray();
 		}
     }
-
-	public class MapChangeAction
-	{
-		public byte Area {get; set;}
-		private byte gameflag;
-		private byte action;
-		private byte changeid;
-
-		public MapChangeAction(int id, byte[] initialarray)
-		{
-			Area = (byte)id;
-			gameflag = initialarray[0];
-			changeid = initialarray[1];
-			action = initialarray[2];
-		}
-		public MapChangeAction(int id, byte _gameflag, byte _changeid, byte _action)
-		{
-			Area = (byte)id;
-			gameflag = _gameflag;
-			changeid = _changeid;
-			action = _action;
-		}
-		public byte[] GetBytes()
-		{
-			return new byte[] { gameflag, changeid, action };
-		}
-	}
-
-	public class MapChanges
-	{
-		private List<Blob> _pointers;
-		private List<Blob> _mapchanges;
-		private List<MapChangeAction> MapChangeActions;
-
-		private const int MapChangesPointersOld = 0xB93A;
-		private const int MapChangesEntriesOld = 0xBA0E;
-		private const int MapChangesBankOld = 0x06;
-		private const int MapChangesQtyOld = 0x6A;
-		private const int MapChangesPointersNew = 0x8000;
-		private const int MapChangesEntriesNew = 0x8100;
-		private const int MapChangesBankNew = 0x12;
-		private const int MapChangesQtyNew = 0x80;
-
-		private const int MapActionsInitialPointers = 0xBE77;
-		private const int MapActionsSecondaryPointers = 0xBEE3;
-		private const int MapActionsOffset = 0xBF15;
-		private const int MapActionsNewPointers = 0x9400;
-		private const int MapActionsNewOffset = 0x94D8;
-		private const int MapActionsQty = 0x6C;
-
-
-		public MapChanges(FFMQRom rom)
-		{
-			_pointers = rom.GetFromBank(MapChangesBankOld, MapChangesPointersOld, MapChangesQtyOld * 2).Chunk(2);
-			_mapchanges = new List<Blob>();
-
-			foreach (var pointer in _pointers)
-			{
-				var test = pointer.ToUShorts()[0];
-				var sizeByte = rom.GetFromBank(MapChangesBankOld, MapChangesEntriesOld + pointer.ToUShorts()[0] + 2, 1)[0];
-				var size = (sizeByte & 0x0F) * (sizeByte / 0x10);
-				_mapchanges.Add(rom.GetFromBank(MapChangesBankOld, MapChangesEntriesOld + pointer.ToUShorts()[0], size + 3));
-			}
-
-			MapChangeActions = new();
-			var actionInitialPointers = rom.GetFromBank(MapChangesBankOld, MapActionsInitialPointers, MapActionsQty);
-
-			for (int i = 0; i < actionInitialPointers.Length; i++)
-			{
-				byte individualPointer = actionInitialPointers[i];
-				if (individualPointer != 0xFF)
-				{
-					var actualPointer = rom.GetFromBank(MapChangesBankOld, MapActionsSecondaryPointers + (individualPointer * 2), 2).ToUShorts()[0];
-
-					var action = rom.GetFromBank(MapChangesBankOld, MapActionsOffset + actualPointer, 3);
-
-					while (action[0] != 0xFF)
-					{
-						MapChangeActions.Add(new MapChangeAction(i, action));
-						actualPointer += 3;
-						action = rom.GetFromBank(MapChangesBankOld, MapActionsOffset + actualPointer, 3);
-					}
-				}
-			}
-		}
-		public byte Add(Blob mapchange)
-		{
-			if (_mapchanges.Count() >= MapChangesQtyNew)
-			{
-				throw new Exception("Too many map changes.");
-			}
-
-			var newpointer = _pointers.Last().ToUShorts()[0] + _mapchanges.Last().Length;
-			_pointers.Add(new byte[] { (byte)(newpointer % 0x100), (byte)(newpointer / 0x100) });
-			_mapchanges.Add(mapchange);
-			return (byte)(_mapchanges.Count() - 1);
-		}
-		public void Modify(int index, int address, byte modification)
-		{
-			_mapchanges[index][address] = modification;
-		}
-        public void Modify(int index, int address, List<byte> modifications)
-        {
-			for (int i = 0; i < modifications.Count; i++)
-			{
-                _mapchanges[index][address + i] = modifications[i];
-            }
-        }
-        public void Replace(int index, Blob mapchange)
-		{
-			_mapchanges[index] = mapchange;
-		}
-		public void AddAction(int area, byte _gameflag, byte _changeid, byte _action)
-		{
-			MapChangeActions.Add(new MapChangeAction(area, new byte[] { _gameflag, _changeid, _action }));
-		}
-		public void RemoveActionByFlag(int area, int flag)
-		{
-			MapChangeActions.RemoveAll(x => x.Area == area && x.GetBytes()[0] == flag);
-		}
-		private void UpdatePointers()
-		{
-			_pointers.Clear();
-			ushort currentpointer = 0x0000;
-
-			foreach (var change in _mapchanges)
-			{
-				_pointers.Add(new byte[] { (byte)(currentpointer % 0x100), (byte)(currentpointer / 0x100) });
-				currentpointer += (ushort)change.Length;
-			}
-		}
-		public void ReorderOwMapchanges()
-		{
-			var inst25 = new MapChangeAction(0, 0x04, 0x00, 0x25);
-			var inst22 = new MapChangeAction(0, 0x22, 0x00, 0x22);
-
-			MapChangeActions[4] = inst22;
-			MapChangeActions[5] = inst25;
-		}
-		private void UpdateMapChangeActions(FFMQRom rom)
-		{
-			ushort currentPointer = 0x0000;
-			List<ushort> pointerList = new();
-			List<byte> actionData = new();
-
-			for (int i = 0; i < MapActionsQty; i++)
-			{
-				pointerList.Add(currentPointer);
-
-				var currentChanges = MapChangeActions.Where(x => x.Area == i).ToList();
-				foreach (var change in currentChanges)
-				{
-					actionData.AddRange(change.GetBytes());
-					currentPointer += 3;
-				}
-				actionData.Add(0xFF);
-				currentPointer++;
-			}
-
-			rom.PutInBank(MapChangesBankNew, MapActionsNewPointers, Blob.FromUShorts(pointerList.ToArray()));
-			rom.PutInBank(MapChangesBankNew, MapActionsNewOffset, actionData.ToArray());
-		}
-		public void Write(FFMQRom rom)
-		{
-			UpdatePointers();
-			UpdateMapChangeActions(rom);
-
-			rom.PutInBank(MapChangesBankNew, MapChangesPointersNew, _pointers.SelectMany(x => x.ToBytes()).ToArray());
-			rom.PutInBank(MapChangesBankNew, MapChangesEntriesNew, _mapchanges.SelectMany(x => x.ToBytes()).ToArray());
-
-			// Change LoadMapChange routine
-			rom.PutInBank(0x01, 0xC593, Blob.FromHex("008012")); // Change pointers table address
-			rom.PutInBank(0x01, 0xC5A0, Blob.FromHex("018112")); // Change Y base
-			rom.PutInBank(0x01, 0xC5B6, Blob.FromHex("008112")); // Change X base
-			rom.PutInBank(0x01, 0xC5CB, Blob.FromHex("028112")); // Change Size base
-			rom.PutInBank(0x01, 0xC5EB, Blob.FromHex("008112")); // Change Entry base
-
-			// Change MapAction routine
-			rom.PutInBank(0x01, 0xC8B2, Blob.FromHex("EAEAEAEAEAEAEA")); // skip initial table check
-			rom.PutInBank(0x01, 0xC8BF, new byte[] { (MapActionsNewPointers % 0x100), (MapActionsNewPointers / 0x100), MapChangesBankNew }); // new pointers address
-			rom.PutInBank(0x01, 0xC8C5, new byte[] { (MapActionsNewOffset % 0x100), (MapActionsNewOffset / 0x100), MapChangesBankNew }); // new offsets
-			rom.PutInBank(0x01, 0xC8D3, new byte[] { ((MapActionsNewOffset + 1) % 0x100), (MapActionsNewOffset / 0x100), MapChangesBankNew }); // new offsets
-			rom.PutInBank(0x01, 0xC8DA, new byte[] { ((MapActionsNewOffset + 2) % 0x100), (MapActionsNewOffset / 0x100), MapChangesBankNew }); // new offsets
-		}
-	}
-
 	public class MapUtilities
 	{
 		private List<Blob> _areaattributes = new();

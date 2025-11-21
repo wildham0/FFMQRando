@@ -7,6 +7,7 @@ using System.IO;
 using System.Diagnostics;
 using System.ComponentModel;
 using static System.Math;
+using System.Reflection;
 
 namespace FFMQLib
 {
@@ -29,6 +30,68 @@ namespace FFMQLib
 		[Description("0%")]
 		None,
 	}
+
+	public enum BgBlendingMode : int
+	{ 
+		BackgroundSolid = 0,
+		BackgroundWater,
+		ForegroundSolid,
+		BackgroundTransparent,
+		ForegroundSolidUnderSprite,
+		ForegroundTransparent,
+		ForegroundSolidMapShaded
+	}
+	public enum BgType : int
+	{
+		FixedTile = 0,
+		FullStepDuplicateMap, // prop1, prop2 are x,y offset?
+		HalfStepSecondMap,
+		FullStepTile,
+		FullStepTileScrolling,
+		HalfStepTile,
+		DiagonalScrolling,
+	}
+	public class BackgroundLayer
+	{ 
+		public BgBlendingMode BlendingMode { get; set; }
+		public BgType Type { get; set; }
+		public byte GraphicId { get; set; }
+		public byte Property1 { get; set; } // can be scroll speed, or x,y offset depending
+		public byte Property2 { get; set; }
+
+		public BackgroundLayer(byte[] data)
+		{
+			BlendingMode = (BgBlendingMode)((data[0] & 0x70) / 16);
+			Type = (BgType)((data[0] & 0x07));
+			GraphicId = data[1];
+			Property1 = data[2];
+			Property2 = data[3];
+		}
+		public byte[] GetBytes()
+		{
+			byte bgmode = (byte)(((int)BlendingMode * 16) | (int)Type);
+			return new byte[] { bgmode, GraphicId, Property1, Property2 };
+		}
+	}
+	public class BackgroundLayers
+	{ 
+		List<BackgroundLayer> Entries { get; set; }
+
+		private const int BgBank = 0x0B;
+		private const int BgOffset = 0x844F;
+		private const int BgSize = 0x04;
+		private const int BgQty = 36;
+
+		public BackgroundLayers(FFMQRom rom)
+		{
+			Entries = rom.GetFromBank(BgBank, BgOffset, BgSize * BgQty).Chunk(BgSize).Select(b => new BackgroundLayer(b)).ToList();
+		}
+		public void Write(FFMQRom rom)
+		{
+			rom.PutInBank(BgBank, BgOffset, Entries.SelectMany(b => b.GetBytes()).ToArray());
+		}
+	}
+
 	public class AreaAttributes
 	{ 
 		// 0
@@ -37,30 +100,119 @@ namespace FFMQLib
 		// 7 - Location Name
 
 	
-	
-	
+		public int BackgroundLayer { get; set; }
+		private byte[] data;
+
+		public AreaAttributes(byte[] rawdata)
+		{
+			data = rawdata;
+			BackgroundLayer = (((data[6] & 0xe0) / 8) | (data[5] & 0xe0)) / 4;
+			data[5] &= 0x1f;
+			data[6] &= 0x1f;
+			
+		}
+		public void ModifyByte(int index, byte value)
+		{
+			data[index] = value;
+		}
+		public byte GetByte(int index)
+		{
+			return data[index];
+		}
+		public byte[] GetBytes()
+		{
+			data[5] |= (byte)((BackgroundLayer & 0x38) * 4);
+			data[6] |= (byte)((BackgroundLayer & 0x07) * 32);
+
+			return data;
+		}
+	}
+	public class Area
+	{
+		public List<MapObject> Objects { get; set; }
+		public AreaAttributes Attributes { get; set; }
+
+		public Area(byte[] attributes, List<MapObject> objects)
+		{
+			Attributes = new AreaAttributes(attributes);
+			Objects = objects;
+		}
+		public byte[] GetBytes()
+		{
+			return Attributes.GetBytes().Concat(Objects.SelectMany(o => o.GetBytes())).ToArray();
+		}
 	}
 
-
-	public partial class ObjectList
+	public partial class Areas
 	{
-		private List<List<MapObject>> _collections = new List<List<MapObject>>();
-		private List<int> _pointerCollectionPairs = new();
-		private List<Blob> _areaattributes = new();
-		public List<(int, int, int)> ChestList = new();
-		private List<Blob> _attributepointers = new();
+		public List<(int content, int area, int objectid)> ChestObjects = new();
+
+		public List<Area> Entries { get; set; }
+		private List<int> areaPointers;
+		private ushort initialPointer;
 
 		private int NewAreaAttributesPointers = 0xB000;
 		private int NewAreaAttributesPointersBase = 0xB100;
 		private int NewAreaAttributesBank = 0x11;
 
 		private const int MapObjectsAttributesSize = 7;
+		private const int AreaAttributesSize = 8;
 
 		private const int AreaAttributesPointers = 0x3AF3B;
 		private const int AreaAttributesPointersBase = 0x3B013;
 		private const int AreaAttributesPointersQty = 108;
 		private const int AreaAttributesPointersSize = 2;
 
+		public Areas(FFMQRom rom)
+		{
+			var attributepointers = rom.Get(AreaAttributesPointers, AreaAttributesPointersQty * 2).Chunk(2);
+
+			initialPointer = attributepointers[0].ToUShorts()[0];
+			var previousPointer = initialPointer;
+			var collectionCount = 0;
+			
+			areaPointers = new();
+			Entries = new();
+
+			for (int i = 0; i < attributepointers.Count; i++)
+			{
+				if (i != 0 && attributepointers[i].ToUShorts()[0] == previousPointer)
+				{
+					areaPointers.Add(collectionCount - 1);
+					continue;
+				}
+
+				areaPointers.Add(collectionCount);
+
+				var address = AreaAttributesPointersBase + attributepointers[i].ToUShorts()[0];
+				byte[] attributes = rom.Get(address, AreaAttributesSize);
+				
+				address += AreaAttributesSize;
+				var objects = new List<MapObject>();
+
+				while (rom[address] != 0xFF)
+				{
+					objects.Add(new MapObject(rom.Get(address, MapObjectsAttributesSize)));
+					address += MapObjectsAttributesSize;
+				}
+				Entries.Add(new Area(attributes, objects));
+				collectionCount++;
+				previousPointer = attributepointers[i].ToUShorts()[0];
+			}
+
+			for (int i = 0; i < Entries.Count; i++)
+			{
+				for (int j = 0; j < Entries[i].Objects.Count; j++)
+				{
+					if (Entries[i].Objects[j].Type == MapObjectType.Chest)
+					{
+						ChestObjects.Add((Entries[i].Objects[j].Value, i, j));
+					}
+				}
+			}
+		}
+
+		/*
 		public ObjectList(FFMQRom rom)
 		{
 			_attributepointers = rom.Get(AreaAttributesPointers, AreaAttributesPointersQty * 2).Chunk(2);
@@ -104,57 +256,46 @@ namespace FFMQLib
 					}
 				}
 			}
-		}
+		}*/
 		public void ModifyAreaAttribute(int index, int position, byte value)
 		{
-			_areaattributes[_pointerCollectionPairs[index]][position] = value;
+			Entries[areaPointers[index]].Attributes.ModifyByte(position, value);
 		}
 		public int GetAreaMapId(int area)
 		{
-			return _areaattributes[area][1];
+			return Entries[area].Attributes.GetByte(1);
 		}
-		public void SwapMapObjects(int collection, int id1, int id2)
+		public void SwapMapObjects(int index, int object1, int object2)
 		{
-			var tempobject = new MapObject(_collections[_pointerCollectionPairs[collection]][id1]);
-			_collections[_pointerCollectionPairs[collection]][id1] = new MapObject(_collections[_pointerCollectionPairs[collection]][id2]);
-            _collections[_pointerCollectionPairs[collection]][id2] = new MapObject(tempobject);
+			var tempobject = Entries[areaPointers[index]].Objects[object1];
+			Entries[areaPointers[index]].Objects[object1] = new MapObject(Entries[areaPointers[index]].Objects[object2]);
+			Entries[areaPointers[index]].Objects[object2] = new MapObject(tempobject);
         }
 		public void Write(FFMQRom rom)
 		{
-			var pointerOffset = _attributepointers[0].ToUShorts()[0];
+			int pointerOffset = (int)initialPointer;
 			var pointersCount = 0;
+			List<byte[]> pointers = new();
 
-			for (int i = 0; i < _collections.Count; i++)
+			for (int i = 0; i < Entries.Count; i++)
 			{
-				var pointersQty = _pointerCollectionPairs.Where(x => x == i).Count();
+				var pointersQty = areaPointers.Where(x => x == i).Count();
+				var currentPointer = new byte[] { (byte)(pointerOffset % 0x100), (byte)(pointerOffset / 0x100) };
 
 				for (int j = 0; j < pointersQty; j++)
 				{
-					_attributepointers[pointersCount + j] = new byte[] { (byte)(pointerOffset % 0x100), (byte)(pointerOffset / 0x100) };
+					pointers.Add(currentPointer);
 				}
 				pointersCount += pointersQty;
-				/*
-				// hacky, will need to work area attributes
-				if (_collections[i].Any() && _areaattributes[i][2] == 0xFF)
-				{
-					_areaattributes[i][2] = 0x02;
-				}*/
-				
-				rom.PutInBank(NewAreaAttributesBank, NewAreaAttributesPointersBase + pointerOffset, _areaattributes[i]);
 
-				pointerOffset += 8;
 
-				for (int j = 0; j < _collections[i].Count; j++)
-				{
-					_collections[i][j].WriteAt(rom, NewAreaAttributesBank, NewAreaAttributesPointersBase + pointerOffset);
-					pointerOffset += MapObjectsAttributesSize;
-				}
+				var currentEntry = Entries[i].GetBytes().Concat(new byte[] { 0xFF }).ToArray();
+				rom.PutInBank(NewAreaAttributesBank, NewAreaAttributesPointersBase + pointerOffset, currentEntry);
 
-				rom.PutInBank(NewAreaAttributesBank, NewAreaAttributesPointersBase + pointerOffset, Blob.FromHex("FF"));
-				pointerOffset++;
+				pointerOffset += currentEntry.Length;
 			}
 
-			rom.PutInBank(NewAreaAttributesBank, NewAreaAttributesPointers, _attributepointers.SelectMany(x => x.ToBytes()).ToArray());
+			rom.PutInBank(NewAreaAttributesBank, NewAreaAttributesPointers, pointers.SelectMany(x => x).ToArray());
 
 			rom.PutInBank(0x03, 0x82D3, Blob.FromHex("00B011"));
 			rom.PutInBank(0x03, 0x82E0, Blob.FromHex("07B111")); // Location name // 07b01a
@@ -169,20 +310,20 @@ namespace FFMQLib
 		}
 		public List<MapObject> this[int floorid]
 		{
-			get => _collections[_pointerCollectionPairs[floorid]];
-			set => _collections[_pointerCollectionPairs[floorid]] = value;
+			get => Entries[areaPointers[floorid]].Objects;
+			//set => Entries[areaPointers[floorid]].Objects = value;
 		}
 		public string DumpXYLocations()
 		{
 			string tempstring = "";
 
-			for (int i = 0; i < _collections.Count; i++)
+			for (int i = 0; i < Entries.Count; i++)
 			{
                 var tempmap = Enumerable.Repeat(0xFF, 64 * 64).ToArray();
 
-                for (int j = 0; j < _collections[i].Count; j++)
+                for (int j = 0; j < Entries[i].Objects.Count; j++)
 				{
-					tempmap[_collections[i][j].Y * 64 + _collections[i][j].X] = j;
+					tempmap[Entries[i].Objects[j].Y * 64 + Entries[i].Objects[j].X] = j;
                 }
 
                 tempstring += i.ToString("X2") + ".\n";
@@ -230,13 +371,6 @@ namespace FFMQLib
 				Y = value.y;
 			}
 		}
-		public MapObject(int address, FFMQRom rom)
-		{
-			_address = address;
-			_array = rom.Get(address, MapObjectsAttributesSize).ToBytes().ToList();
-
-			UpdateValues();
-		}
 		public MapObject()
 		{
 			_address = 0;
@@ -260,7 +394,7 @@ namespace FFMQLib
 		}
 		public void CopyFrom(MapObject mapobject)
 		{
-			RawOverwrite(mapobject.RawArray());
+			RawOverwrite(mapobject.GetBytes());
 		}
 		private void UpdateArray()
 		{
@@ -320,7 +454,7 @@ namespace FFMQLib
 				return false;
 			}
 		}
-		public byte[] RawArray()
+		public byte[] GetBytes()
 		{
 			UpdateArray();
 			return _array.ToArray();
@@ -337,28 +471,6 @@ namespace FFMQLib
 			}
 
 			return newstring;
-		}
-	}
-
-	public class Chest
-	{
-		public int ObjectId { get; set; }
-		public int AreaId { get; set; }
-		public byte AccessRequirements { get; set; }
-		public byte TreasureId { get; set; }
-		public Items Treasure { get; set; }
-		public byte X { get; set; }
-		public byte Y { get; set; }
-
-		public Chest(int objid, int areaid, byte access, byte x, byte y, byte treasureid, Items treasure)
-		{
-			ObjectId = objid;
-			AreaId = areaid;
-			AccessRequirements = access;
-			TreasureId = treasureid;
-			X = x;
-			Y = y;
-			Treasure = treasure;
 		}
 	}
 }

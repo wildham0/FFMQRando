@@ -97,7 +97,7 @@ namespace FFMQLib
 			SaveFileReduction();
 		}
     }
-    public partial class ObjectList
+    public partial class Areas
     {
         public void GuidedDensity()
         {
@@ -120,7 +120,7 @@ namespace FFMQLib
             };
 
 			// Force Fall Basin Puzzle
-			var fallbasin = _collections[_pointerCollectionPairs[0x21]];
+			var fallbasin = Entries[areaPointers[0x21]].Objects;
 			fallbasin[0x0A].Gameflag = 0x00;
             fallbasin[0x0B].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
             fallbasin[0x0C].Gameflag = 0x00;
@@ -131,9 +131,9 @@ namespace FFMQLib
             // Clear Pazuzu stairs
             for (int i = 0x5A; i <= 0x5E; i++)
 			{
-				_collections[_pointerCollectionPairs[i]][0].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
-                _collections[_pointerCollectionPairs[i]][1].Gameflag = 0x00;
-                _collections[_pointerCollectionPairs[i]][2].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+				Entries[areaPointers[i]].Objects[0].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+				Entries[areaPointers[i]].Objects[1].Gameflag = 0x00;
+				Entries[areaPointers[i]].Objects[2].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
             }
         }
     }

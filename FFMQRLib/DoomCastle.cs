@@ -233,9 +233,15 @@ namespace FFMQLib
 			MapObjects.ModifyAreaAttribute(DoomCastleObjectsId, 2, mapsritesindex);
 
 			// Kill blocking stones map changes
+			MapChanges.Replace(0x0F, new MapChange(0,0,1,1, new byte[1, 1] { { 0x0F } } ));
+			MapChanges.Replace(0x10, new MapChange(0, 0, 1, 1, new byte[1, 1] { { 0x0F } }));
+			MapChanges.Replace(0x11, new MapChange(0, 0, 1, 1, new byte[1, 1] { { 0x0F } }));
+
+			/*
 			MapChanges.Replace(0x0F, Blob.FromHex("0000110F"));
 			MapChanges.Replace(0x10, Blob.FromHex("0000110F"));
 			MapChanges.Replace(0x11, Blob.FromHex("0000110F"));
+			*/
 
 			// Add an extra space in focus tower for extra boxes
 			GameMaps[(int)MapList.FocusTower].ModifyMap(0x0E, 0x1C, new List<List<byte>> {

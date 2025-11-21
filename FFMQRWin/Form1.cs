@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
@@ -99,7 +100,7 @@ namespace FFMQRWin
 			{
 				textBox3.Text = flags.GenerateFlagString();
 			}
-			
+
 			label5.Text = "FFMQ Randomzier launched succesfully.";
 		}
 
@@ -281,6 +282,62 @@ namespace FFMQRWin
 		{
 			RomComparer comparerForm = new RomComparer();
 			comparerForm.ShowDialog();
+		}
+
+		private void jsonmap_button_Click(object sender, EventArgs e)
+		{
+			exportTilesPropJson();
+		}
+		private void exportColorJson()
+		{
+			MapPalettes palettesfromrom = new MapPalettes(newRom);
+			var json = palettesfromrom.ExportToJson();
+
+			using (StreamWriter outputFile = new StreamWriter(directoryPath + "FFMQR_MapPalettes.json"))
+			{
+				outputFile.Write(json);
+			}
+		}
+
+		private void exportTilesJson()
+		{
+			GraphicRows tilesfromrom = new GraphicRows(newRom);
+			var json = tilesfromrom.ExportToJson();
+
+			using (StreamWriter outputFile = new StreamWriter(directoryPath + "FFMQR_GraphicRows.json"))
+			{
+				outputFile.Write(json);
+			}
+		}
+
+		private void exportTilesPropJson()
+		{
+			TilesProperties tilesfromrom = new TilesProperties(newRom);
+			var json = tilesfromrom.ExportToJson();
+
+			using (StreamWriter outputFile = new StreamWriter(directoryPath + "FFMQR_TilesProperties.json"))
+			{
+				outputFile.Write(json);
+			}
+		}
+
+		private void exportMapJson()
+		{
+			List<JsonMap> maps = new();
+			GameMaps mapsfromrom = new GameMaps(newRom);
+			for (int i = 0; i < 0x2C; i++)
+			{
+				//maps.Add(mapsfromrom[i].ConvertToJson());
+				
+				var json = JsonSerializer.Serialize(mapsfromrom[i].ConvertToJson());
+
+				using (StreamWriter outputFile = new StreamWriter(directoryPath + $"FFMQR_map{i:X2}.json"))
+				{
+					outputFile.Write(json);
+				}
+			}
+
+
 		}
 	}
 }
