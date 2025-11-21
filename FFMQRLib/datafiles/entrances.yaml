@@ -722,7 +722,7 @@
   id: 143
   area: 43
   coordinates: [48, 57]
-  teleporter: [81, 0]
+  teleporter: [105, 8] # Previous direct teleporter, now script [81, 0]
 - name: Spencer Waterfall - Upper Exit to Aquaria 1
   id: 144
   area: 43
@@ -758,11 +758,21 @@
   area: 44
   coordinates: [14, 39]
   teleporter: [85, 0]
+- name: Spencer Cave Normal - Throw Bomb Script
+  id: 496
+  area: 44
+  coordinates: [15, 56]
+  teleporter: [106, 8]
 - name: Spencer Cave Normal From Overworld - Exit to Overworld
   id: 151
   area: 44
   coordinates: [15, 57]
   teleporter: [7, 6]
+- name: Spencer Cave Unplug - To Waterfall # We added this one
+  id: 482
+  area: 45
+  coordinates: [0x25, 0x0F]
+  teleporter: [85, 0]
 - name: Spencer Cave Unplug - Exit to Overworld
   id: 152
   area: 45

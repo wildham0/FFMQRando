@@ -255,6 +255,7 @@ namespace FFMQLib
 		ShipLiberated,
 		ShipLoaned,
 		ShipDockAccess,
+		SpencerCavedIn,
 		
 		LibraTempleCrestTile,
 		LifeTempleCrestTile,
@@ -632,6 +633,9 @@ namespace FFMQLib
 		EnterWindiaInnBedroom,
 		KaeliCuttingTree,
 		VolcanoSummitQuest,
+		SpencerEntranceFromWaterfall,
+		SpencerMegaGrenadeThrow
+			
 	}
 
 	public enum TalkScriptsList : int

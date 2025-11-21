@@ -381,7 +381,7 @@ namespace FFMQLib
 			/*** Fall Basin ***/
 			// Update Crab and put Chest under crab
 			MapSpriteSets[0x0C].AddAddressor(6, 0, 30, SpriteSize.Tiles16);
-			MapObjects[0x21][0x07].Y++;
+			//MapObjects[0x21][0x07].Y++;
 			MapObjects[0x21][0x07].Sprite = 0x43;
 
 			//MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
@@ -403,6 +403,8 @@ namespace FFMQLib
 
 			// Remove Phoebe Script Tile
 			GameMaps[(int)MapList.FallBasin].ModifyMap(0x11, 0x06, 0x1D, true);
+			// Shorten ledge to not skip crab
+			GameMaps[(int)MapList.FallBasin].ModifyMap(0x0F, 0x07, new() { new() { 0x1E, 0x15, 0x11, 0x15, 0x25 }, new() { 0x1E, 0x26, 0x1A, 0x1A, 0x1B } });
 
 			// Fix pillar softlock
 			GameMaps[(int)MapList.FallBasin].ModifyMap(0x03, 0x17, 
@@ -505,6 +507,17 @@ namespace FFMQLib
 			MapObjects[0x02A][0x06].Gameflag = 0x12;
 			MapObjects[0x02A][0x07].Gameflag = 0x12;
 
+			/*** Spencer's Waterfall Cave ***/
+			GameMaps[(int)MapList.SpencerCave].ModifyMap(0x30, 0x39, 0x26, true);
+			TileScripts.AddScript((int)TileScriptsList.SpencerEntranceFromWaterfall,
+				new ScriptBuilder(new List<string> {
+					$"2E{(int)NewGameFlagsList.SpencerCaveBombed:X2}[03]",
+					"2C5100",
+					"00",
+					"2C8F01",
+					"00",
+				}));
+
 			/*** Spencer's Cave Pre-bomb ***/
 			// Create New Tristam Chest
 			MapObjects[0x18][0x01].Value = 0x1E; // Change Talk Script of NPCs
@@ -517,8 +530,11 @@ namespace FFMQLib
 
 			GameFlags[(int)NewGameFlagsList.TristamChestUnopened] = true; // Tristam Chest
 
-			// Block spencer's place exit
-			GameMaps[(int)MapList.SpencerCave].ModifyMap(0x10, 0x28, new List<List<byte>> { new List<byte> { 0x3D, 0x3D, 0x3D }, new List<byte> { 0x3E, 0x3E, 0x3E } });
+			// Block spencer's place entrance
+			//GameMaps[(int)MapList.SpencerCave].ModifyMap(0x0E, 0x27, 0x36, true);
+			GameMaps[(int)MapList.SpencerCave].ModifyMap(0x0E, 0x27, 0x63, true);
+			var spencerPreBombAquariaThawed = MapChanges.Add(new MapChange(Blob.FromHex("0E271155")));
+			MapChanges.AddAction(0x2C, (byte)NewGameFlagsList.WakeWaterUsed, spencerPreBombAquariaThawed, 0x22);
 
 			// Change map objects
 			MapObjects[0x2C][0x02].CopyFrom(MapObjects[0x2C][0x04]); // Copy box over Phoebe
@@ -530,11 +546,39 @@ namespace FFMQLib
 			MapSpriteSets[0x10].Palette.RemoveAt(0x01);
 			MapSpriteSets[0x10].Palette.Insert(0x01, 0x1E);
 
-			// Enter Tile
+			var entrancetile = new SingleTile(new byte[] { 0x04, 0x88 }, new byte[] { 0x4E, 0x4F, 0x5E, 0x5F }, 0x00);
+			
+			GameMaps.TilesProperties[GameMaps[(int)MapList.SpencerCave].Attributes.TilesProperties][0x62] = entrancetile;
+			GameMaps[(int)MapList.SpencerCave].ModifyMap(15, 56, 0x62, false);
+
+			// Bomb tile
 			bool spencershowow = flags.DoomCastleAccess != DoomCastleAccess.FreedShip;
+			TileScripts.AddScript((int)TileScriptsList.SpencerMegaGrenadeThrow,
+				new ScriptBuilder(new List<string> {
+					$"2E{(int)NewGameFlagsList.SpencerCaveBombed:X2}[08]",
+					"2D" + ScriptItemFlags[Items.MegaGrenade].Item1,
+					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[04]",
+					"00",
+					"2304",
+					$"23{(int)NewGameFlagsList.SpencerCaveBombed:X2}",
+					$"2304",
+					spencershowow ? "231A2A33463054182521255EFF07062A250F0161FFFFFF" : "2A33463054182521255EFF0F0161FFFFFF",
+					"00",
+				}));
+
+			// Enter Tile
 			TileScripts.AddScript((int)TileScriptsList.EnterSpencersPlace,
 				new ScriptBuilder(new List<string> {
-					$"2E{(int)NewGameFlagsList.SpencerCaveBombed:X2}[09]",
+					$"2E{(int)NewGameFlagsList.SpencerCaveBombed:X2}[03]",
+					"2C0E01",
+					"00",
+					"2C0F01",
+					"00"
+			}));
+			/*
+			TileScripts.AddScript((int)TileScriptsList.EnterSpencersPlace,
+				new ScriptBuilder(new List<string> {
+					$"2E{(int)NewGameFlagsList.SpencerCaveBombed:X2}[10]",
 					"2C0E01",
 					"2D" + ScriptItemFlags[Items.MegaGrenade].Item1,
 					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[05]",
@@ -546,7 +590,7 @@ namespace FFMQLib
 					"00",
 					"2C0F01",
 					"00"
-			}));
+			}));*/
 
 			// Spencer
 			List<string> spencerPostItemDialogue = new()
@@ -584,6 +628,17 @@ namespace FFMQLib
 				}));
 
 			/*** Spencer's Cave Post-Bomb ***/
+
+			var frozentile = new SingleTile(new byte[] { 0x07, 0x08 }, new byte[] { 0x99, 0x99, 0x99, 0x99 }, 0x00);
+			frozentile.GraphicTiles[1].HorizontalFlip = true;
+			frozentile.GraphicTiles[2].HorizontalFlip = true;
+
+			GameMaps.TilesProperties[GameMaps[(int)MapList.Caves].Attributes.TilesProperties][0x63] = frozentile;
+			GameMaps[(int)MapList.Caves].ModifyMap(0x25, 0x0F, new() { new() { 0xE3, 0x82, 0x93 }, new() { 0xC7, 0xC9, 0x8B }, new() { 0xAF, 0x8C, 0x9C } });
+			var spencerAquariaThawed = MapChanges.Add(new MapChange(Blob.FromHex("250F11D5")));
+			MapChanges.AddAction(0x2D, (byte)NewGameFlagsList.WakeWaterUsed, spencerAquariaThawed, 0x22);
+			
+
 			// Reproduce spencer/tristam chest to avoid softlock
 			var spencerObject = new MapObject();
 			var tristamChestObject = new MapObject();
@@ -760,8 +815,9 @@ namespace FFMQLib
 			MapObjects[0x37][0x00].X = 0x25;
 			MapObjects[0x37][0x00].Y = 0x0F;
 
-			// Move back chest
-			MapObjects[0x37][0x0D].Y--;
+			// Move chest
+			MapObjects[0x37][0x0D].X = 0x25;
+			MapObjects[0x37][0x0D].Y = 0x0E;
 
 			//MapObjects[0x37][0x00].X = MapObjects[0x37][0x0D].X;
 			//MapObjects[0x37][0x00].Y = MapObjects[0x37][0x0D].Y;

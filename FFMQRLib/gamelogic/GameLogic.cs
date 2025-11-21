@@ -127,6 +127,9 @@ namespace FFMQLib
 
 				var frozenFieldRoom = Rooms.Find(x => x.Type == RoomType.Subregion && x.Region == SubRegions.AquariaFrozenField);
 				frozenFieldRoom.Links.RemoveAll(l => l.Access.Contains(AccessReqs.DualheadHydra));
+
+				var spencerSouthRoom = Rooms.Find(x => x.Id == 73);
+				spencerSouthRoom.Links.Find(l => l.TargetRoom == 227).Access.Add(AccessReqs.Barred);
 			}
 			else if((flags.MapShuffling != MapShufflingMode.Everything) && !flags.OverworldShuffle && !flags.CrestShuffle)
 			{

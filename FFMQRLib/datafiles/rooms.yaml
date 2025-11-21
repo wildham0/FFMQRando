@@ -1739,8 +1739,12 @@
   links:
   - target_room: 72
     entrance: 143
-    teleporter: [81, 0]
+    teleporter: [105, 8]
     access: []
+  - target_room: 203
+    entrance: 143
+    teleporter: [105, 8]
+    access: ["SpencerCavedIn"]
   - target_room: 40
     entrance: 145
     teleporter: [82, 0]
@@ -1768,14 +1772,21 @@
   - target_room: 71
     entrance: 150
     teleporter: [85, 0]
-    access: []
+    access: ["SummerAquaria"]
+  - target_room: 73
+    access: ["Claw"]
 - name: Spencer Cave Normal South Ledge
   id: 73
   game_objects:
-  - name: "Collapse Spencer's Cave"
+  - name: "Liberate Ship"
     object_id: 0
     type: "Trigger"
     on_trigger: ["ShipLiberated"]
+    access: ["MegaGrenade"]
+  - name: "Collapse Spencer's Cave"
+    object_id: 0
+    type: "Trigger"
+    on_trigger: ["SpencerCavedIn"]
     access: ["MegaGrenade"]
   links:
   - target_room: 227
@@ -1784,6 +1795,10 @@
     access: []
   - target_room: 203
     access: ["MegaGrenade"]
+  - target_room: 72
+    access: ["Claw"]
+  - target_room: 203
+    access: ["SpencerCavedIn"]
 #  - target_room: 72  # access to spencer?
 #    access: ["MegaGrenade"]
 - name: Spencer Cave Caved In Main Loop
@@ -1800,6 +1815,8 @@
     access: ["Claw"]
   - target_room: 205
     access: ["Bomb"]
+  - target_room: 73
+    access: []
 - name: Spencer Cave Caved In Waters
   id: 204
   game_objects:
@@ -1811,6 +1828,8 @@
   links:
   - target_room: 203
     access: ["Claw"]
+  - target_room: 71
+    access: ["Claw", "SummerAquaria"]
 - name: Spencer Cave Caved In Libra Nook
   id: 205
   game_objects: []
