@@ -758,6 +758,11 @@
   area: 44
   coordinates: [14, 39]
   teleporter: [85, 0]
+- name: Spencer Cave Normal - Throw Bomb Script
+  id: 496
+  area: 44
+  coordinates: [15, 56]
+  teleporter: [106, 8]
 - name: Spencer Cave Normal From Overworld - Exit to Overworld
   id: 151
   area: 44
