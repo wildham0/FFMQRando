@@ -79,25 +79,25 @@ namespace FFMQLib
 			Y = data[1];
 			Size = (data[2] / 0x10, data[2] & 0x0F);
 
-			Change = new byte[Size.x, Size.y];
+			Change = new byte[Size.y, Size.x];
 
 			for (int y = 0; y < Size.y; y++)
 			{
 				for (int x = 0; x < Size.x; x++)
 				{
-					Change[x, y] = data[(y * Size.x) + x + 3];
+					Change[y, x] = data[(y * Size.x) + x + 3];
 				}
 			}
 		}
 		private byte[,] ConvertMapData(byte[] mapdata)
 		{
-			var tempmap = new byte[Size.x, Size.y];
+			var tempmap = new byte[Size.y, Size.x];
 			
 			for (int y = 0; y < Size.y; y++)
 			{
 				for (int x = 0; x < Size.x; x++)
 				{
-					tempmap[x, y] = mapdata[(y * Size.x) + x];
+					tempmap[y, x] = mapdata[(y * Size.x) + x];
 				}
 			}
 
@@ -111,7 +111,7 @@ namespace FFMQLib
 			{
 				for (int x = 0; x < Size.x; x++)
 				{
-					tempmap[(y * Size.x) + x] = mapdata[x, y];
+					tempmap[(y * Size.x) + x] = mapdata[y, x];
 				}
 			}
 
@@ -119,14 +119,14 @@ namespace FFMQLib
 		}
 		public byte[] ToBytes()
 		{
-			byte sizebyte = (byte)((Size.x * 0x0F) * 0x10 + Size.y & 0x0F);
+			byte sizebyte = (byte)((Size.x & 0x0F) * 0x10 + (Size.y & 0x0F));
 			byte[] changedata = new byte[(Size.y * Size.x)];
 
 			for (int y = 0; y < Size.y; y++)
 			{
 				for (int x = 0; x < Size.x; x++)
 				{
-					changedata[(y * Size.x) + x] =  Change[x, y];
+					changedata[(y * Size.x) + x] =  Change[y, x];
 				}
 			}
 
@@ -227,7 +227,7 @@ namespace FFMQLib
 		}*/
 		public void Modify(int index, int x, int y, byte modification)
 		{
-			mapChanges[index].Change[x,y] = modification;
+			mapChanges[index].Change[y,x] = modification;
 		}
 		/*
 		public void Modify(int index, int address, List<byte> modifications)
@@ -239,7 +239,17 @@ namespace FFMQLib
         }*/
 		public void Modify(int index, int posx, int posy, byte[,] modifications)
 		{
-			Array.Copy(modifications, 0, mapChanges[index].Change, posy * mapChanges[index].Size.x + posx, modifications.GetLength(0));
+			var position = posy * mapChanges[index].Size.x + posx;
+
+			for (int y = 0; y < modifications.GetLength(0); y++)
+			{
+				for (int x = 0; x < modifications.GetLength(1); x++)
+				{
+					mapChanges[index].Change[y + posy, x + posx] = modifications[y, x];
+				}
+			}
+
+			//Array.Copy(modifications, 0, mapChanges[index].Change, posy * mapChanges[index].Size.x + posx, modifications.GetLength(0));
 		}
 		public void Replace(int index, Blob mapchange)
 		{

@@ -37,22 +37,57 @@ namespace FFMQLib
 
 			mapchanges.ReorderOwMapchanges();
 
-            // Bad hard coding of overworld tileset graphic
-            PutInBank(0x06, 0x8000 + southvoid * 4, Blob.FromHex("80817f7f"));
-			PutInBank(0x06, 0x8000 + westvoid * 4, Blob.FromHex("828b8382"));
-			PutInBank(0x06, 0x8000 + eastvoid * 4, Blob.FromHex("8a858584"));
-			PutInBank(0x06, 0x8000 + eastvoid * 4, Blob.FromHex("8a858584"));
-			PutInBank(0x06, 0x8000 + fullcliff * 4, Blob.FromHex("08090908"));
+			// Update tiles graphic
+			maps.TilesProperties[maps[0].Attributes.TilesProperties][southvoid].GraphicTiles = new List<GraphicTileProp>()
+			{
+				new GraphicTileProp(0x80, false),
+				new GraphicTileProp(0x81, false),
+				new GraphicTileProp(0x7F, false),
+				new GraphicTileProp(0x7F, false),
+			};
 
-			PutInBank(0x06, 0x8000 + libracliff * 4, Blob.FromHex("174b160d")); // fix cliff
-			PutInBank(0x06, 0x9598, Blob.FromHex("174b160d")); // fix cliff
+			maps.TilesProperties[maps[0].Attributes.TilesProperties][westvoid].GraphicTiles = new List<GraphicTileProp>()
+			{
+				new GraphicTileProp(0x82, false),
+				new GraphicTileProp(0x8B, false),
+				new GraphicTileProp(0x83, false),
+				new GraphicTileProp(0x82, false),
+			};
 
-			PutInBank(0x06, 0xA000 + eastvoid, Blob.FromHex("00"));
-			PutInBank(0x06, 0xA000 + westvoid, Blob.FromHex("00"));
-			PutInBank(0x06, 0xA000 + fullcliff, Blob.FromHex("00"));
-			PutInBank(0x06, 0xA000 + libracliff, Blob.FromHex("02"));
-			PutInBank(0x06, 0xA566, Blob.FromHex("02")); // libre cliff 2
+			maps.TilesProperties[maps[0].Attributes.TilesProperties][eastvoid].GraphicTiles = new List<GraphicTileProp>()
+			{
+				new GraphicTileProp(0x8A, false),
+				new GraphicTileProp(0x85, false),
+				new GraphicTileProp(0x85, false),
+				new GraphicTileProp(0x84, false),
+			};
 
+			maps.TilesProperties[maps[0].Attributes.TilesProperties][fullcliff].GraphicTiles = new List<GraphicTileProp>()
+			{
+				new GraphicTileProp(0x08, false),
+				new GraphicTileProp(0x09, false),
+				new GraphicTileProp(0x09, false),
+				new GraphicTileProp(0x08, false),
+			};
+
+			maps.TilesProperties[maps[0].Attributes.TilesProperties][libracliff].GraphicTiles = new List<GraphicTileProp>()
+			{
+				new GraphicTileProp(0x17, false),
+				new GraphicTileProp(0x4b, true),
+				new GraphicTileProp(0x16, false),
+				new GraphicTileProp(0x0d, false),
+			};
+			
+			maps.TilesProperties[0x0A][libracliff].GraphicTiles = new List<GraphicTileProp>()
+			{
+				new GraphicTileProp(0x17, false),
+				new GraphicTileProp(0x4b, true),
+				new GraphicTileProp(0x16, false),
+				new GraphicTileProp(0x0d, false),
+			};
+
+
+			// Bad hard coding of overworld tileset graphic
 			PutInBank(0x05, 0xE6C8, GetFromBank(0x05, 0xE848, 0x18)); // Update grass top tile so we can switch palette
 
 			PutInBank(0x05, 0xF460, Blob.FromHex("444644")); // Grass
@@ -61,7 +96,6 @@ namespace FFMQLib
 			PutInBank(0x05, 0xF484, Blob.FromHex("44")); // Mountain ? does it matter since we don't use these anymore?
 
 			// Update overworld map
-
 			byte[,] owcliff = {
 				{ 0x34, 0x12, 0x6D, fullcliff, fullcliff, fullcliff, eastvoid },
 				{ 0x34, 0x6D, eastvoid, southvoid, southvoid, southvoid, fullvoid },
@@ -69,13 +103,6 @@ namespace FFMQLib
 			};
 
 			mapchanges.Modify(0, 0, 3, owcliff);
-
-			/*
-			mapchanges.Modify(0, 0x1B, new List<byte> {
-				fullcliff, fullcliff, fullcliff, eastvoid,
-				0x34, 0x6D, eastvoid, southvoid, southvoid, southvoid, fullvoid,
-				0x34, eastvoid
-			});*/
 
 			maps[0].ReplaceAll(0x27, 0x26);
 			maps[0].ModifyMap(0x1C, 0x29, southvoid);
