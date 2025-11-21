@@ -16,10 +16,10 @@ namespace FFMQLib
 		// Y = Major Release
 		// Z = Patch Release
 		// Increment Beta on every new builds, reset to zero on version increase
-		public static string Version = "1.6.1";
-		public static string Beta = "01";
-		public static string BetaVersionShort => Version + "-b" + Beta;
-		public static string BetaVersionLong => Version + "-beta" + Beta;
+		public static string Version = "1.7.0";
+		public static string Build = "01";
+		public static string BetaVersionShort => Version + "-b" + Build;
+		public static string BetaVersionLong => Version + "-beta" + Build;
 	}
 	public partial class FFMQRom : SnesRom
 	{
@@ -131,7 +131,7 @@ namespace FFMQLib
 			// Map Shuffling
 			GameLogic.CrestShuffle(flags.CrestShuffle, apconfigs.ApEnabled, rng);
 			GameLogic.FloorShuffle(flags.MapShuffling, apconfigs.ApEnabled, rng);
-			Overworld.ShuffleOverworld(flags.OverworldShuffle, flags.MapShuffling, GameLogic, Battlefields, Companions.QuestEasyWinLocations, apconfigs.ApEnabled, rng);
+			Overworld.ShuffleOverworld(flags.OverworldShuffle, flags.MapShuffling, GameLogic, Battlefields, Companions.QuestEasyWinLocations, flags.KaelisMomFightMinotaur, apconfigs.ApEnabled, rng);
 			Overworld.UpdateOverworld(flags, GameLogic, Battlefields);
 
 			// Logic
@@ -151,7 +151,7 @@ namespace FFMQLib
 
 			// Doom Castle
 			SetDoomCastleMode(flags.DoomCastleMode);
-			DoomCastleShortcut(flags.DoomCastleShortcut);
+			DoomCastleShortcut(flags.DoomCastleAccess);
 
 			// Various
 			SetLevelingCurve(flags.LevelingCurve);

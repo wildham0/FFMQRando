@@ -161,6 +161,7 @@ namespace FFMQLib
 		FireburgHintGiven = 0xC3,
 		WindiaHintGiven = 0xC4,
 
+		SpencerCaveBombed = 0xC5,
 
 		// Tentative removed enemy flag
 		ShowEnemies = 0xF9,

@@ -581,8 +581,9 @@ namespace FFMQLib
 						}
 
 						// Tie loose ends
-						if (!validconfig || originCluster.Rooms.Where(r => (r.Links.Count % 2) == 1).Any())
+						if (!validconfig || originCluster.Rooms.Where(r => (r.Links.Count % 2) == 1).Any() || originCluster.Rooms.Where(r => r.Links.Where(l => !l.Exit).Any()).Any())
 						{
+							validconfig = false;
 							continue;
 						}
 

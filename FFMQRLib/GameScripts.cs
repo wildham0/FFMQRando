@@ -66,6 +66,13 @@ namespace FFMQLib
 			// Put bridge to access temple
 			GameMaps[(int)MapList.Overworld].ModifyMap(0x0F, 0x0E, 0x56);
 
+			// Free the Ship
+			GameFlags[0x4A] = flags.DoomCastleAccess != DoomCastleAccess.FreedShip; // don't show ledge ship
+			GameFlags[0x54] = flags.DoomCastleAccess == DoomCastleAccess.FreedShip; // show ship at dock (ow)
+
+			// Spencer Cave Flag
+			GameFlags[(int)NewGameFlagsList.SpencerCaveBombed] = false;
+
 			// Companions Scripts
 			UpdateCompanionScripts(flags, fullItemsPlacement, startinglocation, apenabled, rng);
 
@@ -335,9 +342,11 @@ namespace FFMQLib
 			// Wintry Squid
 			MapSpriteSets[0x0B].AddAddressor(6, 0, 30, SpriteSize.Tiles16);
 			MapObjects[0x1F][0x01].Sprite = 0x42;
+			MapObjects[0x1F][0x01].Y = 0x1B;
 
+			// Squid Chest
 			MapObjects[0x1F][0x0B].Gameflag = (int)NewGameFlagsList.ShowSquidChest;
-			GameFlags[(int)NewGameFlagsList.ShowSquidChest] = false;
+			GameFlags[(int)NewGameFlagsList.ShowSquidChest] = true;
 
 			TalkScripts.AddScript((int)TalkScriptsList.FightSquid,
 				new ScriptBuilder(new List<string>{
@@ -372,16 +381,13 @@ namespace FFMQLib
 			/*** Fall Basin ***/
 			// Update Crab and put Chest under crab
 			MapSpriteSets[0x0C].AddAddressor(6, 0, 30, SpriteSize.Tiles16);
-			MapObjects[0x21][0x07].X--;
+			MapObjects[0x21][0x07].Y++;
 			MapObjects[0x21][0x07].Sprite = 0x43;
 
-			MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
-			MapObjects[0x21][0x0F].Y = MapObjects[0x21][0x07].Y;
+			//MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
+			//MapObjects[0x21][0x0F].Y = MapObjects[0x21][0x07].Y;
 			MapObjects[0x21][0x0F].Gameflag = (int)NewGameFlagsList.ShowCrabChest;
-            GameFlags[(int)NewGameFlagsList.ShowCrabChest] = false;
-
-			
-
+            GameFlags[(int)NewGameFlagsList.ShowCrabChest] = true;
 
 			TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
 				new ScriptBuilder(new List<string>{
@@ -525,16 +531,18 @@ namespace FFMQLib
 			MapSpriteSets[0x10].Palette.Insert(0x01, 0x1E);
 
 			// Enter Tile
+			bool spencershowow = flags.DoomCastleAccess != DoomCastleAccess.FreedShip;
 			TileScripts.AddScript((int)TileScriptsList.EnterSpencersPlace,
 				new ScriptBuilder(new List<string> {
-					"2E04[09]",
+					$"2E{(int)NewGameFlagsList.SpencerCaveBombed:X2}[09]",
 					"2C0E01",
 					"2D" + ScriptItemFlags[Items.MegaGrenade].Item1,
 					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[05]",
 					"00",
 					"2304",
-					"231A",
-					"2A105033463054182521255EFF07062A250F0161FFFFFF",
+					$"23{(int)NewGameFlagsList.SpencerCaveBombed:X2}",
+					$"2304",
+					spencershowow ? "231A2A105033463054182521255EFF07062A250F0161FFFFFF" : "2A105033463054182521255EFF0F0161FFFFFF",
 					"00",
 					"2C0F01",
 					"00"
@@ -743,14 +751,22 @@ namespace FFMQLib
 				}));
 
 			/*** Volcano Base ***/
-			// Medusa - Put medusa over chest
+			// Modify Chest Ledge
+			GameMaps[(int)MapList.VolcanoTop].ModifyMap(0x22, 0x0E, new List<List<byte>>() { new() { 0x38, 0x50, 0x41 }, new() { 0x00, 0x00, 0x20 }, new() { 0x07, 0x02, 0x11 } });
+
+			// Medusa - Medusa Block Path
 			MapSpriteSets[0x16].AddAddressor(6, 0, 31, SpriteSize.Tiles16);
 			MapObjects[0x37][0x00].Sprite = 0x41;
+			MapObjects[0x37][0x00].X = 0x25;
+			MapObjects[0x37][0x00].Y = 0x0F;
 
-			MapObjects[0x37][0x00].X = MapObjects[0x37][0x0D].X;
-			MapObjects[0x37][0x00].Y = MapObjects[0x37][0x0D].Y;
+			// Move back chest
+			MapObjects[0x37][0x0D].Y--;
+
+			//MapObjects[0x37][0x00].X = MapObjects[0x37][0x0D].X;
+			//MapObjects[0x37][0x00].Y = MapObjects[0x37][0x0D].Y;
 			MapObjects[0x37][0x0D].Gameflag = (int)NewGameFlagsList.ShowMedusaChest;
-            GameFlags[(int)NewGameFlagsList.ShowMedusaChest] = false;
+            GameFlags[(int)NewGameFlagsList.ShowMedusaChest] = true;
 
             TalkScripts.AddScript((int)TalkScriptsList.FightMedusa,
 				new ScriptBuilder(new List<string>{
@@ -1117,9 +1133,11 @@ namespace FFMQLib
 			MapObjects[0x4F][0x0C].X = MapObjects[0x4F][0x00].X;
 			MapObjects[0x4F][0x0C].Y = MapObjects[0x4F][0x00].Y;
 			MapObjects[0x4F][0x0C].Gameflag = (int)NewGameFlagsList.ShowDullahanChest;
-            GameFlags[(int)NewGameFlagsList.ShowDullahanChest] = false;
+            GameFlags[(int)NewGameFlagsList.ShowDullahanChest] = true;
 
-            TalkScripts.AddScript((int)TalkScriptsList.FightHeadlessKnight,
+			MapObjects[0x4F][0x00].Y++;
+
+			TalkScripts.AddScript((int)TalkScriptsList.FightHeadlessKnight,
 				new ScriptBuilder(new List<string>{
 					"04",
 					"1A54" + TextToHex("The horseman comes! And tonight he comes for you!\nWatch your head!"),
@@ -1239,8 +1257,8 @@ namespace FFMQLib
 			}
 
 			/*** Ship's Dock ***/
-			GameFlags[0x1A] = false; // Mac Ship
-			GameFlags[0x56] = false; // Mac Ship
+			GameFlags[0x1A] = flags.DoomCastleAccess == DoomCastleAccess.FreedShip; // Mac Ship
+			GameFlags[0x56] = flags.DoomCastleAccess == DoomCastleAccess.FreedShip; // Mac Ship
 			MapObjects[0x60][0x03].Gameflag = 0xFE; // Hide ship because cutescene enable it's flag anyway
 
 			/*** Mac's Ship ***/
@@ -1259,7 +1277,7 @@ namespace FFMQLib
 					"1A75" + TextToHex("%&?! youngster think you can just take my craik like that? &?!%! Leave this old salt alone!") + "36",
 					"00",
 					"1A75" + TextToHex("My &%!? cap! Alright, you can have her, but you bring her back in one piece, ?!&% skip-jack!") + "36",
-					"235923572B7F2B802B58",
+					"2304235923572B7F2B802B58",
 					"00",
 					"1A75" + TextToHex("Gonna hit the bunk now.") + "36",
 					"00"

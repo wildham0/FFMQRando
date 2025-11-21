@@ -148,7 +148,7 @@ namespace FFMQLib
             }
             else if (levelingType == LevelingType.QuestsExtended)
 			{
-				CreateExtendedQuests(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin, flags.DoomCastleShortcut, flags.KaelisMomFightMinotaur, flags.OverworldShuffle, rng);
+				CreateExtendedQuests(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin, flags.DoomCastleAccess, flags.KaelisMomFightMinotaur, flags.OverworldShuffle, rng);
 				battlefields.QuestBattlefield = GetBattlefieldQuestLocation();
             }
 
@@ -196,8 +196,9 @@ namespace FFMQLib
 				Description = "Visit Mine with Reuben and\n  return to Fireburg."
 			});
 		}
-		private void CreateExtendedQuests(bool skycoinfragment, bool darkkingshorcut, bool kaelismom, bool questEasyWins, MT19337 rng)
+		private void CreateExtendedQuests(bool skycoinfragment, DoomCastleAccess darkkingaccess, bool kaelismom, bool questEasyWins, MT19337 rng)
 		{
+			bool darkkingshorcut = darkkingaccess != DoomCastleAccess.Standard;
 			int easyminibossesqty = rng.Between(2, 3);
 			int mediumminibossesqty = rng.Between(4, 5);
 			int hardminibossesqty = rng.Between(6, 7);

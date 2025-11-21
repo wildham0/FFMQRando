@@ -16,6 +16,15 @@ namespace FFMQLib
 		[Description("Dark King Only")]
 		DarkKingOnly,
 	}
+	public enum DoomCastleAccess : int
+	{
+		[Description("Standard")]
+		Standard = 0,
+		[Description("Freed Ship")]
+		FreedShip,
+		[Description("Shortcut")]
+		FocusTowerShortcut,
+	}
 	public partial class FFMQRom : SnesRom
 	{
 		public void SetDoomCastleMode(DoomCastleModes doomcastlemode)
@@ -262,22 +271,26 @@ namespace FFMQLib
 			}
 		}
 
-		public void DoomCastleShortcut(bool enable)
+		public void DoomCastleShortcut(DoomCastleAccess access)
 		{
-			if (!enable)
+			if (access == DoomCastleAccess.Standard)
 			{
 				return;
 			}
 
-			// Add arrow to doom castle
-			Overworld.DoomCastleShortcut();
+			// Overworld modifications
+			if (access == DoomCastleAccess.FocusTowerShortcut)
+			{
+				// Add arrow to doom castle
+				Overworld.DoomCastleShortcut();
 
-			// Add bridge
-			GameMaps[(int)MapList.Overworld].ModifyMap(0x1C, 0x24, new List<List<byte>> {
-				new List<byte> {  0x56 },
-				new List<byte> {  0x56 },
-				new List<byte> {  0x56 },
-			});
+				// Add bridge
+				GameMaps[(int)MapList.Overworld].ModifyMap(0x1C, 0x24, new List<List<byte>> {
+					new List<byte> {  0x56 },
+					new List<byte> {  0x56 },
+					new List<byte> {  0x56 },
+					});
+			}
 
 			// Modify Desert floor to not require megagrenade/dragonclaw
 			GameMaps[(int)MapList.FocusTowerBase].ModifyMap(0x1F, 0x11, new List<List<byte>> {

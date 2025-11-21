@@ -140,7 +140,20 @@ namespace FFMQLib
 			{
 				var frozenFieldsRoom = Rooms.Find(x => x.Id == 223);
 				var aquariaAccess = frozenFieldsRoom.Links.Find(x => x.TargetRoom == 221);
-				aquariaAccess.Access.Add(AccessReqs.WakeWater);
+				aquariaAccess.Access.Add(AccessReqs.SummerAquaria);
+			}
+
+			// Ship Access
+			if (flags.DoomCastleAccess == DoomCastleAccess.FreedShip)
+			{
+				var shipregions = Rooms.Where(x => x.Id == 228 || x.Id == 229).ToList();
+				foreach (var shipregion in shipregions)
+				{
+					foreach (var link in shipregion.Links)
+					{
+						link.Access.Remove(AccessReqs.ShipLiberated);
+					}
+				}
 			}
 
 			// Giant Tree
@@ -154,7 +167,7 @@ namespace FFMQLib
 
 			// Clean Up Access
 			List<(int, (LocationIds, int), List<AccessReqs>, int)> accessToKeep = new();
-
+			
 			foreach (var room in Rooms)
 			{
 				var accessToCompare = accessQueue.Where(x => x.Item1 == room.Id).OrderBy(x => x.Item3.Count).ToList();
@@ -375,59 +388,72 @@ namespace FFMQLib
 
 			accessQueue.Add((roomid, locPriority, access, 0));
 		}
-		private void ProcessRoom2(int roomid, List<int> origins, List<AccessReqs> access, (LocationIds, int) locPriority, (int, LocationIds) location)
+		private void ProcessRoom2(int roomid, List<int> origins, List<AccessReqs> access, (LocationIds location, int priority) locPriority, (int seekId, LocationIds locId) location)
 		{
+			// Get the room
 			var targetroom = Rooms.Find(x => x.Id == roomid);
 
-			(int, LocationIds) newLocation = location;
-			//LocationIds newLocation = location.Item1;
-
+			// cycle each links
 			foreach (var children in targetroom.Links)
 			{
+				// crawled location id, and location
+				(int seekId, LocationIds locId) newLocation = (location.seekId, location.locId);
+
 				bool reachLocation = false;
+
+				// if we're in a region room, add a new location (do links have their locations set correctly?)
+				// set that we reached a location
 				if (regionRoomIds.Contains(targetroom.Id))
 				{
 					if (children.Entrance >= 0)
 					{
 						locationCount++;
 						locationQueue.Add((locationCount, children.Location));
-
 						newLocation = (locationCount, children.Location);
 
 						reachLocation = true;
 					}
 				}
 
+				// did we visit that room before?
 				if (!origins.Contains(children.TargetRoom))
 				{
-					if ((targetroom.Type != RoomType.Overworld && targetroom.Type != RoomType.Subregion) && regionRoomIds.Contains(children.TargetRoom) && locPriority.Item2 > 0)
+					// if current room isn't a region and the link is targeting a region AND the current priority is higher than zero
+					// Get that region location and update the current location
+					if ((targetroom.Type != RoomType.Overworld && targetroom.Type != RoomType.Subregion) && regionRoomIds.Contains(children.TargetRoom) && locPriority.priority > 0)
 					{
 						var location2 = Rooms.Find(x => x.Id == children.TargetRoom).Links.Find(l => l.TargetRoom == targetroom.Id).Location;
 
-						locationQueue.RemoveAll(l => l.Item1 == location.Item1);
-						locationQueue.Add((location.Item1, location2));
-						newLocation = (location.Item1, location2);
+						locationQueue.RemoveAll(l => l.Item1 == location.seekId);
+						locationQueue.Add((location.seekId, location2));
+						newLocation = (location.seekId, location2);
 					}
 
 					bool traverseCrest = false;
-
+					
+					// are we moving through a crest tile?
+					// if so, create a new location
 					if (children.Access.Contains(AccessReqs.LibraCrest) || children.Access.Contains(AccessReqs.GeminiCrest) || children.Access.Contains(AccessReqs.MobiusCrest))
 					{
 						traverseCrest = true;
 						locationCount++;
-						locationQueue.Add((locationCount, location.Item2));
-						newLocation = (locationCount, location.Item2);
-						//newLocation = locationCount;
+
+						locationQueue.Add((locationCount, location.locId));
+						newLocation = (locationCount, location.locId);
 					}
+					
+					// Go down the link
+					// if we reached a new location, use that
+					// if we traversed a crest tile, increase priority
 					ProcessRoom2(children.TargetRoom,
 						origins.Concat(new List<int> { roomid }).ToList(),
 						access.Concat(children.Access).ToList(),
-						(reachLocation ? newLocation.Item2 : locPriority.Item1, traverseCrest ? locPriority.Item2 + 1 : locPriority.Item2),
+						(reachLocation ? newLocation.locId : locPriority.location, traverseCrest ? locPriority.priority + 1 : locPriority.priority),
 						newLocation);
 				}
 			}
 
-			accessQueue.Add((roomid, locPriority, access, location.Item1));
+			accessQueue.Add((roomid, locPriority, access, location.seekId));
 		}
 		public LocationIds FindTriggerLocation(AccessReqs trigger)
 		{
@@ -474,7 +500,7 @@ namespace FFMQLib
 			List<int> chestsList = new();
 			List<int> visitedRooms = regionRooms;
 
-			ProcessRoomForChests(0, initialRoom, chestsList, visitedRooms);
+			ProcessRoomForChests(0, initialRoom, chestsList, visitedRooms, AccessReqs.None);
 
 			int rating = 0;
 
@@ -482,7 +508,7 @@ namespace FFMQLib
 			{
 				if (chest == 0)
 				{
-					rating += 10;
+					rating += 20;
 				}
 				else if (chest == 1)
 				{
@@ -496,8 +522,69 @@ namespace FFMQLib
 
 			return (location, rating);
 		}
+		private static List<AccessReqs> StarterWeapons = new() { AccessReqs.Sword, AccessReqs.Axe, AccessReqs.Claw, AccessReqs.Bomb };
+		private static List<AccessReqs> Bosses = new() { AccessReqs.FlamerusRex, AccessReqs.Squidite, AccessReqs.SnowCrab, AccessReqs.IceGolem, AccessReqs.Medusa, AccessReqs.Jinn, AccessReqs.DualheadHydra, AccessReqs.Gidrah, AccessReqs.Dullahan, AccessReqs.Pazuzu };
+		public (LocationIds, int) CrawlForChestRating2(LocationIds location)
+		{
+			var regionRooms = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
+			var initialRoom = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).ToList().Find(l => l.Location == location).TargetRoom;
 
-		public void ProcessRoomForChests(int reqcount, int roomid, List<int> chestlist, List<int> visitedrooms)
+			int chestCount = 0;
+
+			foreach (var weapon in StarterWeapons)
+			{
+				List<int> chestsList = new();
+				List<int> visitedRooms = regionRooms;
+				ProcessRoomForChests2(initialRoom, chestsList, visitedRooms, new() { weapon });
+				Console.WriteLine(location + ": " + chestsList.Count +  "(" + weapon + ")");
+				chestCount += chestsList.Count;
+			}
+
+			return (location, chestCount);
+		}
+		public bool ProcessRoomForChests2(int roomid, List<int> accessedChests, List<int> visitedRooms, List<AccessReqs> accessAcquired)
+		{
+			var currentRoom = Rooms.Find(x => x.Id == roomid);
+
+			bool newaccess = true;
+			int accessCount = accessAcquired.Count;
+
+			while (newaccess)
+			{
+				newaccess = false;
+				foreach (var link in currentRoom.Links.Where(l => !visitedRooms.Contains(l.TargetRoom) && !l.Access.Intersect(AccessReferences.CrestsAccess).Any()))
+				{
+					if (!link.Access.Except(accessAcquired).Any())
+					{
+						if (ProcessRoomForChests2(link.TargetRoom, accessedChests, visitedRooms.Append(roomid).ToList(), accessAcquired))
+						{
+							newaccess = true;
+						};
+					}
+				}
+
+				foreach (var trigger in currentRoom.GameObjects.Where(o => o.Type == GameObjectType.Trigger))
+				{
+					if (!trigger.OnTrigger.Intersect(Bosses).Any() && trigger.OnTrigger.Except(accessAcquired).Any() && !trigger.Access.Except(accessAcquired).Any())
+					{
+						accessAcquired.AddRange(trigger.OnTrigger);
+						newaccess = true;
+					}
+				}
+
+				foreach (var chest in currentRoom.GameObjects.Where(o => o.Type == GameObjectType.Chest && !accessedChests.Contains(o.ObjectId)))
+				{
+					if (!chest.Access.Except(accessAcquired).Any())
+					{ 
+						accessedChests.Add(chest.ObjectId);
+						Console.WriteLine(chest.Name + ": " + String.Join(", ", accessAcquired));
+					}
+				}
+			}
+
+			return (accessCount < accessAcquired.Count);
+		}
+		public void ProcessRoomForChests(int reqcount, int roomid, List<int> chestlist, List<int> visitedrooms, AccessReqs earlyWeapons)
 		{
 			var currentRoom = Rooms.Find(x => x.Id == roomid);
 
@@ -505,16 +592,30 @@ namespace FFMQLib
 
 			foreach (var chest in currentRoom.GameObjects.Where(o => o.Type == GameObjectType.Chest))
 			{
-				chestlist.Add(reqcount + chest.Access.Count);
+				if (reqcount == 0 && chest.Access.Count == 1 && StarterWeapons.Contains(chest.Access.First()) && (earlyWeapons == AccessReqs.None || earlyWeapons == chest.Access.First()))
+				{
+					chestlist.Add(reqcount);
+				}
+				else
+				{
+					chestlist.Add(reqcount + chest.Access.Count);
+				}
 			}
 
 			foreach (var link in currentRoom.Links.Where(l => !visitedrooms.Contains(l.TargetRoom) && !l.Access.Intersect(AccessReferences.CrestsAccess).Any()))
 			{
-				ProcessRoomForChests(reqcount + link.Access.Count, link.TargetRoom, chestlist, visitedrooms);
+				if (reqcount == 0 && link.Access.Count == 1 && StarterWeapons.Contains(link.Access.First()) && (earlyWeapons == AccessReqs.None || earlyWeapons == link.Access.First()))
+				{
+					ProcessRoomForChests(reqcount, link.TargetRoom, chestlist, visitedrooms, link.Access.First());
+				}
+				else
+				{
+					ProcessRoomForChests(reqcount + link.Access.Count, link.TargetRoom, chestlist, visitedrooms, earlyWeapons);
+				}
 			}
 		}
 
-		public (LocationIds, int) CrawlForCompanionRating(LocationIds location)
+		public (LocationIds, int) CrawlForCompanionRating(LocationIds location, bool includekaeli)
 		{
 			var regionRooms = Rooms.Where(r => r.Type == RoomType.Subregion).Select(r => r.Id).ToList();
 			var initialRoom = Rooms.Where(r => r.Type == RoomType.Subregion).SelectMany(r => r.Links).ToList().Find(l => l.Location == location).TargetRoom;
@@ -522,7 +623,7 @@ namespace FFMQLib
 			List<int> companionsList = new();
 			List<int> visitedRooms = regionRooms;
 
-			ProcessRoomForCompanions(0, initialRoom, companionsList, visitedRooms);
+			ProcessRoomForCompanions(0, initialRoom, companionsList, visitedRooms, includekaeli);
 
 			int rating = 0;
 
@@ -545,20 +646,21 @@ namespace FFMQLib
 			return (location, rating);
 		}
 
-		public void ProcessRoomForCompanions(int reqcount, int roomid, List<int> companionlist, List<int> visitedrooms)
+		public void ProcessRoomForCompanions(int reqcount, int roomid, List<int> companionlist, List<int> visitedrooms, bool includekaeli)
 		{
 			var currentRoom = Rooms.Find(x => x.Id == roomid);
+			var validCompanions = includekaeli ? AccessReferences.FavoredCompanionsAccess.Append(AccessReqs.Kaeli).ToList() : AccessReferences.FavoredCompanionsAccess;
 
 			visitedrooms.Add(roomid);
 
-			foreach (var companion in currentRoom.GameObjects.Where(o => o.Type == GameObjectType.Trigger && o.OnTrigger.Intersect(AccessReferences.FavoredCompanionsAccess).Any()))
+			foreach (var companion in currentRoom.GameObjects.Where(o => o.Type == GameObjectType.Trigger && o.OnTrigger.Intersect(validCompanions).Any()))
 			{
 				companionlist.Add(reqcount + companion.Access.Count);
 			}
 
-			foreach (var link in currentRoom.Links.Where(l => !visitedrooms.Contains(l.TargetRoom)))
+			foreach (var link in currentRoom.Links.Where(l => !visitedrooms.Contains(l.TargetRoom) && !l.Access.Intersect(AccessReferences.CrestsAccess).Any()))
 			{
-				ProcessRoomForCompanions(reqcount + link.Access.Count, link.TargetRoom, companionlist, visitedrooms);
+				ProcessRoomForCompanions(reqcount + link.Access.Count, link.TargetRoom, companionlist, visitedrooms, includekaeli);
 			}
 		}
 		public List<(CompanionsId, LocationIds, List<string>)> CrawlForCompanionSpoiler()

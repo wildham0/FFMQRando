@@ -406,7 +406,7 @@ namespace FFMQLib
 
 			// Validate hash in sram
 			PutInBank(0x11, 0x8C00, Blob.FromHex("20408c900320108c60"));
-			PutInBank(0x11, 0x8C10, Blob.FromHex("08c230a20000a900009fe01f70e8e8e00a00d0f52860")); // Reset hint data
+			PutInBank(0x11, 0x8C10, Blob.FromHex("08c230a20000a900009fe01f70e8e8e01000d0f52860")); // Reset hint data
 			// Validate hash and write if it doesn't match
 			PutInBank(0x11, 0x8C40, Blob.FromHex("08c230a200008007e8e8e00800f00cbff58b11dff31f70f0ef8003281860a200008007e8e8e00800f00abff58b119ff31f7080ef283860"));
 
