@@ -56,6 +56,7 @@ namespace FFMQRWin
 			button5 = new System.Windows.Forms.Button();
 			comboPresets = new System.Windows.Forms.ComboBox();
 			comparerButton = new System.Windows.Forms.Button();
+			jsonmap_button = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
 			((System.ComponentModel.ISupportInitialize)trackBar2).BeginInit();
 			((System.ComponentModel.ISupportInitialize)trackBar3).BeginInit();
@@ -304,11 +305,22 @@ namespace FFMQRWin
 			comparerButton.UseVisualStyleBackColor = true;
 			comparerButton.Click += comparerButton_Click;
 			// 
+			// jsonmap_button
+			// 
+			jsonmap_button.Location = new System.Drawing.Point(687, 152);
+			jsonmap_button.Name = "jsonmap_button";
+			jsonmap_button.Size = new System.Drawing.Size(101, 23);
+			jsonmap_button.TabIndex = 29;
+			jsonmap_button.Text = "Export Json Maps";
+			jsonmap_button.UseVisualStyleBackColor = true;
+			jsonmap_button.Click += jsonmap_button_Click;
+			// 
 			// Form1
 			// 
 			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			ClientSize = new System.Drawing.Size(800, 450);
+			Controls.Add(jsonmap_button);
 			Controls.Add(comparerButton);
 			Controls.Add(comboPresets);
 			Controls.Add(button5);
@@ -374,6 +386,7 @@ namespace FFMQRWin
 		private System.Windows.Forms.Button button5;
 		private System.Windows.Forms.ComboBox comboPresets;
 		private System.Windows.Forms.Button comparerButton;
+		private System.Windows.Forms.Button jsonmap_button;
 	}
 }
 

@@ -11,10 +11,9 @@ namespace FFMQLib
 		public void UpdateScripts(Flags flags, ItemsPlacement fullItemsPlacement, LocationIds startinglocation, bool apenabled, bool nomusic, MT19337 rng)
 		{
 			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
-
-            /*** Overworld ***/
-            // GameStart - Starting Companion + Skip Mountain collapse
-            Dictionary<CompanionsId, NewGameFlagsList> startingcompanionflags = new()
+			/*** Overworld ***/
+			// GameStart - Starting Companion + Skip Mountain collapse
+			Dictionary<CompanionsId, NewGameFlagsList> startingcompanionflags = new()
 			{
 				{ CompanionsId.Kaeli, NewGameFlagsList.ShowForestaKaeli },
 				{ CompanionsId.Tristam, NewGameFlagsList.ShowSandTempleTristam },
@@ -77,9 +76,9 @@ namespace FFMQLib
 			// Companions Scripts
 			UpdateCompanionScripts(flags, fullItemsPlacement, startinglocation, apenabled, rng);
 
-            /*** Level Forest ***/
-            // Copy over Cloudman+Oldman
-            for (int i = 0; i < 3; i++)
+			/*** Level Forest ***/
+			// Copy over Cloudman+Oldman
+			for (int i = 0; i < 3; i++)
 			{
 				MapObjects[0x0E].Add(new MapObject(MapObjects[0x0D][0x00 + i]));
 			}
@@ -151,8 +150,8 @@ namespace FFMQLib
 			// Create new Kaeli object for ending, linked to mac's gameflag
 			MapObjects[0x10][0x01].Gameflag = 0xF4;
 
-            // Barrel in Oldman's house
-            GameFlags[(int)NewGameFlagsList.ShowBarrelMoved] = false;
+			// Barrel in Oldman's house
+			GameFlags[(int)NewGameFlagsList.ShowBarrelMoved] = false;
 			GameFlags[(int)NewGameFlagsList.ShowBarrelNotMoved] = true;
 
 			MapObjects[0x11][0x09].Gameflag = (byte)NewGameFlagsList.ShowBarrelNotMoved;
@@ -330,7 +329,15 @@ namespace FFMQLib
 			/*** Wintry Cave ***/
 			// Wintry Cave
 			GameFlags[(int)GameFlagsList.WintryCaveCollapsed] = true;
-			MapChanges.Replace(0x03, Blob.FromHex("2a2534393960404040404040404040")); // Put script tile in after collapse
+			byte[,] wintrycliff =
+			{
+				{ 0x39, 0x39, 0x60 },
+				{ 0x40, 0x40, 0x40 },
+				{ 0x40, 0x40, 0x40 },
+				{ 0x40, 0x40, 0x40 },
+			};
+			MapChanges.Replace(0x03, new MapChange(0x2a, 0x25, 3, 4, wintrycliff)); // Put script tile in after collapse
+			//MapChanges.Replace(0x03, Blob.FromHex("2a2534 393960 404040 404040 404040")); // Put script tile in after collapse
 
 			// Wintry Squid
 			MapSpriteSets[0x0B].AddAddressor(6, 0, 30, SpriteSize.Tiles16);
@@ -406,7 +413,7 @@ namespace FFMQLib
 				});
 
 			// Exit Fall Basin
-			GameMaps.TilesProperties[0x0A][0x22].Byte2 = 0x08;
+			GameMaps.TilesProperties[0x0A][0x22].PropertyByte2 = 0x08;
 
 			/*** Ice Pyramid ***/
 			// Ice Pyramid Entrance
@@ -437,7 +444,7 @@ namespace FFMQLib
 			}
 
 			// Change tile properties from falling tile to script tile
-			GameMaps.TilesProperties[0x06][0x1E].Byte2 = 0x88;
+			GameMaps.TilesProperties[0x06][0x1E].PropertyByte2 = 0x88;
 
 			TileScripts.AddScript((int)TileScriptsList.IcePyramidCheckStatue,
 				new ScriptBuilder(new List<string>
@@ -884,7 +891,8 @@ namespace FFMQLib
 
 			// Fix Alive Forest's Mobius teleporter disapearing after clearing Giant Tree
 			var crestTile = GameMaps[(int)MapList.LevelAliveForest].TileValue(8, 52);
-			MapChanges.Modify(0x0E, 0x17, crestTile);
+			//MapChanges.Modify(0x0E, 0x17, crestTile);
+			MapChanges.Modify(0x0E, 0, 2, crestTile);
 
 			if (!exitToGiantTree)
 			{
@@ -924,7 +932,8 @@ namespace FFMQLib
 
 			/*** Giant Tree ***/
 			// Set door to chests in Giant Tree to open only once chimera is defeated
-			var treeDoorChangeClosed = MapChanges.Add(Blob.FromHex("3806122F3E"));
+			//var treeDoorChangeClosed = MapChanges.Add(Blob.FromHex("3806122F3E"));
+			var treeDoorChangeClosed = MapChanges.Add(new MapChange(0x38, 0x06, 1, 2, Blob.FromHex("2F3E")));
 			MapObjects[0x46].Add(new MapObject(Blob.FromHex("2802073816002C"))); // Put new map object to talk to
 			MapChanges.AddAction(0x46, 0x28, treeDoorChangeClosed, 0x22);
 
@@ -1230,7 +1239,16 @@ namespace FFMQLib
 					}));
 
 				//GameMaps[(int)MapList.PazuzuTowerB].ModifyMap(0x10, 0x28, 0x78);
-				MapChanges.Replace(0x12, Blob.FromHex("0F26334e4e4e4e2020794e20"));
+
+				byte[,] sky7change =
+				{
+					{ 0x4e, 0x4e, 0x4e },
+					{ 0x4e, 0x20, 0x20 },
+					{ 0x79, 0x4e, 0x20 },
+				};
+
+				MapChanges.Replace(0x12, new MapChange(0x0F, 0x26, 3, 3, sky7change));
+				//MapChanges.Replace(0x12, Blob.FromHex("0F2633 4e4e4e 4e2020 794e20"));
 				MapObjects[0x59][0x06].Coord = (0x10, 0x28);
 			}
 			else

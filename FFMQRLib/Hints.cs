@@ -75,7 +75,7 @@ namespace FFMQLib
 			{ ItemGivingNPCs.TristamFireburg, ((byte)NewGameFlagsList.TristamFireburgItemGiven, true) },
 		};
 
-		public void HintRobots(Flags flags, MapSprites mapsprites,  ObjectList gameobjects, ItemsPlacement itemplacement, GameLogic gamelogic, ApConfigs apconfigs,MT19337 rng)
+		public void HintRobots(Flags flags, MapSprites mapsprites, Areas gameobjects, ItemsPlacement itemplacement, GameLogic gamelogic, ApConfigs apconfigs,MT19337 rng)
 		{
 			if(flags.HintMode == HintModes.None)
 			{

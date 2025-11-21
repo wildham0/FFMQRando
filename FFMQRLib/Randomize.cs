@@ -23,7 +23,7 @@ namespace FFMQLib
 	}
 	public partial class FFMQRom : SnesRom
 	{
-		public ObjectList MapObjects;
+		public Areas MapObjects;
 		public MapChanges MapChanges;
 		public GameFlags GameFlags;
 		public TileScriptsManager TileScripts;
@@ -160,6 +160,11 @@ namespace FFMQLib
 			ExitHack(Overworld.StartingLocation);
 			ProgressiveFormation(flags.ProgressiveFormations, Overworld, rng);
 
+			// External Map Loading Tests
+			//GameMaps.TilesProperties.ImportJson("FFMQR_TilesProperties.json");
+			//GameMaps[(int)MapList.Foresta].LoadJson("FFMQR_forestatest.json");
+			//GameMaps[(int)MapList.MacShipDeck].LoadJson("FFMQR_map_ship.json");
+
 			// Preferences			
 			SetMusicMode(preferences.MusicMode, new MT19337(sillyrng.Next()));
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, new MT19337(sillyrng.Next()));
@@ -202,6 +207,11 @@ namespace FFMQLib
 			{
 				PutInBank(0x00, 0xFFC0, apconfigs.GetRomName());
 			}
+
+			// Custom graphics tests
+			//SpriteReader wizard = new();
+			//wizard.ReadPNGFile();
+			//wizard.WriteAt(0x07, 0x8430, this);
 			
 			// Remove header if any
 			this.Header = Array.Empty<byte>();

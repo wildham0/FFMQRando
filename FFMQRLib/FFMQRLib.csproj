@@ -7,27 +7,38 @@
   <ItemGroup>
     <None Remove="datafiles\entrances.yaml" />
     <None Remove="datafiles\entrancespairs.yaml" />
+    <None Remove="datafiles\FFMQR_forestatest.json" />
+    <None Remove="datafiles\FFMQR_map_ship.json" />
+    <None Remove="datafiles\FFMQR_TilesProperties.json" />
     <None Remove="datafiles\fighter.bmp" />
     <None Remove="datafiles\kain.bmp" />
     <None Remove="datafiles\shufflingdata.yaml" />
     <None Remove="datafiles\template.bmp" />
     <None Remove="locations.yaml" />
     <None Remove="rooms.yaml" />
+    <None Remove="sprites\catwizardreference.png" />
     <None Remove="sprites\customsprites.zip" />
     <None Remove="sprites\dktrueforms.zip" />
+    <None Remove="sprites\noobimage.png" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="datafiles\entrances.yaml" />
+    <EmbeddedResource Include="datafiles\FFMQR_forestatest.json" />
+    <EmbeddedResource Include="datafiles\FFMQR_map_ship.json" />
+    <EmbeddedResource Include="datafiles\FFMQR_TilesProperties.json" />
     <EmbeddedResource Include="datafiles\shufflingdata.yaml" />
     <EmbeddedResource Include="datafiles\entrancespairs.yaml" />
     <EmbeddedResource Include="datafiles\rooms.yaml" />
     <EmbeddedResource Include="datafiles\template.bmp" />
+    <EmbeddedResource Include="sprites\catwizardreference.png" />
     <EmbeddedResource Include="sprites\customsprites.zip" />
     <EmbeddedResource Include="sprites\dktrueforms.zip" />
+    <EmbeddedResource Include="sprites\noobimage.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BigGustave" Version="1.0.6" />
     <PackageReference Include="RomUtilities" Version="3.1.0" />
     <PackageReference Include="YamlDotNet" Version="12.0.0" />
   </ItemGroup>

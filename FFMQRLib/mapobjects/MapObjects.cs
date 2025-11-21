@@ -10,16 +10,16 @@ using static System.Math;
 
 namespace FFMQLib
 {
-	public partial class ObjectList
+	public partial class Areas
 	{
 		public void UpdateChests(ItemsPlacement itemsPlacement)
 		{
 			// Update Tristam Elixir Chest so it's taken into account
-			_collections[_pointerCollectionPairs[0x16]][0x05].Type = MapObjectType.Chest;
-			_collections[_pointerCollectionPairs[0x16]][0x05].Value = 0x04;
-			_collections[_pointerCollectionPairs[0x16]][0x05].Gameflag = 0xAD;
+			Entries[areaPointers[0x16]].Objects[0x05].Type = MapObjectType.Chest;
+			Entries[areaPointers[0x16]].Objects[0x05].Value = 0x04;
+			Entries[areaPointers[0x16]].Objects[0x05].Gameflag = 0xAD;
 
-			ChestList.Add((0x04, _pointerCollectionPairs[0x16], 0x05));
+			ChestObjects.Add((0x04, areaPointers[0x16], 0x05));
 			
 			List<Items> boxItems = new() { Items.CurePotion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
 
@@ -34,18 +34,18 @@ namespace FFMQLib
 					sprite = 0x24;
 				}
 					
-				List<(int,int,int)> targetChest = ChestList.Where(x => x.Item1 == item.ObjectId).ToList();
+				List<(int,int,int)> targetChest = ChestObjects.Where(x => x.Item1 == item.ObjectId).ToList();
 					
 				if (!targetChest.Any()) continue;
 
-				_collections[targetChest.First().Item2][targetChest.First().Item3].Sprite = sprite;
-				_collections[targetChest.First().Item2][targetChest.First().Item3].Gameflag = 0x00;
+				Entries[targetChest.First().Item2].Objects[targetChest.First().Item3].Sprite = sprite;
+				Entries[targetChest.First().Item2].Objects[targetChest.First().Item3].Gameflag = 0x00;
 			}
 
 			// Copy box+chest from Level Forest 2nd map to 1st map
 			for (int i = 0; i < 5; i++)
 			{
-			_collections[0x09][0x0C + i].CopyFrom(_collections[0x0A][0x0C + i]);
+				Entries[0x09].Objects[0x0C + i].CopyFrom(Entries[0x0A].Objects[0x0C + i]);
 			}
 		}
 		public void SetEnemiesDensity(EnemiesDensity enemiedensity, MT19337 rng)
@@ -61,9 +61,9 @@ namespace FFMQLib
 				case EnemiesDensity.None: density = 0; break;
 			}
 
-			for (int i = 0; i < _collections.Count; i++)
+			for (int i = 0; i < Entries.Count; i++)
 			{
-				var enemiescollection = _collections[i].Where(x => x.Type == MapObjectType.Battle).ToList();
+				var enemiescollection = Entries[i].Objects.Where(x => x.Type == MapObjectType.Battle).ToList();
 				int totalcount = enemiescollection.Count;
 				int toremove = ((100 - density) * totalcount) / 100;
 
@@ -114,12 +114,12 @@ namespace FFMQLib
 				return;
 			}
 
-			for (int i = 0; i < _collections.Count; i++)
+			for (int i = 0; i < Entries.Count; i++)
 			{
 				// Special check so enemies fit correctly in Mine interrior
 				bool mineinterior = i == 0x2E;
 
-				var enemiescollection = _collections[i].Where(x => x.Type == MapObjectType.Battle).ToList();
+				var enemiescollection = Entries[i].Objects.Where(x => x.Type == MapObjectType.Battle).ToList();
 				if (!enemiescollection.Any())
 				{
 					continue;
@@ -135,11 +135,11 @@ namespace FFMQLib
 				var currentExcludedTiles = excludedTiles.ContainsKey((MapList)targetmap) ? excludedTiles[(MapList)targetmap] : new List<byte>();
 				var currentExcludedCoordinates = excludedCoordinates.ContainsKey((MapList)targetmap) ? excludedCoordinates[(MapList)targetmap] : new List<(int,int)>();
 
-				List <(byte, byte)> selectedPositions = _collections[i].Where(x => x.Type != MapObjectType.Battle).Select(x => (x.X, x.Y)).ToList();
+				List <(byte, byte)> selectedPositions = Entries[i].Objects.Where(x => x.Type != MapObjectType.Battle).Select(x => (x.X, x.Y)).ToList();
 
 				if (hookMaps.Contains(targetmap)) // Creat an exclusion zone around hooks
 				{
-					var hookList = _collections[i].Where(x => x.Sprite == 0x28).ToList();
+					var hookList = Entries[i].Objects.Where(x => x.Sprite == 0x28).ToList();
 					foreach (var hook in hookList)
 					{
 						for (int j = Max(hook.X - 5, miny); j <= Min(hook.X + 5, maxx); j++)
@@ -155,7 +155,7 @@ namespace FFMQLib
 				}
 
 				// Worm Party
-				if (i == _pointerCollectionPairs[0x48] && rng.Between(1,20) == 10)
+				if (i == areaPointers[0x48] && rng.Between(1,20) == 10)
 				{
 					validLayers = new() { 0x02 };
 				}
