@@ -63,6 +63,7 @@ namespace FFMQLib
 		public MapShufflingMode MapShuffling { get; set; } = MapShufflingMode.None;
 		public bool OverworldShuffle { get; set; } = false;
 		public bool CrestShuffle { get; set; } = false;
+		public bool DisableDuping { get; set; } = false;
 		public bool HiddenFlags { get; set; } = false;
 
 		private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;

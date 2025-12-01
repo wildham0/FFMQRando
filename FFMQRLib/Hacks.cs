@@ -40,6 +40,7 @@ namespace FFMQLib
 			ShuffledFloorVanillaMonstersFix(flags);
 			Msu1Support();
 			SaveFileReduction();
+			DisableSeedDuping(flags.DisableDuping);
 		}
 		
 		public void FastMovement()
@@ -580,6 +581,16 @@ namespace FFMQLib
 			if (flags.MapShuffling != MapShufflingMode.None && !flags.ShuffleEnemiesPosition)
 			{
 				MapObjects[0x58][0x0A].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+			}
+		}
+
+		public void DisableSeedDuping(bool enable)
+		{
+			PutInBank(0x11, 0x9F00, Blob.FromHex("ad20102940f014a9ff8d50108d51108d52108dd0108dd1108dd210ad5010c9306b"));
+
+			if (enable)
+			{
+				PutInBank(0x00, 0xD3D2, Blob.FromHex("22009f11ea"));
 			}
 		}
 		public void Msu1Support()

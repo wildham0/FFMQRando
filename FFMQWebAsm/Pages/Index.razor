@@ -181,13 +181,14 @@
 	<Container Class="flagBox">
 		<Container Class="flagColumn">
 			<EnumFlag UsePreset=usePreset Name="Leveling Curve" @bind-Value="flags.LevelingCurve" Tooltip="Adjust the quantity of XP needed to gain levels.<br/><br/>A curve of 2x means that leveling will be twice faster." />
+			<BoolFlag UsePreset=usePreset Name="Shuffle Battlefields Rewards" @bind-Value="flags.ShuffleBattlefieldRewards" Tooltip="Shuffle the type of reward (Item, XP, GP) given by battlefields and color code them by reward type.<br/><br/>Blue: Give an item.<br/><br/>Grey: Give XP.<br/><br/>Green: Give GP." />
+			<EnumFlag UsePreset=usePreset Name="Battlefields Battles Quantity" @bind-Value="flags.BattlesQuantity" Tooltip="Adjust the number of battles that need to be fought to get a battlefield's reward." />
 			<BoolFlag UsePreset=usePreset Name="Disable Spoilers File" @bind-Value="flags.DisableSpoilers" Tooltip="Prevent the generation of a spoilers file with each Key Item's locations, only the GameInfo screen data will be included." />
 			<BoolFlag UsePreset=usePreset Name="Mystery Flags" @bind-Value="flags.HiddenFlags" Tooltip="Hide the flags options. This flag cannot be undone; it is recommended to backup or export your flags before enabling this option." />
 		</Container>
 		<Container Class="flagColumn">
-			<BoolFlag UsePreset=usePreset Name="Shuffle Battlefields Rewards" @bind-Value="flags.ShuffleBattlefieldRewards" Tooltip="Shuffle the type of reward (Item, XP, GP) given by battlefields and color code them by reward type.<br/><br/>Blue: Give an item.<br/><br/>Grey: Give XP.<br/><br/>Green: Give GP." />
-			<EnumFlag UsePreset=usePreset Name="Battlefields Battles Quantity" @bind-Value="flags.BattlesQuantity" Tooltip="Adjust the number of battles that need to be fought to get a battlefield's reward." />
-				<EnumFlag UsePreset=usePreset Name="Hint NPCs" @bind-Value="flags.HintMode" Tooltip="Four NPCs, one in each INN, will reveal the location of an item. NPCs will never hint for an item already in your inventory, so hints may change during playthrough.<br/>If Enemy Density is set to 0%, NPCs will refuse to give hints until you have enough GPs to also cover any remaining vendor items. <br/><br/>None: No Hints.<br/><br/>Free: Hints are given for free.<br/><br/>Fixed: All hints will cost that amount of GPs.<br/><br/>Progressive: Each time you buy a hint, the cost of the other hints will increment by that amount." />
+			<EnumFlag UsePreset=usePreset Name="Hint NPCs" @bind-Value="flags.HintMode" Tooltip="Four NPCs, one in each INN, will reveal the location of an item. NPCs will never hint for an item already in your inventory, so hints may change during playthrough.<br/>If Enemy Density is set to 0%, NPCs will refuse to give hints until you have enough GPs to also cover any remaining vendor items. <br/><br/>None: No Hints.<br/><br/>Free: Hints are given for free.<br/><br/>Fixed: All hints will cost that amount of GPs.<br/><br/>Progressive: Each time you buy a hint, the cost of the other hints will increment by that amount." />
+			<BoolFlag UsePreset=usePreset Name="Disable Seed Duping" @bind-Value="flags.DisableDuping" Tooltip="Fix the bug allowing you to duplicate consumable items when cancelling the commande and running away from battle." />
 		</Container>
 	</Container>
 		</Container>
