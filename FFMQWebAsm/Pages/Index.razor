@@ -188,7 +188,8 @@
 		</Container>
 		<Container Class="flagColumn">
 			<EnumFlag UsePreset=usePreset Name="Hint NPCs" @bind-Value="flags.HintMode" Tooltip="Four NPCs, one in each INN, will reveal the location of an item. NPCs will never hint for an item already in your inventory, so hints may change during playthrough.<br/>If Enemy Density is set to 0%, NPCs will refuse to give hints until you have enough GPs to also cover any remaining vendor items. <br/><br/>None: No Hints.<br/><br/>Free: Hints are given for free.<br/><br/>Fixed: All hints will cost that amount of GPs.<br/><br/>Progressive: Each time you buy a hint, the cost of the other hints will increment by that amount." />
-			<BoolFlag UsePreset=usePreset Name="Disable Seed Duping" @bind-Value="flags.DisableDuping" Tooltip="Fix the bug allowing you to duplicate consumable items when cancelling the commande and running away from battle." />
+			<BoolFlag UsePreset=usePreset Name="Disable Seed Duping" @bind-Value="flags.DisableDuping" Tooltip="Fix the bug allowing you to duplicate consumable items when cancelling the command and running away from battle." />
+			<EnumFlag UsePreset=usePreset Name="World Seed Supply" @bind-Value="flags.SeedQuantity" Tooltip="Set the number of locations containing Seeds.<br/><br/>Regardless of the option selected, the Hero Chest before the Dark King will always contain Seeds and isn't included in the count." />
 		</Container>
 	</Container>
 		</Container>

@@ -477,7 +477,7 @@ namespace FFMQLib
 				TalkScripts.AddScript((int)TalkScriptsList.ForestaHinter + i,
 					new ScriptBuilder(new List<string>()
 					{
-						$"053B{robotFlags[i]}09E090160B00[16]",
+						$"2BFC053B{robotFlags[i]}09E090160B00[16]",
 						// Check Money
 						"09809016",
 						// Read $9e for money result

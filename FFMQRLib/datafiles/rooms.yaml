@@ -4068,19 +4068,19 @@
   game_objects:
   - name: "Doom Castle Hero Chest 01"
     object_id: 0xF2
-    type: "Chest"
+    type: "HeroChest"
     access: []
   - name: "Doom Castle Hero Chest 02"
     object_id: 0xF3
-    type: "Chest"
+    type: "HeroChest"
     access: []
   - name: "Doom Castle Hero Chest 03"
     object_id: 0xF4
-    type: "Chest"
+    type: "HeroChest"
     access: []
   - name: "Doom Castle Hero Chest 04"
     object_id: 0xF5
-    type: "Chest"
+    type: "HeroChest"
     access: []
   links:
   - target_room: 200

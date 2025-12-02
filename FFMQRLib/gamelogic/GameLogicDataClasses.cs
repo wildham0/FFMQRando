@@ -19,6 +19,7 @@ namespace FFMQLib
 		Chest = 1,
 		Box,
 		NPC,
+		HeroChest,
 		BattlefieldItem,
 		BattlefieldXp,
 		BattlefieldGp,
