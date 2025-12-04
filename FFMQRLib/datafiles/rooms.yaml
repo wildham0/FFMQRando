@@ -1742,8 +1742,6 @@
     teleporter: [105, 8]
     access: []
   - target_room: 203
-    entrance: 143
-    teleporter: [105, 8]
     access: ["SpencerCavedIn"]
   - target_room: 40
     entrance: 145
@@ -1815,8 +1813,6 @@
     access: ["Claw"]
   - target_room: 205
     access: ["Bomb"]
-  - target_room: 73
-    access: []
 - name: Spencer Cave Caved In Waters
   id: 204
   game_objects:
