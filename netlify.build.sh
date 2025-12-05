@@ -10,4 +10,4 @@ chmod u+x /tmp/dotnet-install.sh
 popd
 
 ## publish project to known location for subsequent deployment by Netlify
-/opt/buildhome/.dotnet/dotnet build FFMQWebAsm --configuration Release && dotnet publish FFMQWebAsm -c Release --no-build -o publishoutput
+/opt/buildhome/.dotnet/dotnet build FFMQWebAsm --configuration Release && /opt/buildhome/.dotnet/dotnet publish FFMQWebAsm -c Release --no-build -o publishoutput
