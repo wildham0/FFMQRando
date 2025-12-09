@@ -20,54 +20,43 @@ namespace FFMQRWebAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get(string s, int m, bool c, bool b, int cs, bool km, bool? os = null)
+        public IActionResult Get(string s, int m, bool c, bool b, int cs, bool km, bool? os = null, string? version = null)
         {
-			//return StatusCode(StatusCodes.Status426UpgradeRequired, "Your version of AP World is unsupported, upgrade to 1.7 APWorld or set the following feature to default.");
+			bool versionFormatError = false;
+			bool unsupportedVersion = version == null;
 
-			Assembly ffmqlib = Assembly.LoadFrom("dll/1.6/FFMQRLib.dll");
-
-			Type? libType = ffmqlib.GetType("FFMQLib.FFMQRom");
-			if (libType != null)
+			if (version != null)
 			{
-				object? instance = Activator.CreateInstance(libType);
-				if (instance != null)
+				var versions = version.Split('.');
+				if (versions.Length != 2)
 				{
-					MethodInfo? method = libType.GetMethod("GenerateRooms");
-					if (method != null)
-					{
-						string? newrooms = (string?)method.Invoke(instance, new object?[] { c, b, m, cs, km, os, s });
-
-						if (newrooms != null)
-						{
-							var bytes = Encoding.ASCII.GetBytes(newrooms);
-							return File(bytes, "text/plain", "rooms.yaml");
-						}
-					}
+					versionFormatError = true;
+				}
+				else if (versions[0] != "1" || versions[1] != "7")
+				{
+					unsupportedVersion = true;
 				}
 			}
 
-			return StatusCode(StatusCodes.Status424FailedDependency, "Legacy version failed to load. DDL Error.");
+			if (unsupportedVersion || versionFormatError)
+			{
+				if (os == null)
+				{
+					return StatusCode(StatusCodes.Status426UpgradeRequired, "Your version of FFMQ's APWorld is unsupported, upgrade to APWorld version 1.7 or set the following options to default: Map Shuffle, Crest Shuffle, Shuffle Battlefield Rewards, and Companions Locations.");
+				}
+				else
+				{
+					return StatusCode(StatusCodes.Status426UpgradeRequired, "Your version of FFMQ's APWorld is unsupported, upgrade to APWorld version 1.7 or set the following options to default: Overworld Shuffle, Map Shuffle, Crest Shuffle, Shuffle Battlefield Rewards, and Companions Locations.");
+				}
+			}
+			else
+			{
+				FFMQRom rom = new FFMQRom();
+				var newrooms = rom.GenerateRooms(c, b, m, cs, km, os, s);
+
+				var bytes = Encoding.ASCII.GetBytes(newrooms);
+				return File(bytes, "text/plain", "rooms.yaml");
+			}
 		}
     }
-	[ApiController]
-	[Route("[controller]")]
-	public class GetRooms17Controller : ControllerBase
-	{
-		private readonly ILogger<GetRooms17Controller> _logger;
-
-		public GetRooms17Controller(ILogger<GetRooms17Controller> logger)
-		{
-			_logger = logger;
-		}
-
-		[HttpGet]
-		public IActionResult Get(string s, int m, bool c, bool b, int cs, bool km, bool os)
-		{
-			FFMQRom rom = new FFMQRom();
-			var newrooms = rom.GenerateRooms(c, b, m, cs, km, os, s);
-
-			var bytes = Encoding.ASCII.GetBytes(newrooms);
-			return File(bytes, "text/plain", "rooms.yaml");
-		}
-	}
 }
