@@ -116,7 +116,7 @@ namespace FFMQLib
 
 			PowerLevel = new(flags.CompanionLevelingType, flags.ProgressiveGear, companions);
 
-			Dictionary<int, Items> originalItems = rom.GetFromBank(0x01, 0x8000, 0xFB)
+			Dictionary<int, Items> originalItems = rom.GetFromBank(0x01, 0x801E, 0xDD)
 				.ToBytes()
 				.Select((x, i) => (i, (Items)x))
 				.ToDictionary(x => x.i, x => x.Item2);
@@ -130,9 +130,10 @@ namespace FFMQLib
 			originalItems.Remove(0xF3);
 			originalItems.Remove(0xF4);
 			originalItems.Remove(0xF5);
+			//originalItems = originalItems.Where()
 
-			List<Items> consumableList = rom.GetFromBank(0x01, 0x801E, 0xDD).ToBytes().Select(x => (Items)x).ToList();
-			List<Items> finalConsumables = rom.GetFromBank(0x01, 0x80F2, 0x04).ToBytes().Select(x => (Items)x).ToList();
+			//List<Items> consumableList = rom.GetFromBank(0x01, 0x801E, 0xDD).ToBytes().Select(x => (Items)x).ToList();
+			//List<Items> finalConsumables = rom.GetFromBank(0x01, 0x80F2, 0x04).ToBytes().Select(x => (Items)x).ToList();
 
 
 			List<RegionWeight> regionsWeight = new() { new RegionWeight(MapRegions.Foresta, 1), new RegionWeight(MapRegions.Aquaria, 1), new RegionWeight(MapRegions.Fireburg, 1), new RegionWeight(MapRegions.Windia, 1) };
@@ -414,12 +415,18 @@ namespace FFMQLib
 
 			// Add the final chests so we can update their properties
 			List<GameObject> finalChests = ItemsLocations.Where(x => x.Type == GameObjectType.HeroChest).ToList();
+			foreach (var chest in finalChests)
+			{
+				chest.Content = heroChestItems[chest.ObjectId];
+				chest.IsPlaced = true;
+			}
 
+			/*
 			for(int i = 0; i < finalChests.Count; i++)
 			{
-				finalChests[i].Content = finalConsumables[i];
+				finalChests[i].Content = heroChestItems[i.];
 				finalChests[i].IsPlaced = true;
-			}
+			}*/
 		}
 		private void ProcessRequirements2(List<AccessReqs> accessReqToProcess)
 		{
