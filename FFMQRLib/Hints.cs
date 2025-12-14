@@ -240,7 +240,7 @@ namespace FFMQLib
 					// Exclude progressive gear in AP
 					if (!progGear || item.Content < Items.SteelSword || item.Content > Items.CupidLocket)
 					{
-						keyitems.Add((item.Content, SanitizeString(item.LocationName + " in " + item.Player + "'s World"), GameObjectType.ApLocation, LocationIds.None));
+						keyitems.Add((item.Content, MQText.SanitizeString(item.LocationName + " in " + item.Player + "'s World"), GameObjectType.ApLocation, LocationIds.None));
 
 					}
 				}
@@ -256,7 +256,7 @@ namespace FFMQLib
 
 				if (item.Type == GameObjectType.NPC)
 				{
-					hintpart = TextToByte(" is with " + item.Name + " at ", true).Concat(new byte[] { 0x1F, locationCode[item.Location] }).Concat(TextToByte(".", true)).ToArray();
+					hintpart = MQText.TextToByte(" is with " + item.Name + " at ", true).Concat(new byte[] { 0x1F, locationCode[item.Location] }).Concat(MQText.TextToByte(".", true)).ToArray();
 
 					if (isProgGear)
 					{
@@ -266,7 +266,7 @@ namespace FFMQLib
 				}
 				else if (item.Type == GameObjectType.BattlefieldItem)
 				{
-					hintpart = TextToByte(" is at " + item.Name + ".", true);
+					hintpart = MQText.TextToByte(" is at " + item.Name + ".", true);
 
 					if (isProgGear)
 					{
@@ -275,11 +275,11 @@ namespace FFMQLib
 				}
 				else if (item.Type == GameObjectType.ApLocation)
 				{
-					hintpart = TextToByte(" is at " + item.Name + ".", true);
+					hintpart = MQText.TextToByte(" is at " + item.Name + ".", true);
 				}
 				else
 				{
-					hintpart = TextToByte(" is in " + item.Name + " at ", true).Concat(new byte[] { 0x1F, locationCode[item.Location] }).Concat(TextToByte(".", true)).ToArray();
+					hintpart = MQText.TextToByte(" is in " + item.Name + " at ", true).Concat(new byte[] { 0x1F, locationCode[item.Location] }).Concat(MQText.TextToByte(".", true)).ToArray();
 
 					if (isProgGear)
 					{
@@ -288,7 +288,7 @@ namespace FFMQLib
 				}
 
 				hintaddresses.Add((item.Content, defaulType, (ushort)pointeraddress));
-				hintstring = TextToByte("The ", true).Concat(itemname).Concat(hintpart).Concat(endstring).ToArray();
+				hintstring = MQText.TextToByte("The ", true).Concat(itemname).Concat(hintpart).Concat(endstring).ToArray();
 				pointeraddress += hintstring.Length;
 
 				allHints.Add(hintstring.ToArray());
@@ -487,8 +487,8 @@ namespace FFMQLib
 						$"09{(0x20+(i*0x20)):X2}9316", // compute hint, address at $1507
 						"0F00150BFF[17]",
 						freehints ?
-							TextToHex("Want to know where the ") + (flags.ProgressiveGear ? "07008E16" : "077DFE03") + TextToHex(" is?") :
-							TextToHex("Want to know where the ") + (flags.ProgressiveGear ? "07008E16" : "077DFE03") + TextToHex(" is for ") + "072CFF03" + TextToHex("?"), // todo
+							MQText.TextToHex("Want to know where the ") + (flags.ProgressiveGear ? "07008E16" : "077DFE03") + MQText.TextToHex(" is?") :
+							MQText.TextToHex("Want to know where the ") + (flags.ProgressiveGear ? "07008E16" : "077DFE03") + MQText.TextToHex(" is for ") + "072CFF03" + MQText.TextToHex("?"), // todo
 						"07D0FD03", // yes/no
 						"050BFB[10]",
 						"00", // no, we done
@@ -501,13 +501,13 @@ namespace FFMQLib
 						// jump to hint text
 						$"050300",
 						// Not Enough Money
-						TextToHex("Come back when you have enough GPs. I'll reveal the location of an item.") + "3600",
+						MQText.TextToHex("Come back when you have enough GPs. I'll reveal the location of an item.") + "3600",
 						// Vendor Gate
-						TextToHex("You have enough GPs for a hint, but you might need that money for a vendor's item. Come back when you have more GPs!") + "3600",
+						MQText.TextToHex("You have enough GPs for a hint, but you might need that money for a vendor's item. Come back when you have more GPs!") + "3600",
 						// Hint already given, repeat hint
 						$"053B{i:X2}09009116050300",
 						// Nothing left to hint for
-						TextToHex(rng.TakeFrom(nohintsleft)) + "3600",
+						MQText.TextToHex(rng.TakeFrom(nohintsleft)) + "3600",
 					}));
 			}
 
@@ -526,14 +526,14 @@ namespace FFMQLib
 				"05063D[18]",
 				"050640[19]",
 				"05027DFE03",
-				TextToHex("Progressive Sword") + "00",
-				TextToHex("Progressive Axe") + "00",
-				TextToHex("Progressive Claw") + "00",
-				TextToHex("Progressive Bomb") + "00",
-				TextToHex("Progressive Helmet") + "00",
-				TextToHex("Progressive Armor") + "00",
-				TextToHex("Progressive Shield") + "00",
-				TextToHex("Progressive Accessory") + "00",
+				MQText.TextToHex("Progressive Sword") + "00",
+				MQText.TextToHex("Progressive Axe") + "00",
+				MQText.TextToHex("Progressive Claw") + "00",
+				MQText.TextToHex("Progressive Bomb") + "00",
+				MQText.TextToHex("Progressive Helmet") + "00",
+				MQText.TextToHex("Progressive Armor") + "00",
+				MQText.TextToHex("Progressive Shield") + "00",
+				MQText.TextToHex("Progressive Accessory") + "00",
 			});
 
 			progitemname.WriteAt(0x16, 0x8E00, this);

@@ -157,7 +157,7 @@ namespace FFMQLib
 
 			// Move all DK sprites to bank 10
 			rom.PutInBank(0x10, 0xB2F0, dk12sprites.Concat(darkking3.EncodedTiles.Concat(darkking4.EncodedTiles).SelectMany(x => x)).ToArray());
-			rom.PutInBank(0x09, 0x85F0, Blob.FromHex("F0B210"));
+			rom.PutInBank(0x09, 0x85F0, Blob.FromHex("F0B210")); // Update this because we're extracting graphic data for enemies now.
 
 			// Expand Dark King Palette Hack
 			var originaldkpalettes = rom.GetFromBank(0x09, paletteOffsetDarkKing, 0x10 * 4).Chunk(0x10);
@@ -177,7 +177,7 @@ namespace FFMQLib
 			rom.PutInBank(0x02, 0xD351, Blob.FromHex("2280b010eaea"));
 			rom.PutInBank(0x10, 0xB080, Blob.FromHex("485a08c230afb8d0028d4a11a2a0b0a00011a90f00540010287a686b"));
 
-			string finalname = rom.TextToHex(DarkKingSprite.name, false);
+			string finalname = MQText.TextToHex(DarkKingSprite.name, false);
 			while (finalname.Length < 0x20)
 			{
 				finalname += "03";

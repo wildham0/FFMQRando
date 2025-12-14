@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.ComponentModel;
 using static System.Math;
 using System.Data.SqlTypes;
+using FFMQRLib;
 
 namespace FFMQLib
 {
@@ -99,10 +100,19 @@ namespace FFMQLib
 		private const int levelMultDataOffset = 0xC17C;
 		private const int levelMultDataSize = 0x03;
 
-
 		private const int enemiesStatsOffset = 0xC275;
 		private const int enemiesStatsBank = 0x02;
 		private const int enemiesStatsLength = 0x0e;
+
+		private const int graphicDataOffset = 0x8460;
+		private const int graphicDataBank = 0x09;
+		private const int graphicDataLength = 0x05;
+		private const int graphicDataQty = 0x51;
+
+		private const int namesOffset = 0xCBA0;
+		private const int namesBank = 0x0C;
+		private const int namesLength = 0x10;
+		private const int namesQty = 0x51;
 
 		//public Dictionary<EnemyFormationIds, PowerLevels> FormationPowers { get; set; }
 		public Dictionary<AccessReqs, AccessReqs> BossesPower;
@@ -121,7 +131,9 @@ namespace FFMQLib
 				_enemies.Add(
 					new Enemy(i,
 						rom.GetFromBank(levelMultDataBank, levelMultDataOffset + (i * levelMultDataSize), levelMultDataSize),
-						rom.GetFromBank(enemiesStatsBank, enemiesStatsOffset + (i * enemiesStatsLength), enemiesStatsLength)
+						rom.GetFromBank(enemiesStatsBank, enemiesStatsOffset + (i * enemiesStatsLength), enemiesStatsLength),
+						rom.GetFromBank(graphicDataBank, graphicDataOffset + (Min(i, (graphicDataQty - 1)) * graphicDataLength), graphicDataLength),
+						rom.GetFromBank(namesBank, namesOffset + (Min(i, (namesQty - 1)) * namesLength), namesLength)
 						)
 					);
 			}
@@ -137,11 +149,10 @@ namespace FFMQLib
 		}
 		public void Write(FFMQRom rom)
 		{
-			foreach (Enemy e in _enemies)
-			{
-				rom.PutInBank(enemiesStatsBank, enemiesStatsOffset, _enemies.SelectMany(e => e.GetStatsBytes()).ToArray());
-				rom.PutInBank(levelMultDataBank, levelMultDataOffset, _enemies.SelectMany(e => e.GetLevelMultBytes()).ToArray());
-			}
+			rom.PutInBank(enemiesStatsBank, enemiesStatsOffset, _enemies.SelectMany(e => e.GetStatsBytes()).ToArray());
+			rom.PutInBank(levelMultDataBank, levelMultDataOffset, _enemies.SelectMany(e => e.GetLevelMultBytes()).ToArray());
+			rom.PutInBank(graphicDataBank, graphicDataOffset, _enemies.Where(e => (int)e.Id < graphicDataQty).SelectMany(e => e.GetGraphicDataBytes()).ToArray());
+			rom.PutInBank(namesBank, namesOffset, _enemies.Where(e => (int)e.Id < namesQty).SelectMany(e => e.GetNameBytes()).ToArray());
 		}
 		private byte ScaleStat(byte value, int scaling, int spread, MT19337 rng)
 		{
@@ -292,11 +303,20 @@ namespace FFMQLib
 		public byte GpMultiplier { get; set; }
 		public List<ElementsType> Resistances { get; set; }
 		public List<ElementsType> Weaknesses { get; set; }
+		public byte Palette1 { get; set; }
+		public byte Palette2 { get; set; }
+		public string Name { get; set; }
+		public EnemizerElements Element { get; set; }
+
+		private byte[] graphicData;
+
 		private byte spByte;
+
+
 
 		public EnemyIds Id;
 
-		public Enemy(int id, byte[] levelmult, byte[] statsdata)
+		public Enemy(int id, byte[] levelmult, byte[] statsdata, byte[] graphicdata, byte[] name)
 		{
 			Id = (EnemyIds)id;
 			HP = (ushort)(statsdata[0x01] * 0x100 + statsdata[0x00]);
@@ -337,11 +357,34 @@ namespace FFMQLib
 					Weaknesses.Add(element);
 				}
 			}
+			graphicData = graphicdata[0..3];
+
+			Palette1 = graphicdata[3];
+			Palette2 = graphicdata[4];
+
+			Name = MQText.BytesToText(name).TrimEnd('_');
+			Element = EnemizerElements.None;
 		}
 		public byte[] GetLevelMultBytes()
 		{
 			return new byte[] { Level, XpMultiplier, GpMultiplier };
 		}
+		public byte[] GetGraphicDataBytes()
+		{
+			return graphicData.Concat(new byte[] { Palette1, Palette2 }).ToArray();
+		}
+		public byte[] GetNameBytes()
+		{
+
+			string nametrail = Name.PadRight(0x10, '_');
+			if (nametrail.Length > 0x10)
+			{
+				nametrail = nametrail.Substring(0, 0x10);
+			}
+
+			return MQText.TextToByte(nametrail, false);
+		}
+
 		public byte[] GetStatsBytes()
 		{
 			byte[] _rawBytes = new byte[0x0E];
