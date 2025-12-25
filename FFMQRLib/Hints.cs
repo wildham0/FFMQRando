@@ -238,10 +238,9 @@ namespace FFMQLib
 				foreach (var item in apconfigs.ExternalPlacement)
 				{
 					// Exclude progressive gear in AP
-					if (!progGear || item.Content < Items.SteelSword || item.Content > Items.CupidLocket)
+					if (!progGear || (item.Content < Items.SteelSword && item.Content > Items.CupidLocket))
 					{
 						keyitems.Add((item.Content, SanitizeString(item.LocationName + " in " + item.Player + "'s World"), GameObjectType.ApLocation, LocationIds.None));
-
 					}
 				}
 			}
