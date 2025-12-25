@@ -81,24 +81,24 @@
 	<div><br /></div>
 
 	<Container class="sectionBox">
-		<div class="box-title text-secondary">
-			Items
-			<Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations.<br /><br />When some locations aren't prioritized (either included or excluded), Quest Items may land in brown boxes, in which case these locations will show up as Chests." 
-		Inline
-
-		Multiline Placement="TooltipPlacement.Right">
-			<Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small style="font-size: 0.600em"/> 
-			</Tooltip>       
-		</div> 
+		<div class="box-title text-secondary">Items</div> 
 
 		<Container Class="flagBox">
 			<Container Class="flagColumn">
-				<EnumFlag UsePreset=usePreset Name="Logic" @bind-Value="flags.LogicOptions" Tooltip="Placement logic sets the rules that will be applied when placing items.<br /><br />Friendly: Required Items to clear a dungeon will never be placed in that dungeon to avoid the need to revisit it. Also, the Magic Mirror and the Mask will always be available before Ice Pyramid and Volcano, respectively. Note: If Dungeons are shuffled, Friendly logic will only ensure the availability of the Mirror and the Mask.<br /><br />Standard: Items are randomly placed and logic merely verifies that they're all accessible. As for Region access, only the Coins are considered.<br /><br />Expert: Same as Standard, but Items Placement logic also includes other routes than Coins: the Crests Teleporters, the Fireburg-Aquaria Lava bridge, the Aquaria-Spencer's Cave-Rainbow Bridge path and the Sealed Temple Exit trick." />
+				<div class="form-label fw-bold text-secondary" style="font-size: 1.3em">
+				<Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations.<br /><br />When some locations aren't prioritized (either included or excluded), Quest Items may land in brown boxes, in which case these locations will show up as Chests."
+						 Inline
+						 Multiline Placement="TooltipPlacement.Right">
+					Items Placement
+					<Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small />
+				</Tooltip>
+				</div>
 				<EnumFlag UsePreset=usePreset Name="Original Chests" @bind-Value="flags.ChestsShuffle" Tooltip="Original Chests are all the red chests locations in the original game, except the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave, which count as NPCs.<br /><br />If a chest doesn't contain a Quest Item, it will show up as a brown box." />
 				<EnumFlag UsePreset=usePreset Name="NPCs" @bind-Value="flags.NpcsShuffle" Tooltip="NPCs are all the NPC locations in the original game, as well as the new Reuben item in Mine, the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave." />
 				<EnumFlag UsePreset=usePreset Name="Battlefields" @bind-Value="flags.BattlefieldsShuffle" Tooltip="Battlefields are all the battlefields that gave a Quest Item in the original game; if Shuffle Battlefields Rewards is enabled, the locations will change, but the same number of battlefields will offer an item." />
 			</Container>
 			<Container Class="flagColumn">
+				<EnumFlag UsePreset=usePreset Name="Logic" @bind-Value="flags.LogicOptions" Tooltip="Placement logic sets the rules that will be applied when placing items.<br /><br />Friendly: Required Items to clear a dungeon will never be placed in that dungeon to avoid the need to revisit it. Also, the Magic Mirror and the Mask will always be available before Ice Pyramid and Volcano, respectively. Note: If Dungeons are shuffled, Friendly logic will only ensure the availability of the Mirror and the Mask.<br /><br />Standard: Items are randomly placed and logic merely verifies that they're all accessible. As for Region access, only the Coins are considered.<br /><br />Expert: Same as Standard, but Items Placement logic also includes other routes than Coins: the Crests Teleporters, the Fireburg-Aquaria Lava bridge, the Aquaria-Spencer's Cave-Rainbow Bridge path and the Sealed Temple Exit trick." />
 				<EnumFlag UsePreset=usePreset Name="Sky Coin Mode" @bind-Value="flags.SkyCoinMode" Tooltip="Configure how the Sky Coin is acquired.<br /><br />Standard: The Sky Coin will be found in a chest.<br /><br />Start With: The Sky Coin will be in your inventory at the start of the game.<br /><br />Save the Crystals: The Sky Coin will be acquired once you save all 4 crystals.<br /><br />Shattered: The Sky Coin is split in 40 fragments; you can enter Doom Castle once the required amount is found." />
 				@if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
 				{
