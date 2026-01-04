@@ -17,7 +17,7 @@ namespace FFMQLib
 		// Z = Patch Release
 		// Increment Beta on every new builds, reset to zero on version increase
 		public static string Version = "1.7.0";
-		public static string Build = "10";
+		public static string Build = "11";
 		public static string BetaVersionShort => Version + "-b" + Build;
 		public static string BetaVersionLong => Version + "-beta" + Build;
 	}
@@ -180,7 +180,7 @@ namespace FFMQLib
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, new MT19337(sillyrng.Next()));
 			WindowPalette(preferences.WindowPalette);
 			playerSprites.SetPlayerSprite(playerSprite, this);
-			darkKingTrueForm.RandomizeDarkKingTrueForm(preferences, new MT19337(sillyrng.Next()), this);
+			darkKingTrueForm.RandomizeDarkKingTrueForm(preferences, Enemies, Enemizer, new MT19337(sillyrng.Next()), this);
 
 			// Credits
 			credits.Update(playerSprite, darkKingTrueForm.DarkKingSprite);

@@ -37,6 +37,7 @@ namespace FFMQLib
 			MapObjects = new(this);
 			Battlefields = new(this);
 			GameFlags = new(this);
+			Enemies = new(this);
 
 			Credits credits = new(this);
 			TitleScreen titleScreen = new(this);
@@ -62,7 +63,7 @@ namespace FFMQLib
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			WindowPalette(preferences.WindowPalette);
 			playerSprites.SetPlayerSprite(playerSprite, this);
-			darkKingTrueForm.RandomizeDarkKingTrueForm(preferences, sillyrng, this);
+			darkKingTrueForm.RandomizeDarkKingTrueForm(preferences, Enemies, Enemizer, sillyrng, this);
 
 			// Credits
 			credits.Update(playerSprite, darkKingTrueForm.DarkKingSprite);
@@ -72,6 +73,7 @@ namespace FFMQLib
 			Battlefields.WriteWithoutSprites(this);
 			MapObjects.Write(this);
 			GameFlags.Write(this);
+			Enemies.Write(this);
 
 			credits.Write(this);
 			titleScreen.Write(this, Metadata.Version, hashString, new Flags());

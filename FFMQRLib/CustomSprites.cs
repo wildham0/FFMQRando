@@ -115,7 +115,7 @@ namespace FFMQLib
 				}
 			}
 		}
-		public void RandomizeDarkKingTrueForm(Preferences pref, MT19337 rng, FFMQRom rom)
+		public void RandomizeDarkKingTrueForm(Preferences pref, Enemies enemies, Enemizer enemizer, MT19337 rng, FFMQRom rom)
 		{
 			bool debugmode = pref.DarkKing3.Length > 0;
 
@@ -157,13 +157,29 @@ namespace FFMQLib
 
 			// Move all DK sprites to bank 10
 			rom.PutInBank(0x10, 0xB2F0, dk12sprites.Concat(darkking3.EncodedTiles.Concat(darkking4.EncodedTiles).SelectMany(x => x)).ToArray());
-			rom.PutInBank(0x09, 0x85F0, Blob.FromHex("F0B210")); // Update this because we're extracting graphic data for enemies now.
+			enemies.Data[EnemyIds.DarkKing].GraphicData = Blob.FromHex("F0B210");
+			//rom.PutInBank(0x09, 0x85F0, Blob.FromHex("F0B210")); // Update this because we're extracting graphic data for enemies now.
 
 			// Expand Dark King Palette Hack
 			var originaldkpalettes = rom.GetFromBank(0x09, paletteOffsetDarkKing, 0x10 * 4).Chunk(0x10);
+
+			byte[] darkking1Palette1 = originaldkpalettes[1].ToBytes();
+			byte[] darkking1Palette2 = originaldkpalettes[0].ToBytes();
+			byte[] darkking2Palette1 = originaldkpalettes[2].ToBytes();
+			byte[] darkking2Palette2 = originaldkpalettes[0].ToBytes();
+
+			if (enemizer != null && enemizer.ElementalEnemies.TryGetValue(EnemyIds.DarkKing, out var element))
+			{
+				var elementalpalette = Enemizer.ElementalPalettes[element];
+				darkking1Palette1 = elementalpalette.GetBytes();
+				darkking1Palette2 = elementalpalette.GetBytes();
+				darkking2Palette1 = elementalpalette.GetBytes();
+				darkking2Palette2 = elementalpalette.GetBytes();
+			}
+
 			List<byte[]> newdkpalettes = new() {
-				originaldkpalettes[1].ToBytes(), originaldkpalettes[0].ToBytes(),
-				originaldkpalettes[2].ToBytes(), originaldkpalettes[0].ToBytes(),
+				darkking1Palette1, darkking1Palette2,
+				darkking2Palette1, darkking2Palette2,
 				darkking3.Palette1.ToArray(), darkking3.Palette2.ToArray(),
 				darkking4.Palette1.ToArray(), darkking4.Palette2.ToArray(),
 			};

@@ -129,7 +129,7 @@ namespace FFMQLib
 		public string Name { get; set; }
 		public EnemizerElements Element { get; set; }
 
-		private byte[] graphicData;
+		public byte[] GraphicData { get; set; }
 
 		private byte spByte;
 
@@ -178,7 +178,7 @@ namespace FFMQLib
 					Weaknesses.Add(element);
 				}
 			}
-			graphicData = graphicdata[0..3];
+			GraphicData = graphicdata[0..3]; // sprite address basically
 
 			Palette1 = graphicdata[3];
 			Palette2 = graphicdata[4];
@@ -192,7 +192,7 @@ namespace FFMQLib
 		}
 		public byte[] GetGraphicDataBytes()
 		{
-			return graphicData.Concat(new byte[] { Palette1, Palette2 }).ToArray();
+			return GraphicData.Concat(new byte[] { Palette1, Palette2 }).ToArray();
 		}
 		public byte[] GetNameBytes()
 		{
