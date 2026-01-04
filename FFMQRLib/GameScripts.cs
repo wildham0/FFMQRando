@@ -127,7 +127,7 @@ namespace FFMQLib
 			TileScripts.AddScript((int)TileScriptsList.PushedBoulder,
 				new ScriptBuilder(new List<string> {
 					"2E13[03]0F8B0E05090075BC2A14402054FFFF",
-					"1A0A" + TextToHex("Finally, after all these years I can go back home.\nHere have this.") + "36",
+					"1A0A" + MQText.TextToHex("Finally, after all these years I can go back home.\nHere have this.") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.BoulderOldMan]:X2}0162231323142B34",
 					"00"
 				}));
@@ -247,7 +247,7 @@ namespace FFMQLib
 					"234F",
 					Companions.GetQuestString(QuestsId.ThawAquaria),
 					"00",
-					"1A00" + TextToHex("Maybe the WakeWater can save this poor plant.") + "36",
+					"1A00" + MQText.TextToHex("Maybe the WakeWater can save this poor plant.") + "36",
 					"00"
 				}));
 
@@ -307,7 +307,7 @@ namespace FFMQLib
 					$"050c" + ScriptItemFlags[Items.JumboBomb].Item2 + "[08]",
 					"2D" + ScriptItemFlags[Items.MegaGrenade].Item1,
 					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[08]",
-					TextToHex("Look, I'm a busy person. Figure out which kind of explosives you want first, then come back."),
+					MQText.TextToHex("Look, I'm a busy person. Figure out which kind of explosives you want first, then come back."),
 					"00",
 					"0C0015DD",
 					"23FC",
@@ -371,7 +371,7 @@ namespace FFMQLib
 				new ScriptBuilder(new List<string> {
 					"2ECE[02]",
 					"00",
-					"1A2E" + TextToHex("Need something?"),
+					"1A2E" + MQText.TextToHex("Need something?"),
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.MysteriousManLifeTemple]:X2}0162",
 					"2BCE",
 					"2A0821134110504346FFFF", // Fix animation
@@ -462,7 +462,7 @@ namespace FFMQLib
 					"057C01[14]",// looking right
 					"057C02[15]",  // lookingdown
 					"057C03[16]",// looking left
-					"1A48" + TextToHex("I should bring claws with me before going down there.") + "36",
+					"1A48" + MQText.TextToHex("I should bring claws with me before going down there.") + "36",
 					"00",
 					"2C105900",
 					"2C105A00",
@@ -479,7 +479,7 @@ namespace FFMQLib
 					"057C01[14]",// looking right
 					"057C02[15]",  // lookingdown
 					"057C03[16]",// looking left
-					"1A48" + TextToHex("I should bring a sword with me before going down there.") + "36",
+					"1A48" + MQText.TextToHex("I should bring a sword with me before going down there.") + "36",
 					"00",
 					"0cee19000cef191a094cb20100" // Hack to excute the falling down routine
 				}));
@@ -604,11 +604,11 @@ namespace FFMQLib
 				new ScriptBuilder(new List<string>{
 					"04",
 					$"2E{(int)NewGameFlagsList.SpencerItemGiven:X2}[06]",
-					"1A32" + TextToHex("This? It's some weird trash I found while diggin' to Captain Mac's ship, you can have it.") + "36",
+					"1A32" + MQText.TextToHex("This? It's some weird trash I found while diggin' to Captain Mac's ship, you can have it.") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.Spencer]:X2}0162",
 					$"23{(int)NewGameFlagsList.SpencerItemGiven:X2}",
 					"00",
-					"1A32" + TextToHex(rng.PickFrom(spencerPostItemDialogue)) + "36",
+					"1A32" + MQText.TextToHex(rng.PickFrom(spencerPostItemDialogue)) + "36",
 					"00"
 				}));
 
@@ -671,11 +671,11 @@ namespace FFMQLib
 				new ScriptBuilder(new List<string>{
 					"04",
 					$"2E{(int)NewGameFlagsList.ArionItemGiven:X2}[06]",
-					"1A3B" + TextToHex("I was scared I would have to pass this on to my useless son, but now, I can give this to you!") + "36",
+					"1A3B" + MQText.TextToHex("I was scared I would have to pass this on to my useless son, but now, I can give this to you!") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.ArionFireburg]:X2}0162",
 					$"23{(int)NewGameFlagsList.ArionItemGiven:X2}",
 					"00",
-					"1A3B" + TextToHex("Would you like to be adopted? We're a loving family for sons that aren't inept at life.") + "36",
+					"1A3B" + MQText.TextToHex("Would you like to be adopted? We're a loving family for sons that aren't inept at life.") + "36",
 					"00"
 				}));
 
@@ -700,11 +700,11 @@ namespace FFMQLib
 				new ScriptBuilder(new List<string>{
 					"04",
 					"2E74[06]",
-					"1A3C" + TextToHex("Aaah! Burglars! Please, don't hurt me! Go ahead, take this, this is all I have!") + "36",
+					"1A3C" + MQText.TextToHex("Aaah! Burglars! Please, don't hurt me! Go ahead, take this, this is all I have!") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.MegaGrenadeDude]:X2}0162",
 					"2374",
 					"00",
-					"1A3C" + TextToHex("Threathening an old man in his own home. Who do you think you are? A milkdrinking psychopath?") + "36",
+					"1A3C" + MQText.TextToHex("Threathening an old man in his own home. Who do you think you are? A milkdrinking psychopath?") + "36",
 					"00"
 				}));
 
@@ -722,9 +722,9 @@ namespace FFMQLib
 					"2C5C00",
 					"00",
 					"2C3050",
-					"1A00" + TextToHex("It's locked...") + "36",
+					"1A00" + MQText.TextToHex("It's locked...") + "36",
 					"2C2044",
-					"1B3C" + TextToHex("I'm not locked up in here with you, kid. You're locked up in here with me!") + "36",
+					"1B3C" + MQText.TextToHex("I'm not locked up in here with you, kid. You're locked up in here with me!") + "36",
 					"2C3044",
 					"00",
 				}));
@@ -745,7 +745,7 @@ namespace FFMQLib
 					$"050c" + ScriptItemFlags[Items.CharmClaw].Item2 + "[09]",
 					"2D" + ScriptItemFlags[Items.DragonClaw].Item1,
 					$"050c" + ScriptItemFlags[Items.DragonClaw].Item2 + "[09]",
-					"1A48" + TextToHex("You'll need some kind of claw to operate this."),
+					"1A48" + MQText.TextToHex("You'll need some kind of claw to operate this."),
 					"00",
 					"2C222500",
 				}));
@@ -760,7 +760,7 @@ namespace FFMQLib
 					$"050c" + ScriptItemFlags[Items.CharmClaw].Item2 + "[09]",
 					"2D" + ScriptItemFlags[Items.DragonClaw].Item1,
 					$"050c" + ScriptItemFlags[Items.DragonClaw].Item2 + "[09]",
-					"1A49" + TextToHex("You'll need some kind of claw to operate this."),
+					"1A49" + MQText.TextToHex("You'll need some kind of claw to operate this."),
 					"00",
 					"2C232500",
 				}));
@@ -788,7 +788,7 @@ namespace FFMQLib
 					$"2E{(int)NewGameFlagsList.ReubenMineItemGiven:X2}[07]",
 					$"050f{(int)CompanionsId.Reuben:X2}[07]",
 					"2a3046104310443054ffff",
-					"1a91" + TextToHex("Ugh, my feet are killing me! Do me a favor and hold this on the way back. It's weighting a ton!"),
+					"1a91" + MQText.TextToHex("Ugh, my feet are killing me! Do me a favor and hold this on the way back. It's weighting a ton!"),
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeFallBasin]:X2}0162",
 					"2a10414046ffff",
 					$"23{(int)NewGameFlagsList.ReubenMineItemGiven:X2}",
@@ -797,7 +797,7 @@ namespace FFMQLib
 					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[11]",
 					"00",
 					"2A105411411140214410541525105426252142214346464746ffff",
-					"1a92" + TextToHex("Thanks! I would have died of old age waiting for my incompetent son to save me!") + "36",
+					"1a92" + MQText.TextToHex("Thanks! I would have died of old age waiting for my incompetent son to save me!") + "36",
 					Companions.GetQuestString(QuestsId.SaveArion),
 					"2A314151424146FFFF",
 					"2337",
@@ -844,7 +844,7 @@ namespace FFMQLib
 			TileScripts.AddScript((int)TileScriptsList.VolcanoSummitQuest,
 				new ScriptBuilder(new List<string> {
 					(volcanosummitflag != NewGameFlagsList.None) ? $"2E{(int)volcanosummitflag:X2}[03]" : "00",
-					"1A00" + TextToHex("That was a fun climb.\nI'm glad there's no nasty Medusa to ruin it.") + "36",
+					"1A00" + MQText.TextToHex("That was a fun climb.\nI'm glad there's no nasty Medusa to ruin it.") + "36",
 					Companions.GetQuestString(QuestsId.VisitTopOfVolcano),
 					"00"
 				}));
@@ -906,7 +906,7 @@ namespace FFMQLib
 			TileScripts.AddScript((int)TileScriptsList.PointlessLedgeQuest,
 				new ScriptBuilder(new List<string> {
 					(pointlessledgeflag != NewGameFlagsList.None) ? $"2E{(int)pointlessledgeflag:X2}[03]" : "00",
-					"1A00" + TextToHex("Well, that was pointless.\n...Or was it?") + "36",
+					"1A00" + MQText.TextToHex("Well, that was pointless.\n...Or was it?") + "36",
 					Companions.GetQuestString(QuestsId.VisitPointlessLedge),
 					"00"
 				}));
@@ -979,10 +979,10 @@ namespace FFMQLib
 			TalkScripts.AddScript((int)TalkScriptsList.TreeHouseQuestNPC,
 				new ScriptBuilder(new List<string> {
 					$"2E{(int)treehousesflag:X2}[04]",
-					TextToHex("Even behind magical teleporting crests I cannot find quietude!") + "36",
+					MQText.TextToHex("Even behind magical teleporting crests I cannot find quietude!") + "36",
 					Companions.GetQuestString(QuestsId.VisitTreeHouses),
 					"00",
-					TextToHex("Maybe no one will find me behind that giant boulder in the Mine.") + "36",
+					MQText.TextToHex("Maybe no one will find me behind that giant boulder in the Mine.") + "36",
 					"00"
 				}));
 
@@ -997,7 +997,7 @@ namespace FFMQLib
 				{
 					"2e28[02]",
 					"00",
-					TextToHex("Defeat Gidrah and I'll let you pass.") + "36",
+					MQText.TextToHex("Defeat Gidrah and I'll let you pass.") + "36",
 					"00"
 				}));
 
@@ -1111,7 +1111,7 @@ namespace FFMQLib
 
 			TalkScripts.AddScript((int)TalkScriptsList.CaptainMacWindia,
 				new ScriptBuilder(new List<string>{
-					TextToHex(rng.PickFrom(captainMacSilence)),
+					MQText.TextToHex(rng.PickFrom(captainMacSilence)),
 					"36",
 					"00"
 				}));
@@ -1143,15 +1143,15 @@ namespace FFMQLib
 					"2E78[12]",
 					"2F",
 					"050C07[06]",
-					"1A5C" + TextToHex("I'm building a trebuchet to cross the chasm. A bridge? I guess... Need a Thunder Rock though.") + "36",
+					"1A5C" + MQText.TextToHex("I'm building a trebuchet to cross the chasm. A bridge? I guess... Need a Thunder Rock though.") + "36",
 					"00",
-					"1A5C" + TextToHex("Oh, you found a Thunder Rock. I'm almost done with my trebuchet though. No? You're sure? Alright...") + "36",
+					"1A5C" + MQText.TextToHex("Oh, you found a Thunder Rock. I'm almost done with my trebuchet though. No? You're sure? Alright...") + "36",
 					"0816FC",
-					"1A5C" + TextToHex("Good news everyone! The totally safe Rainbow Bridge is done! No tumbling to certain doom for you!") + "36",
+					"1A5C" + MQText.TextToHex("Good news everyone! The totally safe Rainbow Bridge is done! No tumbling to certain doom for you!") + "36",
 					"237823DC",
 					Companions.GetQuestString(QuestsId.BuildRainbowBridge),
 					"00",
-					"1A5C" + TextToHex("I could send you to the Moon with a Thunder Rock powered trebuchet. What, a whale?") + "36",
+					"1A5C" + MQText.TextToHex("I could send you to the Moon with a Thunder Rock powered trebuchet. What, a whale?") + "36",
 					"00"
 				}));
 
@@ -1176,7 +1176,7 @@ namespace FFMQLib
 			TileScripts.AddScript((int)TileScriptsList.LightTempleQuest,
 				new ScriptBuilder(new List<string> {
 					(ligthtempleflag != NewGameFlagsList.None) ? $"2E{(int)ligthtempleflag:X2}[03]" : "00",
-					"1A00" + TextToHex("Finally! Hidden corridors should be shaded like in FF2...") + "36",
+					"1A00" + MQText.TextToHex("Finally! Hidden corridors should be shaded like in FF2...") + "36",
 					Companions.GetQuestString(QuestsId.VisitLightTemple),
 					"00"
 				}));
@@ -1196,7 +1196,7 @@ namespace FFMQLib
 			TalkScripts.AddScript((int)TalkScriptsList.FightHeadlessKnight,
 				new ScriptBuilder(new List<string>{
 					"04",
-					"1A54" + TextToHex("The horseman comes! And tonight he comes for you!\nWatch your head!"),
+					"1A54" + MQText.TextToHex("The horseman comes! And tonight he comes for you!\nWatch your head!"),
 					"05E49604",
 					"2B2A",
 					$"23{(int)NewGameFlagsList.ShowDullahanChest:X2}",
@@ -1214,7 +1214,7 @@ namespace FFMQLib
 			TileScripts.AddScript((int)TileScriptsList.MountGaleQuest,
 				new ScriptBuilder(new List<string> {
 					(mountgalequestflag != NewGameFlagsList.None) ? $"2E{(int)mountgalequestflag:X2}[03]" : "00",
-					"1A00" + TextToHex("Feels like something should be here...") + "36",
+					"1A00" + MQText.TextToHex("Feels like something should be here...") + "36",
 					Companions.GetQuestString(QuestsId.VisitMountGale),
 					"00"
 				}));
@@ -1330,12 +1330,12 @@ namespace FFMQLib
 					"2E59[09]",
 					"2F",
 					"050C08[06]",
-					"1A75" + TextToHex("%&?! youngster think you can just take my craik like that? &?!%! Leave this old salt alone!") + "36",
+					"1A75" + MQText.TextToHex("%&?! youngster think you can just take my craik like that? &?!%! Leave this old salt alone!") + "36",
 					"00",
-					"1A75" + TextToHex("My &%!? cap! Alright, you can have her, but you bring her back in one piece, ?!&% skip-jack!") + "36",
+					"1A75" + MQText.TextToHex("My &%!? cap! Alright, you can have her, but you bring her back in one piece, ?!&% skip-jack!") + "36",
 					"2304235923572B7F2B802B58",
 					"00",
-					"1A75" + TextToHex("Gonna hit the bunk now.") + "36",
+					"1A75" + MQText.TextToHex("Gonna hit the bunk now.") + "36",
 					"00"
 				}));
 
@@ -1344,7 +1344,7 @@ namespace FFMQLib
 				new ScriptBuilder(new List<string> {
 					"2E39[07]",
 					"2A14250C27B05520501925FFFF",
-					"1AA7" + TextToHex("... Knights of the Light...\nWe Crystals now entrust you with our power.") + "36",
+					"1AA7" + MQText.TextToHex("... Knights of the Light...\nWe Crystals now entrust you with our power.") + "36",
 					"0829E6",
 					"2339",
 					"2B19",

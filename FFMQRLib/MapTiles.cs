@@ -96,6 +96,7 @@ namespace FFMQLib
 		public byte PropertyByte2 { get; set; }
 		public List<GraphicTileProp> GraphicTiles { get; set; }
 		private List<byte> flipmask = new() { 0x01, 0x02, 0x04, 0x08 };
+		private byte remainingFlipBit;
 		public SingleTile() { }
 		public SingleTile(byte[] tileprop, byte[] graphic, byte hflip)
 		{
@@ -103,9 +104,12 @@ namespace FFMQLib
 			PropertyByte2 = tileprop[1];
 
 			GraphicTiles = new();
-			
+
+			remainingFlipBit = (byte)(hflip & 0xF0);
+
 			for (int i = 0; i < 4; i++)
 			{
+
 				GraphicTiles.Add(new GraphicTileProp(graphic[i], (hflip & flipmask[i]) > 0));
 			}
 		}
@@ -126,6 +130,8 @@ namespace FFMQLib
 			{
 				flipbyte |= GraphicTiles[i].HorizontalFlip ? flipmask[i] : 0x00;
 			}
+
+			flipbyte = (flipbyte | remainingFlipBit);
 
 			return (byte)flipbyte;
 		}

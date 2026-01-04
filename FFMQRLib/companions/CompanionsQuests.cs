@@ -591,7 +591,7 @@ namespace FFMQLib
 			questsScripts.AddScript(new ScriptBuilder(new List<string>()
 			{
 				"2a20542527a054ffff",
-				"1A00" + rom.TextToHex("\n          Quest Completed!") + "36",
+				"1A00" + MQText.TextToHex("\n          Quest Completed!") + "36",
 				"00"
 			}));
 

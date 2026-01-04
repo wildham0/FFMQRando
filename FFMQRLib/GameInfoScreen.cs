@@ -114,7 +114,7 @@ namespace FFMQLib
 
 			// Add Game Info option
 			rom.PutInBank(0x03, 0xAB36, Blob.FromHex("07009110"));
-			rom.PutInBank(0x10, 0x9100, Blob.FromHex(rom.TextToHex("GAMEINFO", true) + "02" + rom.TextToHex("SAVE", true)));
+			rom.PutInBank(0x10, 0x9100, Blob.FromHex(MQText.TextToHex("GAMEINFO", true) + "02" + MQText.TextToHex("SAVE", true)));
 			rom.PutInBank(0x00, 0xBC3F, Blob.FromHex("08"));
 			rom.PutInBank(0x00, 0xBE35, Blob.FromHex("22809010f4e4bdbd4bbe48bd49be487c47be"));
 			rom.PutInBank(0x10, 0x9080, Blob.FromHex("a50229ff000a85640a6564aa640164056b"));
@@ -170,7 +170,7 @@ namespace FFMQLib
 			if (FragmentsCount == 0 && !ShuffledElementsType.Any() && !SpellLearning.Any() && !Quests.Any() && !PazuzuFloorWarning)
 			{
 				string pagescript = $"250C1503{lineoffset:X2}19";
-				pagescript += rom.TextToHex("No info available.", true);
+				pagescript += MQText.TextToHex("No info available.", true);
 				pages.Add(pagescript);
 			}
 
@@ -181,11 +181,11 @@ namespace FFMQLib
 				{
 					pagescript += $"250C2401{lineoffset:X2}1E0318";
 					pagescript += $"1502{lineoffset:X2}19";
-					pagescript += rom.TextToHex("Sky Fragments");
+					pagescript += MQText.TextToHex("Sky Fragments");
 					lineoffset++;
 					pagescript += $"1503{lineoffset:X2}19";
 					pagescript += $"0F930E07C4810305186C0002";
-					pagescript += rom.TextToHex("/" + FragmentsCount.ToString(), true);
+					pagescript += MQText.TextToHex("/" + FragmentsCount.ToString(), true);
 					pagescript += "0F0100"; // restore 9e to current page
 
 					lineoffset += 2;
@@ -195,10 +195,10 @@ namespace FFMQLib
                 {
                     pagescript += $"250C2401{lineoffset:X2}1E0518";
                     pagescript += $"1502{lineoffset:X2}19";
-                    pagescript += rom.TextToHex("Wind Crystal");
+                    pagescript += MQText.TextToHex("Wind Crystal");
                     lineoffset++;
                     pagescript += $"1503{lineoffset:X2}19";
-                    pagescript += rom.TextToHex("Floors are shuffled.\nDefeating Pazuzu won't lift\nyou to the Wind Crystal.", true);
+                    pagescript += MQText.TextToHex("Floors are shuffled.\nDefeating Pazuzu won't lift\nyou to the Wind Crystal.", true);
 
                     lineoffset += 4;
                 }
@@ -207,7 +207,7 @@ namespace FFMQLib
 				{
 					pagescript += $"25102401{lineoffset:X2}1E0618";
 					pagescript += $"1502{lineoffset:X2}19";
-					pagescript += rom.TextToHex("Resists & Weaknesses", true);
+					pagescript += MQText.TextToHex("Resists & Weaknesses", true);
 					lineoffset++;
 					pagescript += $"1503{lineoffset:X2}19";
 
@@ -246,7 +246,7 @@ namespace FFMQLib
 				for (int i = 0; i < pages.Count; i++)
 				{
 					pages[i] += "250C15191519";
-					pages[i] += rom.TextToHex((i + 1).ToString() + "/" + pages.Count.ToString() + " ") + "DC";
+					pages[i] += MQText.TextToHex((i + 1).ToString() + "/" + pages.Count.ToString() + " ") + "DC";
 				}
 			}
 
@@ -274,12 +274,12 @@ namespace FFMQLib
 			// name box
 			pagescript += $"240101{(companionnames[companion].Length+2):X2}0318";
 			pagescript += $"250C15020219";
-			pagescript += rom.TextToHex(companionnames[companion], true);
+			pagescript += MQText.TextToHex(companionnames[companion], true);
 
 			// Spell window
 			pagescript += $"25102401041E0518";
 			pagescript += $"15020419";
-			pagescript += rom.TextToHex("Spells", true);
+			pagescript += MQText.TextToHex("Spells", true);
 
 			// Position cursor
 			pagescript += $"15020519";
@@ -303,7 +303,7 @@ namespace FFMQLib
 
 				line1 += currentspellsprite[0];
 				line2 += currentspellsprite[1];
-				line3 += rom.TextToHex(spell.level.ToString().PadLeft(2), true);
+				line3 += MQText.TextToHex(spell.level.ToString().PadLeft(2), true);
 
 				xcount++;
 				if (xcount >= 10)
@@ -332,11 +332,11 @@ namespace FFMQLib
 				pagescript += $"250C2401091E0E18";
 				pagescript += $"250C15020919";
 
-				pagescript += rom.TextToHex("Quests\n\n");
+				pagescript += MQText.TextToHex("Quests\n\n");
 
 				foreach (var quest in selectedquests)
 				{
-					pagescript += $"053B{(int)quest.flag:X2}09B09010" + rom.TextToHex(questcount + "." + quest.description + "\n");
+					pagescript += $"053B{(int)quest.flag:X2}09B09010" + MQText.TextToHex(questcount + "." + quest.description + "\n");
 					questcount++;
 				}
 			}

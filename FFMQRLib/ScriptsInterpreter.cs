@@ -615,7 +615,7 @@ namespace FFMQLib
                 if (command < 0x30 && stringOfLetters)
                 {
                     stringOfLetters = false;
-                    Lines.Add((addressOfLetters, $"  PRINT " + Rom.BytesToText(byteList.SubBlob(currentbyte - stringOfLettersLength, stringOfLettersLength))));
+                    Lines.Add((addressOfLetters, $"  PRINT " + MQText.BytesToText(byteList.SubBlob(currentbyte - stringOfLettersLength, stringOfLettersLength))));
                 }
 
 

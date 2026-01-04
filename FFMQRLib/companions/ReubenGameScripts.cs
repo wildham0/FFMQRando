@@ -41,7 +41,7 @@ namespace FFMQLib
 				TalkScripts.AddScript((int)TalkScriptsList.ReubenFireburg,
 					new ScriptBuilder(new List<string>
 					{
-						TextToHex($"Help you? Oh! Uh... Oh no! My {rng.PickFrom(reubenDiseaseList)} is acting up! Arrgh, the pain... No? Alright...") + "36",
+						MQText.TextToHex($"Help you? Oh! Uh... Oh no! My {rng.PickFrom(reubenDiseaseList)} is acting up! Arrgh, the pain... No? Alright...") + "36",
 						"0F8B0E",       // get facing position
 						"057C00[11]",   // looking up
 						"057C01[12]",   // looking right
@@ -88,7 +88,7 @@ namespace FFMQLib
 						$"050f{(int)CompanionsId.Reuben:X2}[08]",
 						$"050B{(int)NewGameFlagsList.ReubenMineItemGiven:X2}[08]",
 						$"2A3{reubensceneid:X1}461{reubensceneid:X1}431{reubensceneid:X1}443054FFFF",
-						"1A50" + TextToHex("Whew. I'm exhausted. Let's never go back to the Mine again.") + "36",
+						"1A50" + MQText.TextToHex("Whew. I'm exhausted. Let's never go back to the Mine again.") + "36",
 						Companions.GetQuestString(QuestsId.VisitMine),
 						$"2A1{reubensceneid:X1}414{reubensceneid:X1}46FFFF",
 						"00",
@@ -99,10 +99,10 @@ namespace FFMQLib
 					{
 						"04",
 						(reubenquest != NewGameFlagsList.None) ? $"2E{(int)reubenquest:X2}[05]" : "0A[05]",
-						$"1A{(int)TalkScriptsList.ReubenFireburg2:X2}" + TextToHex("Whew. That was exhausting. Let's never go back to the Mine again.") + "36",
+						$"1A{(int)TalkScriptsList.ReubenFireburg2:X2}" + MQText.TextToHex("Whew. That was exhausting. Let's never go back to the Mine again.") + "36",
 						Companions.GetQuestString(QuestsId.VisitMine),
 						"00",
-                        $"1A{(int)TalkScriptsList.ReubenFireburg2:X2}" + TextToHex(rng.PickFrom(reubenJoinDialogueList)) + "36",
+                        $"1A{(int)TalkScriptsList.ReubenFireburg2:X2}" + MQText.TextToHex(rng.PickFrom(reubenJoinDialogueList)) + "36",
 						$"2A1{reuben2id:X1}434{reuben2id:X1}46FFFF",
 						CompanionSwitchRoutine,
 						$"05E6{(int)CompanionsId.Reuben:X2}075B8503",
@@ -116,7 +116,7 @@ namespace FFMQLib
 				TalkScripts.AddScript((int)TalkScriptsList.ReubenFireburg,
 					new ScriptBuilder(new List<string>
 					{
-						TextToHex($"Help you? Oh! Uh... I guess hiking a bit will help with my {rng.PickFrom(reubenDiseaseList)}. On to the Mine.") + "36",
+						MQText.TextToHex($"Help you? Oh! Uh... I guess hiking a bit will help with my {rng.PickFrom(reubenDiseaseList)}. On to the Mine.") + "36",
 						reubendata.GetWalkOutScript(),
 						$"23{(int)NewGameFlagsList.ShowMineReuben:X2}2B{(int)NewGameFlagsList.ShowFireburgReuben1:X2}", // update tristam flag
 						"00",
@@ -136,11 +136,11 @@ namespace FFMQLib
 					{
 						"04",
 						$"2E{(int)NewGameFlagsList.ReubenMineItemGiven:X2}[06]",
-						$"1a{(int)TalkScriptsList.ReubenMine:X2}" + TextToHex("Ugh, my feet are killing me! Do me a favor and hold this on the way back. It's weighting a ton!"),
+						$"1a{(int)TalkScriptsList.ReubenMine:X2}" + MQText.TextToHex("Ugh, my feet are killing me! Do me a favor and hold this on the way back. It's weighting a ton!"),
 						$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeFallBasin]:X2}0162",
 						$"23{(int)NewGameFlagsList.ReubenMineItemGiven:X2}23{(int)NewGameFlagsList.ShowFireburgReuben2:X2}2B{(int)NewGameFlagsList.ShowMineReuben:X2}",
 						"00",
-						$"1a{(int)TalkScriptsList.ReubenMine:X2}" + TextToHex("You wouldn't give me a lift back to Fireburg, eh? Right, right..."),
+						$"1a{(int)TalkScriptsList.ReubenMine:X2}" + MQText.TextToHex("You wouldn't give me a lift back to Fireburg, eh? Right, right..."),
 						"00"
 					}));
 
@@ -164,7 +164,7 @@ namespace FFMQLib
 				TalkScripts.AddScript((int)TalkScriptsList.ReubenFireburg2,
 					new ScriptBuilder(new List<string>
 					{
-						TextToHex(rng.PickFrom(reubenJoinDialogueList)) + "36",
+						MQText.TextToHex(rng.PickFrom(reubenJoinDialogueList)) + "36",
 						"00"
 					}));
 			}
