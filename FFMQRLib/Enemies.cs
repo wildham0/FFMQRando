@@ -1,50 +1,17 @@
 ﻿using RomUtilities;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using System.IO;
-using System.Diagnostics;
 using System.ComponentModel;
-using static System.Math;
 using System.Data.SqlTypes;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using YamlDotNet.Core.Tokens;
+using static System.Math;
 
 namespace FFMQLib
 {
-
-	public enum EnemiesScaling : int
-	{
-		[Description("25%")]
-		Quarter = 0,
-		[Description("50%")]
-		Half,
-		[Description("75%")]
-		ThreeQuarter,
-		[Description("100%")]
-		Normal,
-		[Description("125%")]
-		OneAndQuarter,
-		[Description("150%")]
-		OneAndHalf,
-		[Description("200%")]
-		Double,
-		[Description("250%")]
-		DoubleAndHalf,
-		[Description("300%")]
-		Triple,
-	}
-	public enum EnemiesScalingSpread : int
-	{
-		[Description("0%")]
-		None = 0,
-		[Description("25%")]
-		Quarter,
-		[Description("50%")]
-		Half,
-		[Description("100%")]
-		Full,
-	}
-
 	public enum ElementsType
 	{ 
 		Silence = 0x0001,
@@ -89,9 +56,9 @@ namespace FFMQLib
 		};
 	}
 
-	public class EnemiesStats
+	public class Enemies
 	{
-		private List<Enemy> _enemies;
+		public Dictionary<EnemyIds, Enemy> Data { get; }
 		
 		private const int EnemiesStatsQty = 0x53;
 
@@ -99,181 +66,46 @@ namespace FFMQLib
 		private const int levelMultDataOffset = 0xC17C;
 		private const int levelMultDataSize = 0x03;
 
-
 		private const int enemiesStatsOffset = 0xC275;
 		private const int enemiesStatsBank = 0x02;
 		private const int enemiesStatsLength = 0x0e;
 
-		//public Dictionary<EnemyFormationIds, PowerLevels> FormationPowers { get; set; }
-		public Dictionary<AccessReqs, AccessReqs> BossesPower;
-		public Dictionary<LocationIds, AccessReqs> BattlefieldsPower;
+		private const int graphicDataOffset = 0x8460;
+		private const int graphicDataBank = 0x09;
+		private const int graphicDataLength = 0x05;
+		private const int graphicDataQty = 0x51;
 
-		public EnemiesStats(FFMQRom rom)
+		private const int namesOffset = 0xCBA0;
+		private const int namesBank = 0x0C;
+		private const int namesLength = 0x10;
+		private const int namesQty = 0x51;
+
+		public Enemies(FFMQRom rom)
 		{
-
-			BossesPower = new();
-			BattlefieldsPower = new();
-
-			_enemies = new List<Enemy>();
+			Data = new();
 
 			for (int i = 0; i < EnemiesStatsQty; i++)
 			{
-				_enemies.Add(
+				Data.Add((EnemyIds)i,
 					new Enemy(i,
 						rom.GetFromBank(levelMultDataBank, levelMultDataOffset + (i * levelMultDataSize), levelMultDataSize),
-						rom.GetFromBank(enemiesStatsBank, enemiesStatsOffset + (i * enemiesStatsLength), enemiesStatsLength)
+						rom.GetFromBank(enemiesStatsBank, enemiesStatsOffset + (i * enemiesStatsLength), enemiesStatsLength),
+						rom.GetFromBank(graphicDataBank, graphicDataOffset + (Min(i, (graphicDataQty - 1)) * graphicDataLength), graphicDataLength),
+						rom.GetFromBank(namesBank, namesOffset + (Min(i, (namesQty - 1)) * namesLength), namesLength)
 						)
 					);
 			}
 		}
-		public Enemy this[int id]
-		{
-			get => _enemies[id];
-			set => _enemies[id] = value;
-		}
-		public IList<Enemy> Enemies()
-		{
-			return _enemies.AsReadOnly();
-		}
 		public void Write(FFMQRom rom)
 		{
-			foreach (Enemy e in _enemies)
-			{
-				rom.PutInBank(enemiesStatsBank, enemiesStatsOffset, _enemies.SelectMany(e => e.GetStatsBytes()).ToArray());
-				rom.PutInBank(levelMultDataBank, levelMultDataOffset, _enemies.SelectMany(e => e.GetLevelMultBytes()).ToArray());
-			}
+			rom.PutInBank(enemiesStatsBank, enemiesStatsOffset, Data.SelectMany(e => e.Value.GetStatsBytes()).ToArray());
+			rom.PutInBank(levelMultDataBank, levelMultDataOffset, Data.SelectMany(e => e.Value.GetLevelMultBytes()).ToArray());
+			rom.PutInBank(graphicDataBank, graphicDataOffset, Data.Where(e => (int)e.Value.Id < graphicDataQty).SelectMany(e => e.Value.GetGraphicDataBytes()).ToArray());
+			rom.PutInBank(namesBank, namesOffset, Data.Where(e => (int)e.Value.Id < namesQty).SelectMany(e => e.Value.GetNameBytes()).ToArray());
 		}
-		private byte ScaleStat(byte value, int scaling, int spread, MT19337 rng)
+		public IList<Enemy> ToList()
 		{
-			int randomizedScaling = scaling;
-			if (spread != 0)
-			{
-				int max = scaling + spread;
-				int min = Max(25, scaling - spread);
-
-				randomizedScaling = (int)Exp(((double)rng.Next() / uint.MaxValue) * (Log(max) - Log(min)) + Log(min));
-			}
-			return (byte)Min(0xFF, Max(0x01, value * randomizedScaling / 100));
-		}
-		private ushort ScaleHP(ushort value, int scaling, int spread, MT19337 rng)
-		{
-			int randomizedScaling = scaling;
-			if (spread != 0)
-			{
-				int max = scaling + spread;
-				int min = Max(25, scaling - spread);
-
-				randomizedScaling = (int)Exp(((double)rng.Next() / uint.MaxValue) * (Log(max) - Log(min)) + Log(min));
-			}
-			return (ushort)Min(0xFFFF, Max(0x01, value * randomizedScaling / 100));
-		}
-		public void ShuffleResistWeakness(bool shuffle, GameInfoScreen info, MT19337 rng)
-		{
-			if (!shuffle)
-			{
-				return;
-			}
-			
-			var allList = Enum.GetValues<ElementsType>().ToList();
-			var elementsMainList = allList.Where(x => (int)x > 0x00FF).ToList();
-			var statusMainList = allList.Where(x => (int)x < 0x0100).ToList();
-			var elementsShuffledList = elementsMainList.ToList();
-			var statusShuffledList = statusMainList.ToList();
-
-			elementsShuffledList.Shuffle(rng);
-			statusShuffledList.Shuffle(rng);
-
-			var elementsPairList = elementsMainList.Select((e, i) => (e, elementsShuffledList[i])).ToList();
-			var statusPairList = statusMainList.Select((e, i) => (e, statusShuffledList[i])).ToList();
-
-			var allPairList = statusPairList.Concat(elementsPairList).ToList();
-
-			foreach (var enemy in _enemies)
-			{
-				List<ElementsType> newweaks = allPairList.Where(w => enemy.Weaknesses.Contains(w.Item1)).Select(w => w.Item2).ToList();
-				List<ElementsType> newresists = allPairList.Where(w => enemy.Resistances.Contains(w.Item1)).Select(w => w.Item2).ToList();
-
-				enemy.Weaknesses = newweaks.ToList();
-				enemy.Resistances = newresists.ToList();
-			}
-
-			info.ShuffledElementsType = allPairList;
-		}
-		public void NerfBosses(bool enemizer)
-		{
-			if (!enemizer)
-			{
-				return;
-			}
-
-			// Wyvern
-			_enemies[0x4D].Attack -= 50;
-			_enemies[0x4D].Magic -= 100;
-
-			// Zuh
-			_enemies[0x4F].Attack -= 50;
-		}
-		public void ScaleEnemies(Flags flags, MT19337 rng)
-		{
-			NerfBosses((flags.EnemizerGroups != EnemizerGroups.MobsOnly) && (flags.EnemizerAttacks != EnemizerAttacks.Normal));
-
-			List<int> enemiesId = Enumerable.Range(0, 0x40).ToList();
-			List<int> bossesId  = Enumerable.Range(0x40, EnemiesStatsQty - enemiesId.Count).ToList();
-
-			ScaleStats(flags.EnemiesScalingLower, flags.EnemiesScalingUpper, enemiesId, rng);
-			ScaleStats(flags.BossesScalingLower, flags.BossesScalingUpper, bossesId, rng);
-		}
-		public void ScaleStats(EnemiesScaling lowerboundscaling, EnemiesScaling upperboundscaling, List<int> validEnemies, MT19337 rng)
-		{
-			int lowerbound = 100;
-			int upperbound = 100;
-
-			switch (lowerboundscaling)
-			{
-				case EnemiesScaling.Quarter: lowerbound = 25; break;
-				case EnemiesScaling.Half: lowerbound = 50; break;
-				case EnemiesScaling.ThreeQuarter: lowerbound = 75; break;
-				case EnemiesScaling.Normal: lowerbound = 100; break;
-				case EnemiesScaling.OneAndQuarter: lowerbound = 125; break;
-				case EnemiesScaling.OneAndHalf: lowerbound = 150; break;
-				case EnemiesScaling.Double: lowerbound = 200; break;
-				case EnemiesScaling.DoubleAndHalf: lowerbound = 250; break;
-				case EnemiesScaling.Triple: lowerbound = 300; break;
-			}
-
-			switch (upperboundscaling)
-			{
-				case EnemiesScaling.Quarter: upperbound = 25; break;
-				case EnemiesScaling.Half: upperbound = 50; break;
-				case EnemiesScaling.ThreeQuarter: upperbound = 75; break;
-				case EnemiesScaling.Normal: upperbound = 100; break;
-				case EnemiesScaling.OneAndQuarter: upperbound = 125; break;
-				case EnemiesScaling.OneAndHalf: upperbound = 150; break;
-				case EnemiesScaling.Double: upperbound = 200; break;
-				case EnemiesScaling.DoubleAndHalf: upperbound = 250; break;
-				case EnemiesScaling.Triple: upperbound = 300; break;
-			}
-
-			if (upperbound < lowerbound)
-			{
-				upperbound = lowerbound;
-			}
-
-			int spread = (upperbound - lowerbound) / 2;
-			int scaling = lowerbound + spread;
-
-			List<Enemy> selectedEnemies = _enemies.Where((x, i) => validEnemies.Contains(i)).ToList();
-
-			foreach (Enemy e in selectedEnemies)
-			{
-				e.HP = ScaleHP(e.HP, scaling, spread, rng);
-				e.Attack = ScaleStat(e.Attack, scaling, spread, rng);
-				e.Defense = ScaleStat(e.Defense, scaling, spread, rng);
-				e.Speed = Max((byte)0x03, ScaleStat(e.Speed, scaling, spread, rng));
-				e.Magic = ScaleStat(e.Magic, scaling, spread, rng);
-				e.Accuracy = ScaleStat(e.Accuracy, scaling, spread, rng);
-				e.Evade = ScaleStat(e.Evade, scaling, spread, rng);
-			}
+			return Data.Select(e => e.Value).ToList().AsReadOnly();
 		}
 	}
 	public class Enemy
@@ -292,11 +124,20 @@ namespace FFMQLib
 		public byte GpMultiplier { get; set; }
 		public List<ElementsType> Resistances { get; set; }
 		public List<ElementsType> Weaknesses { get; set; }
+		public byte Palette1 { get; set; }
+		public byte Palette2 { get; set; }
+		public string Name { get; set; }
+		public EnemizerElements Element { get; set; }
+
+		private byte[] graphicData;
+
 		private byte spByte;
+
+
 
 		public EnemyIds Id;
 
-		public Enemy(int id, byte[] levelmult, byte[] statsdata)
+		public Enemy(int id, byte[] levelmult, byte[] statsdata, byte[] graphicdata, byte[] name)
 		{
 			Id = (EnemyIds)id;
 			HP = (ushort)(statsdata[0x01] * 0x100 + statsdata[0x00]);
@@ -337,11 +178,34 @@ namespace FFMQLib
 					Weaknesses.Add(element);
 				}
 			}
+			graphicData = graphicdata[0..3];
+
+			Palette1 = graphicdata[3];
+			Palette2 = graphicdata[4];
+
+			Name = MQText.BytesToText(name).TrimEnd('_');
+			Element = EnemizerElements.None;
 		}
 		public byte[] GetLevelMultBytes()
 		{
 			return new byte[] { Level, XpMultiplier, GpMultiplier };
 		}
+		public byte[] GetGraphicDataBytes()
+		{
+			return graphicData.Concat(new byte[] { Palette1, Palette2 }).ToArray();
+		}
+		public byte[] GetNameBytes()
+		{
+
+			string nametrail = Name.PadRight(0x10, '_');
+			if (nametrail.Length > 0x10)
+			{
+				nametrail = nametrail.Substring(0, 0x10);
+			}
+
+			return MQText.TextToByte(nametrail, false);
+		}
+
 		public byte[] GetStatsBytes()
 		{
 			byte[] _rawBytes = new byte[0x0E];
@@ -452,6 +316,26 @@ namespace FFMQLib
 		public void Write(FFMQRom rom)
 		{
 			rom.PutInBank(formationsBank, formationsOffset, Formations.SelectMany(f => f.Value.GetBytes()).ToArray());
+		}
+	}
+
+	public class EnemyPalettes
+	{
+		private const int paletteBank = 0x09;
+		private const int paletteOffset = 0x8000;
+		private const int paletteSize = 0x10;
+		private const int paletteQty = 0x40;
+
+		public Dictionary<int, Palette> Data;
+
+		public EnemyPalettes(FFMQRom rom)
+		{ 
+			Data = rom.GetFromBank(paletteBank, paletteOffset, paletteSize * paletteQty).Chunk(paletteSize).Select((p, i) => (i, new Palette(p))).ToDictionary(p => p.i, p => p.Item2);
+		}
+
+		public void Write(FFMQRom rom)
+		{
+			rom.PutInBank(paletteBank, paletteOffset, Data.SelectMany(f => f.Value.GetBytes()).ToArray());
 		}
 	}
 }

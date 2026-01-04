@@ -111,7 +111,7 @@ namespace FFMQLib
 						$"0506{skycointqty:X2}[04]",
 						"232F2B33",
 						"050202FC03",
-						"1A06" + TextToHex($"You need {skycointqty} Sky Coin pieces to open this door.") + "36",
+						"1A06" + MQText.TextToHex($"You need {skycointqty} Sky Coin pieces to open this door.") + "36",
 						"00"
 					});
 				
@@ -151,7 +151,7 @@ namespace FFMQLib
 				}));
 
 			var newMysteriousManScript = new ScriptBuilder(new List<string> {
-						"1A09" + TextToHex(dialogue) + "36",
+						"1A09" + MQText.TextToHex(dialogue) + "36",
 						"2B6C",
 						"0502E9FE03"
 					});

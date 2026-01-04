@@ -17,7 +17,7 @@ namespace FFMQLib
                 TalkScripts.AddScript((int)TalkScriptsList.PhoebeLibraTemple,
                     new ScriptBuilder(new List<string>
                     {
-                        TextToHex("Sure, you can be my sidekick, just don't do anything stupid. I'm the heroine here!") + "36",
+						MQText.TextToHex("Sure, you can be my sidekick, just don't do anything stupid. I'm the heroine here!") + "36",
                         "0F8B0E",       // get facing position
 						"057C00[11]",   // looking up
 						"057C01[12]",   // looking right
@@ -43,7 +43,7 @@ namespace FFMQLib
                         $"2e{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[07]",
                         $"050f{(int)CompanionsId.Phoebe:X2}[07]",
                         "2a3046104310443054ffff",
-                        "1a8a" + TextToHex("Good job not being a clutz and falling down like an idiot! I guess that calls for a reward..."),
+                        "1a8a" + MQText.TextToHex("Good job not being a clutz and falling down like an idiot! I guess that calls for a reward..."),
                         $"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeWintryCave]:X2}0162",
                         "2a10414046ffff", // 24ff > d3fe
 						$"23{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}",
@@ -59,10 +59,10 @@ namespace FFMQLib
                     {
                         "04",
                         (phoebequest != NewGameFlagsList.None) ? $"2E{(int)phoebequest:X2}[05]" : "0A[05]",
-                        $"1A{(int)TalkScriptsList.PhoebeInAquaria:X2}" + TextToHex("Well, you did survive the Wintry Cave, go rest a bit before we go to Doom Castle.") + "36",
+                        $"1A{(int)TalkScriptsList.PhoebeInAquaria:X2}" + MQText.TextToHex("Well, you did survive the Wintry Cave, go rest a bit before we go to Doom Castle.") + "36",
                         Companions.GetQuestString(QuestsId.VisitWintryCave),
                         "00",
-                        $"1A{(int)TalkScriptsList.PhoebeInAquaria:X2}" + TextToHex("Finally, my quest to slay the Dark King is coming to an end! Come, my assistant.") + "36",
+                        $"1A{(int)TalkScriptsList.PhoebeInAquaria:X2}" + MQText.TextToHex("Finally, my quest to slay the Dark King is coming to an end! Come, my assistant.") + "36",
                         "2C1243",
                         "2C4246",
                         CompanionSwitchRoutine,
@@ -89,7 +89,7 @@ namespace FFMQLib
                         $"050f{(int)CompanionsId.Phoebe:X2}[08]",
                         $"050B{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[08]",
                         "2A3346134313443054FFFF",
-                        "1A50" + TextToHex("Well, you did survive the Wintry Cave, you can rest a bit before we go to Doom Castle.") + "36",
+                        "1A50" + MQText.TextToHex("Well, you did survive the Wintry Cave, you can rest a bit before we go to Doom Castle.") + "36",
                         Companions.GetQuestString(QuestsId.VisitWintryCave),
                         "2A13414346FFFF",
                         "00",
@@ -100,7 +100,7 @@ namespace FFMQLib
                 TalkScripts.AddScript((int)TalkScriptsList.PhoebeLibraTemple,
                     new ScriptBuilder(new List<string>
                     {
-                        TextToHex("Sure, you can be my sidekick, just don't fall behind. Come, to the Wintry Cave!") + "36",
+						MQText.TextToHex("Sure, you can be my sidekick, just don't fall behind. Come, to the Wintry Cave!") + "36",
                         phoebedata.GetWalkOutScript(),
                         $"23{(int)NewGameFlagsList.ShowWintryCavePhoebe:X2}2B{(int)NewGameFlagsList.ShowLibraTemplePhoebe:X2}", // update tristam flag
 						"00",
@@ -128,11 +128,11 @@ namespace FFMQLib
                     {
                         "04",
                         $"2E{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}[06]",
-                        $"1a{(int)TalkScriptsList.PhoebeWintryCave:X2}" + TextToHex("Can you be slower? Here, I already found this while you were dallying around."),
+                        $"1a{(int)TalkScriptsList.PhoebeWintryCave:X2}" + MQText.TextToHex("Can you be slower? Here, I already found this while you were dallying around."),
                         $"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeWintryCave]:X2}0162",
                         $"23{(int)NewGameFlagsList.PhoebeWintryItemGiven:X2}23{(int)NewGameFlagsList.ShowWindiaPhoebe:X2}2B{(int)NewGameFlagsList.ShowWintryCavePhoebe:X2}",
                         "00",
-                        $"1a{(int)TalkScriptsList.PhoebeWintryCave:X2}" + TextToHex("I'm ready to face Dark King, I'm going back to my base of operations in Windia.") + "3600",
+                        $"1a{(int)TalkScriptsList.PhoebeWintryCave:X2}" + MQText.TextToHex("I'm ready to face Dark King, I'm going back to my base of operations in Windia.") + "3600",
                     }));
 
                 // Windia INN
@@ -140,7 +140,7 @@ namespace FFMQLib
                 TalkScripts.AddScript((int)TalkScriptsList.PhoebeInAquaria,
                     new ScriptBuilder(new List<string>
                     {
-                        TextToHex("Finally, my quest to slay the Dark King is coming to an end!") + "36",
+                        MQText.TextToHex("Finally, my quest to slay the Dark King is coming to an end!") + "36",
                         "00"
                     }));
 

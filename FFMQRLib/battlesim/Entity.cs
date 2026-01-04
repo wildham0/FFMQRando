@@ -449,7 +449,7 @@ namespace FFMQLib
 			IsBoss = enemy.Id > EnemyIds.Minotaur || (enemy.Id == EnemyIds.StoneGolem) || (enemy.Id == EnemyIds.SkullrusRex);
 			Recovered = false;
 			Team = Teams.TeamB;
-			weightedScript = scriptsWeight[scripts[(int)enemy.Id].AttackPattern].ToList();
+			weightedScript = scriptsWeight[scripts.Data[enemy.Id].AttackPattern].ToList();
 
 			AiProfile =	AiProfiles.Enemy;
 
@@ -486,7 +486,7 @@ namespace FFMQLib
 
 
 			var stongolemlist = new List<int> { 0xB2, 0x88, 0xB7, 0xFF, 0xFF, 0xFF };
-			Actions = scripts[(int)enemy.Id].Attacks.Select(a => Battle.BattleActions[(int)a]).ToList();
+			Actions = scripts.Data[enemy.Id].Attacks.Select(a => Battle.BattleActions[(int)a]).ToList();
 			//Actions = stongolemlist.Select(a => Battle.BattleActions[a]).ToList();
 			if (enemy.Id == EnemyIds.IceGolem)
 			{
@@ -686,14 +686,14 @@ namespace FFMQLib
 			if (DkMode == DkModes.Phase1 && Hp < (MaxHp * 0.75))
 			{
 				DkMode = DkModes.Phase2;
-				Actions = Scripts[(int)EnemyIds.DarkKing + 1].Attacks.Select(a => Battle.BattleActions[(int)a]).ToList();
+				Actions = Scripts.Data[EnemyIds.DarkKing + 1].Attacks.Select(a => Battle.BattleActions[(int)a]).ToList();
 				//Actions = new() { Battle.BattleActions[0xCD], Battle.BattleActions[0xCC], Battle.BattleActions[0xCB], Battle.BattleActions[0xCF], Battle.BattleActions[0xCE], Battle.BattleActions[0xD0] };
 				weightedScript = new() { 0x14, 0x14, 0x14, 0x94, 0x0A, 0x0A };
 			}
 			else if (DkMode == DkModes.Phase2 && Hp < (MaxHp * 0.5))
 			{
 				DkMode = DkModes.Phase34;
-				Actions = Scripts[(int)EnemyIds.DarkKing + 2].Attacks.Select(a => Battle.BattleActions[(int)a]).ToList();
+				Actions = Scripts.Data[EnemyIds.DarkKing + 2].Attacks.Select(a => Battle.BattleActions[(int)a]).ToList();
 				//Actions = new() { Battle.BattleActions[0xD1], Battle.BattleActions[0xD2], Battle.BattleActions[0xD3], Battle.BattleActions[0xD4], Battle.BattleActions[0xD5], Battle.BattleActions[0xD6] };
 				weightedScript = new() { 0x14, 0x14, 0x8C, 0x0C, 0x12, 0x12 };
 			}

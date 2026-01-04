@@ -68,6 +68,10 @@ namespace FFMQLib
 		{
 			Colors = palette.Chunk(2).Select(x => new SnesColor(x)).ToList();
 		}
+		public Palette(List<SnesColor> colors)
+		{
+			Colors = colors;
+		}
 		public byte[] GetBytes()
 		{
 			return Colors.SelectMany(x => x.GetBytes()).ToArray();
@@ -78,7 +82,7 @@ namespace FFMQLib
 		public List<Palette> Palettes { get; set; }
 		public const int MapPalettesBank = 0x05;
 		public const int MapPalettesOffset = 0x8000;
-		public const int MapPalettesQty = 0x8000;
+		public const int MapPalettesQty = 0x19;
 		public const int NewMapPalettesBank = 0x12;
 		public const int NewMapPalettesOffset = 0xD000;
 		public const int HillOfDestinyPaletteBank = 0x07;
