@@ -17,7 +17,7 @@ namespace FFMQLib
 		// Z = Patch Release
 		// Increment Beta on every new builds, reset to zero on version increase
 		public static string Version = "1.7.0";
-		public static string Build = "07";
+		public static string Build = "08";
 		public static string BetaVersionShort => Version + "-b" + Build;
 		public static string BetaVersionLong => Version + "-beta" + Build;
 	}
@@ -34,8 +34,10 @@ namespace FFMQLib
 		public Teleporters Teleporters;
 		public MapSprites MapSpriteSets;
 		public EnemyAttackLinks EnemyAttackLinks;
+		public Enemizer Enemizer;
 		public Attacks Attacks;
-		public EnemiesStats EnemiesStats;
+		public Enemies Enemies;
+		public EnemyPalettes EnemyPalettes;
 		public FormationsData FormationsData;
 		public GameLogic GameLogic;
 		public EntrancesData EntrancesData;
@@ -72,7 +74,8 @@ namespace FFMQLib
 			asyncrng = new MT19337((uint)Guid.NewGuid().GetHashCode());
 
 			Attacks = new(this);
-			EnemiesStats = new(this);
+			Enemies = new(this);
+			EnemyPalettes = new(this);
 			FormationsData = new(this);
 			EnemyAttackLinks = new(this);
 			GameMaps = new(this);
@@ -90,6 +93,7 @@ namespace FFMQLib
 			MapPalettes = new(this);
 			Companions = new(flags.CompanionLevelingType);
 			GameInfoScreen = new();
+			Enemizer = new(Enemies, EnemyAttackLinks, FormationsData, EnemyPalettes);
 
 			Credits credits = new(this);
 			TitleScreen titleScreen = new(this);
@@ -111,9 +115,15 @@ namespace FFMQLib
 			// Enemies
 			MapObjects.SetEnemiesDensity(flags.EnemiesDensity, rng);
 			MapObjects.ShuffleEnemiesPosition(flags.ShuffleEnemiesPosition, GameMaps, rng);
-			EnemiesStats.ScaleEnemies(flags, rng);
-			EnemiesStats.ShuffleResistWeakness(flags.ShuffleResWeakType, GameInfoScreen, rng);
-			EnemyAttackLinks.ShuffleAttacks(flags, EnemiesStats, FormationsData, rng);
+			Enemizer.Process(flags, GameInfoScreen, rng);
+			//Enemizer.Generate(flags.EnemizerAttacks == EnemizerAttacks.Elemental, flags.EnemizerGroups, flags.ProgressiveEnemizer, rng);
+			//EnemyAttackLinks.ShuffleAttacks(flags, Enemies, FormationsData, EnemizerElemental, rng);
+
+			//Enemies.ScaleEnemies(flags, rng);
+			//Enemies.ShuffleResistWeakness(flags.ShuffleResWeakType, GameInfoScreen, rng);
+			//Enemies.UpdateNames(EnemizerElemental.ElementalEnemies, rng);
+			//Enemies.UpdatePalettes(EnemizerElemental.ElementalEnemies, EnemyPalettes, rng);
+
 
 			// Companions
 			GameLogic.CompanionsShuffle(flags.CompanionsLocations, flags.KaelisMomFightMinotaur, apconfigs, rng);
@@ -135,7 +145,7 @@ namespace FFMQLib
 			Overworld.UpdateOverworld(flags, GameLogic, Battlefields);
 
 			// Logic
-			GameLogic.CrawlRooms(flags, Overworld, EnemiesStats, Companions, Battlefields);
+			GameLogic.CrawlRooms(flags, Overworld, Enemizer, Companions, Battlefields);
 			EntrancesData.UpdateCrests(flags, TileScripts, GameMaps, GameLogic, Teleporters.TeleportersLong, this);
 			EntrancesData.UpdateEntrances(flags, GameLogic.Rooms, rng);
 
@@ -178,8 +188,9 @@ namespace FFMQLib
 			// Write everything back			
 			itemsPlacement.WriteChests(this);
 			EnemyAttackLinks.Write(this);
+			EnemyPalettes.Write(this);
 			Attacks.Write(this);
-			EnemiesStats.Write(this);
+			Enemies.Write(this);
 			GameMaps.Write(this);
 			MapChanges.Write(this);
 			Teleporters.Write(this);

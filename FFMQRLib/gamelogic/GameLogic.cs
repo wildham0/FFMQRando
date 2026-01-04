@@ -105,7 +105,7 @@ namespace FFMQLib
 			return yaml;
 		}
 
-		public void CrawlRooms(Flags flags, Overworld overworld, EnemiesStats enemies, Companions companions, Battlefields battlefields)
+		public void CrawlRooms(Flags flags, Overworld overworld, Enemizer enemizer, Companions companions, Battlefields battlefields)
 		{
 			// Initialization
 			accessQueue = new();
@@ -277,7 +277,7 @@ namespace FFMQLib
 				windiaBosses.Add(AccessReqs.DualheadHydra);
 			}
 
-			foreach (var boss in enemies.BossesPower)
+			foreach (var boss in enemizer.BossesPower)
 			{
 				if (GameObjects.TryFind(o => o.OnTrigger.Contains(boss.Key), out var foundboss))
 				{
@@ -285,7 +285,7 @@ namespace FFMQLib
 				}
 			}
 
-			foreach (var battlefield in enemies.BattlefieldsPower)
+			foreach (var battlefield in enemizer.BattlefieldsPower)
 			{
 				if (GameObjects.TryFind(o => o.Location == battlefield.Key, out var foundbattlefield))
 				{

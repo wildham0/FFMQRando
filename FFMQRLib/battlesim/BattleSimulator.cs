@@ -84,12 +84,12 @@ namespace FFMQLib
 		private List<int> winsA;
 		private List<int> winsB;
 		private CompanionsId currentCompanion;
-		private EnemiesStats enemies;
+		private Enemies enemies;
 		private EnemyAttackLinks scripts;
 		//private Dictionary<string, (int half, int quarter, int zero)> resultsTracker;
 		private List<(List<string> attacks, int percent)> resultsTracker;
 
-		public Battle(EnemiesStats _enemies, EnemyAttackLinks _scripts, MT19337 rng)
+		public Battle(Enemies _enemies, EnemyAttackLinks _scripts, MT19337 rng)
 		{
 			Rng = rng;
 			SimLog = new Logger();
@@ -142,11 +142,11 @@ namespace FFMQLib
 
 				foreach (var enemy in Battlers.Where(b => b.Team == Teams.TeamB))
 				{
-					SimLog.Add(Enum.GetName(typeof(EnemyIds), enemy.EnemyId) + ": " + String.Join(", ", scripts[(int)enemy.EnemyId].Attacks.Select(a => Battle.BattleActions[(int)a].Name)) + ".");
+					SimLog.Add(Enum.GetName(typeof(EnemyIds), enemy.EnemyId) + ": " + String.Join(", ", scripts.Data[enemy.EnemyId].Attacks.Select(a => Battle.BattleActions[(int)a].Name)) + ".");
 
-					scripts[(int)enemy.EnemyId].Attacks.Where(a => a != EnemyAttackIds.Nothing).Select(a => (Battle.BattleActions[(int)a].Name, Battle.BattleActions[(int)a].Rating(enemy))).ToList().ForEach(a => ratings[a.Name] = a.Item2);
+					scripts.Data[enemy.EnemyId].Attacks.Where(a => a != EnemyAttackIds.Nothing).Select(a => (Battle.BattleActions[(int)a].Name, Battle.BattleActions[(int)a].Rating(enemy))).ToList().ForEach(a => ratings[a.Name] = a.Item2);
 
-					var namesList = scripts[(int)enemy.EnemyId].Attacks.Where(a => a != EnemyAttackIds.Nothing).Select(a => Battle.BattleActions[(int)a].Name).ToList();
+					var namesList = scripts.Data[enemy.EnemyId].Attacks.Where(a => a != EnemyAttackIds.Nothing).Select(a => Battle.BattleActions[(int)a].Name).ToList();
 					namesList.Sort();
 
 					for (int z = 0; z < namesList.Count; z++)
@@ -185,7 +185,7 @@ namespace FFMQLib
 				if (winsA[3] + winsB[3] > 0) SimLog.Add("Reuben: " + (winsA[3] * 100) / (winsA[3] + winsB[3]) + "%");
 
 				var attackNames = Battlers.Where(b => b.Team == Teams.TeamB)
-									.SelectMany(e => scripts[(int)e.EnemyId].Attacks)
+									.SelectMany(e => scripts.Data[e.EnemyId].Attacks)
 									.Where(a => a != EnemyAttackIds.Nothing)
 									.Distinct()
 									.ToList()
@@ -425,13 +425,13 @@ namespace FFMQLib
 		{
 
 			//scripts.ShuffleAttacks(EnemizerAttacks.Chaos, EnemizerGroups.MobsBossesDK, Rng);
-			scripts.Balanced(EnemizerGroups.MobsBossesDK, true, true, Rng);
+			//scripts.Balanced(EnemizerGroups.MobsBossesDK, true, true, new(), Rng);
 
 			var formationentities = formations[formation];
 			Battlers.RemoveAll(b => b.Team == Teams.TeamB);
 			foreach (var entity in formationentities)
 			{
-				Battlers.Add(new Entity(Log, Rng, enemies[(int)entity], scripts));
+				Battlers.Add(new Entity(Log, Rng, enemies.Data[entity], scripts));
 			}
 		}
 
@@ -595,7 +595,7 @@ namespace FFMQLib
 
 					if (wholeteam.Count < 3)
 					{
-						Entity copy = new Entity(Log, Rng, enemies[(int)battler.EnemyId], scripts);
+						Entity copy = new Entity(Log, Rng, enemies.Data[battler.EnemyId], scripts);
 						copy.Hp = battler.Hp;
 						Battlers.Add(copy);
 					}
