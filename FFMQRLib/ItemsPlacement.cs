@@ -267,6 +267,7 @@ namespace FFMQLib
 					if (targetLocation.Type == GameObjectType.Chest || targetLocation.Type == GameObjectType.Box)
 					{ 
 						targetLocation.Type = GameObjectType.Chest;
+						targetLocation.Reset = false;
 					}
 					
 					PlacedItems.Add(itemToPlace);
@@ -326,6 +327,7 @@ namespace FFMQLib
 					if (targetLocation.Type == GameObjectType.Chest || targetLocation.Type == GameObjectType.Box)
 					{
 						targetLocation.Type = GameObjectType.Chest;
+						targetLocation.Reset = false;
 					}
 				}
 			}
@@ -362,6 +364,7 @@ namespace FFMQLib
 					var box = rng.TakeFrom(seedboxes);
 					box.Content = Items.Seed;
 					box.IsPlaced = true;
+					box.Reset = !flags.BoxesDontReset;
 					box.Type = GameObjectType.Box;
 					seedCount--;
 				}
@@ -378,7 +381,7 @@ namespace FFMQLib
 				if (seedLocation.Type == GameObjectType.Chest || seedLocation.Type == GameObjectType.Box)
 				{
 					seedLocation.Type = GameObjectType.Box;
-					seedLocation.Reset = true; // gotta think about this
+					seedLocation.Reset = !flags.BoxesDontReset; // gotta think about this
 				}
 				seedCount--;
 			}
@@ -392,7 +395,7 @@ namespace FFMQLib
 				{
 					box.Content = originalItems[box.ObjectId];
 					box.IsPlaced = true;
-					box.Reset = true;
+					box.Reset = !flags.BoxesDontReset;
 					box.Type = GameObjectType.Box; // redundant
 					originalItems.Remove(box.ObjectId);
 				}
@@ -409,7 +412,7 @@ namespace FFMQLib
 				if (location.Type == GameObjectType.Chest || location.Type == GameObjectType.Box)
 				{
 					location.Type = GameObjectType.Box;
-					location.Reset = true;
+					location.Reset = !flags.BoxesDontReset;
 				}
 			}
 
@@ -419,6 +422,7 @@ namespace FFMQLib
 			{
 				chest.Content = heroChestItems[chest.ObjectId];
 				chest.IsPlaced = true;
+				chest.Reset = false;
 			}
 
 			/*

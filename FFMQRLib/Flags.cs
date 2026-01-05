@@ -16,13 +16,27 @@ namespace FFMQLib
 {
 	public class Flags
 	{
-		public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.All;
+		// Items and Logic
+		public LogicOptions LogicOptions { get; set; } = LogicOptions.Standard;
 		public ItemShuffleChests ChestsShuffle { get; set; } = ItemShuffleChests.Prioritize;
-		public bool ShuffleBoxesContent { get; set; } = false;
 		public ItemShuffleNPCsBattlefields NpcsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
 		public ItemShuffleNPCsBattlefields BattlefieldsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
-		public LogicOptions LogicOptions { get; set; } = LogicOptions.Standard;
-		public bool ShuffleEnemiesPosition { get; set; } = false;
+		public bool RandomStartingWeapon { get; set; } = false;
+		public bool ProgressiveGear { get; set; } = false;
+		public SkyCoinModes SkyCoinMode { get; set; } = SkyCoinModes.Standard;
+		public SkyCoinFragmentsQty SkyCoinFragmentsQty
+		{
+			get => SkyCoinMode == SkyCoinModes.ShatteredSkyCoin ? internalSkyCoinFragmentsQty : SkyCoinFragmentsQty.Mid24;
+			set => internalSkyCoinFragmentsQty = value;
+		}
+
+		// Boxes & Consumables
+		public bool ShuffleBoxesContent { get; set; } = false;
+		public bool DisableDuping { get; set; } = false;
+		public SeedQuantities SeedQuantity { get; set; } = SeedQuantities.Two;
+		public bool BoxesDontReset { get; set; } = false;
+
+		// Enemies
 		public EnemiesScaling EnemiesScalingLower { get; set; } = EnemiesScaling.Normal;
 		public EnemiesScaling EnemiesScalingUpper { get; set; } = EnemiesScaling.Normal;
 		public EnemiesScaling BossesScalingLower { get; set; } = EnemiesScaling.Normal;
@@ -35,38 +49,36 @@ namespace FFMQLib
 		}
 		public bool ProgressiveEnemizer { get; set; } = false;
 		public bool ShuffleResWeakType { get; set; } = false;
-		public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
+		public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.All;
+		public bool ShuffleEnemiesPosition { get; set; } = false;
+		public ProgressiveFormationsModes ProgressiveFormations { get; set; } = ProgressiveFormationsModes.Disabled;
+
+		// Maps
+		public bool TweakedDungeons { get; set; } = false;
+		public DoomCastleModes DoomCastleMode { get; set; } = DoomCastleModes.Standard;
+		public DoomCastleAccess DoomCastleAccess { get; set; } = DoomCastleAccess.Standard;
+		public MapShufflingMode MapShuffling { get; set; } = MapShufflingMode.None;
+		public bool OverworldShuffle { get; set; } = false;
+		public bool CrestShuffle { get; set; } = false;
+
+		// Companions
 		public LevelingType CompanionLevelingType { get; set; } = LevelingType.Quests;
 		public SpellbookType CompanionSpellbookType { get; set; } = SpellbookType.Standard;
 		public StartingCompanionType StartingCompanion { get; set; } = StartingCompanionType.None;
 		public AvailableCompanionsType AvailableCompanions { get; set; } = AvailableCompanionsType.Four;
 		public CompanionsLocationType CompanionsLocations { get; set; } = CompanionsLocationType.Standard;
 		public bool KaelisMomFightMinotaur { get; set; } = false;
+
+		// Misc
+		public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
 		public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;
 		public bool ShuffleBattlefieldRewards { get; set; } = false;
-		public bool RandomStartingWeapon { get; set; } = false;
-		public bool ProgressiveGear { get; set; } = false;
-		public bool TweakedDungeons { get; set; } = false;
-		public DoomCastleModes DoomCastleMode { get; set; } = DoomCastleModes.Standard;
-		//public bool DoomCastleShortcut { get; set; } = false;
-		public DoomCastleAccess DoomCastleAccess { get; set; } = DoomCastleAccess.Standard;
-		public SkyCoinModes SkyCoinMode { get; set; } = SkyCoinModes.Standard;
-		public SkyCoinFragmentsQty SkyCoinFragmentsQty
-		{
-			get => SkyCoinMode == SkyCoinModes.ShatteredSkyCoin ? internalSkyCoinFragmentsQty : SkyCoinFragmentsQty.Mid24;
-			set => internalSkyCoinFragmentsQty = value;
-		}
 		public bool DisableSpoilers { get; set; } = false;
-		public bool EnableSpoilers { get; set; } = false;
+		public bool EnableSpoilers { get; set; } = false; // Delete
 		public HintModes HintMode { get; set; } = HintModes.None;
-		public ProgressiveFormationsModes ProgressiveFormations { get; set; } = ProgressiveFormationsModes.Disabled;
-		public MapShufflingMode MapShuffling { get; set; } = MapShufflingMode.None;
-		public bool OverworldShuffle { get; set; } = false;
-		public bool CrestShuffle { get; set; } = false;
-		public bool DisableDuping { get; set; } = false;
-		public SeedQuantities SeedQuantity { get; set; } = SeedQuantities.Two;
 		public bool HiddenFlags { get; set; } = false;
 
+		// Internal flags
 		private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;
 		private EnemizerGroups internalEnemizerGroups = EnemizerGroups.MobsOnly;
 

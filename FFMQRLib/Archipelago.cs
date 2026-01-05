@@ -172,7 +172,7 @@ namespace FFMQLib
 					currentObject.Type = nonKIs.Append(Items.APItemFiller).Contains(placedObject.Content) ? GameObjectType.Box : GameObjectType.Chest;
 					if (nonKIs.Contains(placedObject.Content))
 					{
-						currentObject.Reset = true;
+						currentObject.Reset = !flags.BoxesDontReset;
 					}
 				}
 			}
@@ -186,7 +186,7 @@ namespace FFMQLib
 				if (location.Type == GameObjectType.Chest || location.Type == GameObjectType.Box)
 				{
 					location.Type = GameObjectType.Box;
-					location.Reset = true;
+					location.Reset = !flags.BoxesDontReset;
 				}
 			}
 
@@ -208,7 +208,7 @@ namespace FFMQLib
 				if (box.Type == GameObjectType.Chest || box.Type == GameObjectType.Box)
 				{
 					box.Type = GameObjectType.Box;
-					box.Reset = true;
+					box.Reset = !flags.BoxesDontReset;
 				}
 			}
 
