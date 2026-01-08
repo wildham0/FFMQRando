@@ -33,7 +33,7 @@ namespace FFMQLib
 		}
 		public void Process(Flags flags, GameInfoScreen gameinfoscreen, MT19337 rng)
 		{
-			CreateElementalEnemies(flags.EnemizerAttacks == EnemizerAttacks.Elemental, flags.EnemizerGroups, flags.ProgressiveEnemizer, rng);
+			CreateElementalEnemies(flags.EnemizerAttacks == EnemizerAttacks.Elemental, flags.EnemizerGroups, false, rng);
 			ScaleEnemies(flags, rng);
 			ShuffleAttacks(flags, rng);
 			SetElementalResistWeakness();

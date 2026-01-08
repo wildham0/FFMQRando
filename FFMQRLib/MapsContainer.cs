@@ -478,7 +478,7 @@ namespace FFMQLib
 
 				for (int j = 0; j < toremove; j++)
 				{
-					rng.TakeFrom(enemiescollection).Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+					rng.TakeFrom(enemiescollection).Gameflag = (byte)GameFlagIds.ShowEnemies;
 				}
 			}*/
 		}
@@ -504,7 +504,7 @@ namespace FFMQLib
 			gameobjects[0x53][0x13].Y = 0x18;
 
 			// Remove 3F hook ring
-			gameobjects[0x55][0x13].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+			gameobjects[0x55][0x13].Gameflag = (byte)GameFlagIds.ShowEnemies;
 
 			// Remove hole in Mac Ship corridor
 			_gameMaps[(int)MapList.MacShipInterior].ModifyMap(0x11, 0x20, new List<List<byte>>() { new() { 0x4B } });

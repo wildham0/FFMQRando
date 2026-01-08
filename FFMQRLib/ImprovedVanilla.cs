@@ -124,18 +124,18 @@ namespace FFMQLib
 			// Force Fall Basin Puzzle
 			var fallbasin = Entries[areaPointers[0x21]].Objects;
 			fallbasin[0x0A].Gameflag = 0x00;
-            fallbasin[0x0B].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+            fallbasin[0x0B].Gameflag = (byte)GameFlagIds.ShowEnemies;
             fallbasin[0x0C].Gameflag = 0x00;
-            fallbasin[0x0D].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
-            fallbasin[0x0E].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+            fallbasin[0x0D].Gameflag = (byte)GameFlagIds.ShowEnemies;
+            fallbasin[0x0E].Gameflag = (byte)GameFlagIds.ShowEnemies;
             fallbasin[0x0F].Gameflag = 0x00;
 
             // Clear Pazuzu stairs
             for (int i = 0x5A; i <= 0x5E; i++)
 			{
-				Entries[areaPointers[i]].Objects[0].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+				Entries[areaPointers[i]].Objects[0].Gameflag = (byte)GameFlagIds.ShowEnemies;
 				Entries[areaPointers[i]].Objects[1].Gameflag = 0x00;
-				Entries[areaPointers[i]].Objects[2].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+				Entries[areaPointers[i]].Objects[2].Gameflag = (byte)GameFlagIds.ShowEnemies;
             }
         }
     }

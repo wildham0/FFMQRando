@@ -63,7 +63,7 @@ namespace FFMQLib
 			public CompanionsId Name { get; set; }
 			public byte Sprite { get; set; }
 			public byte Palette { get; set; }
-			public NewGameFlagsList Gameflag { get; set; }
+			public GameFlagIds Gameflag { get; set; }
 			public byte Value { get; set; }
 		}
 		
@@ -101,7 +101,7 @@ namespace FFMQLib
 					Name = CompanionsId.Kaeli,
 					Sprite = 0x50,
 					Palette = 0x05,
-					Gameflag = NewGameFlagsList.ShowForestaKaeli,
+					Gameflag = GameFlagIds.ShowForestaKaeli,
 					Value = (byte)TalkScriptsList.KaeliWitherTree
 				},
 				new CompanionScriptData
@@ -109,7 +109,7 @@ namespace FFMQLib
 					Name = CompanionsId.Tristam,
 					Sprite = 0x54,
 					Palette = 0x04,
-					Gameflag = NewGameFlagsList.ShowSandTempleTristam,
+					Gameflag = GameFlagIds.ShowSandTempleTristam,
 					Value = (byte)TalkScriptsList.TristamChest
 				},
 				new CompanionScriptData
@@ -117,7 +117,7 @@ namespace FFMQLib
 					Name = CompanionsId.Phoebe,
 					Sprite = 0x58,
 					Palette = 0x03,
-					Gameflag = NewGameFlagsList.ShowLibraTemplePhoebe,
+					Gameflag = GameFlagIds.ShowLibraTemplePhoebe,
 					Value = (byte)TalkScriptsList.PhoebeLibraTemple
                 },
 				new CompanionScriptData
@@ -125,7 +125,7 @@ namespace FFMQLib
 					Name = CompanionsId.Reuben,
 					Sprite = 0x5C,
 					Palette = 0x02,
-					Gameflag = NewGameFlagsList.ShowFireburgReuben1,
+					Gameflag = GameFlagIds.ShowFireburgReuben1,
 					Value = (byte)TalkScriptsList.ReubenFireburg
 				}
 			};

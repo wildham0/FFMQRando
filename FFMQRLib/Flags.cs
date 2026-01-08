@@ -35,6 +35,7 @@ namespace FFMQLib
 		public bool DisableDuping { get; set; } = false;
 		public SeedQuantities SeedQuantity { get; set; } = SeedQuantities.Two;
 		public bool BoxesDontReset { get; set; } = false;
+		public SeedVendorSettings SeedVendorsSetting { get; set; } = SeedVendorSettings.Standard;
 
 		// Enemies
 		public EnemiesScaling EnemiesScalingLower { get; set; } = EnemiesScaling.Normal;
@@ -47,7 +48,7 @@ namespace FFMQLib
 			get => EnemizerAttacks == EnemizerAttacks.Normal ? EnemizerGroups.MobsOnly : internalEnemizerGroups;
 			set => internalEnemizerGroups = value;
 		}
-		public bool ProgressiveEnemizer { get; set; } = false;
+		public bool ProgressiveEnemizer { get => false; set => progEnemizerVoid = value;  }
 		public bool ShuffleResWeakType { get; set; } = false;
 		public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.All;
 		public bool ShuffleEnemiesPosition { get; set; } = false;
@@ -81,6 +82,7 @@ namespace FFMQLib
 		// Internal flags
 		private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;
 		private EnemizerGroups internalEnemizerGroups = EnemizerGroups.MobsOnly;
+		private bool progEnemizerVoid = false;
 
 		public string GenerateFlagString()
 		{

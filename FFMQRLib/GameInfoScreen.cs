@@ -13,7 +13,7 @@ namespace FFMQLib
         public bool PazuzuFloorWarning { get; set; }
         public List<(ElementsType, ElementsType)> ShuffledElementsType { get; set; }
 		public List<(CompanionsId, List<(int level, SpellFlags spell)>)> SpellLearning { get; set; }
-		public List<(CompanionsId companion, NewGameFlagsList flag, string description)> Quests { get; set; }
+		public List<(CompanionsId companion, GameFlagIds flag, string description)> Quests { get; set; }
 		private int pagecount;
 		private List<int> pageoffsets;
 		private Dictionary<ElementsType, string> elementsbytes = new()

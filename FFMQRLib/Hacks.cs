@@ -121,7 +121,7 @@ namespace FFMQLib
 		public void DefaultSettings()
 		{
 			// Show Figure by default instead of Scale for HP
-			GameFlags[(int)GameFlagsList.ShowFigureForHP] = true;
+			GameFlags[(int)LegacyGameFlagsList.ShowFigureForHP] = true;
 
 			// Default Text speed to 1
 			Data[0x65397] = 0x00;
@@ -580,7 +580,7 @@ namespace FFMQLib
 			// Remove enemy on Pazuzu 6F blocking the way to avoid softlock when the floors are shuffled, but enemies' positions aren't
 			if (flags.MapShuffling != MapShufflingMode.None && !flags.ShuffleEnemiesPosition)
 			{
-				MapObjects[0x58][0x0A].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+				MapObjects[0x58][0x0A].Gameflag = (byte)GameFlagIds.ShowEnemies;
 			}
 		}
 

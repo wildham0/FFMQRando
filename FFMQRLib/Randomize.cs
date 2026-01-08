@@ -17,7 +17,7 @@ namespace FFMQLib
 		// Z = Patch Release
 		// Increment Beta on every new builds, reset to zero on version increase
 		public static string Version = "1.7.0";
-		public static string Build = "12";
+		public static string Build = "13";
 		public static string BetaVersionShort => Version + "-b" + Build;
 		public static string BetaVersionLong => Version + "-beta" + Build;
 	}
@@ -43,6 +43,7 @@ namespace FFMQLib
 		public EntrancesData EntrancesData;
 		public MapPalettes MapPalettes;
 		public Companions Companions;
+		public SeedVendors SeedVendors;
 		public GameInfoScreen GameInfoScreen;
 
 		private byte[] originalData;
@@ -92,6 +93,7 @@ namespace FFMQLib
 			EntrancesData = new(this);
 			MapPalettes = new(this);
 			Companions = new(flags.CompanionLevelingType);
+			SeedVendors = new();
 			GameInfoScreen = new();
 			Enemizer = new(Enemies, EnemyAttackLinks, FormationsData, EnemyPalettes);
 
@@ -116,14 +118,6 @@ namespace FFMQLib
 			MapObjects.SetEnemiesDensity(flags.EnemiesDensity, rng);
 			MapObjects.ShuffleEnemiesPosition(flags.ShuffleEnemiesPosition, GameMaps, rng);
 			Enemizer.Process(flags, GameInfoScreen, rng);
-			//Enemizer.Generate(flags.EnemizerAttacks == EnemizerAttacks.Elemental, flags.EnemizerGroups, flags.ProgressiveEnemizer, rng);
-			//EnemyAttackLinks.ShuffleAttacks(flags, Enemies, FormationsData, EnemizerElemental, rng);
-
-			//Enemies.ScaleEnemies(flags, rng);
-			//Enemies.ShuffleResistWeakness(flags.ShuffleResWeakType, GameInfoScreen, rng);
-			//Enemies.UpdateNames(EnemizerElemental.ElementalEnemies, rng);
-			//Enemies.UpdatePalettes(EnemizerElemental.ElementalEnemies, EnemyPalettes, rng);
-
 
 			// Companions
 			GameLogic.CompanionsShuffle(flags.CompanionsLocations, flags.KaelisMomFightMinotaur, apconfigs, rng);
@@ -132,6 +126,9 @@ namespace FFMQLib
 			Companions.SetSpellbooks(flags.CompanionSpellbookType, GameInfoScreen, rng);
 			Companions.SetQuests(flags, Battlefields, GameInfoScreen, rng);
 			Companions.SetCompanionsLocation(GameLogic.Rooms);
+
+			// Shops
+			SeedVendors.SetSeedVendors(flags.SeedVendorsSetting, rng);
 
 			// Overworld
 			Overworld.OpenNodes(flags);

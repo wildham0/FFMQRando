@@ -67,7 +67,7 @@ namespace FFMQLib
 	public class Quest
 	{ 
 		public QuestsId Name { get; set; }
-		public NewGameFlagsList Gameflag { get; set; }
+		public GameFlagIds Gameflag { get; set; }
 		public int Quantity { get; set; }
 		public string Description { get; set; }
 		public CompanionsId Companion { get; set; }
@@ -75,7 +75,7 @@ namespace FFMQLib
 		public Quest(QuestsId name, int qty, QuestRating rating, string description)
 		{
 			Name = name;
-			Gameflag = NewGameFlagsList.None;
+			Gameflag = GameFlagIds.None;
 			Quantity = qty;
 			Rating = rating;
 			Description = description;
@@ -84,16 +84,16 @@ namespace FFMQLib
 		public Quest(QuestsId name, int qty, QuestRating rating, CompanionsId companion, string description)
 		{
 			Name = name;
-			Gameflag = NewGameFlagsList.None;
+			Gameflag = GameFlagIds.None;
 			Quantity = qty;
 			Rating = rating;
 			Description = description;
 			Companion = companion;
 		}
-		public Quest(QuestsId name, int qty, CompanionsId companion, NewGameFlagsList flag, string description)
+		public Quest(QuestsId name, int qty, CompanionsId companion, GameFlagIds flag, string description)
 		{
 			Name = name;
-			Gameflag = NewGameFlagsList.None;
+			Gameflag = GameFlagIds.None;
 			Quantity = qty;
 			Gameflag = flag;
 			Description = description;
@@ -121,12 +121,12 @@ namespace FFMQLib
 			{ CompanionsId.Phoebe, "0740A710" },
 			{ CompanionsId.Reuben, "0760A710" },
 		};
-		private Dictionary<CompanionsId, List<NewGameFlagsList>> gameflagsList = new()
+		private Dictionary<CompanionsId, List<GameFlagIds>> gameflagsList = new()
 		{
-			{ CompanionsId.Kaeli, new List<NewGameFlagsList> { NewGameFlagsList.KaeliQuest1, NewGameFlagsList.KaeliQuest2, NewGameFlagsList.KaeliQuest3, NewGameFlagsList.KaeliQuest4, } },
-			{ CompanionsId.Tristam, new List<NewGameFlagsList> { NewGameFlagsList.TristamQuest1, NewGameFlagsList.TristamQuest2, NewGameFlagsList.TristamQuest3, NewGameFlagsList.TristamQuest4, } },
-			{ CompanionsId.Phoebe, new List<NewGameFlagsList> { NewGameFlagsList.PhoebeQuest1, NewGameFlagsList.PhoebeQuest2, NewGameFlagsList.PhoebeQuest3, NewGameFlagsList.PhoebeQuest4, } },
-			{ CompanionsId.Reuben, new List<NewGameFlagsList> { NewGameFlagsList.ReubenQuest1, NewGameFlagsList.ReubenQuest2, NewGameFlagsList.ReubenQuest3, NewGameFlagsList.ReubenQuest4, } },
+			{ CompanionsId.Kaeli, new List<GameFlagIds> { GameFlagIds.KaeliQuest1, GameFlagIds.KaeliQuest2, GameFlagIds.KaeliQuest3, GameFlagIds.KaeliQuest4, } },
+			{ CompanionsId.Tristam, new List<GameFlagIds> { GameFlagIds.TristamQuest1, GameFlagIds.TristamQuest2, GameFlagIds.TristamQuest3, GameFlagIds.TristamQuest4, } },
+			{ CompanionsId.Phoebe, new List<GameFlagIds> { GameFlagIds.PhoebeQuest1, GameFlagIds.PhoebeQuest2, GameFlagIds.PhoebeQuest3, GameFlagIds.PhoebeQuest4, } },
+			{ CompanionsId.Reuben, new List<GameFlagIds> { GameFlagIds.ReubenQuest1, GameFlagIds.ReubenQuest2, GameFlagIds.ReubenQuest3, GameFlagIds.ReubenQuest4, } },
 		};
 		public void SetQuests(Flags flags, Battlefields battlefields, GameInfoScreen screen, MT19337 rng)
 		{
@@ -163,7 +163,7 @@ namespace FFMQLib
 			Quests.Add(new Quest()
 			{
 				Name = QuestsId.CureKaeli,
-				Gameflag = NewGameFlagsList.KaeliQuest1,
+				Gameflag = GameFlagIds.KaeliQuest1,
 				Quantity = 0,
 				Companion = CompanionsId.Kaeli,
 				Description = kaelismom ? "Give Elixir to\n  poisoned Kaeli's Mom." : "Give Elixir to\n  poisoned Kaeli."
@@ -172,7 +172,7 @@ namespace FFMQLib
 			Quests.Add(new Quest()
 			{
 				Name = QuestsId.VisitBoneDungeon,
-				Gameflag = NewGameFlagsList.TristamQuest1,
+				Gameflag = GameFlagIds.TristamQuest1,
 				Quantity = 0,
 				Companion = CompanionsId.Tristam,
 				Description = "Visit Bone Dungeon with\n  Tristam & go to Fireburg."
@@ -181,7 +181,7 @@ namespace FFMQLib
 			Quests.Add(new Quest()
 			{
 				Name = QuestsId.VisitWintryCave,
-				Gameflag = NewGameFlagsList.PhoebeQuest1,
+				Gameflag = GameFlagIds.PhoebeQuest1,
 				Quantity = 0,
 				Companion = CompanionsId.Phoebe,
 				Description = "Visit Wintry Cave with\n  Phoebe and go to Windia."
@@ -190,7 +190,7 @@ namespace FFMQLib
 			Quests.Add(new Quest()
 			{
 				Name = QuestsId.VisitMine,
-				Gameflag = NewGameFlagsList.ReubenQuest1,
+				Gameflag = GameFlagIds.ReubenQuest1,
 				Quantity = 0,
 				Companion = CompanionsId.Reuben,
 				Description = "Visit Mine with Reuben and\n  return to Fireburg."
@@ -779,13 +779,13 @@ namespace FFMQLib
 				"00",
 			}));
 		}
-		public NewGameFlagsList GetQuestFlag(QuestsId quest, CompanionsId companion = CompanionsId.None)
+		public GameFlagIds GetQuestFlag(QuestsId quest, CompanionsId companion = CompanionsId.None)
 		{
 			var matchedquests = Quests.Where(q => q.Name == quest && ((companion != CompanionsId.None) ? q.Companion == companion : true)).ToList();
 
 			if (!matchedquests.Any())
 			{
-				return NewGameFlagsList.None;
+				return GameFlagIds.None;
 			}
 			else
 			{

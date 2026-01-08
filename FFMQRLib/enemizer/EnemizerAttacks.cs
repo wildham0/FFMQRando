@@ -58,7 +58,7 @@ namespace FFMQLib
 		{
 			var enemizerattacks = flags.EnemizerAttacks;
 			var enemizergroup = flags.EnemizerGroups;
-			var progressive = flags.ProgressiveEnemizer;
+			var progressive = false;
 
 			switch (enemizerattacks)
 			{
@@ -607,7 +607,7 @@ namespace FFMQLib
 			new(EnemyAttackIds.QuickSand, EnemizerElements.None, AttackStrengths.Safe, true, false, false, false, false),
 			new(EnemyAttackIds.DoomGaze, EnemizerElements.None, AttackStrengths.Ailment, true, false, false, false, false),
 			new(EnemyAttackIds.DoomPowder, EnemizerElements.None, AttackStrengths.Ailment, true, false, false, false, false),
-			new(EnemyAttackIds.Cure, EnemizerElements.None, AttackStrengths.Safe, false, false, false, false, false),
+			new(EnemyAttackIds.Cure, EnemizerElements.None, AttackStrengths.Safe, false, false, false, false, true),
 			new(EnemyAttackIds.FireBreathFixed, EnemizerElements.Fire, AttackStrengths.Strong, false, true, false, false, false),
 			new(EnemyAttackIds.Punch, EnemizerElements.None, AttackStrengths.Safe, true, false, false, false, false),
 			new(EnemyAttackIds.Kick, EnemizerElements.None, AttackStrengths.Safe, true, false, false, false, false),

@@ -120,8 +120,9 @@
 				<BoolFlag UsePreset=usePreset Name="Boxes Don't Reset" @bind-Value="flags.BoxesDontReset" Tooltip="If enabled, brown boxes don't reset once opened." />
 			</Container>
 			<Container Class="flagColumn">
-				<BoolFlag UsePreset=usePreset Name="Disable Seed Duping" @bind-Value="flags.DisableDuping" Tooltip="Fix the bug allowing you to duplicate consumable items when cancelling the command and running away from battle." />
+				<EnumFlag UsePreset=usePreset Name="Seed Vendors" @bind-Value="flags.SeedVendorsSetting" Tooltip="Set Seed Vendors requirements.<br/><br/>Standard: No requirement for Fireburg Vendor, Windia Vendor needs Dullahan to be defeated.<br/><br/>No Vendors: No vendors sell seeds. This include the vendor on Mac Ship.<br/><br/>Defeat Jinn: Fireburg Vendor requires Jinn to be defeated, Windia Vendor still requires Dullahan.<br/><br/>Random Bosses: Both Vendors require a random boss to be defeated." />
 				<EnumFlag UsePreset=usePreset Name="World Seed Supply" @bind-Value="flags.SeedQuantity" Tooltip="Set the number of locations containing Seeds.<br/><br/>Regardless of the option selected, the Hero Chest before the Dark King will always contain Seeds and isn't included in the count." />
+				<BoolFlag UsePreset=usePreset Name="Disable Seed Duping" @bind-Value="flags.DisableDuping" Tooltip="Fix the bug allowing you to duplicate consumable items when cancelling the command and running away from battle." />
 			</Container>
 		</Container>
 	</Container>
@@ -138,7 +139,6 @@
 				{
 					<EnumFlag UsePreset=usePreset Name="Enemizer Groups" @bind-Value="flags.EnemizerGroups" Tooltip="Set which enemies groups will be affected by Enemizer." />
 				}
-			<BoolFlag UsePreset=usePreset Name="Progressive Enemizer" @bind-Value="flags.ProgressiveEnemizer" Tooltip="Enemies of the same type will share the same attack pool." />
 			<BoolFlag UsePreset=usePreset Name="Shuffle Resist/Weakness Types" @bind-Value="flags.ShuffleResWeakType" Tooltip="Resistance and weakness types are shuffled for all enemies." />
 		</Container>
 		<Container Class="flagColumn">

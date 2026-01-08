@@ -13,12 +13,12 @@ namespace FFMQLib
 			var itemsPlacement = fullItemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.NPC).ToDictionary(x => (ItemGivingNPCs)x.ObjectId, y => y.Content);
 			/*** Overworld ***/
 			// GameStart - Starting Companion + Skip Mountain collapse
-			Dictionary<CompanionsId, NewGameFlagsList> startingcompanionflags = new()
+			Dictionary<CompanionsId, GameFlagIds> startingcompanionflags = new()
 			{
-				{ CompanionsId.Kaeli, NewGameFlagsList.ShowForestaKaeli },
-				{ CompanionsId.Tristam, NewGameFlagsList.ShowSandTempleTristam },
-				{ CompanionsId.Phoebe, NewGameFlagsList.ShowLibraTemplePhoebe },
-				{ CompanionsId.Reuben, NewGameFlagsList.ShowFireburgReuben1 },
+				{ CompanionsId.Kaeli, GameFlagIds.ShowForestaKaeli },
+				{ CompanionsId.Tristam, GameFlagIds.ShowSandTempleTristam },
+				{ CompanionsId.Phoebe, GameFlagIds.ShowLibraTemplePhoebe },
+				{ CompanionsId.Reuben, GameFlagIds.ShowFireburgReuben1 },
 			};
 
 			ScriptBuilder gamestartscript = new ScriptBuilder(new List<string>()
@@ -34,28 +34,28 @@ namespace FFMQLib
 
 			/*** Update GameFlags ***/
 			// Show Bridge to Pazuzu Tower
-			GameFlags[(int)GameFlagsList.ShowPazuzuBridge] = true;
+			GameFlags[(int)LegacyGameFlagsList.ShowPazuzuBridge] = true;
 
 			// Set Pazuzu Initial Floor
-			GameFlags[(int)GameFlagsList.ShowPazuzu7F] = false;
+			GameFlags[(int)LegacyGameFlagsList.ShowPazuzu7F] = false;
 			int pazuzuFloor = rng.Between(0, 5);
 			for (int i = 0; i < 6; i++)
 			{
-				GameFlags[(int)GameFlagsList.ShowPazuzu1F + i] = (pazuzuFloor == i);
+				GameFlags[(int)LegacyGameFlagsList.ShowPazuzu1F + i] = (pazuzuFloor == i);
 			}
 
 			// Reset Quests and Companion flags
-			for (int i = (int)NewGameFlagsList.KaeliQuest1; i <= (int)NewGameFlagsList.ShowLevelForestKaeli; i++)
+			for (int i = (int)GameFlagIds.KaeliQuest1; i <= (int)GameFlagIds.ShowLevelForestKaeli; i++)
 			{
 				GameFlags[i] = false;
 			}
 
-			for (int i = (int)NewGameFlagsList.ForestaHintGiven; i <= (int)NewGameFlagsList.WindiaHintGiven; i++)
+			for (int i = (int)GameFlagIds.ForestaHintGiven; i <= (int)GameFlagIds.WindiaHintGiven; i++)
 			{
 				GameFlags[i] = false;
 			}
 
-			GameFlags[(int)NewGameFlagsList.ShowFireburgTristam] = false;
+			GameFlags[GameFlagIds.ShowFireburgTristam] = false;
 
 			// Remove Mine Boulder
 			for (int i = 0; i < 6; i++)
@@ -71,10 +71,13 @@ namespace FFMQLib
 			GameFlags[0x54] = flags.DoomCastleAccess == DoomCastleAccess.FreedShip; // show ship at dock (ow)
 
 			// Spencer Cave Flag
-			GameFlags[(int)NewGameFlagsList.SpencerCaveBombed] = false;
+			GameFlags[GameFlagIds.SpencerCaveBombed] = false;
 
 			// Companions Scripts
 			UpdateCompanionScripts(flags, fullItemsPlacement, startinglocation, apenabled, rng);
+
+			// Seed Vendor Scripts
+			UpdateSeedVendorScripts(flags.SeedVendorsSetting, rng);
 
 			/*** Level Forest ***/
 			// Copy over Cloudman+Oldman
@@ -151,12 +154,12 @@ namespace FFMQLib
 			MapObjects[0x10][0x01].Gameflag = 0xF4;
 
 			// Barrel in Oldman's house
-			GameFlags[(int)NewGameFlagsList.ShowBarrelMoved] = false;
-			GameFlags[(int)NewGameFlagsList.ShowBarrelNotMoved] = true;
+			GameFlags[GameFlagIds.ShowBarrelMoved] = false;
+			GameFlags[GameFlagIds.ShowBarrelNotMoved] = true;
 
-			MapObjects[0x11][0x09].Gameflag = (byte)NewGameFlagsList.ShowBarrelNotMoved;
+			MapObjects[0x11][0x09].Gameflag = (byte)GameFlagIds.ShowBarrelNotMoved;
 			var moveBarrel = new MapObject(MapObjects[0x11][0x09]);
-			moveBarrel.Gameflag = (byte)NewGameFlagsList.ShowBarrelMoved;
+			moveBarrel.Gameflag = (byte)GameFlagIds.ShowBarrelMoved;
 			moveBarrel.X--;
 			MapObjects[0x11].Add(moveBarrel);
 
@@ -178,13 +181,14 @@ namespace FFMQLib
 			// Fight Rex
 			TileScripts.AddScript((int)TileScriptsList.FightFlamerusRex,
 				new ScriptBuilder(new List<string> {
-					"2E01[09]",
+					"2E01[10]",
 					"1A1BA0C5C55301B243D14AC1B8C96AB55E42C0B8D23066576741C3586A5A413DFF5A9EB4C53FCE",
 					"05E4210C",
 					"2A42FF1D25FFFF",
 					"2301",
 					Companions.GetQuestString(QuestsId.SaveCrystalofEarth),
 					Companions.GetQuestString(QuestsId.SaveQtyCrystals),
+					SeedVendors.GetFlagScript(EnemyIds.FlamerusRex),
 					"2C29E6",
 					"2B06",
 					(flags.SkyCoinMode == SkyCoinModes.SaveTheCrystals) ? "050260C11200" : "",
@@ -203,8 +207,8 @@ namespace FFMQLib
 			GameFlags[0xCB] = false; // Hide MysteriousMan Find Phoebe
 
 			// Venus Chest
-			MapObjects[0x0A][0x08].Gameflag = (byte)NewGameFlagsList.VenusChestUnopened;
-			GameFlags[(int)NewGameFlagsList.VenusChestUnopened] = true;
+			MapObjects[0x0A][0x08].Gameflag = (byte)GameFlagIds.VenusChestUnopened;
+			GameFlags[GameFlagIds.VenusChestUnopened] = true;
 
 			TalkScripts.AddScript((int)TalkScriptsList.VenusChest,
 				new ScriptBuilder(new List<string>{
@@ -212,11 +216,11 @@ namespace FFMQLib
 					"2F",
 					"050C03[04]",
 					"1A000A37FF", // Locked...
-					$"2E{(int)NewGameFlagsList.VenusChestUnopened:X2}[06]",
+					$"2E{(int)GameFlagIds.VenusChestUnopened:X2}[06]",
 					"08788600",
 					"2A2827062C80FBFFFF", // need some adjusting
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.VenusChest]:X2}0062",
-					$"2B{(int)NewGameFlagsList.VenusChestUnopened:X2}",
+					$"2B{(int)GameFlagIds.VenusChestUnopened:X2}",
 					"00"
 				}));
 
@@ -242,7 +246,7 @@ namespace FFMQLib
 					"04",
 					"2F",
 					"050D02[08]",
-					$"23{(int)NewGameFlagsList.WakeWaterUsed:X2}",
+					$"23{(int)GameFlagIds.WakeWaterUsed:X2}",
 					"2A15271225304506ff8E01FFFF",
 					"234F",
 					Companions.GetQuestString(QuestsId.ThawAquaria),
@@ -285,12 +289,12 @@ namespace FFMQLib
 					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.WomanAquaria]:X2}",
 					flags.ProgressiveGear ? "09309411" : "",
 					"2BFC",
-					$"2E{(int)NewGameFlagsList.AquariaSellerItemBought:X2}BFFE",
+					$"2E{(int)GameFlagIds.AquariaSellerItemBought:X2}BFFE",
 					"0E0115C80000", // set price
 					"0891FE",
 					"2EFDA4D8",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.WomanAquaria]:X2}0462", // give item
-					$"23{(int)NewGameFlagsList.AquariaSellerItemBought:X2}",
+					$"23{(int)GameFlagIds.AquariaSellerItemBought:X2}",
 					"1A29",
 					"0ABFFE"
 				}));
@@ -328,7 +332,7 @@ namespace FFMQLib
 
 			/*** Wintry Cave ***/
 			// Wintry Cave
-			GameFlags[(int)GameFlagsList.WintryCaveCollapsed] = true;
+			GameFlags[(int)LegacyGameFlagsList.WintryCaveCollapsed] = true;
 			byte[,] wintrycliff =
 			{
 				{ 0x39, 0x39, 0x60 },
@@ -345,8 +349,8 @@ namespace FFMQLib
 			MapObjects[0x1F][0x01].Y = 0x1B;
 
 			// Squid Chest
-			MapObjects[0x1F][0x0B].Gameflag = (int)NewGameFlagsList.ShowSquidChest;
-			GameFlags[(int)NewGameFlagsList.ShowSquidChest] = true;
+			MapObjects[0x1F][0x0B].Gameflag = (int)GameFlagIds.ShowSquidChest;
+			GameFlags[GameFlagIds.ShowSquidChest] = true;
 
 			TalkScripts.AddScript((int)TalkScriptsList.FightSquid,
 				new ScriptBuilder(new List<string>{
@@ -354,9 +358,10 @@ namespace FFMQLib
 					"05E43110",
 					"2B24",
 					"2A61463B46FFFF",
-                    $"23{(int)NewGameFlagsList.ShowSquidChest:X2}",
+                    $"23{(int)GameFlagIds.ShowSquidChest:X2}",
 					Companions.GetQuestString(QuestsId.DefeatSquidite),
 					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
+					SeedVendors.GetFlagScript(EnemyIds.Squidite),
 					"00"
 				}));
 
@@ -386,18 +391,19 @@ namespace FFMQLib
 
 			//MapObjects[0x21][0x0F].X = MapObjects[0x21][0x07].X;
 			//MapObjects[0x21][0x0F].Y = MapObjects[0x21][0x07].Y;
-			MapObjects[0x21][0x0F].Gameflag = (int)NewGameFlagsList.ShowCrabChest;
-            GameFlags[(int)NewGameFlagsList.ShowCrabChest] = true;
+			MapObjects[0x21][0x0F].Gameflag = (int)GameFlagIds.ShowCrabChest;
+            GameFlags[GameFlagIds.ShowCrabChest] = true;
 
 			TalkScripts.AddScript((int)TalkScriptsList.FightCrab,
 				new ScriptBuilder(new List<string>{
 					"04",
 					"05E43403",
 					"2B25",
-                    $"23{(int)NewGameFlagsList.ShowCrabChest:X2}",
+                    $"23{(int)GameFlagIds.ShowCrabChest:X2}",
                     "2A67463F46FFFF",
 					Companions.GetQuestString(QuestsId.DefeatSnowCrab),
 					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
+					SeedVendors.GetFlagScript(EnemyIds.SnowCrab),
 					"00"
 				}));
 
@@ -496,6 +502,7 @@ namespace FFMQLib
 					"2312",
 					Companions.GetQuestString(QuestsId.SaveCrystalofWater),
 					Companions.GetQuestString(QuestsId.SaveQtyCrystals),
+					SeedVendors.GetFlagScript(EnemyIds.IceGolem),
 					"2C29E6",
 					"2B50",
 					"2B07",
@@ -511,7 +518,7 @@ namespace FFMQLib
 			GameMaps[(int)MapList.SpencerCave].ModifyMap(0x30, 0x39, 0x26, true);
 			TileScripts.AddScript((int)TileScriptsList.SpencerEntranceFromWaterfall,
 				new ScriptBuilder(new List<string> {
-					$"2E{(int)NewGameFlagsList.SpencerCaveBombed:X2}[03]",
+					$"2E{(int)GameFlagIds.SpencerCaveBombed:X2}[03]",
 					"2C5100",
 					"00",
 					"2C8F01",
@@ -522,19 +529,19 @@ namespace FFMQLib
 			// Create New Tristam Chest
 			MapObjects[0x18][0x01].Value = 0x1E; // Change Talk Script of NPCs
 			MapObjects[0x02C][0x01].RawOverwrite(Blob.FromHex("AD7B6435A60224")); //Copy Venus Chest settings
-			MapObjects[0x02C][0x01].Gameflag = (byte)NewGameFlagsList.TristamChestUnopened;
+			MapObjects[0x02C][0x01].Gameflag = (byte)GameFlagIds.TristamChestUnopened;
 			MapObjects[0x02C][0x01].Value = 0x1D; // Assign
 			MapObjects[0x02C][0x01].X = 0x16;
 			MapObjects[0x02C][0x01].Y = 0x30;
 			MapObjects[0x02C][0x01].Palette = 0x01;
 
-			GameFlags[(int)NewGameFlagsList.TristamChestUnopened] = true; // Tristam Chest
+			GameFlags[GameFlagIds.TristamChestUnopened] = true; // Tristam Chest
 
 			// Block spencer's place entrance
 			//GameMaps[(int)MapList.SpencerCave].ModifyMap(0x0E, 0x27, 0x36, true);
 			GameMaps[(int)MapList.SpencerCave].ModifyMap(0x0E, 0x27, 0x63, true);
 			var spencerPreBombAquariaThawed = MapChanges.Add(new MapChange(Blob.FromHex("0E271155")));
-			MapChanges.AddAction(0x2C, (byte)NewGameFlagsList.WakeWaterUsed, spencerPreBombAquariaThawed, 0x22);
+			MapChanges.AddAction(0x2C, (byte)GameFlagIds.WakeWaterUsed, spencerPreBombAquariaThawed, 0x22);
 
 			// Change map objects
 			MapObjects[0x2C][0x02].CopyFrom(MapObjects[0x2C][0x04]); // Copy box over Phoebe
@@ -555,12 +562,12 @@ namespace FFMQLib
 			bool spencershowow = flags.DoomCastleAccess != DoomCastleAccess.FreedShip;
 			TileScripts.AddScript((int)TileScriptsList.SpencerMegaGrenadeThrow,
 				new ScriptBuilder(new List<string> {
-					$"2E{(int)NewGameFlagsList.SpencerCaveBombed:X2}[08]",
+					$"2E{(int)GameFlagIds.SpencerCaveBombed:X2}[08]",
 					"2D" + ScriptItemFlags[Items.MegaGrenade].Item1,
 					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[04]",
 					"00",
 					"2304",
-					$"23{(int)NewGameFlagsList.SpencerCaveBombed:X2}",
+					$"23{(int)GameFlagIds.SpencerCaveBombed:X2}",
 					$"2304",
 					spencershowow ? "231A2A33463054182521255EFF07062A250F0161FFFFFF" : "2A33463054182521255EFF0F0161FFFFFF",
 					"00",
@@ -569,7 +576,7 @@ namespace FFMQLib
 			// Enter Tile
 			TileScripts.AddScript((int)TileScriptsList.EnterSpencersPlace,
 				new ScriptBuilder(new List<string> {
-					$"2E{(int)NewGameFlagsList.SpencerCaveBombed:X2}[03]",
+					$"2E{(int)GameFlagIds.SpencerCaveBombed:X2}[03]",
 					"2C0E01",
 					"00",
 					"2C0F01",
@@ -578,13 +585,13 @@ namespace FFMQLib
 			/*
 			TileScripts.AddScript((int)TileScriptsList.EnterSpencersPlace,
 				new ScriptBuilder(new List<string> {
-					$"2E{(int)NewGameFlagsList.SpencerCaveBombed:X2}[10]",
+					$"2E{(int)GameFlagIds.SpencerCaveBombed:X2}[10]",
 					"2C0E01",
 					"2D" + ScriptItemFlags[Items.MegaGrenade].Item1,
 					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[05]",
 					"00",
 					"2304",
-					$"23{(int)NewGameFlagsList.SpencerCaveBombed:X2}",
+					$"23{(int)GameFlagIds.SpencerCaveBombed:X2}",
 					$"2304",
 					spencershowow ? "231A2A105033463054182521255EFF07062A250F0161FFFFFF" : "2A105033463054182521255EFF0F0161FFFFFF",
 					"00",
@@ -603,10 +610,10 @@ namespace FFMQLib
 			TalkScripts.AddScript((int)TalkScriptsList.SpencerFirstTime,
 				new ScriptBuilder(new List<string>{
 					"04",
-					$"2E{(int)NewGameFlagsList.SpencerItemGiven:X2}[06]",
+					$"2E{(int)GameFlagIds.SpencerItemGiven:X2}[06]",
 					"1A32" + MQText.TextToHex("This? It's some weird trash I found while diggin' to Captain Mac's ship, you can have it.") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.Spencer]:X2}0162",
-					$"23{(int)NewGameFlagsList.SpencerItemGiven:X2}",
+					$"23{(int)GameFlagIds.SpencerItemGiven:X2}",
 					"00",
 					"1A32" + MQText.TextToHex(rng.PickFrom(spencerPostItemDialogue)) + "36",
 					"00"
@@ -619,11 +626,11 @@ namespace FFMQLib
 					"2F",
 					"050C03[04]",
 					"1A000A37FF", // Locked...
-					$"2E{(int)NewGameFlagsList.TristamChestUnopened:X2}[06]",
+					$"2E{(int)GameFlagIds.TristamChestUnopened:X2}[06]",
 					"08788600",
 					"2A2827012C80FBFFFF", // it's fine now?
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.TristamSpencersPlace]:X2}0062",
-					$"2B{(int)NewGameFlagsList.TristamChestUnopened:X2}",
+					$"2B{(int)GameFlagIds.TristamChestUnopened:X2}",
 					"00"
 				}));
 
@@ -636,7 +643,7 @@ namespace FFMQLib
 			GameMaps.TilesProperties[GameMaps[(int)MapList.Caves].Attributes.TilesProperties][0x63] = frozentile;
 			GameMaps[(int)MapList.Caves].ModifyMap(0x25, 0x0F, new() { new() { 0xE3, 0x82, 0x93 }, new() { 0xC7, 0xC9, 0x8B }, new() { 0xAF, 0x8C, 0x9C } });
 			var spencerAquariaThawed = MapChanges.Add(new MapChange(Blob.FromHex("250F11D5")));
-			MapChanges.AddAction(0x2D, (byte)NewGameFlagsList.WakeWaterUsed, spencerAquariaThawed, 0x22);
+			MapChanges.AddAction(0x2D, (byte)GameFlagIds.WakeWaterUsed, spencerAquariaThawed, 0x22);
 			
 
 			// Reproduce spencer/tristam chest to avoid softlock
@@ -670,10 +677,10 @@ namespace FFMQLib
 			TalkScripts.AddScript((int)TalkScriptsList.Arion,
 				new ScriptBuilder(new List<string>{
 					"04",
-					$"2E{(int)NewGameFlagsList.ArionItemGiven:X2}[06]",
+					$"2E{(int)GameFlagIds.ArionItemGiven:X2}[06]",
 					"1A3B" + MQText.TextToHex("I was scared I would have to pass this on to my useless son, but now, I can give this to you!") + "36",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.ArionFireburg]:X2}0162",
-					$"23{(int)NewGameFlagsList.ArionItemGiven:X2}",
+					$"23{(int)GameFlagIds.ArionItemGiven:X2}",
 					"00",
 					"1A3B" + MQText.TextToHex("Would you like to be adopted? We're a loving family for sons that aren't inept at life.") + "36",
 					"00"
@@ -685,12 +692,12 @@ namespace FFMQLib
 					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.WomanFireburg]:X2}",
 					flags.ProgressiveGear ? "09309411" : "",
 					"2BFC",
-					$"2E{(int)NewGameFlagsList.FireburgSellerItemBought:X2}BFFE",
+					$"2E{(int)GameFlagIds.FireburgSellerItemBought:X2}BFFE",
 					"0E0115F40100", // set price
 					"0891FE",
 					"2EFDA4D8",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.WomanFireburg]:X2}0462", // give item
-					$"23{(int)NewGameFlagsList.FireburgSellerItemBought:X2}",
+					$"23{(int)GameFlagIds.FireburgSellerItemBought:X2}",
 					"1A40",
 					"0ABFFE"
 				}));
@@ -772,26 +779,27 @@ namespace FFMQLib
 			TileScripts.AddScript((int)TileScriptsList.FightJinn,
 				new ScriptBuilder(new List<string>
 				{
-					"050B26[07]",
+					"050B26[08]",
 					"2C2727",
 					"05E4520D",
 					"2C6846",
 					"2B26",
 					Companions.GetQuestString(QuestsId.DefeatJinn),
 					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
+					SeedVendors.GetFlagScript(EnemyIds.Jinn),
 					"00",
 				}));
 
 			// Throw Mega Grenade
 			TileScripts.AddScript((int)TileScriptsList.BlowingOffMineBoulder,
 				new ScriptBuilder(new List<string> {
-					$"2E{(int)NewGameFlagsList.ReubenMineItemGiven:X2}[07]",
+					$"2E{(int)GameFlagIds.ReubenMineItemGiven:X2}[07]",
 					$"050f{(int)CompanionsId.Reuben:X2}[07]",
 					"2a3046104310443054ffff",
 					"1a91" + MQText.TextToHex("Ugh, my feet are killing me! Do me a favor and hold this on the way back. It's weighting a ton!"),
 					$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.PhoebeFallBasin]:X2}0162",
 					"2a10414046ffff",
-					$"23{(int)NewGameFlagsList.ReubenMineItemGiven:X2}",
+					$"23{(int)GameFlagIds.ReubenMineItemGiven:X2}",
 					"2E37[10]",
 					"2D" + ScriptItemFlags[Items.MegaGrenade].Item1,
 					$"050c" + ScriptItemFlags[Items.MegaGrenade].Item2 + "[11]",
@@ -821,8 +829,8 @@ namespace FFMQLib
 
 			//MapObjects[0x37][0x00].X = MapObjects[0x37][0x0D].X;
 			//MapObjects[0x37][0x00].Y = MapObjects[0x37][0x0D].Y;
-			MapObjects[0x37][0x0D].Gameflag = (int)NewGameFlagsList.ShowMedusaChest;
-            GameFlags[(int)NewGameFlagsList.ShowMedusaChest] = true;
+			MapObjects[0x37][0x0D].Gameflag = (int)GameFlagIds.ShowMedusaChest;
+            GameFlags[GameFlagIds.ShowMedusaChest] = true;
 
             TalkScripts.AddScript((int)TalkScriptsList.FightMedusa,
 				new ScriptBuilder(new List<string>{
@@ -830,10 +838,11 @@ namespace FFMQLib
 					"05E45E04",
 					"2B27",
 					"2375",
-                    $"23{(int)NewGameFlagsList.ShowMedusaChest:X2}",
+                    $"23{(int)GameFlagIds.ShowMedusaChest:X2}",
 					"2A60463D46FFFF",
 					Companions.GetQuestString(QuestsId.DefeatMedusa),
 					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
+					SeedVendors.GetFlagScript(EnemyIds.Medusa),
 					"00"
 				}));
 
@@ -843,7 +852,7 @@ namespace FFMQLib
 
 			TileScripts.AddScript((int)TileScriptsList.VolcanoSummitQuest,
 				new ScriptBuilder(new List<string> {
-					(volcanosummitflag != NewGameFlagsList.None) ? $"2E{(int)volcanosummitflag:X2}[03]" : "00",
+					(volcanosummitflag != GameFlagIds.None) ? $"2E{(int)volcanosummitflag:X2}[03]" : "00",
 					"1A00" + MQText.TextToHex("That was a fun climb.\nI'm glad there's no nasty Medusa to ruin it.") + "36",
 					Companions.GetQuestString(QuestsId.VisitTopOfVolcano),
 					"00"
@@ -905,7 +914,7 @@ namespace FFMQLib
 
 			TileScripts.AddScript((int)TileScriptsList.PointlessLedgeQuest,
 				new ScriptBuilder(new List<string> {
-					(pointlessledgeflag != NewGameFlagsList.None) ? $"2E{(int)pointlessledgeflag:X2}[03]" : "00",
+					(pointlessledgeflag != GameFlagIds.None) ? $"2E{(int)pointlessledgeflag:X2}[03]" : "00",
 					"1A00" + MQText.TextToHex("Well, that was pointless.\n...Or was it?") + "36",
 					Companions.GetQuestString(QuestsId.VisitPointlessLedge),
 					"00"
@@ -915,7 +924,7 @@ namespace FFMQLib
 			// Fight Hydra
 			TileScripts.AddScript((int)TileScriptsList.FightDualheadHydra,
 				new ScriptBuilder(new List<string> {
-					"2E03[13]",
+					"2E03[14]",
 					"1A4EA2C74E41564C5A41BF4740B95CFF44CE",
 					"05E47D06",
 					"2364",
@@ -924,6 +933,7 @@ namespace FFMQLib
 					"2303",
 					Companions.GetQuestString(QuestsId.SaveCrystalofFire),
 					Companions.GetQuestString(QuestsId.SaveQtyCrystals),
+					SeedVendors.GetFlagScript(EnemyIds.DualheadHydra),
 					"2A29E608270020052AFFFF",
 					"2BC7",
 					"23CC",
@@ -935,8 +945,8 @@ namespace FFMQLib
 			GameMaps[(int)MapList.RopeBridge].ModifyMap(0xD, 0x0C, 0x38);
 
 			/*** Living Forest ***/
-			GameFlags[(int)GameFlagsList.GiantTreeSet] = true;
-			GameFlags[(int)GameFlagsList.GiantTreeUnset] = false;
+			GameFlags[(int)LegacyGameFlagsList.GiantTreeSet] = true;
+			GameFlags[(int)LegacyGameFlagsList.GiantTreeUnset] = false;
 			bool exitToGiantTree = (flags.MapShuffling == MapShufflingMode.None && !flags.OverworldShuffle);
 
 			// Remove Giant Tree Script
@@ -965,7 +975,7 @@ namespace FFMQLib
 			// Tree Houses Quest
 			var treehousesflag = Companions.GetQuestFlag(QuestsId.VisitTreeHouses);
 
-			if (treehousesflag != NewGameFlagsList.None)
+			if (treehousesflag != GameFlagIds.None)
 			{
 				List<(byte x, byte y)> treehouseslocations = new() { (0x1D, 0x37), (0x05, 0x31), (0x12, 0x22) };
 				List<byte> treehousesnpclook = new() { 0x60, 0x64, 0x68, 0x6C, 0x70, 0x74 };
@@ -1039,6 +1049,7 @@ namespace FFMQLib
 					"2329",
 					Companions.GetQuestString(QuestsId.DefeatGidrah),
 					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
+					SeedVendors.GetFlagScript(EnemyIds.Gidrah),
 					"00"
 				}));
 
@@ -1123,12 +1134,12 @@ namespace FFMQLib
 					$"0C0015{(int)itemsPlacement[ItemGivingNPCs.GirlWindia]:X2}",
 					flags.ProgressiveGear ? "09309411" : "",
 					"2BFC",
-					$"2E{(int)NewGameFlagsList.WindiaSellerItemBought:X2}BFFE",
+					$"2E{(int)GameFlagIds.WindiaSellerItemBought:X2}BFFE",
 					"0E01152C0100", // set price
 					"0891FE",
 					"2EFDA4D8",
 					$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.GirlWindia]:X2}0462", // give item
-					$"23{(int)NewGameFlagsList.WindiaSellerItemBought:X2}",
+					$"23{(int)GameFlagIds.WindiaSellerItemBought:X2}",
 					"1A67",
 					"0ABFFE"
 				}));
@@ -1162,7 +1173,7 @@ namespace FFMQLib
 				new ScriptBuilder(new List<string> {
 					"04",
 					"1A00B057423FB853CFFFFF9AFF9CBBC2B6C2B5C2CECE36",
-					(chocoboquestflag != NewGameFlagsList.None) ? $"2E{(int)chocoboquestflag:X2}[04]" : "00",
+					(chocoboquestflag != GameFlagIds.None) ? $"2E{(int)chocoboquestflag:X2}[04]" : "00",
 					Companions.GetQuestString(QuestsId.VisitChocobo),
 					"00"
 				}));
@@ -1175,7 +1186,7 @@ namespace FFMQLib
 
 			TileScripts.AddScript((int)TileScriptsList.LightTempleQuest,
 				new ScriptBuilder(new List<string> {
-					(ligthtempleflag != NewGameFlagsList.None) ? $"2E{(int)ligthtempleflag:X2}[03]" : "00",
+					(ligthtempleflag != GameFlagIds.None) ? $"2E{(int)ligthtempleflag:X2}[03]" : "00",
 					"1A00" + MQText.TextToHex("Finally! Hidden corridors should be shaded like in FF2...") + "36",
 					Companions.GetQuestString(QuestsId.VisitLightTemple),
 					"00"
@@ -1188,8 +1199,8 @@ namespace FFMQLib
 
 			MapObjects[0x4F][0x0C].X = MapObjects[0x4F][0x00].X;
 			MapObjects[0x4F][0x0C].Y = MapObjects[0x4F][0x00].Y;
-			MapObjects[0x4F][0x0C].Gameflag = (int)NewGameFlagsList.ShowDullahanChest;
-            GameFlags[(int)NewGameFlagsList.ShowDullahanChest] = true;
+			MapObjects[0x4F][0x0C].Gameflag = 0x00;
+            //GameFlags[GameFlagIds.ShowDullahanChest] = true;
 
 			MapObjects[0x4F][0x00].Y++;
 
@@ -1199,10 +1210,11 @@ namespace FFMQLib
 					"1A54" + MQText.TextToHex("The horseman comes! And tonight he comes for you!\nWatch your head!"),
 					"05E49604",
 					"2B2A",
-					$"23{(int)NewGameFlagsList.ShowDullahanChest:X2}",
+					$"23{(int)GameFlagIds.ShowDullahanChest:X2}",
 					"2A60463C46FFFF",
 					Companions.GetQuestString(QuestsId.DefeatDullahan),
 					Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
+					SeedVendors.GetFlagScript(EnemyIds.Dullahan),
 					"00",
 				}));
 
@@ -1213,7 +1225,7 @@ namespace FFMQLib
 
 			TileScripts.AddScript((int)TileScriptsList.MountGaleQuest,
 				new ScriptBuilder(new List<string> {
-					(mountgalequestflag != NewGameFlagsList.None) ? $"2E{(int)mountgalequestflag:X2}[03]" : "00",
+					(mountgalequestflag != GameFlagIds.None) ? $"2E{(int)mountgalequestflag:X2}[03]" : "00",
 					"1A00" + MQText.TextToHex("Feels like something should be here...") + "36",
 					Companions.GetQuestString(QuestsId.VisitMountGale),
 					"00"
@@ -1240,6 +1252,7 @@ namespace FFMQLib
 			var newPazuzuScript = new ScriptBuilder(new List<string> {
 						"2C50FF",
 						"07A0C112",
+						SeedVendors.GetFlagScript(EnemyIds.Pazuzu),
 						skip7fteleport ? "00" : "0898FD",
 						"00"
 					});
@@ -1377,7 +1390,7 @@ namespace FFMQLib
 					"23F32B4A",
 					"2A2E251D0140511052305110501E051051605010531050FFFF",
 					"09A09411",
-                    $"23{(byte)NewGameFlagsList.ShowForestaKaelisMom:X2}2B{(byte)NewGameFlagsList.ShowForestaKaeli:X2}2B{(byte)NewGameFlagsList.ShowLibraTemplePhoebe:X2}2B{(byte)NewGameFlagsList.ShowSandTempleTristam:X2}2B{(byte)NewGameFlagsList.ShowFireburgTristam:X2}2B{(byte)NewGameFlagsList.ShowFireburgReuben1:X2}", // "2362", don't show companion kaeli, but show kaeli's mom
+                    $"23{(byte)GameFlagIds.ShowForestaKaelisMom:X2}2B{(byte)GameFlagIds.ShowForestaKaeli:X2}2B{(byte)GameFlagIds.ShowLibraTemplePhoebe:X2}2B{(byte)GameFlagIds.ShowSandTempleTristam:X2}2B{(byte)GameFlagIds.ShowFireburgTristam:X2}2B{(byte)GameFlagIds.ShowFireburgReuben1:X2}", // "2362", don't show companion kaeli, but show kaeli's mom
 					"2A10537052105130520201105030532050000550502144E1453344FFFF",
 					"09A09411",
 					"2AB0541054FFFF",

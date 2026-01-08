@@ -27,7 +27,7 @@ namespace FFMQLib
 		LightTemple,
 		DoomCastle
 	}
-	public enum GameFlagsList : int
+	public enum LegacyGameFlagsList : int
 	{
 		FlamerusRexDefeated = 0x01,
 		WakeWaterUsed = 0x02, // This is on IceGolemDefeated, but we transfer it to wakewater
@@ -77,7 +77,7 @@ namespace FFMQLib
 		PathCuttedByKaeli = 0xE3,
 		ShowFigureForHP = 0xF0,
 	}
-	public enum NewGameFlagsList : int
+	public enum GameFlagIds : int
 	{
 		WakeWaterUsed = 0x02, 
 
@@ -132,6 +132,9 @@ namespace FFMQLib
 		AquariaSellerItemBought = 0xD0,
 		FireburgSellerItemBought = 0xD1,
 		WindiaSellerItemBought = 0xD2,
+		FireburgSeedQuest = 0xD3,
+		WindiaSeedQuest = 0xD4,
+		WindiaSeedPending = 0xD5,
 
 		// Quests flags
 		KaeliQuest1 = 0xA9,
@@ -705,6 +708,8 @@ namespace FFMQLib
 		TristamInFireburg02,
 		Unknown3f, // I guess I'll head back to Aquaria, prob Tristam
 		FireburgSellerGirl,
+		FireburgSeedSeller,
+		PotionVendor = 0x43,
 		MineElevatorTop = 0x48,
 		MineElevatorEntrance = 0x49,
 		MineElevatorCenter = 0x4A,
@@ -734,7 +739,9 @@ namespace FFMQLib
 		ForestaHinter,
 		AquariaHinter,
 		FireburgHinter,
-		WindiaHinter
+		WindiaHinter,
+		FireburgSeedVendor,
+		WindiaSeedVendor,
 
 	}
 	public enum BattlefieldRewardType : byte
