@@ -128,7 +128,7 @@ namespace FFMQLib
 			{ CompanionsId.Phoebe, new List<GameFlagIds> { GameFlagIds.PhoebeQuest1, GameFlagIds.PhoebeQuest2, GameFlagIds.PhoebeQuest3, GameFlagIds.PhoebeQuest4, } },
 			{ CompanionsId.Reuben, new List<GameFlagIds> { GameFlagIds.ReubenQuest1, GameFlagIds.ReubenQuest2, GameFlagIds.ReubenQuest3, GameFlagIds.ReubenQuest4, } },
 		};
-		public void SetQuests(Flags flags, Battlefields battlefields, GameInfoScreen screen, MT19337 rng)
+		public void SetQuests(Flags flags, Battlefields battlefields, MT19337 rng)
 		{
 			QuestQuantity = 1;
 			Quests = new();
@@ -154,6 +154,17 @@ namespace FFMQLib
 
             var availablecompanions = Available.Where(c => c.Value).Select(c => c.Key).ToList();
 			Quests = Quests.Where(q => availablecompanions.Contains(q.Companion)).ToList();
+		}
+		public void UpdateQuests(ItemsPlacement itemsPlacement, GameInfoScreen screen)
+		{
+			// Update Refresher Quest
+			if (Quests.TryFind(q => q.Name == QuestsId.CollectQtyItems, out var refresherQuest))
+			{
+				int refresherWorldQty = itemsPlacement.ItemsLocations.Count(l => l.IsPlaced && l.Content == Items.Refresher) * 3;
+				int rate = refresherQuest.Quantity;
+				refresherQuest.Quantity = rate * refresherWorldQty / 100;
+				refresherQuest.Description = $"Collect {refresherQuest.Quantity} Refreshers.\n";
+			}
 
 			GenerateQuestsScripts();
 			AddQuestsToGameInfoScreen(screen);
@@ -203,9 +214,9 @@ namespace FFMQLib
 			int mediumminibossesqty = rng.Between(4, 5);
 			int hardminibossesqty = rng.Between(6, 7);
 
-			int easycollectqty = rng.Between(15, 25);
-			int mediumcollectqty = rng.Between(26, 35);
-			int hardcollectqty = rng.Between(40, 50);
+			int easycollectqty = rng.Between(25, 40);
+			int mediumcollectqty = rng.Between(45, 60);
+			int hardcollectqty = rng.Between(65, 80);
 
 			int easyskycoinqty = rng.Between(10, 15);
 			int mediumskycoinqty = rng.Between(25, 30);
@@ -585,8 +596,6 @@ namespace FFMQLib
 		}
 		private void GenerateQuestsScripts()
 		{
-			FFMQRom rom = new();
-
 			// Quest Completed Box
 			questsScripts.AddScript(new ScriptBuilder(new List<string>()
 			{

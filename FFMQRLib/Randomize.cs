@@ -17,7 +17,7 @@ namespace FFMQLib
 		// Z = Patch Release
 		// Increment Beta on every new builds, reset to zero on version increase
 		public static string Version = "1.7.0";
-		public static string Build = "13";
+		public static string Build = "14";
 		public static string BetaVersionShort => Version + "-b" + Build;
 		public static string BetaVersionLong => Version + "-beta" + Build;
 	}
@@ -124,7 +124,7 @@ namespace FFMQLib
 			Companions.SetStartingCompanion(flags.StartingCompanion, rng);
 			Companions.SetAvailableCompanions(flags.AvailableCompanions, rng);
 			Companions.SetSpellbooks(flags.CompanionSpellbookType, GameInfoScreen, rng);
-			Companions.SetQuests(flags, Battlefields, GameInfoScreen, rng);
+			Companions.SetQuests(flags, Battlefields, rng);
 			Companions.SetCompanionsLocation(GameLogic.Rooms);
 
 			// Shops
@@ -151,6 +151,7 @@ namespace FFMQLib
 
 			SetStartingItems(itemsPlacement);
 			MapObjects.UpdateChests(itemsPlacement);
+			Companions.UpdateQuests(itemsPlacement, GameInfoScreen);
 			UpdateScripts(flags, itemsPlacement, Overworld.StartingLocation, apconfigs.ApEnabled, preferences.MusicMode == MusicMode.Mute, rng);
 			ChestsHacks(flags, itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);

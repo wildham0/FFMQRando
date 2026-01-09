@@ -84,7 +84,7 @@ namespace FFMQLib
 			}
 			else if (settings == SeedVendorSettings.RandomBosses)
 			{
-				var bosses = Enemizer.Bosses.ToList();
+				var bosses = Enemizer.Bosses.Where(b => b != EnemyIds.Behemoth).ToList();
 				bossesSeedVendors.Add(rng.TakeFrom(bosses), TalkScriptsList.FireburgSeedVendor);
 				bossesSeedVendors.Add(rng.TakeFrom(bosses), TalkScriptsList.WindiaSeedVendor);
 			}

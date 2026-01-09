@@ -75,8 +75,8 @@ namespace FFMQLib
 		};
 
 		public List<Items> StartingItems { get; set; }
-		public List<GameObject> ItemsLocations { get; set;  }
-		
+		public List<GameObject> ItemsLocations { get; set; }
+
 		private const int TreasuresOffset = 0x8000;
 		private int GpCount;
 		private PowerLevel PowerLevel;
