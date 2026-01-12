@@ -57,7 +57,7 @@ namespace FFMQLib
 		public string Seed;
 		public string Name;
 		public string Romname;
-		public string Version;
+		public string Version { get; set; }
 		public string FileName;
 
 		public ApConfigs()
@@ -77,7 +77,7 @@ namespace FFMQLib
 			Version = "";
 			FileName = "";
 		}
-		public void ProcessYaml()
+		public bool ProcessYaml()
 		{
 			var deserializer = new DeserializerBuilder()
 				.WithNamingConvention(UnderscoredNamingConvention.Instance)
@@ -125,14 +125,16 @@ namespace FFMQLib
 
 			if (Version == "1.5" || Version == "1.6")
 			{
-				throw new Exception("This version of FFMQR isn't compatible, generate your seed on https://1-6-2.ffmqrando.net");
+				return false;
 			}
 			else if (Version != "1.7")
 			{
-				throw new Exception($"This APMQ file wasn't generated with a compatible APWorld. Version used: {Version}.");
+				return false;
+				//return $"This APMQ file wasn't generated with a compatible APWorld. Version used: {Version}.";
 			}
 
 			ApEnabled = true;
+			return true;
 		}
 		public void CopySetup(ApConfigs inputConfigs)
 		{
