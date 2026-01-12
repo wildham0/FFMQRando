@@ -400,7 +400,7 @@ else if(loadingDone)
 		});
 
 
-		NavigationManager.NavigateTo(NavigationManager.BaseUri + sectionNavigation + "?s=" + showSeed + "&f=" + flags.GenerateFlagString());
+		NavigationManager.NavigateTo(NavigationManager.BaseUri + "?s=" + showSeed + "&f=" + flags.GenerateFlagString() + sectionNavigation);
 	}
 
 	private string MakeParsableUriString(string uristring)

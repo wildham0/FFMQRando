@@ -123,6 +123,15 @@ namespace FFMQLib
 				Console.WriteLine(ex.ToString());
 			}
 
+			if (Version == "1.5" || Version == "1.6")
+			{
+				throw new Exception("This version of FFMQR isn't compatible, generate your seed on https://1-6-2.ffmqrando.net");
+			}
+			else if (Version != "1.7")
+			{
+				throw new Exception($"This APMQ file wasn't generated with a compatible APWorld. Version used: {Version}.");
+			}
+
 			ApEnabled = true;
 		}
 		public void CopySetup(ApConfigs inputConfigs)
