@@ -38,7 +38,7 @@ namespace FFMQLib
 			FixMultiplyingDarkKing();
 			PazuzuFixedFloorRng(rng);
 			ShuffledFloorVanillaMonstersFix(flags);
-			Msu1Support();
+			Msu1Support(prefs.MusicMode == MusicMode.Mute);
 			SaveFileReduction();
 			DisableSeedDuping(flags.DisableDuping);
 		}
@@ -593,7 +593,7 @@ namespace FFMQLib
 				PutInBank(0x00, 0xD3D2, Blob.FromHex("22009f11ea"));
 			}
 		}
-		public void Msu1Support()
+		public void Msu1Support(bool mute)
 		{
 			// see 10_8000_MSUSupport.asm
 			PutInBank(0x0D, 0x8186, Blob.FromHex("5C008010EAEA"));
@@ -601,10 +601,16 @@ namespace FFMQLib
 			PutInBank(0x0D, 0x81FA, Blob.FromHex("229F8010EAEAEAEAEAEA"));
 			PutInBank(0x0D, 0x85D2, Blob.FromHex("5C648010EA"));
 
-			string loadrandomtrack = "EAEAEA";
+			string loadrandomtrack = mute ? "6403EA" : "EAEAEA";
 			string saverandomtrack = "EAEAEA";
 
-			PutInBank(0x10, 0x8000, Blob.FromHex($"{loadrandomtrack}A501C505D0045C8A810D20C2809044AFF0FF7FC501D00664015C8A810D9C0620A5018FF0FF7F8D04209C0520A9012C002070F9AD00202908D01DA9FF8D0620A501C915D004A9018005201081A9038D072064015CED810DA9008FF0FF7F5CED810D8D4021C9F0D0079C07205CD9850D5CED850DA6064820C2809009AD00202908D002686BAFF0FF7FF00D68A501201081A9008FF0FF7F6B682012816BA501D01620C280900FAFF0FF7FF0099C41219C024285056BA5018D412185058D02426BAD0220C953D025AD0320C92DD01EAD0420C94DD017AD0520C953D010AD0620C955D009AD0720C931D00238601860DA08E230A501AABF208110291F850128FA60DA08E230AABF408110291F28FA60A501{saverandomtrack}850960"));
+			// $603 > 6401 > 6403
+			// first 5c8a810d > 4c4081ea
+
+			PutInBank(0x10, 0x8000, Blob.FromHex($"{loadrandomtrack}A501C505D0044c4081ea20C2809044AFF0FF7FC501D00664035C8A810D9C0620A5018FF0FF7F8D04209C0520A9012C002070F9AD00202908D01DA9FF8D0620A501C915D004A9018005201081A9038D072064035CED810DA9008FF0FF7F5CED810D8D4021C9F0D0079C07205CD9850D5CED850DA6064820C2809009AD00202908D002686BAFF0FF7FF00D68A501201081A9008FF0FF7F6B682012816BA501D01620C280900FAFF0FF7FF0099C41219C024285056BA5018D412185058D02426BAD0220C953D025AD0320C92DD01EAD0420C94DD017AD0520C953D010AD0620C955D009AD0720C931D00238601860DA08E230A501AABF208110291F850128FA60DA08E230AABF408110291F28FA60A501{saverandomtrack}850960"));
+
+			//awkward patch, we'll fix it later
+			PutInBank(0x10, 0x8140, Blob.FromHex("20c2809009ad00202910f00264035c8a810d"));
 		}
 		public void SetMusicMode(MusicMode mode, MT19337 rng)
 		{
@@ -625,11 +631,15 @@ namespace FFMQLib
 			tracks.Insert(0x15, 0x15);
 			tracks.Add(0x1A);
 			List<(byte, byte)> completetracks = goodordertracks.Select(x => (x, tracks[x])).ToList();
-
+			/*
 			if (mode == MusicMode.Mute)
 			{
-				completetracks = Enumerable.Repeat((byte)0x00, 0x1B).Select(x => (x, x)).ToList();
-			}
+				//completetracks = Enumerable.Repeat((byte)0x00, 0x1B).Select(x => (x, x)).ToList();
+				PutInBank(0x00, 0x8264, Blob.FromHex("00")); // Intro volume
+				PutInBank(0x01, 0x9133, Blob.FromHex("00")); // Exit battle volume
+				PutInBank(0x01, 0xBA94, Blob.FromHex("00")); // Map volume
+				PutInBank(0x02, 0xDACC, Blob.FromHex("00")); // Enter battle volume
+			}*/
 
 			PutInBank(0x10, 0x8240, completetracks.OrderBy(x => x.Item1).Select(x => x.Item2).ToArray());
 			PutInBank(0x00, 0x928A, Blob.FromHex("22008210eaeaeaea")); // normal track loading routine
