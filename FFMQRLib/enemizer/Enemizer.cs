@@ -39,7 +39,7 @@ namespace FFMQLib
 			SetElementalResistWeakness();
 			ShuffleResistWeakness(flags.ShuffleResWeakType, gameinfoscreen, rng);
 			UpdateNames(rng);
-			UpdatePalettes();
+			UpdatePalettes(flags.EnemizerAttacks == EnemizerAttacks.Elemental);
 		}
 
 		static public List<(EnemyCategory group, List<EnemyIds> enemies)> GetValidEnemies(EnemizerGroups group, bool progressive)

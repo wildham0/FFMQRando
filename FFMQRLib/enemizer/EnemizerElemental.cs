@@ -130,8 +130,13 @@ namespace FFMQLib
 			}
 		}
 
-		public void UpdatePalettes()
+		public void UpdatePalettes(bool modifypalettes)
 		{
+
+			if (!modifypalettes)
+			{
+				return;
+			}
 
 			Dictionary<EnemizerElements, byte> palettes = new()
 			{
@@ -153,67 +158,6 @@ namespace FFMQLib
 				enemy.Palette1 = palettes[elementalEnemy.Value];
 				enemy.Palette2 = palettes[elementalEnemy.Value];
 			}
-
-			/*
-			List<SnesColor> red = new()
-			{
-				new SnesColor(0,0,0),
-				new SnesColor(31,31,31),
-				new SnesColor(31,31,5),
-				new SnesColor(31,17,0),
-				new SnesColor(31,8,0),
-				new SnesColor(26,0,0),
-				new SnesColor(16,14,31),
-				new SnesColor(0,0,0),
-			};
-
-			List<SnesColor> blue = new()
-			{
-				new SnesColor(0,0,0),
-				new SnesColor(31,31,31),
-				new SnesColor(19,26,21),
-				new SnesColor(14,18,26),
-				new SnesColor(8,7,21),
-				new SnesColor(9,0,13),
-				new SnesColor(9,10,23),
-				new SnesColor(0,0,0),
-			};
-
-			List<SnesColor> brown = new()
-			{
-				new SnesColor(0,0,0),
-				new SnesColor(31,31,31),
-				new SnesColor(31,23,17),
-				new SnesColor(26,12,5),
-				new SnesColor(16,4,0),
-				new SnesColor(8,2,0),
-				new SnesColor(8,15,10),
-				new SnesColor(0,0,0),
-			};
-
-			List<SnesColor> grey = new()
-			{
-				new SnesColor(0,0,0),
-				new SnesColor(28,27,28),
-				new SnesColor(21,19,20),
-				new SnesColor(14,11,13),
-				new SnesColor(9,5,8),
-				new SnesColor(4,2,3),
-				new SnesColor(5,15,12),
-				new SnesColor(0,0,0),
-			};
-
-			List<SnesColor> yellow = new()
-			{
-				new SnesColor(0,0,0),
-				new SnesColor(31,31,31),
-				new SnesColor(31,31,21),
-				new SnesColor(27,19,0),
-				new SnesColor(13,16,0),
-				new SnesColor(6,6,0),
-				new SnesColor(15,20,26),
-				new SnesColor(0,0,0),
-			};*/
 
 			enemyPalettes.Data[0x02] = FirePalette;
 			enemyPalettes.Data[0x03] = WaterPalette;
