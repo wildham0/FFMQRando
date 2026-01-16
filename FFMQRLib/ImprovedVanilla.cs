@@ -63,7 +63,7 @@ namespace FFMQLib
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			WindowPalette(preferences.WindowPalette);
 			playerSprites.SetPlayerSprite(playerSprite, this);
-			darkKingTrueForm.RandomizeDarkKingTrueForm(preferences, Enemies, Enemizer, sillyrng, this);
+			darkKingTrueForm.RandomizeDarkKingTrueForm(preferences, Enemies, Enemizer, false, sillyrng, this);
 
 			// Credits
 			credits.Update(playerSprite, darkKingTrueForm.DarkKingSprite);

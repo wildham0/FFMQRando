@@ -45,11 +45,13 @@ namespace FFMQLib
 		public string filename { get; set; }
 		public string author { get; set; }
 		public string name { get; set; }
+		public bool ap { get; set; }
 		public DarkKingSprite()
 		{
 			filename = "";
 			author = "";
 			name = "";
+			ap = true;
 		}
 	}
 
@@ -70,7 +72,7 @@ namespace FFMQLib
 
 		private const int paletteBank = 0x09;
 		private const int paletteOffsetDarkKing = 0x8280;
-		private void GetRandomDKfromMetadata(MT19337 rng)
+		private void GetRandomDKfromMetadata(bool ap, MT19337 rng)
 		{
 			string metadatayaml = "";
 			var assembly = Assembly.GetExecutingAssembly();
@@ -99,6 +101,7 @@ namespace FFMQLib
 						Console.WriteLine(ex.ToString());
 					}
 
+					spritelist = spritelist.Where(s => !ap || s.ap).ToList();
 					DarkKingSprite = rng.PickFrom(spritelist);
 
 					entry = spriteContainer.GetEntry(DarkKingSprite.filename + "1.bmp");
@@ -115,7 +118,7 @@ namespace FFMQLib
 				}
 			}
 		}
-		public void RandomizeDarkKingTrueForm(Preferences pref, Enemies enemies, Enemizer enemizer, MT19337 rng, FFMQRom rom)
+		public void RandomizeDarkKingTrueForm(Preferences pref, Enemies enemies, Enemizer enemizer, bool ap, MT19337 rng, FFMQRom rom)
 		{
 			bool debugmode = pref.DarkKing3.Length > 0;
 
@@ -126,7 +129,7 @@ namespace FFMQLib
 				return;
 			}
 
-			GetRandomDKfromMetadata(rng);
+			GetRandomDKfromMetadata(ap, rng);
 
 			DarkKingSpriteDataPack darkking3 = new();
 			DarkKingSpriteDataPack darkking4 = new();
