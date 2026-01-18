@@ -82,18 +82,6 @@ namespace FFMQLib
 		private PowerLevel PowerLevel;
 		private List<Items> PlacedItems;
 		private List<AccessReqs> ProcessedAccessReqs;
-
-		private class RegionWeight
-		{ 
-			public MapRegions Region { get; set; }
-			public int Weight { get; set; }
-
-			public RegionWeight(MapRegions _region, int _weight)
-			{
-				Region = _region;
-				Weight = _weight;
-			}
-		}
 		public ItemsPlacement(Flags flags, List<GameObject> initialGameObjects, Companions companions, ApConfigs apconfigs, FFMQRom rom, MT19337 rng)
 		{
 			if (apconfigs.ApEnabled)
@@ -130,29 +118,27 @@ namespace FFMQLib
 			originalItems.Remove(0xF3);
 			originalItems.Remove(0xF4);
 			originalItems.Remove(0xF5);
-			//originalItems = originalItems.Where()
 
-			//List<Items> consumableList = rom.GetFromBank(0x01, 0x801E, 0xDD).ToBytes().Select(x => (Items)x).ToList();
-			//List<Items> finalConsumables = rom.GetFromBank(0x01, 0x80F2, 0x04).ToBytes().Select(x => (Items)x).ToList();
-
-
-			List<RegionWeight> regionsWeight = new() { new RegionWeight(MapRegions.Foresta, 1), new RegionWeight(MapRegions.Aquaria, 1), new RegionWeight(MapRegions.Fireburg, 1), new RegionWeight(MapRegions.Windia, 1) };
 			List<GameObjectType> validTypes = new() { GameObjectType.BattlefieldItem, GameObjectType.Box, GameObjectType.Chest, GameObjectType.NPC };
 
 			List<GameObject> initialItemlocations = initialGameObjects.ToList();
 
+			Dictionary<MapRegions, int> regionsWeight = new();
+			Dictionary<GameObjectType, int> typeWeight = new();
+
 			while (badPlacement)
 			{
 				badPlacement = false;
-				//placedChests = 0;
 
-				//bool placedMirror = false;
-				//bool placedMask = false;
+				regionsWeight[MapRegions.Foresta] = 1;
+				regionsWeight[MapRegions.Aquaria] = 1;
+				regionsWeight[MapRegions.Fireburg] = 1;
+				regionsWeight[MapRegions.Windia] = 1;
 
-				regionsWeight.Find(x => x.Region == MapRegions.Foresta).Weight = 1;
-				regionsWeight.Find(x => x.Region == MapRegions.Aquaria).Weight = 1;
-				regionsWeight.Find(x => x.Region == MapRegions.Fireburg).Weight = 1;
-				regionsWeight.Find(x => x.Region == MapRegions.Windia).Weight = 1;
+				typeWeight[GameObjectType.Box] = 1;
+				typeWeight[GameObjectType.Chest] = 1;
+				typeWeight[GameObjectType.NPC] = flags.NpcsShuffle == ItemShuffleNPCsBattlefields.Exclude ? 1000 : 1;
+				typeWeight[GameObjectType.BattlefieldItem] = flags.BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Exclude ? 1000 : 1;
 
 				ItemsList itemsList = new(flags, rng);
 				StartingItems = itemsList.Starting;
@@ -183,6 +169,7 @@ namespace FFMQLib
 				{
 					Items itemToPlace;
 
+					// Select all accessible Locations
 					List<GameObject> validLocations = ItemsLocations.Where(x => validTypes.Contains(x.Type) &&
 						x.Accessible &&
 						x.IsPlaced == false &&
@@ -191,6 +178,7 @@ namespace FFMQLib
                         (itemsList.NoMoreProgression ? true : x.Location != LocationIds.DoomCastle)
                         ).ToList();
 
+					// Apply Friendly Logic options
 					if (flags.LogicOptions == LogicOptions.Friendly)
 					{
 						if (!itemsList.MirrorIsPlaced && validLocations.Where(x => x.Location == LocationIds.IcePyramid).Any())
@@ -205,9 +193,30 @@ namespace FFMQLib
 						}
 					}
 
+					// Create priorized locations and loose locations lists
 					List<GameObject> validLocationsPriorized = validLocations.Where(x => x.Prioritize == true).ToList();
 					List<GameObject> validLocationsLoose = validLocations.Where(x => x.Prioritize == false).ToList();
 
+					// Weight Loose locations
+					List<GameObjectType> weightedTypeList = 
+					[
+						.. Enumerable.Repeat(GameObjectType.Box, 16 / typeWeight[GameObjectType.Box]),
+						.. Enumerable.Repeat(GameObjectType.Chest, 4 / typeWeight[GameObjectType.Chest]),
+						.. Enumerable.Repeat(GameObjectType.NPC, 3 / typeWeight[GameObjectType.NPC]),
+						.. Enumerable.Repeat(GameObjectType.BattlefieldItem, 1 / typeWeight[GameObjectType.BattlefieldItem]),
+					];
+
+					var favoredType = rng.PickFrom(weightedTypeList);
+					if (favoredType != GameObjectType.Box)
+					{
+						List<GameObject> typeLoose = validLocationsLoose.Where(x => x.Type == favoredType).ToList();
+						if (typeLoose.Any())
+						{
+							validLocationsLoose = typeLoose;
+						}
+					}
+					
+					// Select priorized or loose locations pool
 					int diceRoll = rng.Between(1, itemsList.Count);
 
 					if ((validLocationsPriorized.Any() && validLocationsLoose.Any() && diceRoll <= prioritizedItemsCount) ||
@@ -226,11 +235,12 @@ namespace FFMQLib
 						validLocations = new();
 					}
 
+					// Weight Regions
 					List<MapRegions> weightedRegionList = new();
-					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Foresta, 8 / regionsWeight.Find(x => x.Region == MapRegions.Foresta).Weight));
-					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Aquaria, 16 / regionsWeight.Find(x => x.Region == MapRegions.Aquaria).Weight));
-					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Fireburg, 16 / regionsWeight.Find(x => x.Region == MapRegions.Fireburg).Weight));
-					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Windia, 16 / regionsWeight.Find(x => x.Region == MapRegions.Windia).Weight));
+					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Foresta, 8 / regionsWeight[MapRegions.Foresta]));
+					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Aquaria, 16 / regionsWeight[MapRegions.Aquaria]));
+					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Fireburg, 16 / regionsWeight[MapRegions.Fireburg]));
+					weightedRegionList.AddRange(Enumerable.Repeat(MapRegions.Windia, 16 / regionsWeight[MapRegions.Windia]));
 
 					MapRegions favoredRegion = rng.PickFrom(weightedRegionList);
 
@@ -243,6 +253,7 @@ namespace FFMQLib
 						validLocations = validLocationsFavored;
 					}
 
+					// Bad placement if there's no accessible locations at this point
 					if (!validLocations.Any() && itemsList.Count > 0)
 					{
 						Console.WriteLine("Attempt " + counter + " - Invalid Placement ");
@@ -256,13 +267,19 @@ namespace FFMQLib
 						break;
 					}
 					
+					// Pick item and place it
 					itemToPlace = itemsList.NextItem(validLocationsCount, rng);
 
 					GameObject targetLocation = rng.PickFrom(validLocations);
 					targetLocation.Content = itemToPlace;
 					targetLocation.IsPlaced = true;
 					GpCount += targetLocation.Cost;
-					regionsWeight.Find(x => x.Region == targetLocation.Region).Weight++;
+					regionsWeight[targetLocation.Region]++;
+					
+					if (targetLocation.Type != GameObjectType.Box)
+					{
+						typeWeight[targetLocation.Type]++;
+					}
 
 					if (targetLocation.Type == GameObjectType.Chest || targetLocation.Type == GameObjectType.Box)
 					{ 
