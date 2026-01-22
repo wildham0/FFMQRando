@@ -19,9 +19,6 @@ namespace FFMQRWin
 	{
 
 		public PreferencesSettings PreferencesSettings;
-		private PlayerSprites PlayerSprites;
-		private int currentSprite;
-
 		public PreferencesForm()
 		{
 			InitializeComponent();
@@ -39,23 +36,8 @@ namespace FFMQRWin
 			PreferencesSettings.Initialize();
 			PreferencesSettings.UpdateValues();
 
-			PlayerSprites = new(PlayerSpriteMode.Icons);
-			currentSprite = 0;
-
 			messageStripLabel.Text = "Preferences loaded successfully.";
 		}
-		private void CreateSpriteBox()
-		{ 
-			
-		
-		}
-
-
-		/*
-		@foreach(var sprite in currentsprites)
-		{
-							< DropdownItem Clicked = "@(() => OnSpriteSelect(@sprite.filename))" >< img src = "@(ConvertImageBytes(sprite.iconimg))" class="sprite-icon" /> @sprite.name</DropdownItem>
-						}*/
 		private void cancelButton_Click(object sender, EventArgs e)
 		{
 			this.Close();
@@ -65,40 +47,5 @@ namespace FFMQRWin
 		{
 
 		}
-		private string ConvertImageBytes(byte[] image)
-		{
-			var imagesrc = Convert.ToBase64String(image);
-			return string.Format("data:image/png;base64,{0}", imagesrc);
-		}
-		/*
-		private string CurrentSpriteSelection()
-		{
-			if (preferences.PlayerSprite == "default")
-			{
-				return "<img src=\"skin-icons/default-benjamin-icon.png\" class=\nsprite-icon\n /> Default/Benjamin";
-			}
-			else if (preferences.PlayerSprite == "random")
-			{
-				return "Random";
-
-			}
-			else if (preferences.PlayerSprite == "custom")
-			{
-				return "Upload Custom Sprites";
-			}
-			else
-			{
-				var currentsprite = playersprites.sprites.Where(s => s.filename == preferences.PlayerSprite).ToList();
-				if (currentsprite.Any())
-				{
-					return "<img src=\"" + ConvertImageBytes(currentsprite.First().iconimg) + "\" class=\nsprite-icon\n /> " + currentsprite.First().name;
-				}
-				else
-				{
-					return "Error";
-				}
-			}
-		}*/
-
 	}
 }

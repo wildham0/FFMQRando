@@ -26,11 +26,8 @@ namespace FFMQRWin
 		private Dictionary<string, SpriteSelector> spriteBoxes;
 		private Dictionary<string, Button> buttons;
 
-		//private Preferences preferences;
-		private string typeString;
 		private Panel contentPanel;
 		private PlayerSprites playerSprites;
-		//private byte[] customPlayerSprite;
 
 		private int maxIndex;
 
@@ -44,7 +41,6 @@ namespace FFMQRWin
 			buttons = new();
 			//preferences = _preferences;
 			contentPanel = _contentPanel;
-			typeString = "Pref";
 			playerSprites = new(PlayerSpriteMode.Icons);
 			//customPlayerSprite;
 		}
@@ -60,6 +56,7 @@ namespace FFMQRWin
 			CreateTextBox("CustomSpriteLocation", "Custom Sprite Location");
 			CreateComboBox("FavoredPath", "ROM File Save Location", new List<string>() { "Original ROM File Location", "APMQ File Location", "Custom Save Location" });
 			CreateTextBox("CustomSaveLocation", "Custom Save Location");
+			CreateCheckBox("AutoCloseOnSuccess", "Close Autopatcher on success.");
 
 		}
 		private void CreateComboBox(string name, string text, List<string> options)
@@ -250,6 +247,7 @@ namespace FFMQRWin
 			textBoxes["CustomSpriteLocation"].Text = Settings.Default.CustomSpritesLocation;
 
 			textBoxes["CustomSaveLocation"].Text = Settings.Default.CustomSavePath;
+			checkBoxes["AutoCloseOnSuccess"].Checked = Settings.Default.AutoCloseOnSuccess;
 
 
 		}
@@ -266,6 +264,7 @@ namespace FFMQRWin
 			Settings.Default.CustomSpritesLocation = textBoxes["CustomSpriteLocation"].Text;
 
 			Settings.Default.CustomSavePath = textBoxes["CustomSaveLocation"].Text;
+			Settings.Default.AutoCloseOnSuccess = checkBoxes["AutoCloseOnSuccess"].Checked;
 			Settings.Default.Save();
 		}
 		public Preferences CreatePreferences()
@@ -295,7 +294,7 @@ namespace FFMQRWin
 			{
 				pref.ValidateCustomSprites();
 			}
-			catch (Exception ex)
+			catch
 			{
 				pref.PlayerSprite = "default";
 			}

@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
 using System.IO.Pipes;
@@ -29,9 +30,6 @@ namespace FFMQRWin
 {
 	public partial class Main : Form
 	{
-		public FFMQRom newRom = new();
-		public Flags flags = new();
-
 		public FFMQRom FFMQRom = new();
 		public ApConfigs ApConfigs = new();
 		public Flags Flags = new();
@@ -40,81 +38,24 @@ namespace FFMQRWin
 		public string romDirectoryPath = "";
 		public string apmqDirectoryPath = "";
 		public string customDirectoryPath = "";
+		public FilePath apmqArgPath;
 		public string savePath { get => GetSavePath(); }
 		public string romLocation = "";
 		public FavoredPaths favoredPath = FavoredPaths.RomLocation;
 		public Blob seed;
 
+		public Label messageBox;
+
 		public FlagsSettings FlagsSettings;
 
 		ContentModes Mode = ContentModes.Randomizer;
-
-		// launching
-		// .set path
-		// open APMQ file
-		// open ROM file
-		// set preferences
-		// generate
-		// save file
-
-		// command
-		// ap
-		// set path
 		public Main()
 		{
 			string[] args = Environment.GetCommandLineArgs();
 			var filePath = args.Length > 1 ? new FilePath(args[1].Replace("\"", "")) : new FilePath("");
+			apmqArgPath = filePath;
 
-			if (filePath.Type != "apmq")
-			{
-				InitializeComponent();
-			}
-			else
-			{
-				seed = Blob.FromHex("00000000");
-				string resultMessage = "";
-
-				// Configure paths
-				SetupPaths(filePath.Path);
-
-				if (Settings.Default.RomFileLocation == "")
-				{
-					MessageBox.Show("Can't generate: No default ROM found. Launch the program normally and select a default ROM.");
-					Application.Exit();
-				}
-
-				if (!FileManager.LoadAPMQFile(filePath, ApConfigs, Flags, ref resultMessage))
-				{
-					Application.Exit();
-				}
-
-				if (!FileManager.LoadRom(Settings.Default.RomFileLocation, FFMQRom, ref resultMessage))
-				{
-					Application.Exit();
-				}
-
-				// Create preferences
-				FileManager.LoadCustomSprites(Settings.Default.CustomSpritesLocation, ref CustomSprite, ref resultMessage);
-				var preferences = PreferencesSettings.GetPreferences(CustomSprite);
-
-				// Generate
-				try
-				{
-					FFMQRom.Randomize(seed, flags, preferences, ApConfigs);
-				}
-				catch (Exception ex)
-				{
-					MessageBox.Show("Generation Error.\n" + ex);
-					Application.Exit();
-				}
-
-				// Save File
-				var outputFile = File.Create(savePath + ApConfigs.FileName + ".sfc");
-				newRom.Save(outputFile);
-				outputFile.Close();
-
-				Application.Exit();
-			}
+			InitializeComponent();
 		}
 		private string GetSavePath()
 		{
@@ -159,23 +100,25 @@ namespace FFMQRWin
 			if (Settings.Default.LastFlagset != "")
 			{
 				var flagstring = Settings.Default.LastFlagset;
-				flags = new();
-				flags.ReadFlagString(flagstring);
-				FlagsSettings = new(flags, contentPanel, flagstringBox);
+				Flags = new();
+				Flags.ReadFlagString(flagstring);
+				FlagsSettings = new(Flags, contentPanel, flagstringBox);
 				flagstringBox.Text = flagstring;
 			}
 			else
 			{
-				FlagsSettings = new(flags, contentPanel, flagstringBox);
-				flagstringBox.Text = flags.GenerateFlagString();
+				FlagsSettings = new(Flags, contentPanel, flagstringBox);
+				flagstringBox.Text = Flags.GenerateFlagString();
 			}
 
 			FlagsSettings.Initialize();
+			CreateMessageBox();
 
 			Mode = (ContentModes)Settings.Default.LastMode;
 			SwitchMode(Mode);
-
 			messageStripLabel.Text = "FFMQ Randomzier launched succesfully.";
+
+			this.Shown += AutoPatch;
 		}
 
 		private void SwitchMode(ContentModes mode)
@@ -226,32 +169,38 @@ namespace FFMQRWin
 				Settings.Default.LastMode = 2;
 				Settings.Default.Save();
 			}
+			else if (mode == ContentModes.AutoPatcher)
+			{
+				FlagsSettings.HideList();
+				this.flagsToolStripMenuItem.Checked = false;
+				this.archipelagoToolStripMenuItem.Checked = false;
+
+				this.seedBox.Enabled = false;
+				this.flagstringBox.Enabled = false;
+				this.seedButton.Enabled = false;
+				this.filterLabel.Visible = false;
+				this.filterBox.Visible = false;
+
+				messageBox.Visible = true;
+			}
 		}
 		private void generate_Click(object sender, EventArgs e)
 		{
 			FFMQRom.RestoreOriginalData();
-			//try
-			//{
-				// Manage custom sprite, a bit clunky, but should work for now
-				string resultMessage = "";
+			string resultMessage = "";
 				
-				FileManager.LoadCustomSprites(Settings.Default.CustomSpritesLocation, ref CustomSprite, ref resultMessage);
-				messageStripLabel.Text = resultMessage;
-				var preferences = PreferencesSettings.GetPreferences(CustomSprite);
+			FileManager.LoadCustomSprites(Settings.Default.CustomSpritesLocation, ref CustomSprite, ref resultMessage);
+			messageStripLabel.Text = resultMessage;
+			var preferences = PreferencesSettings.GetPreferences(CustomSprite);
 
-				// Randomize
-				FFMQRom.Randomize(seed, Flags, preferences, ApConfigs);
+			// Randomize
+			FFMQRom.Randomize(seed, Flags, preferences, ApConfigs);
 
-				var outputFile = File.Create(savePath + "FFMQR_" + seed.ToHex() + ".sfc");
-				FFMQRom.Save(outputFile);
-				outputFile.Close();
-				messageStripLabel.Text = "Randomized ROM file generated successfully.";
-			/*}
-			catch (Exception ex)
-			{
-				messageStripLabel.Text = "Generation error.";
-				MessageBox.Show("Generation error.\n" + ex.Message);
-			}*/
+			string filename = ApConfigs.ApEnabled ? ApConfigs.FileName : "FFMQR_" + seed.ToHex();
+			var outputFile = File.Create(savePath + filename + ".sfc");
+			FFMQRom.Save(outputFile);
+			outputFile.Close();
+			messageStripLabel.Text = "Randomized ROM file generated successfully.";
 		}
 		private void rollSeed_Click(object sender, EventArgs e)
 		{
@@ -259,7 +208,19 @@ namespace FFMQRWin
 			rng.NextBytes(seed);
 			seedBox.Text = seed.ToHex();
 		}
+		private void CreateMessageBox()
+		{
+			messageBox = new Label();
 
+			messageBox.Name = "label.Message";
+			messageBox.Text = "";
+			messageBox.Visible = false;
+			messageBox.Location = new Point(LayoutValues.xOffset, LayoutValues.yInitialOffset);
+			messageBox.Width = contentPanel.Width - 40;
+			messageBox.Height = contentPanel.Height - 40;
+
+			contentPanel.Controls.Add(messageBox);
+		}
 		private void seedBox_TextChanged(object sender, EventArgs e)
 		{
 			if (seedBox.Text.Length <= 8)
@@ -275,11 +236,11 @@ namespace FFMQRWin
 				}
 			}
 		}
-				private void flagstringBox_TextChanged(object sender, EventArgs e)
+		private void flagstringBox_TextChanged(object sender, EventArgs e)
 		{
 			try
 			{
-				flags.ReadFlagString(((TextBox)sender).Text);
+				Flags.ReadFlagString(((TextBox)sender).Text);
 				Settings.Default.LastFlagset = ((TextBox)sender).Text;
 				Settings.Default.Save();
 				FlagsSettings.UpdateValues();
@@ -374,6 +335,80 @@ namespace FFMQRWin
 			SwitchMode(Mode);
 		}
 
+		private void AutoPatch(object sender, EventArgs e)
+		{
+			if (apmqArgPath.Name != "")
+			{
+				Mode = ContentModes.AutoPatcher;
+				SwitchMode(Mode);
+			}
+			else
+			{
+				return;
+			}
+
+			string resultMessage = "";
+			bool error = false;
+
+			// Configure paths
+			SetupPaths(apmqArgPath.Path);
+
+			if (Settings.Default.RomFileLocation == "")
+			{
+				resultMessage = "Can't generate: No default ROM found. Launch the program normally and select a default ROM.\n";
+				messageBox.Text += resultMessage;
+				error = true;
+				return;
+			}
+
+			messageBox.Text += "Loading APMQ file.\n";
+			if (!FileManager.LoadAPMQFile(apmqArgPath, ApConfigs, Flags, ref resultMessage))
+			{
+				messageBox.Text += resultMessage + "\n";
+				error = true;
+				return;
+			}
+
+			messageBox.Text += "Loading Saved ROM.\n";
+			if (!FileManager.LoadRom(Settings.Default.RomFileLocation, FFMQRom, ref resultMessage))
+			{
+				messageBox.Text += resultMessage + "\n";
+				error = true;
+				return;
+			}
+
+			// Create preferences
+			messageBox.Text += "Loading Preferences.\n";
+			FileManager.LoadCustomSprites(Settings.Default.CustomSpritesLocation, ref CustomSprite, ref resultMessage);
+			var preferences = PreferencesSettings.GetPreferences(CustomSprite);
+
+			// Generate
+			messageBox.Text += "Patching...\n";
+			try
+			{
+				FFMQRom.Randomize(seed, Flags, preferences, ApConfigs);
+			}
+			catch (Exception ex)
+			{
+				messageBox.Text += "Generation Error.\n" + ex;
+				error = true;
+				return;
+			}
+
+			// Save File
+			messageBox.Text += "Saving file.\n";
+			var outputFile = File.Create(savePath + ApConfigs.FileName + ".sfc");
+			FFMQRom.Save(outputFile);
+			outputFile.Close();
+
+			messageBox.Text += "Done!\nFile saved at " + savePath + ApConfigs.FileName + ".sfc.";
+
+			if (!error && Settings.Default.AutoCloseOnSuccess)
+			{
+				Application.Exit();
+			}
+
+		}
 		private void archipelagoToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Mode = ContentModes.Archipelago;
@@ -403,6 +438,7 @@ namespace FFMQRWin
 		Randomizer,
 		Archipelago,
 		ImprovedVanilla,
+		AutoPatcher,
 	}
 
 	public enum FavoredPaths

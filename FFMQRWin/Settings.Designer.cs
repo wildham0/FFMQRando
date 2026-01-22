@@ -178,5 +178,17 @@ namespace FFMQRWin {
                 this["RomSavePath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AutoCloseOnSuccess {
+            get {
+                return ((bool)(this["AutoCloseOnSuccess"]));
+            }
+            set {
+                this["AutoCloseOnSuccess"] = value;
+            }
+        }
     }
 }

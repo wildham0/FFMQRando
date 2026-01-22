@@ -36,34 +36,14 @@ namespace FFMQRWin
 				Name = "";
 				Type = "";
 			}
-			
-
-			/*
-			Path = "";
-			for (int i = 0; i < (filePath.Length - 1); i++)
-			{
-				Path += filePath[i] + "\\";
-			}
-			Name = filePath.Last().Split('.')[0];
-			Type = filePath.Last().Split('.').Last();
-			*/
-
 		}
 	}
 
 
 	public static class FileManager
 	{
-		// rom file
-		// apmq file
-		// sprite file
-		// directory
-
 		public static bool LoadCustomSprites(string customSpriteLocation, ref byte[] customSprite, ref string message) 
 		{
-			//string customSpriteLocation = Settings.Default.CustomSpritesLocation;
-			//byte[] customSpriteLoaded = new byte[0];
-			//tring message = "";
 			if (customSpriteLocation != "")
 			{
 				FileStream fileStream;
@@ -74,20 +54,17 @@ namespace FFMQRWin
 				}
 				catch (Exception ex)
 				{
-					message = "Custom Sprites: Couldn't open file.";
+					message = "Custom Sprites: Couldn't open file.\n" + ex.Message;
 					return false;
 				}
 			}
 
-			//customSpriteLoaded.CopyTo(customSprite, 0);
 			message = "Custom Sprites: Sprite file opened successfuly.";
-
 			return true;
 		}
 
 		public static bool LoadRom(string rompath, FFMQRom rom, ref string message)
 		{
-			//if (Settings.Default.RomFileLocation != "")
 			if (rompath != "")
 			{
 				FileStream fileStream;
