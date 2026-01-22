@@ -90,7 +90,6 @@ namespace FFMQLib
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
-				return false;
 			}
 
 			if (ExternalPlacementYaml.Length > 0)
@@ -102,7 +101,6 @@ namespace FFMQLib
 				catch (Exception ex)
 				{
 					Console.WriteLine(ex.ToString());
-					return false;
 				}
 			}
 
@@ -113,7 +111,6 @@ namespace FFMQLib
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
-				return false;
 			}
 
 			try
@@ -124,6 +121,10 @@ namespace FFMQLib
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
+			}
+
+			if (Version != "1.5" && Version != "1.6")
+			{
 				return false;
 			}
 

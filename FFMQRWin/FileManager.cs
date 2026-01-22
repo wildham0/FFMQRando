@@ -176,7 +176,7 @@ namespace FFMQRWin
 				}
 				else
 				{
-					message = "APMQ file error. Couldn't process file.";
+					message = $"APMQ file error. Wrong version: {apconfigs.Version}";
 					MessageBox.Show(message);
 					return false;
 				}
