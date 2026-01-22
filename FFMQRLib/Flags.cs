@@ -118,6 +118,65 @@ namespace FFMQLib
 			return Encoding.UTF8.GetBytes(GenerateFlagString());
 		}
 
+		public bool SetToggleFlag(string flagname, bool value)
+		{
+			var flaglist = this.GetType().GetProperties();
+			if (flaglist.TryFind(f => f.Name == flagname, out var flag))
+			{
+				flag.SetValue(this, value);
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		public bool GetToggleFlag(string flagname)
+		{
+			var flaglist = this.GetType().GetProperties();
+			if (flaglist.TryFind(f => f.Name == flagname, out var flag))
+			{
+				return Convert.ToBoolean(flag.GetValue(this, null));
+			}
+			else
+			{
+				return false;
+			}
+		}
+		public bool SetEnumFlag(string flagname, int value)
+		{
+			var flaglist = this.GetType().GetProperties();
+			if (flaglist.TryFind(f => f.Name == flagname, out var flag))
+			{
+				var enumValues = flag.PropertyType.GetEnumValues();
+				foreach (var enumValue in enumValues)
+				{
+					if (Convert.ToUInt32(enumValue) == (uint)value)
+					{
+						flag.SetValue(this, enumValue);
+						return true;
+					}
+				}
+				return false;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		public int GetEnumFlag(string flagname)
+		{
+			var flaglist = this.GetType().GetProperties();
+			if (flaglist.TryFind(f => f.Name == flagname, out var flag))
+			{
+				return Convert.ToInt32(flag.GetValue(this, null));
+			}
+			else
+			{
+				return -1;
+			}
+		}
+
 		public void ReadFlagString(string flagstring)
 		{
 			flagstring = flagstring.Replace('-', '+').Replace('_', '/').Replace('~', '=');
@@ -392,7 +451,6 @@ namespace FFMQLib
 		public MusicMode MusicMode { get; set; } = MusicMode.Normal;
 		public bool DarkKingTrueForm { get; set; } = false;
 		public ushort WindowPalette { get; set; } = 0x5140;
-		public bool DumpGameInfoScreen { get; set; } = false;
 		public bool ReduceBattleFlash { get; set; } = false;
 		public bool AutoDownloadRom { get; set; } = false;
 		public string PlayerSprite { get; set; } = "default";	

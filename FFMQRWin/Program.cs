@@ -17,7 +17,21 @@ namespace FFMQRWin
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new Main());
         }
     }
+
+	public struct FFMQResult
+	{
+		public bool Success;
+		public string Message;
+		public object Product;
+
+		public FFMQResult(bool success, string message, object product)
+		{
+			Success = success;
+			Message = message;
+			Product = product;
+		}
+	}
 }
