@@ -106,8 +106,8 @@ namespace FFMQLib
 
 			Dictionary<int, Items> originalItems = rom.GetFromBank(0x01, 0x801E, 0xDD)
 				.ToBytes()
-				.Select((x, i) => (i, (Items)x))
-				.ToDictionary(x => x.i, x => x.Item2);
+				.Select((x, i) => (i + 0x1E, (Items)x))
+				.ToDictionary(x => x.Item1, x => x.Item2);
 
 			Dictionary<int, Items> heroChestItems = rom.GetFromBank(0x01, 0x80F2, 0x04)
 				.ToBytes()
