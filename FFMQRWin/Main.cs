@@ -31,8 +31,6 @@ namespace FFMQRWin
 	{
 		public FFMQRom newRom = new();
 		public Flags flags = new();
-		public ApConfigs apConfigs = new();
-
 
 		public FFMQRom FFMQRom = new();
 		public ApConfigs ApConfigs = new();
@@ -102,7 +100,7 @@ namespace FFMQRWin
 				// Generate
 				try
 				{
-					FFMQRom.Randomize(seed, flags, preferences, apConfigs);
+					FFMQRom.Randomize(seed, flags, preferences, ApConfigs);
 				}
 				catch (Exception ex)
 				{
@@ -111,7 +109,7 @@ namespace FFMQRWin
 				}
 
 				// Save File
-				var outputFile = File.Create(savePath + apConfigs.FileName + ".sfc");
+				var outputFile = File.Create(savePath + ApConfigs.FileName + ".sfc");
 				newRom.Save(outputFile);
 				outputFile.Close();
 
@@ -124,7 +122,7 @@ namespace FFMQRWin
 			{
 				return customDirectoryPath;
 			}
-			else if (favoredPath == FavoredPaths.APMQFileLocation && apConfigs.ApEnabled)
+			else if (favoredPath == FavoredPaths.APMQFileLocation && ApConfigs.ApEnabled)
 			{
 				return apmqDirectoryPath;
 			}
@@ -360,6 +358,9 @@ namespace FFMQRWin
 				{
 					messageStripLabel.Text = resultMessage;
 					apmqDirectoryPath = apmqFile.Path;
+					generateButton.Enabled = true;
+					Mode = ContentModes.Archipelago;
+					SwitchMode(Mode);
 				}
 				else
 				{

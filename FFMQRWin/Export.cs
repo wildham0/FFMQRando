@@ -11,6 +11,7 @@ namespace FFMQRWin
 {
 	public class ExportTools
 	{
+		/*
 		public void exportColorJson(FFMQRom rom, string savepath)
 		{
 			MapPalettes palettesfromrom = new MapPalettes(rom);
@@ -62,7 +63,7 @@ namespace FFMQRWin
 
 
 		}
-
+		*/
 
 	}
 
