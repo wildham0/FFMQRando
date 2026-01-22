@@ -77,7 +77,7 @@ namespace FFMQLib
 			Version = "";
 			FileName = "";
 		}
-		public void ProcessYaml()
+		public bool ProcessYaml()
 		{
 			var deserializer = new DeserializerBuilder()
 				.WithNamingConvention(UnderscoredNamingConvention.Instance)
@@ -123,7 +123,13 @@ namespace FFMQLib
 				Console.WriteLine(ex.ToString());
 			}
 
+			if (Version != "1.5" && Version != "1.6")
+			{
+				return false;
+			}
+
 			ApEnabled = true;
+			return true;
 		}
 		public void CopySetup(ApConfigs inputConfigs)
 		{
