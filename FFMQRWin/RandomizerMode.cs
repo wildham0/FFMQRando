@@ -131,8 +131,6 @@ namespace FFMQRWin
 		}
 		public static void HideFlagList(int maxindex, Dictionary<int, FlagCheckBox> checkBoxes, Dictionary<int, FlagComboBox> comboBoxes, Dictionary<int, Label> comboLabels)
 		{
-			int yOffset = LayoutValues.yInitialOffset;
-
 			for (int i = 0; i < maxindex; i++)
 			{
 				if (checkBoxes.TryGetValue(i, out var checkbox))
