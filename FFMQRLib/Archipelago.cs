@@ -77,7 +77,7 @@ namespace FFMQLib
 			Version = "";
 			FileName = "";
 		}
-		public void ProcessYaml()
+		public bool ProcessYaml()
 		{
 			var deserializer = new DeserializerBuilder()
 				.WithNamingConvention(UnderscoredNamingConvention.Instance)
@@ -90,6 +90,7 @@ namespace FFMQLib
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
+				return false;
 			}
 
 			if (ExternalPlacementYaml.Length > 0)
@@ -101,6 +102,7 @@ namespace FFMQLib
 				catch (Exception ex)
 				{
 					Console.WriteLine(ex.ToString());
+					return false;
 				}
 			}
 
@@ -111,6 +113,7 @@ namespace FFMQLib
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
+				return false;
 			}
 
 			try
@@ -121,9 +124,11 @@ namespace FFMQLib
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
+				return false;
 			}
 
 			ApEnabled = true;
+			return true;
 		}
 		public void CopySetup(ApConfigs inputConfigs)
 		{

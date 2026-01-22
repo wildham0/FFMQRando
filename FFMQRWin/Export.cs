@@ -11,10 +11,10 @@ namespace FFMQRWin
 {
 	public class ExportTools
 	{
-		public void exportColorJson(FFMQRom rom, string savepath)
+	/*	public void exportColorJson(FFMQRom rom, string savepath)
 		{
 			MapPalettes palettesfromrom = new MapPalettes(rom);
-			var json = palettesfromrom.ExportToJson();
+			//var json = palettesfromrom.ExportToJson();
 
 			using (StreamWriter outputFile = new StreamWriter(savepath + "FFMQR_MapPalettes.json"))
 			{
@@ -62,7 +62,7 @@ namespace FFMQRWin
 
 
 		}
-
+	*/
 
 	}
 
