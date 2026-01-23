@@ -58,6 +58,11 @@ namespace FFMQRWin
 					return false;
 				}
 			}
+			else
+			{
+				message = "No Custom Sprites.";
+				return false;
+			}
 
 			message = "Custom Sprites: Sprite file opened successfuly.";
 			return true;
