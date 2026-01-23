@@ -519,6 +519,7 @@ namespace FFMQLib
 				validAttacks = Enemizer.Attacks.Where(a =>
 					((includedk) ? true : (!a.IsDarkKing || a.IsMobs || a.IsBosses || a.IsDarkCastleBosses)) &&
 					(icegolemElement != EnemizerElements.None ? (a.Element == icegolemElement || a.Element == EnemizerElements.None) : true) &&
+					(a.Strength == AttackStrengths.Safe) &&
 					!a.IsForbidden).ToList();
 
 				attacks.IceGolemDesperateAttack = rng.PickFrom(validAttacks).Id;
