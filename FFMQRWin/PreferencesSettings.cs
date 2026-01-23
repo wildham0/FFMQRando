@@ -296,7 +296,10 @@ namespace FFMQRWin
 			}
 			catch
 			{
-				pref.PlayerSprite = "default";
+				if (pref.PlayerSprite == "custom")
+				{
+					pref.PlayerSprite = "default";
+				}
 			}
 
 			return pref;
