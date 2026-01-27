@@ -48,7 +48,7 @@ namespace FFMQLib
 			get => EnemizerAttacks == EnemizerAttacks.Normal ? EnemizerGroups.MobsOnly : internalEnemizerGroups;
 			set => internalEnemizerGroups = value;
 		}
-		public bool ProgressiveEnemizer { get => false; set => progEnemizerVoid = value;  }
+		public bool ProgressiveEnemizer { get => false; set => progEnemizerVoid = value;  } // Delete 1.8
 		public bool ShuffleResWeakType { get; set; } = false;
 		public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.All;
 		public bool ShuffleEnemiesPosition { get; set; } = false;
@@ -75,7 +75,6 @@ namespace FFMQLib
 		public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;
 		public bool ShuffleBattlefieldRewards { get; set; } = false;
 		public bool DisableSpoilers { get; set; } = false;
-		public bool EnableSpoilers { get; set; } = false; // Delete
 		public HintModes HintMode { get; set; } = HintModes.None;
 		public bool HiddenFlags { get; set; } = false;
 
@@ -208,22 +207,6 @@ namespace FFMQLib
 					numflagstring /= enumValues.Length;
 				}
 			}
-		}
-
-		public void FlagSanityCheck()
-		{
-			/*
-			// Throw an error if the settings don't offer enough LocationIds.
-			if ((NpcsShuffle == ItemShuffleNPCsBattlefields.Exclude || BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Exclude) && BoxesShuffle == ItemShuffleBoxes.Exclude)
-			{
-				throw new Exception("Selected flags don't allow enough locations to place all Quest Items. Change flags to include more Locations.");
-			}
-			
-			// Throw an error if the settings don't offer enough LocationIds.
-			if (SkyCoinMode == SkyCoinModes.ShatteredSkyCoin && BoxesShuffle == ItemShuffleBoxes.Exclude)
-			{
-				throw new Exception("Selected flags don't allow enough locations to place all Sky Coin Fragments. Set Brown Boxes to Include.");
-			}*/
 		}
 		public string GenerateYaml(string name)
 		{
@@ -391,35 +374,6 @@ namespace FFMQLib
 					newyaml += ((YamlScalarNode)entry.Key).Value + ": " + ((YamlScalarNode)entry.Value).Value + "\n";
 				}
 			}
-
-			// Ap Compatibility Layer
-			if (apconfigs.Version != "1.6")
-			{
-				newyaml = newyaml.Replace("Safe", "Balanced");
-
-				newyaml = newyaml.Replace("enable_spoilers: true", "disable_spoilers: false");
-				newyaml = newyaml.Replace("enable_spoilers: false", "disable_spoilers: true");
-
-				if (newyaml.Contains("Overworld"))
-				{
-					if (newyaml.Contains("OverworldDungeons"))
-					{
-						newyaml = newyaml.Replace("OverworldDungeons", "DungeonsMixed");
-					}
-					else
-					{
-						newyaml = newyaml.Replace("Overworld", "None");
-					}
-
-					newyaml = newyaml + "\noverworld_shuffle: true";
-				}
-				else
-				{
-					newyaml = newyaml.Replace("Dungeons", "DungeonsMixed");
-				}
-			}
-
-
 
 			var deserializer = new DeserializerBuilder()
 				.WithNamingConvention(UnderscoredNamingConvention.Instance)  // see height_in_inches in sample yml 

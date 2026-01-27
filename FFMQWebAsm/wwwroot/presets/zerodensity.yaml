@@ -170,7 +170,7 @@ Final Fantasy Mystic Quest:
     RegionsStrict: 0
     RegionsKeepType: 1
   map_shuffling:
-    None: 0
+    None: 1
   overworld_shuffle:
     true: 1
   crest_shuffle:

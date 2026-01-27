@@ -149,11 +149,6 @@ namespace FFMQLib
 
 			foreach (var elementalEnemy in ElementalEnemies)
 			{
-				if (DarkKing.Contains(elementalEnemy.Key))
-				{
-					continue;
-				}
-				
 				var enemy = enemies.Data[elementalEnemy.Key];
 				enemy.Palette1 = palettes[elementalEnemy.Value];
 				enemy.Palette2 = palettes[elementalEnemy.Value];

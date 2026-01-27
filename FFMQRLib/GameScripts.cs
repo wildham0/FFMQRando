@@ -1253,7 +1253,7 @@ namespace FFMQLib
 						"2C50FF",
 						"07A0C112",
 						SeedVendors.GetFlagScript(EnemyIds.Pazuzu),
-						skip7fteleport ? "00" : "0898FD",
+						skip7fteleport ? "00" : "089CFD",
 						"00"
 					});
 
@@ -1296,7 +1296,7 @@ namespace FFMQLib
 			newJumpInRoutineToReset.WriteAt(0x03, 0xFC6B, this);
 			jumpToResetFlagsShort.WriteAt(0x03, 0xFFD5, this);
 			newPazuzuScript.WriteAt(0x03, 0xFD8C, this);
-			jumpToCrystalScript.WriteAt(0x03, 0xFD98, this);
+			jumpToCrystalScript.WriteAt(0x03, 0xFD9C, this);
 
 			if (skip7fteleport)
 			{

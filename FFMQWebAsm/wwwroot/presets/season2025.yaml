@@ -168,9 +168,6 @@ Final Fantasy Mystic Quest:
     RandomNarrow: 0
     RandomWide: 0
   disable_spoilers:
-    true: 1
-    false: 0
-  enable_spoilers:
     true: 0
     false: 1
   hint_mode:
