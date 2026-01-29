@@ -16,13 +16,28 @@ namespace FFMQLib
 {
 	public class Flags
 	{
-		public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.All;
+		// Items and Logic
+		public LogicOptions LogicOptions { get; set; } = LogicOptions.Standard;
 		public ItemShuffleChests ChestsShuffle { get; set; } = ItemShuffleChests.Prioritize;
-		public bool ShuffleBoxesContent { get; set; } = false;
 		public ItemShuffleNPCsBattlefields NpcsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
 		public ItemShuffleNPCsBattlefields BattlefieldsShuffle { get; set; } = ItemShuffleNPCsBattlefields.Prioritize;
-		public LogicOptions LogicOptions { get; set; } = LogicOptions.Standard;
-		public bool ShuffleEnemiesPosition { get; set; } = false;
+		public bool RandomStartingWeapon { get; set; } = false;
+		public bool ProgressiveGear { get; set; } = false;
+		public SkyCoinModes SkyCoinMode { get; set; } = SkyCoinModes.Standard;
+		public SkyCoinFragmentsQty SkyCoinFragmentsQty
+		{
+			get => SkyCoinMode == SkyCoinModes.ShatteredSkyCoin ? internalSkyCoinFragmentsQty : SkyCoinFragmentsQty.Mid24;
+			set => internalSkyCoinFragmentsQty = value;
+		}
+
+		// Boxes & Consumables
+		public bool ShuffleBoxesContent { get; set; } = false;
+		public bool DisableDuping { get; set; } = false;
+		public SeedQuantities SeedQuantity { get; set; } = SeedQuantities.Two;
+		public bool BoxesDontReset { get; set; } = false;
+		public SeedVendorSettings SeedVendorsSetting { get; set; } = SeedVendorSettings.Standard;
+
+		// Enemies
 		public EnemiesScaling EnemiesScalingLower { get; set; } = EnemiesScaling.Normal;
 		public EnemiesScaling EnemiesScalingUpper { get; set; } = EnemiesScaling.Normal;
 		public EnemiesScaling BossesScalingLower { get; set; } = EnemiesScaling.Normal;
@@ -33,39 +48,40 @@ namespace FFMQLib
 			get => EnemizerAttacks == EnemizerAttacks.Normal ? EnemizerGroups.MobsOnly : internalEnemizerGroups;
 			set => internalEnemizerGroups = value;
 		}
-		public bool ProgressiveEnemizer { get; set; } = false;
+		public bool ProgressiveEnemizer { get => false; set => progEnemizerVoid = value;  } // Delete 1.8
 		public bool ShuffleResWeakType { get; set; } = false;
-		public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
+		public EnemiesDensity EnemiesDensity { get; set; } = EnemiesDensity.All;
+		public bool ShuffleEnemiesPosition { get; set; } = false;
+		public ProgressiveFormationsModes ProgressiveFormations { get; set; } = ProgressiveFormationsModes.Disabled;
+
+		// Maps
+		public bool TweakedDungeons { get; set; } = false;
+		public DoomCastleModes DoomCastleMode { get; set; } = DoomCastleModes.Standard;
+		public DoomCastleAccess DoomCastleAccess { get; set; } = DoomCastleAccess.Standard;
+		public MapShufflingMode MapShuffling { get; set; } = MapShufflingMode.None;
+		public bool OverworldShuffle { get; set; } = false;
+		public bool CrestShuffle { get; set; } = false;
+
+		// Companions
 		public LevelingType CompanionLevelingType { get; set; } = LevelingType.Quests;
 		public SpellbookType CompanionSpellbookType { get; set; } = SpellbookType.Standard;
 		public StartingCompanionType StartingCompanion { get; set; } = StartingCompanionType.None;
 		public AvailableCompanionsType AvailableCompanions { get; set; } = AvailableCompanionsType.Four;
 		public CompanionsLocationType CompanionsLocations { get; set; } = CompanionsLocationType.Standard;
 		public bool KaelisMomFightMinotaur { get; set; } = false;
+
+		// Misc
+		public LevelingCurve LevelingCurve { get; set; } = LevelingCurve.Normal;
 		public BattlesQty BattlesQuantity { get; set; } = BattlesQty.Ten;
 		public bool ShuffleBattlefieldRewards { get; set; } = false;
-		public bool RandomStartingWeapon { get; set; } = false;
-		public bool ProgressiveGear { get; set; } = false;
-		public bool TweakedDungeons { get; set; } = false;
-		public DoomCastleModes DoomCastleMode { get; set; } = DoomCastleModes.Standard;
-		public bool DoomCastleShortcut { get; set; } = false;
-		public SkyCoinModes SkyCoinMode { get; set; } = SkyCoinModes.Standard;
-		public SkyCoinFragmentsQty SkyCoinFragmentsQty
-		{
-			get => SkyCoinMode == SkyCoinModes.ShatteredSkyCoin ? internalSkyCoinFragmentsQty : SkyCoinFragmentsQty.Mid24;
-			set => internalSkyCoinFragmentsQty = value;
-		}
 		public bool DisableSpoilers { get; set; } = false;
-		public bool EnableSpoilers { get; set; } = false;
 		public HintModes HintMode { get; set; } = HintModes.None;
-		public ProgressiveFormationsModes ProgressiveFormations { get; set; } = ProgressiveFormationsModes.Disabled;
-		public MapShufflingMode MapShuffling { get; set; } = MapShufflingMode.None;
-		public bool OverworldShuffle { get; set; } = false;
-		public bool CrestShuffle { get; set; } = false;
 		public bool HiddenFlags { get; set; } = false;
 
+		// Internal flags
 		private SkyCoinFragmentsQty internalSkyCoinFragmentsQty = SkyCoinFragmentsQty.Mid24;
 		private EnemizerGroups internalEnemizerGroups = EnemizerGroups.MobsOnly;
+		private bool progEnemizerVoid = false;
 
 		public string GenerateFlagString()
 		{
@@ -101,6 +117,65 @@ namespace FFMQLib
 			return Encoding.UTF8.GetBytes(GenerateFlagString());
 		}
 
+		public bool SetToggleFlag(string flagname, bool value)
+		{
+			var flaglist = this.GetType().GetProperties();
+			if (flaglist.TryFind(f => f.Name == flagname, out var flag))
+			{
+				flag.SetValue(this, value);
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		public bool GetToggleFlag(string flagname)
+		{
+			var flaglist = this.GetType().GetProperties();
+			if (flaglist.TryFind(f => f.Name == flagname, out var flag))
+			{
+				return Convert.ToBoolean(flag.GetValue(this, null));
+			}
+			else
+			{
+				return false;
+			}
+		}
+		public bool SetEnumFlag(string flagname, int value)
+		{
+			var flaglist = this.GetType().GetProperties();
+			if (flaglist.TryFind(f => f.Name == flagname, out var flag))
+			{
+				var enumValues = flag.PropertyType.GetEnumValues();
+				foreach (var enumValue in enumValues)
+				{
+					if (Convert.ToUInt32(enumValue) == (uint)value)
+					{
+						flag.SetValue(this, enumValue);
+						return true;
+					}
+				}
+				return false;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		public int GetEnumFlag(string flagname)
+		{
+			var flaglist = this.GetType().GetProperties();
+			if (flaglist.TryFind(f => f.Name == flagname, out var flag))
+			{
+				return Convert.ToInt32(flag.GetValue(this, null));
+			}
+			else
+			{
+				return -1;
+			}
+		}
+
 		public void ReadFlagString(string flagstring)
 		{
 			flagstring = flagstring.Replace('-', '+').Replace('_', '/').Replace('~', '=');
@@ -132,22 +207,6 @@ namespace FFMQLib
 					numflagstring /= enumValues.Length;
 				}
 			}
-		}
-
-		public void FlagSanityCheck()
-		{
-			/*
-			// Throw an error if the settings don't offer enough LocationIds.
-			if ((NpcsShuffle == ItemShuffleNPCsBattlefields.Exclude || BattlefieldsShuffle == ItemShuffleNPCsBattlefields.Exclude) && BoxesShuffle == ItemShuffleBoxes.Exclude)
-			{
-				throw new Exception("Selected flags don't allow enough locations to place all Quest Items. Change flags to include more Locations.");
-			}
-			
-			// Throw an error if the settings don't offer enough LocationIds.
-			if (SkyCoinMode == SkyCoinModes.ShatteredSkyCoin && BoxesShuffle == ItemShuffleBoxes.Exclude)
-			{
-				throw new Exception("Selected flags don't allow enough locations to place all Sky Coin Fragments. Set Brown Boxes to Include.");
-			}*/
 		}
 		public string GenerateYaml(string name)
 		{
@@ -316,35 +375,6 @@ namespace FFMQLib
 				}
 			}
 
-			// Ap Compatibility Layer
-			if (apconfigs.Version != "1.6")
-			{
-				newyaml = newyaml.Replace("Safe", "Balanced");
-
-				newyaml = newyaml.Replace("enable_spoilers: true", "disable_spoilers: false");
-				newyaml = newyaml.Replace("enable_spoilers: false", "disable_spoilers: true");
-
-				if (newyaml.Contains("Overworld"))
-				{
-					if (newyaml.Contains("OverworldDungeons"))
-					{
-						newyaml = newyaml.Replace("OverworldDungeons", "DungeonsMixed");
-					}
-					else
-					{
-						newyaml = newyaml.Replace("Overworld", "None");
-					}
-
-					newyaml = newyaml + "\noverworld_shuffle: true";
-				}
-				else
-				{
-					newyaml = newyaml.Replace("Dungeons", "DungeonsMixed");
-				}
-			}
-
-
-
 			var deserializer = new DeserializerBuilder()
 				.WithNamingConvention(UnderscoredNamingConvention.Instance)  // see height_in_inches in sample yml 
 				.Build();
@@ -375,7 +405,6 @@ namespace FFMQLib
 		public MusicMode MusicMode { get; set; } = MusicMode.Normal;
 		public bool DarkKingTrueForm { get; set; } = false;
 		public ushort WindowPalette { get; set; } = 0x5140;
-		public bool DumpGameInfoScreen { get; set; } = false;
 		public bool ReduceBattleFlash { get; set; } = false;
 		public bool AutoDownloadRom { get; set; } = false;
 		public string PlayerSprite { get; set; } = "default";	

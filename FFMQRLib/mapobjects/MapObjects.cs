@@ -10,16 +10,16 @@ using static System.Math;
 
 namespace FFMQLib
 {
-	public partial class ObjectList
+	public partial class Areas
 	{
 		public void UpdateChests(ItemsPlacement itemsPlacement)
 		{
 			// Update Tristam Elixir Chest so it's taken into account
-			_collections[_pointerCollectionPairs[0x16]][0x05].Type = MapObjectType.Chest;
-			_collections[_pointerCollectionPairs[0x16]][0x05].Value = 0x04;
-			_collections[_pointerCollectionPairs[0x16]][0x05].Gameflag = 0xAD;
+			Entries[areaPointers[0x16]].Objects[0x05].Type = MapObjectType.Chest;
+			Entries[areaPointers[0x16]].Objects[0x05].Value = 0x04;
+			Entries[areaPointers[0x16]].Objects[0x05].Gameflag = 0xAD;
 
-			ChestList.Add((0x04, _pointerCollectionPairs[0x16], 0x05));
+			ChestObjects.Add((0x04, areaPointers[0x16], 0x05));
 			
 			List<Items> boxItems = new() { Items.CurePotion, Items.HealPotion, Items.Refresher, Items.Seed, Items.BombRefill, Items.ProjectileRefill };
 
@@ -34,18 +34,18 @@ namespace FFMQLib
 					sprite = 0x24;
 				}
 					
-				List<(int,int,int)> targetChest = ChestList.Where(x => x.Item1 == item.ObjectId).ToList();
+				List<(int,int,int)> targetChest = ChestObjects.Where(x => x.Item1 == item.ObjectId).ToList();
 					
 				if (!targetChest.Any()) continue;
 
-				_collections[targetChest.First().Item2][targetChest.First().Item3].Sprite = sprite;
-				_collections[targetChest.First().Item2][targetChest.First().Item3].Gameflag = 0x00;
+				Entries[targetChest.First().Item2].Objects[targetChest.First().Item3].Sprite = sprite;
+				Entries[targetChest.First().Item2].Objects[targetChest.First().Item3].Gameflag = 0x00;
 			}
 
 			// Copy box+chest from Level Forest 2nd map to 1st map
 			for (int i = 0; i < 5; i++)
 			{
-			_collections[0x09][0x0C + i].CopyFrom(_collections[0x0A][0x0C + i]);
+				Entries[0x09].Objects[0x0C + i].CopyFrom(Entries[0x0A].Objects[0x0C + i]);
 			}
 		}
 		public void SetEnemiesDensity(EnemiesDensity enemiedensity, MT19337 rng)
@@ -61,15 +61,15 @@ namespace FFMQLib
 				case EnemiesDensity.None: density = 0; break;
 			}
 
-			for (int i = 0; i < _collections.Count; i++)
+			for (int i = 0; i < Entries.Count; i++)
 			{
-				var enemiescollection = _collections[i].Where(x => x.Type == MapObjectType.Battle).ToList();
+				var enemiescollection = Entries[i].Objects.Where(x => x.Type == MapObjectType.Battle).ToList();
 				int totalcount = enemiescollection.Count;
 				int toremove = ((100 - density) * totalcount) / 100;
 
 				for (int j = 0; j < toremove; j++)
 				{
-					rng.TakeFrom(enemiescollection).Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+					rng.TakeFrom(enemiescollection).Gameflag = (byte)GameFlagIds.ShowEnemies;
 				}
 			}
 		}
@@ -78,15 +78,15 @@ namespace FFMQLib
 			Dictionary<MapList, List<(int x, int y)>> excludedCoordinates = new Dictionary<MapList, List<(int, int)>> {
 				{ MapList.LevelAliveForest, new List<(int, int)> { (0x34, 0x10), (0x34, 0x11), (0x34, 0x0E) } },
 				{ MapList.BoneDungeon, new List<(int, int)> { (0x0D, 0x3B), (0x27, 0x30) } },
-				{ MapList.WintryCave, new List<(int, int)> { (0x32, 0x39), (0x17, 0x06), (0x26, 0x11), (0x3A, 0x04) } },
+				{ MapList.WintryCave, new List<(int, int)> { (0x32, 0x39), (0x17, 0x06), (0x26, 0x11), (0x3A, 0x04), (0x0D, 0x1A), (0x0D, 0x1B) } },
 				{ MapList.MineExterior, new List<(int, int)> { (0x0B, 0x026), (0x23, 0x2A), (0x21, 0x0F), (0x3B, 0x30), (0x05, 0x1D) } },
 				{ MapList.VolcanoBase, new List<(int, int)> { (0x0F, 0x08), (0x0D, 0x08) } },
-				{ MapList.VolcanoTop, new List<(int, int)> { (0x28, 0x1F), (0x34, 0x1E) } },
-				{ MapList.MountGale, new List<(int, int)> { (0x18, 0x16), (0x17, 0x16), (0x1C, 0x14), (0x32, 0x23), (0x1F, 0x12), (0x27, 0x0F), (0x27, 0x0E), (0x22, 0x0A) } },
+				{ MapList.VolcanoTop, new List<(int, int)> { (0x28, 0x1F), (0x34, 0x1E), (0x25, 0x0F), (0x25, 0x0E) } },
+				{ MapList.MountGale, new List<(int, int)> { (0x18, 0x16), (0x17, 0x16), (0x1C, 0x14), (0x32, 0x23), (0x1F, 0x12), (0x27, 0x0F), (0x27, 0x0E), (0x22, 0x0A), (0x22, 0x18), (0x22, 0x17) } },
 				{ MapList.MacShipDeck, new List<(int, int)> { (0x13, 0x1D) } },
 				{ MapList.MacShipInterior, new List<(int, int)> { (0x12, 0x11), (0x08, 0x08), (0x11, 0x21) } },
 				{ MapList.IcePyramidA, new List<(int, int)> { (0x21, 0x3D), (0x2A, 0x3C), (0x25, 0x34), (0x04, 0x2E) } },
-                { MapList.FallBasin, new List<(int, int)> { (0x10, 0x06), (0x12, 0x0B), (0x13, 0x0B), (0x18, 0x10), (0x19, 0x10), (0x1A, 0x10), (0x1B, 0x10) } },
+                { MapList.FallBasin, new List<(int, int)> { (0x11, 0x06), (0x12, 0x0B), (0x13, 0x0B), (0x18, 0x10), (0x19, 0x10), (0x1A, 0x10), (0x1B, 0x10), (6, 12), (17, 20), (17, 21) } },
                 { MapList.LavaDomeInteriorA, new List<(int, int)> { (0x35, 0x14), (0x33, 0x14), (0x36, 0x0A), (0x36, 0x08), (0x34, 0x08), (0x32, 0x08), (0x29, 0x1E), (0x27, 0x1E), (0x29, 0x20), (0x29, 0x22), (0x2B, 0x22), (0x29, 0x24), (0x2B, 0x1E), (0x2B, 0x24), (0x29, 0x26), (0x19, 0x36), (0x03, 0x34), (0x05, 0x2C), (0x02, 0x23), (0x0E, 0x24), (0x28, 0x04), (0x3A, 0x0E), (0x2A, 0x32), (0x13, 0x1C), (0x24, 0x3C), (0x02, 0x06), (0x02, 0x12), (0x0E, 0x3A), (0x1C, 0x16), (0x26, 0x1A) } },
 				{ MapList.LavaDomeInteriorB, new List<(int, int)> { (0x04, 0x07), (0x0B, 0x12), (0x07, 0x14), (0x09, 0x19), (0x13, 0x14), (0x11, 0x14), (0x39, 0x05), (0x25, 0x0C), (0x23, 0x12), (0x25, 0x12), (0x2A, 0x0C), (0x2C, 0x0C), (0x38, 0x11), (0x36, 0x11), (0x2E, 0x16), (0x30, 0x16), (0x37, 0x1B) } },
 				{ MapList.PazuzuTowerA, new List<(int, int)> { (0x14, 0x0A), (0x10, 0x12), (0x10, 0x13), (0x0F, 0x16), (0x0F, 0x17), (0x12, 0x31), (0x14, 0x31), (0x2C, 0x33), (0x2A, 0x33), (0x32, 0x33), (0x34, 0x33) } },
@@ -114,12 +114,12 @@ namespace FFMQLib
 				return;
 			}
 
-			for (int i = 0; i < _collections.Count; i++)
+			for (int i = 0; i < Entries.Count; i++)
 			{
 				// Special check so enemies fit correctly in Mine interrior
 				bool mineinterior = i == 0x2E;
 
-				var enemiescollection = _collections[i].Where(x => x.Type == MapObjectType.Battle).ToList();
+				var enemiescollection = Entries[i].Objects.Where(x => x.Type == MapObjectType.Battle).ToList();
 				if (!enemiescollection.Any())
 				{
 					continue;
@@ -135,11 +135,11 @@ namespace FFMQLib
 				var currentExcludedTiles = excludedTiles.ContainsKey((MapList)targetmap) ? excludedTiles[(MapList)targetmap] : new List<byte>();
 				var currentExcludedCoordinates = excludedCoordinates.ContainsKey((MapList)targetmap) ? excludedCoordinates[(MapList)targetmap] : new List<(int,int)>();
 
-				List <(byte, byte)> selectedPositions = _collections[i].Where(x => x.Type != MapObjectType.Battle).Select(x => (x.X, x.Y)).ToList();
+				List <(byte, byte)> selectedPositions = Entries[i].Objects.Where(x => x.Type != MapObjectType.Battle).Select(x => (x.X, x.Y)).ToList();
 
 				if (hookMaps.Contains(targetmap)) // Creat an exclusion zone around hooks
 				{
-					var hookList = _collections[i].Where(x => x.Sprite == 0x28).ToList();
+					var hookList = Entries[i].Objects.Where(x => x.Sprite == 0x28).ToList();
 					foreach (var hook in hookList)
 					{
 						for (int j = Max(hook.X - 5, miny); j <= Min(hook.X + 5, maxx); j++)
@@ -155,7 +155,7 @@ namespace FFMQLib
 				}
 
 				// Worm Party
-				if (i == _pointerCollectionPairs[0x48] && rng.Between(1,20) == 10)
+				if (i == areaPointers[0x48] && rng.Between(1,20) == 10)
 				{
 					validLayers = new() { 0x02 };
 				}

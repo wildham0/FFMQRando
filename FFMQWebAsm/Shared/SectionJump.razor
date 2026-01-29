@@ -1,0 +1,55 @@
+﻿@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+
+@if (BackIcon)
+{
+	<div class="text-secondary"><a href="" @onclick="@TableOfContentJump" @onclick:preventDefault class="text-secondary" style="text-decoration: underline"><Icon Name="IconName.ChevronUp" class="text-secondary" />@Text</a></div>
+}
+else
+{
+	<div class="text-secondary"><a href="" @onclick="@TableOfContentJump" @onclick:preventDefault class="text-secondary" style="text-decoration: underline">@Text</a></div>	
+}
+
+@code
+{
+	[Parameter]
+	public string Text { get; set; }
+
+	[Parameter]
+	public string Section { get; set; }
+
+	[Parameter]
+	public bool BackIcon { get; set; } = false;
+
+	private void TableOfContentJump()
+	{
+		string sectionNavigation = GetNonNavigation(NavigationManager.Uri, true);
+
+		NavigationManager.NavigateTo(sectionNavigation + "#" + Section);
+	}
+
+	private string GetNonNavigation(string uristring, bool withhash)
+	{
+		var qmarkIndex = uristring.IndexOf('?');
+		var hashIndex = uristring.IndexOf('#');
+
+		int hashOffset = withhash ? 0 : 1;
+
+		if (hashIndex == -1)
+		{
+			return uristring;
+		}
+		else if (hashIndex > qmarkIndex)
+		{
+			return uristring.Split('#')[0];
+		}
+		else
+		{
+			string prehash = uristring.Split('#')[0];
+			string posthash = uristring.Split('?')[1];
+
+			return prehash + "?" + posthash;
+		}
+	}
+}

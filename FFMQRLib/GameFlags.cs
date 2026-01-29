@@ -31,7 +31,11 @@ namespace FFMQLib
 			get => HexToFlag(flag);
 			set => FlagToHex(flag, value);
 		}
-
+		public bool this[GameFlagIds flag]
+		{
+			get => HexToFlag((int)flag);
+			set => FlagToHex((int)flag, value);
+		}
 		private bool HexToFlag(int flag)
 		{
 			var targetbyte = flag / 8;

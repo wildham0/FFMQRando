@@ -144,10 +144,8 @@
 
 		private System.Windows.Forms.TextBox textBox1;
 		private System.Windows.Forms.TextBox textBox2;
-		private System.Windows.Forms.TextBox textBox3;
 		private System.Windows.Forms.Button button1;
 		private System.Windows.Forms.Button button2;
-		private System.Windows.Forms.Button button3;
 		private System.Windows.Forms.Label messageLabel;
 		private System.Windows.Forms.Label rom10Label;
 		private System.Windows.Forms.Label rom11Label;

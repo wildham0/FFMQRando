@@ -17,7 +17,7 @@ namespace FFMQLib
 				TalkScripts.AddScript((int)TalkScriptsList.TristamChest,
 					new ScriptBuilder(new List<string>
 					{
-						TextToHex("Defeat evil? Treasure hunting? Sounds like a great business opportunity here. I'm in!") + "36",
+						MQText.TextToHex("Defeat evil? Treasure hunting? Sounds like a great business opportunity here. I'm in!") + "36",
 						"0F8B0E",       // get facing position
 						"057C00[11]",   // looking up
 						"057C01[12]",   // looking right
@@ -26,7 +26,7 @@ namespace FFMQLib
 						$"2C4{(int)tristamdata.GameObject:X1}46",       // hide
 						CompanionSwitchRoutine,       // update current companion flags
 						$"05E6{(int)CompanionsId.Tristam:X2}085B85", // join
-						$"2B{(int)NewGameFlagsList.ShowSandTempleTristam:X2}2B{(int)NewGameFlagsList.ShowFireburgTristam:X2}", // update tristam flag
+						$"2B{(int)GameFlagIds.ShowSandTempleTristam:X2}2B{(int)GameFlagIds.ShowFireburgTristam:X2}", // update tristam flag
 						"00",
 						$"2C1{(int)tristamdata.GameObject:X1}4200",
 						$"2C1{(int)tristamdata.GameObject:X1}4300",
@@ -39,21 +39,21 @@ namespace FFMQLib
 				TileScripts.AddScript((int)TileScriptsList.BoneDungeonTristamBomb,
 					new ScriptBuilder(new List<string>
 					{
-						$"2e{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[15]",
+						$"2e{(int)GameFlagIds.TristamBoneDungeonItemGiven:X2}[15]",
 						$"050f{(int)CompanionsId.Tristam:X2}[15]",
 						"2a3046104130441054ffff",
 						$"0C0015{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}",
 						flags.ProgressiveGear ? "09309411" : "",
 						"2BFC",
-						"1a85" + TextToHex("Care to invest in my ") + "087DFE" + TextToHex(" venture? I'll give you an early prototype!") + "36",
+						"1a85" + MQText.TextToHex("Care to invest in my ") + "087DFE" + MQText.TextToHex(" venture? I'll give you an early prototype!") + "36",
 						"08D0FD",
 						"050BFB[12]",
-						"1a85" + TextToHex("That's fine, not everyone is cut out for massive profits and a lifetime of riches.") + "36",
+						"1a85" + MQText.TextToHex("That's fine, not everyone is cut out for massive profits and a lifetime of riches.") + "36",
 						"2a10434046ffff",
 						"00",
 						$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}0162",
 						"2a10434046ffff", // 24ff > d3fe
-						$"23{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}",
+						$"23{(int)GameFlagIds.TristamBoneDungeonItemGiven:X2}",
 						"00"
 					}));
 
@@ -77,23 +77,23 @@ namespace FFMQLib
 					{
 						"2C1102",
 						$"050f{(int)CompanionsId.Tristam:X2}[19]",
-						 (tristamquest != NewGameFlagsList.None) ? $"2E{(int)tristamquest:X2}[10]" : "0A[10]",
-						$"050B{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[09]",
+						 (tristamquest != GameFlagIds.None) ? $"2E{(int)tristamquest:X2}[10]" : "0A[10]",
+						$"050B{(int)GameFlagIds.TristamBoneDungeonItemGiven:X2}[09]",
 						"2A3B461B431B443054FFFF",
-						"1A50" + TextToHex("That was some good dungeon pillaging back there. Let's get some drinks!") + "36",
+						"1A50" + MQText.TextToHex("That was some good dungeon pillaging back there. Let's get some drinks!") + "36",
 						Companions.GetQuestString(QuestsId.VisitBoneDungeon),
 						"08[16]",
 						"2A1B414B46FFFF",
 						"00",
-						$"2E{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}[19]",
-                        $"050B{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[19]",
+						$"2E{(int)GameFlagIds.TristamFireburgItemGiven:X2}[19]",
+                        $"050B{(int)GameFlagIds.TristamBoneDungeonItemGiven:X2}[19]",
                         "2A3B461B431B443054FFFF",
 						"08[16]",
 						"2A1B414B46FFFF",
 						"00",
-						"1A50" + TextToHex("Tell you what, I'll give you this and you cover my tab, deal?") + "36",
+						"1A50" + MQText.TextToHex("Tell you what, I'll give you this and you cover my tab, deal?") + "36",
 						$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.TristamFireburg]:X2}0162",
-						$"23{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}",
+						$"23{(int)GameFlagIds.TristamFireburgItemGiven:X2}",
 						"00"
 					}));
 
@@ -108,16 +108,16 @@ namespace FFMQLib
 					new ScriptBuilder(new List<string>
 					{
 						"04",
-						(tristamquest != NewGameFlagsList.None) ? $"2E{(int)tristamquest:X2}[05]" : "0A[05]",
-                        $"050B{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[05]",
-                        $"1a{(int)TalkScriptsList.TristamInFireburg01:X2}" + TextToHex("That was some good dungeon pillaging back there.") + "36",
+						(tristamquest != GameFlagIds.None) ? $"2E{(int)tristamquest:X2}[05]" : "0A[05]",
+                        $"050B{(int)GameFlagIds.TristamBoneDungeonItemGiven:X2}[05]",
+                        $"1a{(int)TalkScriptsList.TristamInFireburg01:X2}" + MQText.TextToHex("That was some good dungeon pillaging back there.") + "36",
                         Companions.GetQuestString(QuestsId.VisitBoneDungeon),
-                        $"2E{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}[10]",
-                        $"1a{(int)TalkScriptsList.TristamInFireburg01:X2}" + TextToHex("Hey! You can get this, it's free! It will only report back some of your personal user data to me.") + "36",
+                        $"2E{(int)GameFlagIds.TristamFireburgItemGiven:X2}[10]",
+                        $"1a{(int)TalkScriptsList.TristamInFireburg01:X2}" + MQText.TextToHex("Hey! You can get this, it's free! It will only report back some of your personal user data to me.") + "36",
 						$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.TristamFireburg]:X2}0162",
-						$"23{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}",
+						$"23{(int)GameFlagIds.TristamFireburgItemGiven:X2}",
 						"00",
-                        $"1a{(int)TalkScriptsList.TristamInFireburg01:X2}" + TextToHex(rng.PickFrom(tristamJoinDialogueList)) + "36",
+                        $"1a{(int)TalkScriptsList.TristamInFireburg01:X2}" + MQText.TextToHex(rng.PickFrom(tristamJoinDialogueList)) + "36",
 						"0F8B0E",
 						"057C02[20]",
 						"057C03[21]",
@@ -125,7 +125,7 @@ namespace FFMQLib
 						"2C4146",
                         CompanionSwitchRoutine,
 						$"05E6{(int)CompanionsId.Tristam:X2}085B85",
-						$"2B{(int)NewGameFlagsList.ShowFireburgTristam:X2}",
+						$"2B{(int)GameFlagIds.ShowFireburgTristam:X2}",
 						"00",
 						"2C114000",
 						"2C114100",
@@ -138,20 +138,20 @@ namespace FFMQLib
 				TalkScripts.AddScript((int)TalkScriptsList.TristamChest,
 					new ScriptBuilder(new List<string>
 					{
-						TextToHex("Defeat evil? Treasure hunting? Smells like profits. I'll see you in Bone Dungeon!") + "36",
+						MQText.TextToHex("Defeat evil? Treasure hunting? Smells like profits. I'll see you in Bone Dungeon!") + "36",
 						tristamdata.GetWalkOutScript(),
-						$"23{(int)NewGameFlagsList.ShowBoneDungeonTristam:X2}2B{(int)NewGameFlagsList.ShowSandTempleTristam:X2}2B{(int)NewGameFlagsList.ShowFireburgTristam:X2}", // update tristam flag
+						$"23{(int)GameFlagIds.ShowBoneDungeonTristam:X2}2B{(int)GameFlagIds.ShowSandTempleTristam:X2}2B{(int)GameFlagIds.ShowFireburgTristam:X2}", // update tristam flag
 						"00",
 				   }));
 
 				// Bone Dungeon
-				MapObjects[0x14][0x00].Gameflag = (byte)NewGameFlagsList.ShowBoneDungeonTristam;
+				MapObjects[0x14][0x00].Gameflag = (byte)GameFlagIds.ShowBoneDungeonTristam;
 				MapObjects[0x14][0x00].Value = (byte)TalkScriptsList.TristamBoneDungeon;
 				MapObjects[0x14][0x00].X++;
 				MapObjects[0x14][0x00].Behavior = 0x0A;
 				MapObjects[0x14][0x00].Facing = FacingOrientation.Down;
                 MapObjects[0x14][0x00].UnknownIndex = 0x02;
-                GameFlags[(int)NewGameFlagsList.ShowBoneDungeonTristam] = false;
+                GameFlags[GameFlagIds.ShowBoneDungeonTristam] = false;
 
                 TileScripts.AddScript((int)TileScriptsList.BoneDungeonTristamBomb,
 					new ScriptBuilder(new List<string>
@@ -163,19 +163,19 @@ namespace FFMQLib
 					new ScriptBuilder(new List<string>
 					{
 						"04",
-						$"2E{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}[13]",
+						$"2E{(int)GameFlagIds.TristamBoneDungeonItemGiven:X2}[13]",
 						$"0C0015{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}",
 						flags.ProgressiveGear ? "09309411" : "",
 						"2BFC",
-                        $"1a{(int)TalkScriptsList.TristamBoneDungeon:X2}" + TextToHex("Care to invest in my ") + "077DFE03" + TextToHex(" venture? I'll give you an early prototype!") + "36",
+                        $"1a{(int)TalkScriptsList.TristamBoneDungeon:X2}" + MQText.TextToHex("Care to invest in my ") + "077DFE03" + MQText.TextToHex(" venture? I'll give you an early prototype!") + "36",
 						"07D0FD03",
 						"050BFB[10]",
-                        $"1a{(int)TalkScriptsList.TristamBoneDungeon:X2}" + TextToHex("That's fine, not everyone is cut out for massive profits and a lifetime of riches.") + "36",
+                        $"1a{(int)TalkScriptsList.TristamBoneDungeon:X2}" + MQText.TextToHex("That's fine, not everyone is cut out for massive profits and a lifetime of riches.") + "36",
 						"00",
 						$"0d5f01{(int)itemsPlacement[ItemGivingNPCs.TristamBoneDungeonBomb]:X2}0162",
-						$"23{(int)NewGameFlagsList.TristamBoneDungeonItemGiven:X2}2B{(int)NewGameFlagsList.ShowBoneDungeonTristam:X2}23{(int)NewGameFlagsList.ShowFireburgTristam:X2}",
+						$"23{(int)GameFlagIds.TristamBoneDungeonItemGiven:X2}2B{(int)GameFlagIds.ShowBoneDungeonTristam:X2}23{(int)GameFlagIds.ShowFireburgTristam:X2}",
 						"00",
-                        $"1a{(int)TalkScriptsList.TristamBoneDungeon:X2}" + TextToHex("Let's go to Fireburg, have a nice cold pint, and wait for all of this to blow over.") + "36",
+                        $"1a{(int)TalkScriptsList.TristamBoneDungeon:X2}" + MQText.TextToHex("Let's go to Fireburg, have a nice cold pint, and wait for all of this to blow over.") + "36",
 						"00"
 					}));
 
@@ -199,12 +199,12 @@ namespace FFMQLib
 					new ScriptBuilder(new List<string>
 					{
 						"04",
-						$"2E{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}[06]",
-                        $"1a{(int)TalkScriptsList.TristamInFireburg01:X2}" + TextToHex("Hey! You can get this, it's free! It will only report back some of your personal user data to me.") + "36",
+						$"2E{(int)GameFlagIds.TristamFireburgItemGiven:X2}[06]",
+                        $"1a{(int)TalkScriptsList.TristamInFireburg01:X2}" + MQText.TextToHex("Hey! You can get this, it's free! It will only report back some of your personal user data to me.") + "36",
 						$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.TristamFireburg]:X2}0162",
-						$"23{(int)NewGameFlagsList.TristamFireburgItemGiven:X2}",
+						$"23{(int)GameFlagIds.TristamFireburgItemGiven:X2}",
 						"00",
-                        $"1a{(int)TalkScriptsList.TristamInFireburg01:X2}" + TextToHex(rng.PickFrom(tristambarDialogueList)) + "36",
+                        $"1a{(int)TalkScriptsList.TristamInFireburg01:X2}" + MQText.TextToHex(rng.PickFrom(tristambarDialogueList)) + "36",
 						"00",
 					}));
 			}

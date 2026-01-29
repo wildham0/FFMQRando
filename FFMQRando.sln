@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMQRLib", "FFMQRLib\FFMQRLib.csproj", "{8B72365D-A8A1-4A79-A245-C960A52B2003}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMQLib", "FFMQRLib\FFMQLib.csproj", "{8B72365D-A8A1-4A79-A245-C960A52B2003}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMQRWin", "FFMQRWin\FFMQRWin.csproj", "{C6DA08E1-3BFB-4F96-82B7-826EBE172CDC}"
 EndProject

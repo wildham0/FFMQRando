@@ -493,7 +493,7 @@ namespace FFMQLib
 			}
 
 			// DoLeveling
-			rom.PutInBank(0x10, 0xA000, Blob.FromHex($"08c2302080a020{levelingroutine}2020a12000a22040a020c0a22860"));
+			rom.PutInBank(0x10, 0xA000, Blob.FromHex($"08c2302080a020{levelingroutine}2020a12000a22040a02270FF002860"));
 
 			// UpdateCompanionStats
 			rom.PutInBank(0x10, 0xA040, Blob.FromHex($"08e220c210a20300bdcc109da610187daa109da210ca10f02860"));
@@ -532,6 +532,10 @@ namespace FFMQLib
 			rom.PutInBank(0x10, 0xA230, Blob.FromHex("08c230dabf0000102903000aaabf30a4108dc210fae220c210a900ebbf000010aabf20a410a8a904aa0bf4b8102b225a9700f003988002a9009dc010e88ae00c0090e72b2860"));
 			rom.PutInBank(0x10, 0xA420, Blob.FromHex("006432221914110f0d")); // lut_OddsValues
 			rom.PutInBank(0x10, 0xA430, Blob.FromHex("64004123283c283c")); // lut_AiAttacks
+
+			// Computing armor: put gear stats in temp, select companion, recompute stats
+			rom.PutInBank(0x00, 0xFF70, Blob.FromHex("201490a9010120d4916b"));
+
 		}
 	}
 }

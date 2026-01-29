@@ -21,6 +21,9 @@ companion_maxmp = $109B
 companion_ailments = $10A1
 companion_aiattacks = $10C2
 
+ComputeGearStats = #$00FF70
+
+
 DoLeveling:
   PHP
   REP #$30
@@ -29,7 +32,7 @@ DoLeveling:
   JSR ComputeStats
   JSR SetEquipSpells
   JSR UpdateActiveStats
-  JSR PhoebeResistBadHack
+  JSL ComputeGearStats
   PLP
   RTS
 

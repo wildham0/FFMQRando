@@ -37,6 +37,7 @@ namespace FFMQLib
 			MapObjects = new(this);
 			Battlefields = new(this);
 			GameFlags = new(this);
+			Enemies = new(this);
 
 			Credits credits = new(this);
 			TitleScreen titleScreen = new(this);
@@ -47,7 +48,7 @@ namespace FFMQLib
 			DarkKingTrueForm darkKingTrueForm = new();
 
             // General modifications
-            ImprovedModifications(enablebugfix, preferences.ReduceBattleFlash, rng);
+            ImprovedModifications(enablebugfix, preferences.ReduceBattleFlash, preferences.MusicMode, rng);
 
 			// Enemies
 			MapObjects.SetEnemiesDensity(EnemiesDensity.Half, rng);
@@ -62,7 +63,7 @@ namespace FFMQLib
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			WindowPalette(preferences.WindowPalette);
 			playerSprites.SetPlayerSprite(playerSprite, this);
-			darkKingTrueForm.RandomizeDarkKingTrueForm(preferences, sillyrng, this);
+			darkKingTrueForm.RandomizeDarkKingTrueForm(preferences, Enemies, Enemizer, false, sillyrng, this);
 
 			// Credits
 			credits.Update(playerSprite, darkKingTrueForm.DarkKingSprite);
@@ -72,6 +73,7 @@ namespace FFMQLib
 			Battlefields.WriteWithoutSprites(this);
 			MapObjects.Write(this);
 			GameFlags.Write(this);
+			Enemies.Write(this);
 
 			credits.Write(this);
 			titleScreen.Write(this, Metadata.Version, hashString, new Flags());
@@ -79,7 +81,7 @@ namespace FFMQLib
 			// Remove header if any
 			this.Header = Array.Empty<byte>();
 		}
-        public void ImprovedModifications(bool enablebugfixes, bool reducebattleflash, MT19337 rng)
+        public void ImprovedModifications(bool enablebugfixes, bool reducebattleflash, MusicMode music, MT19337 rng)
         {
             ExpandRom();
             FastMovement();
@@ -93,11 +95,11 @@ namespace FFMQLib
 			SystemBugFixes();
             GameStateIndicator(hashString);
             //PazuzuFixedFloorRng(rng);
-            Msu1Support();
+            Msu1Support(music == MusicMode.Mute);
 			SaveFileReduction();
 		}
     }
-    public partial class ObjectList
+    public partial class Areas
     {
         public void GuidedDensity()
         {
@@ -120,20 +122,20 @@ namespace FFMQLib
             };
 
 			// Force Fall Basin Puzzle
-			var fallbasin = _collections[_pointerCollectionPairs[0x21]];
+			var fallbasin = Entries[areaPointers[0x21]].Objects;
 			fallbasin[0x0A].Gameflag = 0x00;
-            fallbasin[0x0B].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+            fallbasin[0x0B].Gameflag = (byte)GameFlagIds.ShowEnemies;
             fallbasin[0x0C].Gameflag = 0x00;
-            fallbasin[0x0D].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
-            fallbasin[0x0E].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+            fallbasin[0x0D].Gameflag = (byte)GameFlagIds.ShowEnemies;
+            fallbasin[0x0E].Gameflag = (byte)GameFlagIds.ShowEnemies;
             fallbasin[0x0F].Gameflag = 0x00;
 
             // Clear Pazuzu stairs
             for (int i = 0x5A; i <= 0x5E; i++)
 			{
-				_collections[_pointerCollectionPairs[i]][0].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
-                _collections[_pointerCollectionPairs[i]][1].Gameflag = 0x00;
-                _collections[_pointerCollectionPairs[i]][2].Gameflag = (byte)NewGameFlagsList.ShowEnemies;
+				Entries[areaPointers[i]].Objects[0].Gameflag = (byte)GameFlagIds.ShowEnemies;
+				Entries[areaPointers[i]].Objects[1].Gameflag = 0x00;
+				Entries[areaPointers[i]].Objects[2].Gameflag = (byte)GameFlagIds.ShowEnemies;
             }
         }
     }

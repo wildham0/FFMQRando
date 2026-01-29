@@ -60,7 +60,10 @@
 			@if (GetBetaStatus())
 			{
 				<Field class="romFlag">
-					<FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Load</FieldLabel>
+					<FieldLabel TextColor="TextColor.Secondary" class="fw-bold">Load Custom Dark King Sprite</FieldLabel>
+					<Tooltip Text="Load a zip file with a custom Dark King sprite. Visit the  Discord for guides and formats." Inline Multiline Placement="TooltipPlacement.Right">
+						<Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small />
+					</Tooltip>
 					<FileEdit Filter=".zip" AutoReset="false" Changed="@LoadDKSpritesFromFile"></FileEdit>
 					<FieldHelp>@dkMessage</FieldHelp>
 				</Field>

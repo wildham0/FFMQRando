@@ -45,11 +45,13 @@ namespace FFMQLib
 		public string filename { get; set; }
 		public string author { get; set; }
 		public string name { get; set; }
+		public bool ap { get; set; }
 		public DarkKingSprite()
 		{
 			filename = "";
 			author = "";
 			name = "";
+			ap = true;
 		}
 	}
 
@@ -70,7 +72,7 @@ namespace FFMQLib
 
 		private const int paletteBank = 0x09;
 		private const int paletteOffsetDarkKing = 0x8280;
-		private void GetRandomDKfromMetadata(MT19337 rng)
+		private void GetRandomDKfromMetadata(bool ap, MT19337 rng)
 		{
 			string metadatayaml = "";
 			var assembly = Assembly.GetExecutingAssembly();
@@ -99,6 +101,7 @@ namespace FFMQLib
 						Console.WriteLine(ex.ToString());
 					}
 
+					spritelist = spritelist.Where(s => !ap || s.ap).ToList();
 					DarkKingSprite = rng.PickFrom(spritelist);
 
 					entry = spriteContainer.GetEntry(DarkKingSprite.filename + "1.bmp");
@@ -115,7 +118,7 @@ namespace FFMQLib
 				}
 			}
 		}
-		public void RandomizeDarkKingTrueForm(Preferences pref, MT19337 rng, FFMQRom rom)
+		public void RandomizeDarkKingTrueForm(Preferences pref, Enemies enemies, Enemizer enemizer, bool ap, MT19337 rng, FFMQRom rom)
 		{
 			bool debugmode = pref.DarkKing3.Length > 0;
 
@@ -126,7 +129,7 @@ namespace FFMQLib
 				return;
 			}
 
-			GetRandomDKfromMetadata(rng);
+			GetRandomDKfromMetadata(ap, rng);
 
 			DarkKingSpriteDataPack darkking3 = new();
 			DarkKingSpriteDataPack darkking4 = new();
@@ -157,13 +160,29 @@ namespace FFMQLib
 
 			// Move all DK sprites to bank 10
 			rom.PutInBank(0x10, 0xB2F0, dk12sprites.Concat(darkking3.EncodedTiles.Concat(darkking4.EncodedTiles).SelectMany(x => x)).ToArray());
-			rom.PutInBank(0x09, 0x85F0, Blob.FromHex("F0B210"));
+			enemies.Data[EnemyIds.DarkKing].GraphicData = Blob.FromHex("F0B210");
+			//rom.PutInBank(0x09, 0x85F0, Blob.FromHex("F0B210")); // Update this because we're extracting graphic data for enemies now.
 
 			// Expand Dark King Palette Hack
 			var originaldkpalettes = rom.GetFromBank(0x09, paletteOffsetDarkKing, 0x10 * 4).Chunk(0x10);
+
+			byte[] darkking1Palette1 = originaldkpalettes[1].ToBytes();
+			byte[] darkking1Palette2 = originaldkpalettes[0].ToBytes();
+			byte[] darkking2Palette1 = originaldkpalettes[2].ToBytes();
+			byte[] darkking2Palette2 = originaldkpalettes[0].ToBytes();
+
+			if (enemizer != null && enemizer.ElementalEnemies.TryGetValue(EnemyIds.DarkKing, out var element))
+			{
+				var elementalpalette = Enemizer.ElementalPalettes[element];
+				darkking1Palette1 = elementalpalette.GetBytes();
+				darkking1Palette2 = elementalpalette.GetBytes();
+				darkking2Palette1 = elementalpalette.GetBytes();
+				darkking2Palette2 = elementalpalette.GetBytes();
+			}
+
 			List<byte[]> newdkpalettes = new() {
-				originaldkpalettes[1].ToBytes(), originaldkpalettes[0].ToBytes(),
-				originaldkpalettes[2].ToBytes(), originaldkpalettes[0].ToBytes(),
+				darkking1Palette1, darkking1Palette2,
+				darkking2Palette1, darkking2Palette2,
 				darkking3.Palette1.ToArray(), darkking3.Palette2.ToArray(),
 				darkking4.Palette1.ToArray(), darkking4.Palette2.ToArray(),
 			};
@@ -177,7 +196,7 @@ namespace FFMQLib
 			rom.PutInBank(0x02, 0xD351, Blob.FromHex("2280b010eaea"));
 			rom.PutInBank(0x10, 0xB080, Blob.FromHex("485a08c230afb8d0028d4a11a2a0b0a00011a90f00540010287a686b"));
 
-			string finalname = rom.TextToHex(DarkKingSprite.name, false);
+			string finalname = MQText.TextToHex(DarkKingSprite.name, false);
 			while (finalname.Length < 0x20)
 			{
 				finalname += "03";

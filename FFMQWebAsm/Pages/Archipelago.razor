@@ -61,6 +61,10 @@
 				</FieldLabel>
 				<FileEdit Filter=".apmq" AutoReset="false" Changed="@LoadApConfigFile"></FileEdit>
 				<FieldHelp>@yamlMessage</FieldHelp>
+				@if (redirect)
+				{
+					<FieldHelp>Use <a href="https://ap.ffmqrando.net/Archipelago" target="_blank" rel="noopener noreferrer" class="text-secondary" style="text-decoration: underline">ap.ffmqrando.net/Archipelago <Icon Name="IconName.ExternalLinkSquareAlt" class="text-secondary" /></a> to generate your seed.</FieldHelp>
+				}
 			</Field>
 		</Container>
 	</Container>
@@ -90,6 +94,7 @@
 	private string yamlPreset = "";
 	private string yamlMessage = "";
 	private string yamlName = "default";
+	private bool redirect = false;
 
 	private bool GetBetaStatus()
 	{
@@ -208,10 +213,27 @@
 				}
 			}
 
-			apconfigs.ProcessYaml();
-			ProcessYamlFlags(); // Process flags after we got configs info
-			yamlMessage = "Archipelago Config File loaded successfully.";
-
+			bool success = apconfigs.ProcessYaml();
+			if (success)
+			{
+				ProcessYamlFlags(); // Process flags after we got configs info
+				yamlMessage = "Archipelago Config File loaded successfully.";
+				redirect = false;
+			}
+			else
+			{
+				if (apconfigs.Version == "1.5" || apconfigs.Version == "1.6")
+				{
+					yamlMessage = $"This version of FFMQR isn't compatible with your APWorld version. ({apconfigs.Version} -> 1.7)";
+					redirect = true;
+				}
+				else
+				{
+					yamlMessage = $"This AP Config file wasn't generated with a compatible APWorld. ({apconfigs.Version} -> 1.7)";
+					redirect = false;
+				}
+			}
+			
             StateHasChanged();
         }
         catch (Exception ex)

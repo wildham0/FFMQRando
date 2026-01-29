@@ -9,7 +9,7 @@ namespace FFMQLib
 {
 	public partial class Overworld
 	{
-		public void ShuffleOverworld(bool shuffleOverworld, MapShufflingMode mapshufflingmode, GameLogic gamelogic, Battlefields battlefields, List<LocationIds> questEasyWins, bool apenabled, MT19337 rng)
+		public void ShuffleOverworld(bool shuffleOverworld, MapShufflingMode mapshufflingmode, GameLogic gamelogic, Battlefields battlefields, List<LocationIds> questEasyWins, bool kaelismom, bool apenabled, MT19337 rng)
 		{
 			if (!shuffleOverworld || apenabled)
 			{
@@ -44,7 +44,7 @@ namespace FFMQLib
 
 			foreach (var location in shuffleLocations.Where(x => x > LocationIds.HillOfDestiny))
 			{
-				companionsRating.Add(gamelogic.CrawlForCompanionRating(location));
+				companionsRating.Add(gamelogic.CrawlForCompanionRating(location, kaelismom));
 			}
 			
 			companionsRating.Shuffle(rng);
@@ -52,21 +52,16 @@ namespace FFMQLib
 			LocationIds companionLocation = (mapshufflingmode == MapShufflingMode.Everything) ? companionsRating.First().Item1 : rng.PickFrom(companionsRating).Item1;
 
 			// Find most accessible locations for item placement
-			List<(LocationIds, int)> locationRating = new();
+			List<(LocationIds location, int chestCount)> locationRating = new();
 
 			foreach (var location in shuffleLocations.Where(x => x > LocationIds.HillOfDestiny))
 			{
-				locationRating.Add(gamelogic.CrawlForChestRating(location));
+				locationRating.Add(gamelogic.CrawlForChestRating2(location));
 			}
 
-			locationRating = locationRating.Where(x => x.Item1 != companionLocation).OrderByDescending(x => x.Item2).ToList();
+			locationRating = locationRating.Where(x => x.location != companionLocation && x.chestCount > 0).ToList();
 
-			List<LocationIds> guaranteedChestLocations = new();
-
-			
-			guaranteedChestLocations = (mapshufflingmode == MapShufflingMode.None) ?
-				new() { rng.PickFrom(AccessReferences.StartingWeaponAccess) } :
-				locationRating.GetRange(0, 2).Select(x => x.Item1).ToList();
+			List<LocationIds> guaranteedChestLocations = new() { rng.PickFrom(locationRating).location };
 
 			// Find Special Locations
 			List<SpecialRegion> specialRegionsAccess = new()
@@ -95,7 +90,7 @@ namespace FFMQLib
 
 			// Create the early locations, these are always placed in Foresta
 			List<LocationIds> earlyLocations = new() { companionLocation, safeGoldBattlefield }; // 2 locations
-			earlyLocations.AddRange(guaranteedChestLocations); // 2 extra locations
+			earlyLocations.AddRange(guaranteedChestLocations); // 1 extra locations
 			questEasyWins = questEasyWins.Except(earlyLocations).ToList();
 
 			if (questEasyWins.Count >= 1)

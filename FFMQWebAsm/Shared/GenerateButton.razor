@@ -51,23 +51,23 @@ else
 
 
 @code{
-		[Parameter]
-		public Flags Flags { get; set; }
+	[Parameter]
+	public Flags Flags { get; set; }
 
-		[Parameter]
-		public Blob Seed { get; set; }
+	[Parameter]
+	public Blob Seed { get; set; }
 
-		[Parameter]
-		public Preferences Preferences { get; set; }
+	[Parameter]
+	public Preferences Preferences { get; set; }
 
-		[Parameter]
-		public ApConfigs ApConfigs { get; set; }
+	[Parameter]
+	public ApConfigs ApConfigs { get; set; }
 
-		[Parameter]
-		public bool Beta { get; set; }
+	[Parameter]
+	public bool Beta { get; set; }
 
-		[Parameter]
-		public Action<bool> IsLoadFromMemoryDone { get; set; }
+	[Parameter]
+	public Action<bool> IsLoadFromMemoryDone { get; set; }
 
 	private long maxFileSize = 0x80200;
 	private bool isLoadingRom = false;
@@ -76,6 +76,7 @@ else
 	private bool romLoaded = false;
 
 	private bool generatedRom = false;
+	private bool failedGeneration = false;
 	private string romMessage = "";
 
 	private string fileName = "";
@@ -144,10 +145,11 @@ else
 			return;
 		}
 
-		if (generatedRom)
+		if (generatedRom || failedGeneration)
 		{
 			rom.RestoreOriginalData();
 			generatedRom = false;
+			failedGeneration = false;
 		}
 
 		if (!rom.Validate())
@@ -190,11 +192,12 @@ else
 				await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
 			}
 			generatedRom = true;
-        }
-        catch (Exception ex)
-        {
-            romMessage = ex.Message;
-        }
+		}
+		catch (Exception ex)
+		{
+			romMessage = ex.Message;
+			failedGeneration = true;
+		}
     }
 
     private async Task LoadRomFromFile(FileChangedEventArgs e)

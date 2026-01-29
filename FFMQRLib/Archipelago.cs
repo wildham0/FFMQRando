@@ -57,7 +57,7 @@ namespace FFMQLib
 		public string Seed;
 		public string Name;
 		public string Romname;
-		public string Version;
+		public string Version { get; set; }
 		public string FileName;
 
 		public ApConfigs()
@@ -77,7 +77,7 @@ namespace FFMQLib
 			Version = "";
 			FileName = "";
 		}
-		public void ProcessYaml()
+		public bool ProcessYaml()
 		{
 			var deserializer = new DeserializerBuilder()
 				.WithNamingConvention(UnderscoredNamingConvention.Instance)
@@ -123,7 +123,18 @@ namespace FFMQLib
 				Console.WriteLine(ex.ToString());
 			}
 
+			if (Version == "1.5" || Version == "1.6")
+			{
+				return false;
+			}
+			else if (Version != "1.7")
+			{
+				return false;
+				//return $"This APMQ file wasn't generated with a compatible APWorld. Version used: {Version}.";
+			}
+
 			ApEnabled = true;
+			return true;
 		}
 		public void CopySetup(ApConfigs inputConfigs)
 		{
@@ -172,7 +183,7 @@ namespace FFMQLib
 					currentObject.Type = nonKIs.Append(Items.APItemFiller).Contains(placedObject.Content) ? GameObjectType.Box : GameObjectType.Chest;
 					if (nonKIs.Contains(placedObject.Content))
 					{
-						currentObject.Reset = true;
+						currentObject.Reset = !flags.BoxesDontReset;
 					}
 				}
 			}
@@ -186,7 +197,7 @@ namespace FFMQLib
 				if (location.Type == GameObjectType.Chest || location.Type == GameObjectType.Box)
 				{
 					location.Type = GameObjectType.Box;
-					location.Reset = true;
+					location.Reset = !flags.BoxesDontReset;
 				}
 			}
 
@@ -208,7 +219,7 @@ namespace FFMQLib
 				if (box.Type == GameObjectType.Chest || box.Type == GameObjectType.Box)
 				{
 					box.Type = GameObjectType.Box;
-					box.Reset = true;
+					box.Reset = !flags.BoxesDontReset;
 				}
 			}
 
@@ -287,7 +298,7 @@ namespace FFMQLib
 			GameLogic.CrestShuffle(crestshuffle, false, rng);
 			GameLogic.FloorShuffle((MapShufflingMode)mapshuffling, false, rng);
 			//var mapspoiler = Spoilers.MapSpoiler(GameLogic);
-			Overworld.ShuffleOverworld(overworldshuffle, (MapShufflingMode)mapshuffling, GameLogic, Battlefields, new List<LocationIds>(),false, rng);
+			Overworld.ShuffleOverworld(overworldshuffle, (MapShufflingMode)mapshuffling, GameLogic, Battlefields, new List<LocationIds>(), kaelismom, false, rng);
 
 			// Update Logic Requirements to old logic if still on 1.5
 			if (ap15used)

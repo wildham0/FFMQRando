@@ -198,49 +198,28 @@ namespace FFMQLib
 			var fireburgKi = keyItems.Where(x => x.Region == MapRegions.Fireburg).OrderBy(x => x.Location).ToList();
 			var windiaKi = keyItems.Where(x => x.Region == MapRegions.Windia).OrderBy(x => x.Location).ToList();
 
-			spoilers += "Foresta\n";
-			foreach (var item in forestaKi)
+			List<(string region, List<GameObject> items)> kiSpoilers = new()
 			{
-				string itemname = item.Content.ToString();
-				if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
-				{
-					itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
-				}
+				("Foresta\n", forestaKi),
+				("\nAquaria\n", aquariaKi),
+				("\nFireburg\n", fireburgKi),
+				("\nWindia\n", windiaKi),
 
-				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
-			}
+			};
 
-			spoilers += "\nAquaria\n";
-			foreach (var item in aquariaKi)
+			foreach (var kiset in kiSpoilers)
 			{
-				string itemname = item.Content.ToString();
-				if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
+				spoilers += kiset.region;
+				foreach (var item in kiset.items)
 				{
-					itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
-				}
-				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
-			}
+					string itemname = item.Content.ToString();
+					if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) >= 0))
+					{
+						itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
+					}
 
-			spoilers += "\nFireburg\n";
-			foreach (var item in fireburgKi)
-			{
-				string itemname = item.Content.ToString();
-				if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
-				{
-					itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
+					spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
 				}
-				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
-			}
-
-			spoilers += "\nWindia\n";
-			foreach (var item in windiaKi)
-			{
-				string itemname = item.Content.ToString();
-				if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == item.Content) > 0))
-				{
-					itemname = progressiveItems.Find(x => x.Item1 == item.Content).Item2;
-				}
-				spoilers += "  " + item.Name + " (" + item.Location + ") " + " -> " + itemname + "\n";
 			}
 
 			return spoilers;

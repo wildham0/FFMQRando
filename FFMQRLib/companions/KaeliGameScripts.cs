@@ -39,7 +39,7 @@ namespace FFMQLib
 				mode = KaeliMode.Potato;
 			}
 
-			GameFlags[(int)NewGameFlagsList.ShowLevelForestKaeli] = false;
+			GameFlags[GameFlagIds.ShowLevelForestKaeli] = false;
 			// Location 1 - Kaeli
 			if (mode == KaeliMode.Standard)
 			{
@@ -49,8 +49,8 @@ namespace FFMQLib
 						"04",
 						"2d" + ScriptItemFlags[Items.TreeWither].Item1,
 						"050c" + ScriptItemFlags[Items.TreeWither].Item2 + "[04]",
-						$"1A{(int)TalkScriptsList.KaeliWitherTree:X2}" + TextToHex("Hey there, lubber. The forest is dying? Tell that to the &%?! marines! It's totally fine.") + "3600",
-						$"1A{(int)TalkScriptsList.KaeliWitherTree:X2}" + TextToHex("!&%?! Look at that rotten hollard! Ok, let's go Johnny raw, let's chop some cursed tree!") + "36",
+						$"1A{(int)TalkScriptsList.KaeliWitherTree:X2}" + MQText.TextToHex("Hey there, lubber. The forest is dying? Tell that to the &%?! marines! It's totally fine.") + "3600",
+						$"1A{(int)TalkScriptsList.KaeliWitherTree:X2}" + MQText.TextToHex("!&%?! Look at that rotten hollard! Ok, let's go Johnny raw, let's chop some cursed tree!") + "36",
 						"0F8B0E",       // get facing position
 						"057C00[15]",   // looking up
 						"057C01[16]",   // looking right
@@ -59,7 +59,7 @@ namespace FFMQLib
 						$"2C4{(int)kaelidata.GameObject:X1}46",       // hide					"2C4146",
 						CompanionSwitchRoutine,
 						$"05E6{(int)CompanionsId.Kaeli:X2}085B85",
-						$"2B{(int)NewGameFlagsList.ShowForestaKaeli:X2}2B6C",
+						$"2B{(int)GameFlagIds.ShowForestaKaeli:X2}2B6C",
 						"00",
 						$"2C1{(int)kaelidata.GameObject:X1}4200",
 						$"2C1{(int)kaelidata.GameObject:X1}4300",
@@ -72,7 +72,7 @@ namespace FFMQLib
 				TalkScripts.AddScript((int)TalkScriptsList.KaeliWitherTree,
 					new ScriptBuilder(new List<string>
 					{
-						TextToHex("Hey there, lubber. The forest is dying? Ok, let's go Johnny raw, let's hunt some &%?! ackmen!") + "36",
+						MQText.TextToHex("Hey there, lubber. The forest is dying? Ok, let's go Johnny raw, let's hunt some &%?! ackmen!") + "36",
 						"0F8B0E",       // get facing position
 						"057C00[11]",   // looking up
 						"057C01[12]",   // looking right
@@ -81,7 +81,7 @@ namespace FFMQLib
 						$"2C4{(int)kaelidata.GameObject:X1}46",       // hide					"2C4146",
 						CompanionSwitchRoutine,
 						$"05E6{(int)CompanionsId.Kaeli:X2}085B85",
-						$"2B{(int)NewGameFlagsList.ShowForestaKaeli:X2}2B{(int)NewGameFlagsList.ShowWindiaKaeli:X2}2B6C",
+						$"2B{(int)GameFlagIds.ShowForestaKaeli:X2}2B{(int)GameFlagIds.ShowWindiaKaeli:X2}2B6C",
 						"00",
 						$"2C1{(int)kaelidata.GameObject:X1}4200",
 						$"2C1{(int)kaelidata.GameObject:X1}4300",
@@ -97,10 +97,10 @@ namespace FFMQLib
 						"04",
 						"2d" + ScriptItemFlags[Items.TreeWither].Item1,
 						"050c" + ScriptItemFlags[Items.TreeWither].Item2 + "[04]",
-						$"1A{(int)TalkScriptsList.KaeliWitherTree:X2}" + TextToHex("Hey there, lubber. The forest is dying? Tell that to the &%?! marines! It's totally fine.") + "3600",
-						$"1A{(int)TalkScriptsList.KaeliWitherTree:X2}" + TextToHex("!&%?! Look at that rotten hollard! Ok, let's go Johnny raw, set sails to Level Forest!") + "36",
+						$"1A{(int)TalkScriptsList.KaeliWitherTree:X2}" + MQText.TextToHex("Hey there, lubber. The forest is dying? Tell that to the &%?! marines! It's totally fine.") + "3600",
+						$"1A{(int)TalkScriptsList.KaeliWitherTree:X2}" + MQText.TextToHex("!&%?! Look at that rotten hollard! Ok, let's go Johnny raw, set sails to Level Forest!") + "36",
 						kaelidata.GetWalkOutScript(),
-						$"23{(int)NewGameFlagsList.ShowLevelForestKaeli:X2}2B{(int)NewGameFlagsList.ShowForestaKaeli:X2}2B6C",
+						$"23{(int)GameFlagIds.ShowLevelForestKaeli:X2}2B{(int)GameFlagIds.ShowForestaKaeli:X2}2B6C",
 						"00",
 					}));
 			}
@@ -109,7 +109,7 @@ namespace FFMQLib
                 TalkScripts.AddScript((int)TalkScriptsList.KaeliWitherTree,
 					new ScriptBuilder(new List<string>
 					{
-                        TextToHex("Hey there, lubber. The forest is dying? Tell that to the &%?! marines! It's totally fine.") + "3600",
+						MQText.TextToHex("Hey there, lubber. The forest is dying? Tell that to the &%?! marines! It's totally fine.") + "3600",
 					}));
             }
 
@@ -117,9 +117,9 @@ namespace FFMQLib
             // Kaeli's Mom
 			if (mode == KaeliMode.CompanionOnly || mode == KaeliMode.Potato)
             {
-				MapObjects[0x10][0x00].Gameflag = (byte)NewGameFlagsList.ShowForestaKaelisMom;
+				MapObjects[0x10][0x00].Gameflag = (byte)GameFlagIds.ShowForestaKaelisMom;
                 MapObjects[0x10][0x00].Value = (byte)TalkScriptsList.KaelisMomQuest;
-				GameFlags[(int)NewGameFlagsList.ShowForestaKaelisMom] = true;
+				GameFlags[GameFlagIds.ShowForestaKaelisMom] = true;
 
                 TalkScripts.AddScript((int)TalkScriptsList.KaelisMomQuest,
                     new ScriptBuilder(new List<string>
@@ -127,10 +127,10 @@ namespace FFMQLib
                         "04",
                         "2d" + ScriptItemFlags[Items.TreeWither].Item1,
                         "050c" + ScriptItemFlags[Items.TreeWither].Item2 + "[04]",
-                        $"1A{(int)TalkScriptsList.KaelisMomQuest:X2}" + TextToHex("The forest? Only The Void is my master, I await its wishes.") + "3600",
-                        $"1A{(int)TalkScriptsList.KaelisMomQuest:X2}" + TextToHex("A sign from The Void! We'll meet in Level Forest to bring inexistence to its enemies.") + "36",
+                        $"1A{(int)TalkScriptsList.KaelisMomQuest:X2}" + MQText.TextToHex("The forest? Only The Void is my master, I await its wishes.") + "3600",
+                        $"1A{(int)TalkScriptsList.KaelisMomQuest:X2}" + MQText.TextToHex("A sign from The Void! We'll meet in Level Forest to bring inexistence to its enemies.") + "36",
                         "2A4042204320424046FFFF",
-                        $"23{(int)NewGameFlagsList.ShowLevelForestKaeli:X2}2B{(int)NewGameFlagsList.ShowForestaKaelisMom:X2}2B6C",
+                        $"23{(int)GameFlagIds.ShowLevelForestKaeli:X2}2B{(int)GameFlagIds.ShowForestaKaelisMom:X2}2B6C",
                         "00",
                     }));
             }
@@ -145,8 +145,8 @@ namespace FFMQLib
 						"04",
 	                    "2d" + ScriptItemFlags[Items.Elixir].Item1,
 		                "050c" + ScriptItemFlags[Items.Elixir].Item2 + "[04]",
-			            "1A16" + TextToHex("I'll be fine, mate. Nothing a grog and some rest can't fix. I'll be back on deck in no time.") + "3600",
-				        "1A16" + TextToHex("Mate! Psha, this taste like &?!% kelt, but I'm ready to show a leg! Heave and rally!") + "36",
+			            "1A16" + MQText.TextToHex("I'll be fine, mate. Nothing a grog and some rest can't fix. I'll be back on deck in no time.") + "3600",
+				        "1A16" + MQText.TextToHex("Mate! Psha, this taste like &?!% kelt, but I'm ready to show a leg! Heave and rally!") + "36",
 					    Companions.GetQuestString(QuestsId.CureKaeli),
 	                    "0F890E",
 		                "057C0C[14]",
@@ -154,7 +154,7 @@ namespace FFMQLib
 				        "2C4246",
                         CompanionSwitchRoutine,
 	                    $"05E6{(int)CompanionsId.Kaeli:X2}085B85",
-		                $"2B{(int)NewGameFlagsList.ShowSickKaeli:X2}23{(int)NewGameFlagsList.KaeliCured:X2}",
+		                $"2B{(int)GameFlagIds.ShowSickKaeli:X2}23{(int)GameFlagIds.KaeliCured:X2}",
 			            "00",
 				        "2C124300",
 					    "2C124100"
@@ -170,14 +170,14 @@ namespace FFMQLib
                         "04",
                         "2d" + ScriptItemFlags[Items.Elixir].Item1,
                         "050c" + ScriptItemFlags[Items.Elixir].Item2 + "[04]",
-                        "1A16" + TextToHex("No need to fear, we all join The Void in the End.") + "3600",
-                        "1A16" + TextToHex("Medicine? I can still serve The Void in this Plane. My pilgrimage to Windia begins.") + "36",
+                        "1A16" + MQText.TextToHex("No need to fear, we all join The Void in the End.") + "3600",
+                        "1A16" + MQText.TextToHex("Medicine? I can still serve The Void in this Plane. My pilgrimage to Windia begins.") + "36",
 						"2A72424246FFFF",
                         Companions.GetQuestString(QuestsId.CureKaeli),
-                        $"2B{(int)NewGameFlagsList.ShowSickKaeli:X2}23{(int)NewGameFlagsList.KaeliCured:X2}23{(int)NewGameFlagsList.ShowWindiaKaelisMom:X2}",
+                        $"2B{(int)GameFlagIds.ShowSickKaeli:X2}23{(int)GameFlagIds.KaeliCured:X2}23{(int)GameFlagIds.ShowWindiaKaelisMom:X2}",
                         $"050f{(int)CompanionsId.Kaeli:X2}[10]",
 						"00",
-                        $"23{(int)NewGameFlagsList.ShowWindiaKaeli:X2}2B{(int)NewGameFlagsList.ShowForestaKaeli:X2}",
+                        $"23{(int)GameFlagIds.ShowWindiaKaeli:X2}2B{(int)GameFlagIds.ShowForestaKaeli:X2}",
                         "00",
                     }));
             }
@@ -189,11 +189,11 @@ namespace FFMQLib
                         "04",
                         "2d" + ScriptItemFlags[Items.Elixir].Item1,
                         "050c" + ScriptItemFlags[Items.Elixir].Item2 + "[04]",
-                        "1A16" + TextToHex("I'll be fine, mate. Nothing a grog and some rest can't fix. I'll be back on deck in no time.") + "3600",
-                        "1A16" + TextToHex("Mate! Psha, this taste like &?!% kelt, but I'm ready to show a leg! Heave and rally!") + "36",
+                        "1A16" + MQText.TextToHex("I'll be fine, mate. Nothing a grog and some rest can't fix. I'll be back on deck in no time.") + "3600",
+                        "1A16" + MQText.TextToHex("Mate! Psha, this taste like &?!% kelt, but I'm ready to show a leg! Heave and rally!") + "36",
                         "2A72424246FFFF",
                         Companions.GetQuestString(QuestsId.CureKaeli),
-                        $"2B{(int)NewGameFlagsList.ShowSickKaeli:X2}23{(int)NewGameFlagsList.KaeliCured:X2}23{(int)NewGameFlagsList.ShowWindiaKaeli:X2}",
+                        $"2B{(int)GameFlagIds.ShowSickKaeli:X2}23{(int)GameFlagIds.KaeliCured:X2}23{(int)GameFlagIds.ShowWindiaKaeli:X2}",
                     }));
             }
 
@@ -202,22 +202,22 @@ namespace FFMQLib
 
             string treecuttingdialogue = kaelismom ? "Tree, your death is a small sacrifice, but the path opened is great. Praise the Void!" : "There, griffin. Path is cleared. Let's find that decaying !&%? piece of lumber.";
 
-			var kaeliquestcheck = (mode == KaeliMode.Standard) ? $"050f{(int)CompanionsId.Kaeli:X2}[11]" : $"050B{(int)NewGameFlagsList.ShowLevelForestKaeli:X2}[11]";
+			var kaeliquestcheck = (mode == KaeliMode.Standard) ? $"050f{(int)CompanionsId.Kaeli:X2}[11]" : $"050B{(int)GameFlagIds.ShowLevelForestKaeli:X2}[11]";
 
 			TileScripts.AddScript((int)TileScriptsList.EnterLevelForest,
 				new ScriptBuilder(new List<string>
 				{
 					"2C0101",
-                    $"2e{(int)NewGameFlagsList.KaeliOpenedPath:X2}[11]",						    // path opened?, true jump
+                    $"2e{(int)GameFlagIds.KaeliOpenedPath:X2}[11]",						    // path opened?, true jump
                     kaeliquestcheck,                    // is kaeli in party, false jump
 					"2d" + ScriptItemFlags[Items.TreeWither].Item1,
                     "050D" + ScriptItemFlags[Items.TreeWither].Item2 + "[11]",                      // do we have tree wither?, false jump
 					"2A334663401343FFFF",
                     "2A2344505010530054FFFF",
-					"1A82" + TextToHex(treecuttingdialogue) + "36",
+					"1A82" + MQText.TextToHex(treecuttingdialogue) + "36",
                     "2C0344" + "09209511093d8c00" + "2C0825" + "09309511093d8c00" + "2C6822",
                     "2A13424346FFFF",
-                    $"23{(int)NewGameFlagsList.KaeliOpenedPath:X2}23{(int)NewGameFlagsList.EnableMinotaurFight:X2}",
+                    $"23{(int)GameFlagIds.KaeliOpenedPath:X2}23{(int)GameFlagIds.EnableMinotaurFight:X2}",
 					"00"
 				}));
 
@@ -226,13 +226,13 @@ namespace FFMQLib
             string giveitemdialogue = kaelismom ? "Don't cry for my imminent demise. Take this material object, I won't need it inside The Void." : "You're a &?%! agonist, mate! Here, you earned it. Split a few skulls for me!";
 
 			// Minotaur
-			var kaeliminotaurcheck = (mode == KaeliMode.Standard) ? $"050f{(int)CompanionsId.Kaeli:X2}[24]" : $"050B{(int)NewGameFlagsList.ShowLevelForestKaeli:X2}[24]";
+			var kaeliminotaurcheck = (mode == KaeliMode.Standard) ? $"050f{(int)CompanionsId.Kaeli:X2}[25]" : $"050B{(int)GameFlagIds.ShowLevelForestKaeli:X2}[25]";
 
             TileScripts.AddScript((int)TileScriptsList.FightMinotaur,
 				new ScriptBuilder(new List<string>
 				{
-                    "050B63[24]",
-                    $"050B{(int)NewGameFlagsList.KaeliOpenedPath:X2}[24]",						    // path opened?, false jump
+                    "050B63[25]",
+                    $"050B{(int)GameFlagIds.KaeliOpenedPath:X2}[25]",						    // path opened?, false jump
                     kaeliminotaurcheck,
 					//"2C0344" + "09209511093d8c00" + "2C0825" + "09309511093d8c00" + "2C6822",
                     //"2A3546 0054 105a 0e25 2727 5246 022A 05453055FFFF",
@@ -241,16 +241,16 @@ namespace FFMQLib
                     //"2A 1B27 8544 1054 3055 5054 FFFF",
 					//"2A1B2785441054FFFF" + "09209511093d8c00" + "2C3055" + "09309511093d8c00" + "2C5054",
                     "2A1B278544105430555054FFFF",
-                    "1A82" + TextToHex(poisoneddialogue),
+                    "1A82" + MQText.TextToHex(poisoneddialogue),
                     "36",
                     "2A75448544754405440054FFFF",
                     "05E41714",
                     kaelismom ? "2A6246854410543544FFFF" : "2A62468544105436465640FFFF",
-                    "1A82" + TextToHex(giveitemdialogue) + "36",
+                    "1A82" + MQText.TextToHex(giveitemdialogue) + "36",
                     kaelismom ? "" : "2C7544",
                     kaelismom ? "" : "2C8544",
                     $"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliForesta]:X2}0162",
-                    $"23{(int)NewGameFlagsList.ShowSickKaeli:X2}",
+                    $"23{(int)GameFlagIds.ShowSickKaeli:X2}",
                     (mode == KaeliMode.Standard) ? CompanionSwitchRoutine + "61" : "",
                     kaelismom ? "2A65424546FFFF" : "2A1640454666424646FFFF",
                     "236D",
@@ -259,7 +259,8 @@ namespace FFMQLib
                     "2B15",
                     Companions.GetQuestString(QuestsId.DefeatMinotaur),
                     Companions.GetQuestString(QuestsId.DefeatQtyMinibosses),
-                    "00"
+					SeedVendors.GetFlagScript(EnemyIds.Minotaur),
+					"00"
 				}));
 
 			// Windia
@@ -281,29 +282,29 @@ namespace FFMQLib
 					{
 						"2CD700",
 						$"050f{(int)CompanionsId.Kaeli:X2}[08]",
-						$"2E{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}[08]",
+						$"2E{(int)GameFlagIds.KaeliSecondItemGiven:X2}[08]",
 						"2A3446144314443054FFFF",
-						"1A51" + TextToHex("Hearty, mate. This is straight from my ?%!& ditty-bag, but I want you to have it!") + "36",
+						"1A51" + MQText.TextToHex("Hearty, mate. This is straight from my ?%!& ditty-bag, but I want you to have it!") + "36",
 						$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliWindia]:X2}0162",
-						$"23{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}",
+						$"23{(int)GameFlagIds.KaeliSecondItemGiven:X2}",
 						"2A14414446FFFF",
 						"00",
 					}));
 
 				// NPC Kaeli
-				MapObjects[0x52][0x00].Gameflag = (byte)NewGameFlagsList.ShowWindiaKaeli;
+				MapObjects[0x52][0x00].Gameflag = (byte)GameFlagIds.ShowWindiaKaeli;
 				MapObjects[0x52][0x00].Value = 0x5B;
 
 				TalkScripts.AddScript((int)TalkScriptsList.KaeliWindia,
 					new ScriptBuilder(new List<string>
 					{
 						"04",
-						$"2E{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}[06]",
-                        $"1A{(int)TalkScriptsList.KaeliWindia:X2}" + TextToHex("Hearty, mate. This is straight from my ?%!& ditty-bag, but I want you to have it!") + "36",
+						$"2E{(int)GameFlagIds.KaeliSecondItemGiven:X2}[06]",
+                        $"1A{(int)TalkScriptsList.KaeliWindia:X2}" + MQText.TextToHex("Hearty, mate. This is straight from my ?%!& ditty-bag, but I want you to have it!") + "36",
 						$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliWindia]:X2}0162",
-						$"23{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}",
+						$"23{(int)GameFlagIds.KaeliSecondItemGiven:X2}",
 						"00",
-						$"1A{(int)TalkScriptsList.KaeliWindia:X2}" + TextToHex("I'm tired to play &?&% harbour-watch. Let's loose for sea, mate!") + "36",
+						$"1A{(int)TalkScriptsList.KaeliWindia:X2}" + MQText.TextToHex("I'm tired to play &?&% harbour-watch. Let's loose for sea, mate!") + "36",
 						"0F8B0E",
 						"057C02[16]",
 						"057C03[17]",
@@ -311,7 +312,7 @@ namespace FFMQLib
 						"2C4046",
                         CompanionSwitchRoutine,
 						$"05E6{(int)CompanionsId.Kaeli:X2}085B85",
-						$"2B{(int)NewGameFlagsList.ShowWindiaKaeli:X2}",
+						$"2B{(int)GameFlagIds.ShowWindiaKaeli:X2}",
 						"00",
 						"2C104000",
 						"2C104100",
@@ -328,19 +329,19 @@ namespace FFMQLib
 					}));
 
 				// NPC Kaeli
-				MapObjects[0x52][0x00].Gameflag = (byte)NewGameFlagsList.ShowWindiaKaeli;
+				MapObjects[0x52][0x00].Gameflag = (byte)GameFlagIds.ShowWindiaKaeli;
 				MapObjects[0x52][0x00].Value = 0x5B;
 
 				TalkScripts.AddScript((int)TalkScriptsList.KaeliWindia,
 					new ScriptBuilder(new List<string>
 					{
 						"04",
-						$"2E{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}[06]",
-						"1A5B" + TextToHex("Hearty, mate. This is straight from my ?%!& ditty-bag, but I want you to have it!") + "36",
+						$"2E{(int)GameFlagIds.KaeliSecondItemGiven:X2}[06]",
+						"1A5B" + MQText.TextToHex("Hearty, mate. This is straight from my ?%!& ditty-bag, but I want you to have it!") + "36",
 						$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliWindia]:X2}0162",
-						$"23{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}",
+						$"23{(int)GameFlagIds.KaeliSecondItemGiven:X2}",
 						"00",
-						"1A5B" + TextToHex("I'm tired to play &?&% harbour-watch. Maybe I should risk a run.") + "36",
+						"1A5B" + MQText.TextToHex("I'm tired to play &?&% harbour-watch. Maybe I should risk a run.") + "36",
 						"00",
 					}));
 			}
@@ -354,13 +355,13 @@ namespace FFMQLib
 					}));
 
 				// NPC Kaeli
-				MapObjects[0x52][0x00].Gameflag = (byte)NewGameFlagsList.ShowWindiaKaeli;
+				MapObjects[0x52][0x00].Gameflag = (byte)GameFlagIds.ShowWindiaKaeli;
 				MapObjects[0x52][0x00].Value = 0x5B;
 
 				TalkScripts.AddScript((int)TalkScriptsList.KaeliWindia,
 					new ScriptBuilder(new List<string>
 					{
-						(mode == KaeliMode.Potato) ? (TextToHex("I'm tired to play &?&% harbour-watch. Maybe I should risk a run.") + "3600") : (TextToHex("I'm tired to play &?&% harbour-watch. Let's loose for sea, mate!") + "36"),
+						(mode == KaeliMode.Potato) ? (MQText.TextToHex("I'm tired to play &?&% harbour-watch. Maybe I should risk a run.") + "3600") : (MQText.TextToHex("I'm tired to play &?&% harbour-watch. Let's loose for sea, mate!") + "36"),
 						"0F8B0E",
 						"057C02[10]",
 						"057C03[11]",
@@ -368,7 +369,7 @@ namespace FFMQLib
 						"2C4046",
                         CompanionSwitchRoutine,
 						$"05E6{(int)CompanionsId.Kaeli:X2}085B85",
-						$"2B{(int)NewGameFlagsList.ShowWindiaKaeli:X2}",
+						$"2B{(int)GameFlagIds.ShowWindiaKaeli:X2}",
 						"00",
 						"2C104000",
 						"2C104100",
@@ -379,7 +380,7 @@ namespace FFMQLib
 				MapObjects[0x52][0x04].CopyFrom(MapObjects[0x52][0x00]);
 				var kaelismomobject = MapObjects[0x52][0x04];
 
-				kaelismomobject.Gameflag = (int)NewGameFlagsList.ShowWindiaKaelisMom;
+				kaelismomobject.Gameflag = (int)GameFlagIds.ShowWindiaKaelisMom;
 				kaelismomobject.Sprite = 0x3C;
 				kaelismomobject.Value = (int)TalkScriptsList.KaelisMomWindia;
 				kaelismomobject.X = 0x1C;
@@ -390,12 +391,12 @@ namespace FFMQLib
 					new ScriptBuilder(new List<string>
 					{
 						"04",
-						$"2E{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}[06]",
-						$"1A{(int)TalkScriptsList.KaelisMomWindia:X2}" + TextToHex("The Void guided my hands to this item, use it to channel the Nothing into your soul.") + "36",
+						$"2E{(int)GameFlagIds.KaeliSecondItemGiven:X2}[06]",
+						$"1A{(int)TalkScriptsList.KaelisMomWindia:X2}" + MQText.TextToHex("The Void guided my hands to this item, use it to channel the Nothing into your soul.") + "36",
 						$"0D5F01{(int)itemsPlacement[ItemGivingNPCs.KaeliWindia]:X2}0162",
-						$"23{(int)NewGameFlagsList.KaeliSecondItemGiven:X2}",
+						$"23{(int)GameFlagIds.KaeliSecondItemGiven:X2}",
 						"00",
-						$"1A{(int)TalkScriptsList.KaelisMomWindia:X2}" + TextToHex("I can sense the Dark Sun rising. Soon we will all unite into The Void!") + "36",
+						$"1A{(int)TalkScriptsList.KaelisMomWindia:X2}" + MQText.TextToHex("I can sense the Dark Sun rising. Soon we will all unite into The Void!") + "36",
 						"00",
 					}));
 			}

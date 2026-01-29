@@ -1,16 +1,38 @@
-﻿
-<h2 class="text-secondary">General Information</h2>
+﻿@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+<h2 class="text-secondary">Information & Resources</h2>
 
 <div><br /></div>
+
+<div id="infoTableOfContent"><br /></div>
+<Container class="sectionBox">
+	<div class="box-title text-secondary">Table of Content</div>
+	<Container Class="infoBox">
+		<SectionJump Text="ROM File" Section="infoRomFile" />
+		<SectionJump Text="Game Changes" Section="infoGameChanges" />
+		<SectionJump Text="Progression Changes" Section="progressionChanges" />
+		<SectionJump Text="Go Mode" Section="goMode" />
+		<SectionJump Text="Trackers" Section="trackers" />
+	</Container>
+</Container>
+
+<div id="infoRomFile"></div>
+<div><br /></div>
+
 
 <Container class="sectionBox">
     <div class="box-title text-secondary">ROM File</div>
     <Container Class="infoBox">
 		<div class="text-secondary">This Final Fantasy Mystic Quest randomizer is only compatible with the NA v1.0 or v1.1 rom file (v1.0 MD5: da08f0559fade06f37d5fdf1b6a6d92e / v1.1 MD5: f7faeae5a847c098d677070920769ca2).</div>
+		<br />
+		<SectionJump Text="Back" Section="infoTableOfContent" BackIcon=true />
     </Container>
 </Container>
 
+<div id="infoGameChanges"></div>
 <div><br /></div>
+
 
 <Container class="sectionBox">
     <div class="box-title text-secondary">Game Changes</div>
@@ -37,9 +59,12 @@
 
         <div class="fw-bold text-secondary">Pazuzu</div>
         <div class="text-secondary">Pazuzu's floor rng (ie which floor he will randomly jump to when talked to) is fixed for a given seed and he will already be on his initial floor instead of all seven floors when entering Pazuzu's Tower.</div>
+		<br />
+		<SectionJump Text="Back" Section="infoTableOfContent" BackIcon=true />
     </Container>
 </Container>
 
+<div id="progressionChanges"></div>
 <div><br /></div>
 
 <Container class="sectionBox">
@@ -57,7 +82,7 @@
 <br />
 
 <div class="fw-bold text-secondary">Spencer's Place</div>
-<div class="text-secondary">To dislodge Mac's Ship you need to enter from the Rainbow Bridge with the Mega Grenade. Spencer will still be there to give his item after the cave has collapsed.</div>
+<div class="text-secondary">To dislodge Mac's Ship you need to step on the tile in front of the Overworld entrance of Spencer's Cave with the Mega Grenade. Spencer will still be there to give his item after the cave has collapsed. If Aquaria is thawed, you always have access to Aquaria from Spencer's Cave.</div>
 <br />
 
 <div class="fw-bold text-secondary">Minor Dungeons</div>
@@ -80,9 +105,12 @@
 <div class="text-secondary">Wakewater: To thaw Aquaria, the Wakewater is required now instead of defeating the Ice Golem.</div>
 <br />
 <div class="text-secondary">Tristam's Chest: A chest locked with the Venus Key in Spencer's Cave now contains the item replacing Tristam's Dragon Claw.</div>
+		<br />
+		<SectionJump Text="Back" Section="infoTableOfContent" BackIcon=true />
     </Container>
 </Container>
 
+<div id="goMode"></div>
 <div><br /></div>
 
 <Container class="sectionBox">
@@ -99,7 +127,31 @@
   <li>Captain Mac's Hat</li>
   <li>Mobius Crest</li>
 </ul>
+		<br />
+		<SectionJump Text="Back" Section="infoTableOfContent" BackIcon=true />
     </Container>
+</Container>
+
+<div id="trackers"></div>
+<div><br /></div>
+
+<Container class="sectionBox">
+	<div class="box-title text-secondary">Trackers</div>
+	<Container Class="infoBox">
+		<div class="fw-bold text-secondary"><a href="https://github.com/x10power/ffmq_pack_x10power/releases/latest" target="_blank" rel="noopener noreferrer" class="text-secondary" style="text-decoration: underline">Emotracker <Icon Name="IconName.ExternalLinkSquareAlt" class="text-secondary" /></a></div>
+		<div class="text-secondary fst-italic">by x10power & MinervaTrethewey</div>
+		<div class="text-secondary">Support for: Items Tracking with Maps, Autotracking.</div>
+		<br />
+		<div class="fw-bold text-secondary"><a href="https://github.com/D-Skye/ffmq-ap-poptracker/releases/latest" target="_blank" rel="noopener noreferrer" class="text-secondary" style="text-decoration: underline">Poptracker <Icon Name="IconName.ExternalLinkSquareAlt" class="text-secondary" /></a></div>
+		<div class="text-secondary fst-italic">by D-Skye</div>
+		<div class="text-secondary">Support for: Items Tracking with Maps, Autotracking (with Archipelago).</div>
+		<br />
+		<div class="fw-bold text-secondary"><a href="https://github.com/Kyuuden/Companion/releases/latest" target="_blank" rel="noopener noreferrer" class="text-secondary" style="text-decoration: underline">Companion <Icon Name="IconName.ExternalLinkSquareAlt" class="text-secondary" /></a></div>
+		<div class="text-secondary fst-italic">by Kyuuden</div>
+		<div class="text-secondary">Support for: Items Tracking, Spells Tracking, Quests Tracking, Resistances/Weaknesses Tracking, Autotracking.</div>
+		<br />
+		<SectionJump Text="Back" Section="infoTableOfContent" BackIcon=true />
+	</Container>
 </Container>
 
 <div><br /><br /><br /></div>

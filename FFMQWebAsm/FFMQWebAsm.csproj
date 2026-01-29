@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FFMQRLib\FFMQRLib.csproj" />
+    <ProjectReference Include="..\FFMQRLib\FFMQLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

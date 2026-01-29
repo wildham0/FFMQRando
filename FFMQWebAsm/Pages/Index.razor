@@ -81,30 +81,29 @@
 	<div><br /></div>
 
 	<Container class="sectionBox">
-		<div class="box-title text-secondary">
-			Items
-			<Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations.<br /><br />When some locations aren't prioritized (either included or excluded), Quest Items may land in brown boxes, in which case these locations will show up as Chests." 
-		Inline
-
-		Multiline Placement="TooltipPlacement.Right">
-			<Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small style="font-size: 0.600em"/> 
-			</Tooltip>       
-		</div> 
+		<div class="box-title text-secondary">Quest Items</div> 
 
 		<Container Class="flagBox">
 			<Container Class="flagColumn">
-				<EnumFlag UsePreset=usePreset Name="Logic" @bind-Value="flags.LogicOptions" Tooltip="Placement logic sets the rules that will be applied when placing items.<br /><br />Friendly: Required Items to clear a dungeon will never be placed in that dungeon to avoid the need to revisit it. Also, the Magic Mirror and the Mask will always be available before Ice Pyramid and Volcano, respectively. Note: If Dungeons are shuffled, Friendly logic will only ensure the availability of the Mirror and the Mask.<br /><br />Standard: Items are randomly placed and logic merely verifies that they're all accessible. As for Region access, only the Coins are considered.<br /><br />Expert: Same as Standard, but Items Placement logic also includes other routes than Coins: the Crests Teleporters, the Fireburg-Aquaria Lava bridge and the Sealed Temple Exit trick." />
+				<div class="form-label fw-bold text-secondary" style="font-size: 1.3em">
+				<Tooltip Text="Govern how shuffled Quest Items will be placed.<br /><br />Prioritize: Quest Items will always be found in these locations.<br /><br />Include: Quest Items may be found in these locations.<br /><br />Exclude: Quest Items will never be found in these locations.<br /><br />When some locations aren't prioritized (either included or excluded), Quest Items may land in brown boxes, in which case these locations will show up as Chests."
+						 Inline
+						 Multiline Placement="TooltipPlacement.Right">
+					Items Placement
+					<Icon TextColor="TextColor.Secondary" Name="IconName.QuestionCircle" IconSize=IconSize.Small />
+				</Tooltip>
+				</div>
 				<EnumFlag UsePreset=usePreset Name="Original Chests" @bind-Value="flags.ChestsShuffle" Tooltip="Original Chests are all the red chests locations in the original game, except the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave, which count as NPCs.<br /><br />If a chest doesn't contain a Quest Item, it will show up as a brown box." />
 				<EnumFlag UsePreset=usePreset Name="NPCs" @bind-Value="flags.NpcsShuffle" Tooltip="NPCs are all the NPC locations in the original game, as well as the new Reuben item in Mine, the Venus Key Chest in Focus Tower and the new Locked Chest in Spencer's Cave." />
 				<EnumFlag UsePreset=usePreset Name="Battlefields" @bind-Value="flags.BattlefieldsShuffle" Tooltip="Battlefields are all the battlefields that gave a Quest Item in the original game; if Shuffle Battlefields Rewards is enabled, the locations will change, but the same number of battlefields will offer an item." />
 			</Container>
 			<Container Class="flagColumn">
+				<EnumFlag UsePreset=usePreset Name="Logic" @bind-Value="flags.LogicOptions" Tooltip="Placement logic sets the rules that will be applied when placing items.<br /><br />Friendly: Required Items to clear a dungeon will never be placed in that dungeon to avoid the need to revisit it. Also, the Magic Mirror and the Mask will always be available before Ice Pyramid and Volcano, respectively. Note: If Dungeons are shuffled, Friendly logic will only ensure the availability of the Mirror and the Mask.<br /><br />Standard: Items are randomly placed and logic merely verifies that they're all accessible. As for Region access, only the Coins are considered.<br /><br />Expert: Same as Standard, but Items Placement logic also includes other routes than Coins: the Crests Teleporters, the Fireburg-Aquaria Lava bridge, the Aquaria-Spencer's Cave-Rainbow Bridge path and the Sealed Temple Exit trick." />
 				<EnumFlag UsePreset=usePreset Name="Sky Coin Mode" @bind-Value="flags.SkyCoinMode" Tooltip="Configure how the Sky Coin is acquired.<br /><br />Standard: The Sky Coin will be found in a chest.<br /><br />Start With: The Sky Coin will be in your inventory at the start of the game.<br /><br />Save the Crystals: The Sky Coin will be acquired once you save all 4 crystals.<br /><br />Shattered: The Sky Coin is split in 40 fragments; you can enter Doom Castle once the required amount is found." />
 				@if (flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin)
 				{
 					<EnumFlag UsePreset=usePreset Name="Sky Fragments Quantity" @bind-Value="flags.SkyCoinFragmentsQty" Tooltip="Set the number of Sky Coin Fragments required to enter Doom Castle.<br /><br />Random select one of the 3 previous options at random." />
 				}
-				<BoolFlag UsePreset=usePreset Name="Shuffle Brown Boxes' Content" @bind-Value="flags.ShuffleBoxesContent" Tooltip="If enabled, the content of brown boxes will be shuffled amongst themselves." />
 				<BoolFlag UsePreset=usePreset Name="Random Starting Weapon" @bind-Value="flags.RandomStartingWeapon" Tooltip="Replace the usual starting weapon with the Steel Sword, the Axe, the Cat Claw or the Bomb." />
 				<BoolFlag UsePreset=usePreset Name="Progressive Gear" @bind-Value="flags.ProgressiveGear" Tooltip="Pieces of gear are always acquired from weakest to strongest in a set.<br/><br/>Eg. you'll always received the Steel Sword first, then the Knight Sword and finally Excalibur, irrespective of the order the chests are opened." />
 			</Container>
@@ -112,19 +111,34 @@
 	</Container>
 	<div><br /></div>
 
+	<Container class="sectionBox">
+		<div class="box-title text-secondary">Consumables</div>
+
+		<Container Class="flagBox">
+			<Container Class="flagColumn">
+				<BoolFlag UsePreset=usePreset Name="Shuffle Boxes' Content" @bind-Value="flags.ShuffleBoxesContent" Tooltip="If enabled, the content of brown boxes will be shuffled amongst themselves." />
+				<BoolFlag UsePreset=usePreset Name="Boxes Don't Reset" @bind-Value="flags.BoxesDontReset" Tooltip="If enabled, brown boxes don't reset once opened." />
+			</Container>
+			<Container Class="flagColumn">
+				<EnumFlag UsePreset=usePreset Name="Seed Vendors" @bind-Value="flags.SeedVendorsSetting" Tooltip="Set Seed Vendors requirements.<br/><br/>Standard: No requirement for Fireburg Vendor, Windia Vendor needs Dullahan to be defeated.<br/><br/>No Vendors: No vendors sell seeds. This include the vendor on Mac Ship.<br/><br/>Defeat Jinn: Fireburg Vendor requires Jinn to be defeated, Windia Vendor still requires Dullahan.<br/><br/>Random Bosses: Both Vendors require a random boss to be defeated." />
+				<EnumFlag UsePreset=usePreset Name="World Seed Supply" @bind-Value="flags.SeedQuantity" Tooltip="Set the number of locations containing Seeds.<br/><br/>Regardless of the option selected, the Hero Chest before the Dark King will always contain Seeds and isn't included in the count." />
+				<BoolFlag UsePreset=usePreset Name="Disable Seed Duping" @bind-Value="flags.DisableDuping" Tooltip="Fix the bug allowing you to duplicate consumable items when cancelling the command and running away from battle." />
+			</Container>
+		</Container>
+	</Container>
+	<div><br /></div>
+
 <Container class="sectionBox">
 	<div class="box-title text-secondary">Enemies</div> 
-
 	<Container Class="flagBox">
 		<Container Class="flagColumn">
 			<DoubleEnumFlag UsePreset=usePreset Name="Standard Enemies Scaling" @bind-Value="flags.EnemiesScalingLower" @bind-Value2="flags.EnemiesScalingUpper" Tooltip="Randomly adjust enemies stats by the selected range percentage.<br/><br/>Include mini-bosses' weaker clones." />
 			<DoubleEnumFlag UsePreset=usePreset Name="Bosses Scaling" @bind-Value="flags.BossesScalingLower" @bind-Value2="flags.BossesScalingUpper" Tooltip="Randomly adjust bosses stats by the selected range percentage.<br/><br/>Include Mini-Bosses, Bosses, Bosses' refights and the Dark King." />
-				<EnumFlag UsePreset=usePreset Name="Enemizer Attacks" @bind-Value="flags.EnemizerAttacks" Tooltip="Shuffles enemy attacks.<br /><br />Disabled: No shuffle.<br /><br />Balanced: Randomize every attack, but remove self-destruct and multiply; only the Dark Castle's bosses can get Dark King attacks.<br /><br />Balanced Expert: Same as balanced, but enemies tends to have stronger attacks.<br /><br />Chaos Randomization: Randomize every attack. Any attack is possible.<br /><br />Self-destruct: Every enemy self destructs<br /><br />Script Shuffle: Shuffle the whole attack script between each enemies." />
+				<EnumFlag UsePreset=usePreset Name="Enemizer" @bind-Value="flags.EnemizerAttacks" Tooltip="Modify enemies.<br /><br />Disabled: No modification.<br /><br />Balanced: Randomize every attack, but remove self-destruct and multiply; only the Dark Castle's bosses can get Dark King attacks.<br /><br />Balanced Expert: Same as balanced, but enemies tends to have stronger attacks.<br /><br />Elemental: Enemies are assigned an element. They get an appropriate Elemental attack, resist that element and become weak to the opposite element.<br/>Fire: Weak to Water.<br/>Water: Weak to Earth.<br/>Earth: Weak to Air.<br/>Air: Weak to Fire.<br/>Thunder: Weak to Fire & Earth.<br /><br />Chaos Randomization: Randomize every attack. Any attack is possible.<br /><br />Self-destruct: Every enemy self destructs<br /><br />Script Shuffle: Shuffle the whole attack script between each enemies." />
 				@if (flags.EnemizerAttacks != EnemizerAttacks.Normal)
 				{
 					<EnumFlag UsePreset=usePreset Name="Enemizer Groups" @bind-Value="flags.EnemizerGroups" Tooltip="Set which enemies groups will be affected by Enemizer." />
 				}
-			<BoolFlag UsePreset=usePreset Name="Progressive Enemizer" @bind-Value="flags.ProgressiveEnemizer" Tooltip="Enemies of the same type will share the same attack pool." />
 			<BoolFlag UsePreset=usePreset Name="Shuffle Resist/Weakness Types" @bind-Value="flags.ShuffleResWeakType" Tooltip="Resistance and weakness types are shuffled for all enemies." />
 		</Container>
 		<Container Class="flagColumn">
@@ -143,7 +157,7 @@
 	<Container Class="flagBox">
 		<Container Class="flagColumn">
 			<EnumFlag UsePreset=usePreset Name="Doom Castle" @bind-Value="flags.DoomCastleMode" Tooltip="Change how you reach the Dark King.<br/><br/>Standard: You need to defeat all four bosses and their floors to reach the Dark King.<br/><br/>Boss Rush: Only the bosses are blocking your way in the corridor to the Dark King's room.<br/><br/>Dark King Only: The way to the Dark King is free of any obstacle." />
-			<BoolFlag UsePreset=usePreset Name="Doom Castle Shortcut" @bind-Value="flags.DoomCastleShortcut" Tooltip="Create a shortcut granting access from the start to Doom Castle at Focus Tower's entrance.<br/><br/>Also modify the Desert floor so it can be navigated without the Mega Grenades and the Dragon Claw." />
+				<EnumFlag UsePreset=usePreset Name="Doom Castle Access" @bind-Value="flags.DoomCastleAccess" Tooltip="Set how accessible Doom Castle is.<br/><br/>Standard: You need to free Mac's Ship with the MegaGrenades and give Mac his cap to reach Doom Castle.<br/><br/>Freed Ship: Mac's Ship is already freed, you just need the Captain Cap.<br/><br/>Shortcut: Create a shortcut granting access from the start to Doom Castle at Focus Tower's entrance.<br/><br/>The Freed Ship and Shortcut options also modify the Desert floor so it can be navigated without the Mega Grenades and the Dragon Claw." />
 			<BoolFlag UsePreset=usePreset Name="Tweak Frustrating Dungeons" @bind-Value="flags.TweakedDungeons" Tooltip="Make some small changes to a few of the most annoying dungeons.<br/><br/>Ice Pyramid: Add 3 shortcuts on the 1st floor.<br/><br/>Giant Tree: Add shortcuts on the 1st and 4th floors and curtail mushrooms population.<br/><br/>Pazuzu's Tower: Staircases are devoid of enemies (regardless of Enemies Density settings)." />
 		</Container>
 		<Container Class="flagColumn">
@@ -181,13 +195,13 @@
 	<Container Class="flagBox">
 		<Container Class="flagColumn">
 			<EnumFlag UsePreset=usePreset Name="Leveling Curve" @bind-Value="flags.LevelingCurve" Tooltip="Adjust the quantity of XP needed to gain levels.<br/><br/>A curve of 2x means that leveling will be twice faster." />
-			<BoolFlag UsePreset=usePreset Name="Disable Spoilers File" @bind-Value="flags.DisableSpoilers" Tooltip="Prevent the generation of a spoilers file with each Key Item's locations, only the GameInfo screen data will be included." />
-			<BoolFlag UsePreset=usePreset Name="Mystery Flags" @bind-Value="flags.HiddenFlags" Tooltip="Hide the flags options. This flag cannot be undone; it is recommended to backup or export your flags before enabling this option." />
-		</Container>
-		<Container Class="flagColumn">
 			<BoolFlag UsePreset=usePreset Name="Shuffle Battlefields Rewards" @bind-Value="flags.ShuffleBattlefieldRewards" Tooltip="Shuffle the type of reward (Item, XP, GP) given by battlefields and color code them by reward type.<br/><br/>Blue: Give an item.<br/><br/>Grey: Give XP.<br/><br/>Green: Give GP." />
 			<EnumFlag UsePreset=usePreset Name="Battlefields Battles Quantity" @bind-Value="flags.BattlesQuantity" Tooltip="Adjust the number of battles that need to be fought to get a battlefield's reward." />
-				<EnumFlag UsePreset=usePreset Name="Hint NPCs" @bind-Value="flags.HintMode" Tooltip="Four NPCs, one in each INN, will reveal the location of an item. NPCs will never hint for an item already in your inventory, so hints may change during playthrough.<br/>If Enemy Density is set to 0%, NPCs will refuse to give hints until you have enough GPs to also cover any remaining vendor items. <br/><br/>None: No Hints.<br/><br/>Free: Hints are given for free.<br/><br/>Fixed: All hints will cost that amount of GPs.<br/><br/>Progressive: Each time you buy a hint, the cost of the other hints will increment by that amount." />
+		</Container>
+		<Container Class="flagColumn">
+			<EnumFlag UsePreset=usePreset Name="Hint NPCs" @bind-Value="flags.HintMode" Tooltip="Four NPCs, one in each INN, will reveal the location of an item. NPCs will never hint for an item already in your inventory, so hints may change during playthrough.<br/>If Enemy Density is set to 0%, NPCs will refuse to give hints until you have enough GPs to also cover any remaining vendor items. <br/><br/>None: No Hints.<br/><br/>Free: Hints are given for free.<br/><br/>Fixed: All hints will cost that amount of GPs.<br/><br/>Progressive: Each time you buy a hint, the cost of the other hints will increment by that amount." />
+			<BoolFlag UsePreset=usePreset Name="Disable Spoilers File" @bind-Value="flags.DisableSpoilers" Tooltip="Prevent the generation of a spoilers file with each Key Item's locations, only the GameInfo screen data will be included." />
+			<BoolFlag UsePreset=usePreset Name="Mystery Flags" @bind-Value="flags.HiddenFlags" Tooltip="Hide the flags options. This flag cannot be undone; it is recommended to backup or export your flags before enabling this option." />
 		</Container>
 	</Container>
 		</Container>
@@ -386,7 +400,7 @@ else if(loadingDone)
 		});
 
 
-		NavigationManager.NavigateTo(NavigationManager.BaseUri + sectionNavigation + "?s=" + showSeed + "&f=" + flags.GenerateFlagString());
+		NavigationManager.NavigateTo(NavigationManager.BaseUri + "?s=" + showSeed + "&f=" + flags.GenerateFlagString() + sectionNavigation);
 	}
 
 	private string MakeParsableUriString(string uristring)

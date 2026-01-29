@@ -5,6 +5,8 @@ using System.Text;
 using RomUtilities;
 using static System.Math;
 using System.Threading.Tasks.Dataflow;
+using System.Drawing;
+using System.Text.Json;
 
 namespace FFMQLib
 {
@@ -61,9 +63,14 @@ namespace FFMQLib
 	public class Palette
 	{ 
 		public List<SnesColor> Colors { get; set; }
+		//public List<Color> RgbColors => Colors.Select(c => Color.FromArgb(c.Red * 8, c.Green * 8, c.Blue * 8)).ToList();
 		public Palette(byte[] palette)
 		{
 			Colors = palette.Chunk(2).Select(x => new SnesColor(x)).ToList();
+		}
+		public Palette(List<SnesColor> colors)
+		{
+			Colors = colors;
 		}
 		public byte[] GetBytes()
 		{
@@ -75,7 +82,7 @@ namespace FFMQLib
 		public List<Palette> Palettes { get; set; }
 		public const int MapPalettesBank = 0x05;
 		public const int MapPalettesOffset = 0x8000;
-		public const int MapPalettesQty = 0x8000;
+		public const int MapPalettesQty = 0x19;
 		public const int NewMapPalettesBank = 0x12;
 		public const int NewMapPalettesOffset = 0xD000;
 		public const int HillOfDestinyPaletteBank = 0x07;
@@ -85,7 +92,12 @@ namespace FFMQLib
 		{
 			Palettes = rom.GetFromBank(MapPalettesBank, MapPalettesOffset, 0x80 * 0x19).Chunk(0x80).Select(x => new Palette(x)).ToList();
 			Palettes.Add(new Palette(rom.GetFromBank(HillOfDestinyPaletteBank, HillOfDestinyPaletteOffset, 0x80)));
+		}
+		public string ExportToJson()
+		{
+			List<List<SnesColor>> rgbPalettes = Palettes.Select(p => p.Colors).ToList();
 
+			return JsonSerializer.Serialize(rgbPalettes);
 		}
 		public void Write(FFMQRom rom)
 		{

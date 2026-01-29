@@ -133,9 +133,10 @@ Final Fantasy Mystic Quest:
     Standard: 0
     BossRush: 0
     DarkKingOnly: 1
-  doom_castle_shortcut:
-    true: 0
-    false: 1
+  doom_castle_access:
+    Standard: 1
+    FreedShip: 0
+    FocusTowerShortcut: 0
   sky_coin_mode:
     Standard: 0
     StartWith: 0
@@ -155,7 +156,7 @@ Final Fantasy Mystic Quest:
     RegionsStrict: 1
     RegionsKeepType: 0
   map_shuffling:
-    None: 0
+    None: 1
   overworld_shuffle:
     true: 1
   crest_shuffle:

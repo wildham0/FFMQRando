@@ -103,20 +103,20 @@ namespace FFMQLib
 				{
 					if (Locations[i].DirectionFlags[y] != 0)
 					{
-						Locations[i].DirectionFlags[y] = (int)GameFlagsList.HillCollapsed;
+						Locations[i].DirectionFlags[y] = (int)LegacyGameFlagsList.HillCollapsed;
 					}
 				}
 			}
 
-			Locations[(int)LocationIds.LibraBattlefield02].DirectionFlags[(int)NodeDirections.North] = (int)GameFlagsList.WakeWaterUsed;
+			Locations[(int)LocationIds.LibraBattlefield02].DirectionFlags[(int)NodeDirections.North] = (int)LegacyGameFlagsList.WakeWaterUsed;
 			if (flags.MapShuffling != MapShufflingMode.None || flags.OverworldShuffle || flags.CrestShuffle)
 			{
-				Locations[(int)LocationIds.LibraBattlefield01].DirectionFlags[(int)NodeDirections.South] = (int)GameFlagsList.WakeWaterUsed;
+				Locations[(int)LocationIds.LibraBattlefield01].DirectionFlags[(int)NodeDirections.South] = (int)LegacyGameFlagsList.WakeWaterUsed;
 			}
-			Locations[(int)LocationIds.LibraTemple].DirectionFlags[(int)NodeDirections.North] = (int)GameFlagsList.WakeWaterUsed;
-			Locations[(int)LocationIds.VolcanoBattlefield01].DirectionFlags[(int)NodeDirections.South] = (int)GameFlagsList.WakeWaterUsed;
-			Locations[(int)LocationIds.VolcanoBattlefield01].DirectionFlags[(int)NodeDirections.West] = (int)GameFlagsList.VolcanoErupted;
-			Locations[(int)LocationIds.Volcano].DirectionFlags[(int)NodeDirections.East] = (int)GameFlagsList.VolcanoErupted;
+			Locations[(int)LocationIds.LibraTemple].DirectionFlags[(int)NodeDirections.North] = (int)LegacyGameFlagsList.WakeWaterUsed;
+			Locations[(int)LocationIds.VolcanoBattlefield01].DirectionFlags[(int)NodeDirections.South] = (int)LegacyGameFlagsList.WakeWaterUsed;
+			Locations[(int)LocationIds.VolcanoBattlefield01].DirectionFlags[(int)NodeDirections.West] = (int)LegacyGameFlagsList.VolcanoErupted;
+			Locations[(int)LocationIds.Volcano].DirectionFlags[(int)NodeDirections.East] = (int)LegacyGameFlagsList.VolcanoErupted;
 
 			Locations[(int)LocationIds.PazuzusTower].DirectionFlags[(int)NodeDirections.North] = 0xDC;
 			Locations[(int)LocationIds.SpencersPlace].DirectionFlags[(int)NodeDirections.South] = 0xDC;
@@ -125,11 +125,11 @@ namespace FFMQLib
 		}
 		public void DoomCastleShortcut()
 		{
-			Locations[(int)LocationIds.FocusTowerForesta].DirectionFlags[(int)NodeDirections.South] = (int)GameFlagsList.HillCollapsed;
+			Locations[(int)LocationIds.FocusTowerForesta].DirectionFlags[(int)NodeDirections.South] = (int)LegacyGameFlagsList.HillCollapsed;
 			Locations[(int)LocationIds.FocusTowerForesta].Destinations[(int)NodeDirections.South] = LocationIds.DoomCastle;
 			Locations[(int)LocationIds.FocusTowerForesta].Steps[(int)NodeDirections.South] = new List<byte> { 0xC6 };
 
-			Locations[(int)LocationIds.DoomCastle].DirectionFlags[(int)NodeDirections.North] = (int)GameFlagsList.HillCollapsed;
+			Locations[(int)LocationIds.DoomCastle].DirectionFlags[(int)NodeDirections.North] = (int)LegacyGameFlagsList.HillCollapsed;
 			Locations[(int)LocationIds.DoomCastle].Destinations[(int)NodeDirections.North] = LocationIds.FocusTowerForesta;
 			Locations[(int)LocationIds.DoomCastle].Steps[(int)NodeDirections.North] = new List<byte> { 0x86 };
 		}

@@ -67,7 +67,7 @@ namespace FFMQLib
 	public class Quest
 	{ 
 		public QuestsId Name { get; set; }
-		public NewGameFlagsList Gameflag { get; set; }
+		public GameFlagIds Gameflag { get; set; }
 		public int Quantity { get; set; }
 		public string Description { get; set; }
 		public CompanionsId Companion { get; set; }
@@ -75,7 +75,7 @@ namespace FFMQLib
 		public Quest(QuestsId name, int qty, QuestRating rating, string description)
 		{
 			Name = name;
-			Gameflag = NewGameFlagsList.None;
+			Gameflag = GameFlagIds.None;
 			Quantity = qty;
 			Rating = rating;
 			Description = description;
@@ -84,16 +84,16 @@ namespace FFMQLib
 		public Quest(QuestsId name, int qty, QuestRating rating, CompanionsId companion, string description)
 		{
 			Name = name;
-			Gameflag = NewGameFlagsList.None;
+			Gameflag = GameFlagIds.None;
 			Quantity = qty;
 			Rating = rating;
 			Description = description;
 			Companion = companion;
 		}
-		public Quest(QuestsId name, int qty, CompanionsId companion, NewGameFlagsList flag, string description)
+		public Quest(QuestsId name, int qty, CompanionsId companion, GameFlagIds flag, string description)
 		{
 			Name = name;
-			Gameflag = NewGameFlagsList.None;
+			Gameflag = GameFlagIds.None;
 			Quantity = qty;
 			Gameflag = flag;
 			Description = description;
@@ -121,14 +121,14 @@ namespace FFMQLib
 			{ CompanionsId.Phoebe, "0740A710" },
 			{ CompanionsId.Reuben, "0760A710" },
 		};
-		private Dictionary<CompanionsId, List<NewGameFlagsList>> gameflagsList = new()
+		private Dictionary<CompanionsId, List<GameFlagIds>> gameflagsList = new()
 		{
-			{ CompanionsId.Kaeli, new List<NewGameFlagsList> { NewGameFlagsList.KaeliQuest1, NewGameFlagsList.KaeliQuest2, NewGameFlagsList.KaeliQuest3, NewGameFlagsList.KaeliQuest4, } },
-			{ CompanionsId.Tristam, new List<NewGameFlagsList> { NewGameFlagsList.TristamQuest1, NewGameFlagsList.TristamQuest2, NewGameFlagsList.TristamQuest3, NewGameFlagsList.TristamQuest4, } },
-			{ CompanionsId.Phoebe, new List<NewGameFlagsList> { NewGameFlagsList.PhoebeQuest1, NewGameFlagsList.PhoebeQuest2, NewGameFlagsList.PhoebeQuest3, NewGameFlagsList.PhoebeQuest4, } },
-			{ CompanionsId.Reuben, new List<NewGameFlagsList> { NewGameFlagsList.ReubenQuest1, NewGameFlagsList.ReubenQuest2, NewGameFlagsList.ReubenQuest3, NewGameFlagsList.ReubenQuest4, } },
+			{ CompanionsId.Kaeli, new List<GameFlagIds> { GameFlagIds.KaeliQuest1, GameFlagIds.KaeliQuest2, GameFlagIds.KaeliQuest3, GameFlagIds.KaeliQuest4, } },
+			{ CompanionsId.Tristam, new List<GameFlagIds> { GameFlagIds.TristamQuest1, GameFlagIds.TristamQuest2, GameFlagIds.TristamQuest3, GameFlagIds.TristamQuest4, } },
+			{ CompanionsId.Phoebe, new List<GameFlagIds> { GameFlagIds.PhoebeQuest1, GameFlagIds.PhoebeQuest2, GameFlagIds.PhoebeQuest3, GameFlagIds.PhoebeQuest4, } },
+			{ CompanionsId.Reuben, new List<GameFlagIds> { GameFlagIds.ReubenQuest1, GameFlagIds.ReubenQuest2, GameFlagIds.ReubenQuest3, GameFlagIds.ReubenQuest4, } },
 		};
-		public void SetQuests(Flags flags, Battlefields battlefields, GameInfoScreen screen, MT19337 rng)
+		public void SetQuests(Flags flags, Battlefields battlefields, MT19337 rng)
 		{
 			QuestQuantity = 1;
 			Quests = new();
@@ -148,12 +148,23 @@ namespace FFMQLib
             }
             else if (levelingType == LevelingType.QuestsExtended)
 			{
-				CreateExtendedQuests(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin, flags.DoomCastleShortcut, flags.KaelisMomFightMinotaur, flags.OverworldShuffle, rng);
+				CreateExtendedQuests(flags.SkyCoinMode == SkyCoinModes.ShatteredSkyCoin, flags.DoomCastleAccess, flags.KaelisMomFightMinotaur, flags.OverworldShuffle, rng);
 				battlefields.QuestBattlefield = GetBattlefieldQuestLocation();
             }
 
             var availablecompanions = Available.Where(c => c.Value).Select(c => c.Key).ToList();
 			Quests = Quests.Where(q => availablecompanions.Contains(q.Companion)).ToList();
+		}
+		public void UpdateQuests(ItemsPlacement itemsPlacement, GameInfoScreen screen)
+		{
+			// Update Refresher Quest
+			if (Quests.TryFind(q => q.Name == QuestsId.CollectQtyItems, out var refresherQuest))
+			{
+				int refresherWorldQty = itemsPlacement.ItemsLocations.Count(l => l.IsPlaced && l.Content == Items.Refresher) * 3;
+				int rate = refresherQuest.Quantity;
+				refresherQuest.Quantity = rate * refresherWorldQty / 100;
+				refresherQuest.Description = $"Collect {refresherQuest.Quantity} Refreshers.\n";
+			}
 
 			GenerateQuestsScripts();
 			AddQuestsToGameInfoScreen(screen);
@@ -163,7 +174,7 @@ namespace FFMQLib
 			Quests.Add(new Quest()
 			{
 				Name = QuestsId.CureKaeli,
-				Gameflag = NewGameFlagsList.KaeliQuest1,
+				Gameflag = GameFlagIds.KaeliQuest1,
 				Quantity = 0,
 				Companion = CompanionsId.Kaeli,
 				Description = kaelismom ? "Give Elixir to\n  poisoned Kaeli's Mom." : "Give Elixir to\n  poisoned Kaeli."
@@ -172,7 +183,7 @@ namespace FFMQLib
 			Quests.Add(new Quest()
 			{
 				Name = QuestsId.VisitBoneDungeon,
-				Gameflag = NewGameFlagsList.TristamQuest1,
+				Gameflag = GameFlagIds.TristamQuest1,
 				Quantity = 0,
 				Companion = CompanionsId.Tristam,
 				Description = "Visit Bone Dungeon with\n  Tristam & go to Fireburg."
@@ -181,7 +192,7 @@ namespace FFMQLib
 			Quests.Add(new Quest()
 			{
 				Name = QuestsId.VisitWintryCave,
-				Gameflag = NewGameFlagsList.PhoebeQuest1,
+				Gameflag = GameFlagIds.PhoebeQuest1,
 				Quantity = 0,
 				Companion = CompanionsId.Phoebe,
 				Description = "Visit Wintry Cave with\n  Phoebe and go to Windia."
@@ -190,21 +201,22 @@ namespace FFMQLib
 			Quests.Add(new Quest()
 			{
 				Name = QuestsId.VisitMine,
-				Gameflag = NewGameFlagsList.ReubenQuest1,
+				Gameflag = GameFlagIds.ReubenQuest1,
 				Quantity = 0,
 				Companion = CompanionsId.Reuben,
 				Description = "Visit Mine with Reuben and\n  return to Fireburg."
 			});
 		}
-		private void CreateExtendedQuests(bool skycoinfragment, bool darkkingshorcut, bool kaelismom, bool questEasyWins, MT19337 rng)
+		private void CreateExtendedQuests(bool skycoinfragment, DoomCastleAccess darkkingaccess, bool kaelismom, bool questEasyWins, MT19337 rng)
 		{
+			bool darkkingshorcut = darkkingaccess != DoomCastleAccess.Standard;
 			int easyminibossesqty = rng.Between(2, 3);
 			int mediumminibossesqty = rng.Between(4, 5);
 			int hardminibossesqty = rng.Between(6, 7);
 
-			int easycollectqty = rng.Between(15, 25);
-			int mediumcollectqty = rng.Between(26, 35);
-			int hardcollectqty = rng.Between(40, 50);
+			int easycollectqty = rng.Between(25, 40);
+			int mediumcollectqty = rng.Between(45, 60);
+			int hardcollectqty = rng.Between(65, 80);
 
 			int easyskycoinqty = rng.Between(10, 15);
 			int mediumskycoinqty = rng.Between(25, 30);
@@ -584,13 +596,11 @@ namespace FFMQLib
 		}
 		private void GenerateQuestsScripts()
 		{
-			FFMQRom rom = new();
-
 			// Quest Completed Box
 			questsScripts.AddScript(new ScriptBuilder(new List<string>()
 			{
 				"2a20542527a054ffff",
-				"1A00" + rom.TextToHex("\n          Quest Completed!") + "36",
+				"1A00" + MQText.TextToHex("\n          Quest Completed!") + "36",
 				"00"
 			}));
 
@@ -778,13 +788,13 @@ namespace FFMQLib
 				"00",
 			}));
 		}
-		public NewGameFlagsList GetQuestFlag(QuestsId quest, CompanionsId companion = CompanionsId.None)
+		public GameFlagIds GetQuestFlag(QuestsId quest, CompanionsId companion = CompanionsId.None)
 		{
 			var matchedquests = Quests.Where(q => q.Name == quest && ((companion != CompanionsId.None) ? q.Companion == companion : true)).ToList();
 
 			if (!matchedquests.Any())
 			{
-				return NewGameFlagsList.None;
+				return GameFlagIds.None;
 			}
 			else
 			{
