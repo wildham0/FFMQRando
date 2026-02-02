@@ -204,8 +204,8 @@ Final Fantasy Mystic Quest:
     true: 1
     false: 0
   disable_spoilers:
-    true: 1
-    false: 0
+    true: 0
+    false: 1
   hint_mode:
     None: 0
     Free: 0
