@@ -406,6 +406,7 @@ namespace FFMQLib
 		public bool DarkKingTrueForm { get; set; } = false;
 		public ushort WindowPalette { get; set; } = 0x5140;
 		public bool ReduceBattleFlash { get; set; } = false;
+		public bool DisableSpeedHacks { get; set; } = false;
 		public bool AutoDownloadRom { get; set; } = false;
 		public string PlayerSprite { get; set; } = "default";	
 		public byte[] CustomSprites { get; set; } = new byte[0];

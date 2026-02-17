@@ -48,7 +48,7 @@ namespace FFMQLib
 			DarkKingTrueForm darkKingTrueForm = new();
 
             // General modifications
-            ImprovedModifications(enablebugfix, preferences.ReduceBattleFlash, preferences.MusicMode, rng);
+            ImprovedModifications(enablebugfix, preferences.ReduceBattleFlash, preferences.DisableSpeedHacks, preferences.MusicMode, rng);
 
 			// Enemies
 			MapObjects.SetEnemiesDensity(EnemiesDensity.Half, rng);
@@ -81,10 +81,10 @@ namespace FFMQLib
 			// Remove header if any
 			this.Header = Array.Empty<byte>();
 		}
-        public void ImprovedModifications(bool enablebugfixes, bool reducebattleflash, MusicMode music, MT19337 rng)
+        public void ImprovedModifications(bool enablebugfixes, bool reducebattleflash, bool disablespeedhacks, MusicMode music, MT19337 rng)
         {
             ExpandRom();
-            FastMovement();
+            FastMovement(disablespeedhacks);
             DefaultSettings();
             RemoveStrobing(reducebattleflash);
 			//SmallFixes();
