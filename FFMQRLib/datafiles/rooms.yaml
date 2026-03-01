@@ -1070,19 +1070,19 @@
   - name: "Bone Dungeon B2 - North Box"
     object_id: 0x3E
     type: "Box"
-    access: []
+    access: ["FlamerusRex"]
   - name: "Bone Dungeon B2 - South Box"
     object_id: 0x3F
     type: "Box"
-    access: []
+    access: ["FlamerusRex"]
   - name: "Bone Dungeon B2 - Flamerus Rex Chest"
     object_id: 0x08
     type: "Chest"
-    access: []
+    access: ["FlamerusRex"]
   - name: "Bone Dungeon B2 - Tristam's Treasure Chest"
     object_id: 0x04
     type: "Chest"
-    access: []
+    access: ["FlamerusRex"]
   - name: "Flamerus Rex"
     object_id: 0
     type: "Trigger"
@@ -3684,7 +3684,7 @@
   - name: "Pazuzu's Tower 7F - Pazuzu Chest"
     object_id: 0x1A
     type: "Chest"
-    access: []
+    access: ["Pazuzu"]
   - name: "Pazuzu"
     object_id: 0
     type: "Trigger"
