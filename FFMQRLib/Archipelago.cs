@@ -236,7 +236,7 @@ namespace FFMQLib
 
 	public partial class FFMQRom : SnesRom
 	{
-		public string GenerateRooms(bool crestshuffle, bool battlefieldshuffle, int mapshuffling, int companionshuffling, bool kaelismom, bool? refoverworldshuffle, string seed)
+		public string GenerateRooms(bool crestshuffle, bool battlefieldshuffle, int mapshuffling, int companionshuffling, bool kaelismom, bool? refoverworldshuffle, string version, string seed)
 		{
 			ApConfigs apconfigs = new();
 			seed = seed.PadLeft(8, '0').Substring(0,8);
@@ -250,23 +250,10 @@ namespace FFMQLib
 				rng = new MT19337((uint)hash.ToUInts().Sum(x => x));
 			}
 
-			bool ap15used = false;
-			bool overworldshuffle = false;
-			if (refoverworldshuffle is null)
-			{
-				ap15used = true;
-			}
-			else
-			{
-				overworldshuffle = (bool)refoverworldshuffle;
-			}
-
-			Battlefields = new();
-			Overworld = new();
-			GameLogic = new();
+			bool overworldshuffle = refoverworldshuffle is not null && (bool)refoverworldshuffle;
 
 			// Parse options if on 1.5
-			if (ap15used)
+			if (version == "1.5")
 			{
 				switch (mapshuffling)
 				{
@@ -291,7 +278,13 @@ namespace FFMQLib
 						mapshuffling = 3;
 						break;
 				}
+
 			}
+
+			Battlefields = new();
+			Overworld = new();
+			GameLogic = new();
+
 			// Locations & Logic
 			Battlefields.ShuffleBattlefieldRewards(battlefieldshuffle, GameLogic, apconfigs, rng);
 			GameLogic.CompanionsShuffle((CompanionsLocationType)companionshuffling, kaelismom, apconfigs, rng);
@@ -300,8 +293,8 @@ namespace FFMQLib
 			//var mapspoiler = Spoilers.MapSpoiler(GameLogic);
 			Overworld.ShuffleOverworld(overworldshuffle, (MapShufflingMode)mapshuffling, GameLogic, Battlefields, new List<LocationIds>(), kaelismom, false, rng);
 
-			// Update Logic Requirements to old logic if still on 1.5
-			if (ap15used)
+			// 1.6 Backward compatibility changes
+			if (version == "1.5")
 			{
 				var gameobjects = GameLogic.Rooms.SelectMany(r => r.GameObjects).ToList();
 				var links = GameLogic.Rooms.SelectMany(r => r.Links).ToList();
@@ -523,6 +516,52 @@ namespace FFMQLib
 						link.Access.Remove(AccessReqs.MineCrescentBombed);
 						link.Access.Add(AccessReqs.Bomb);
 					}
+				}
+			}
+
+			// 1.7 Backward compatibility changes
+			if (version == "1.5" || version == "1.6")
+			{
+
+				var gameobjects = GameLogic.Rooms.SelectMany(r => r.GameObjects).ToList();
+				var links = GameLogic.Rooms.SelectMany(r => r.Links).ToList();
+
+				// Update South Ledge
+				if (GameLogic.Rooms.TryFind(r => r.Id == 73, out var spencerSouthLedge))
+				{
+					spencerSouthLedge.Links = spencerSouthLedge.Links.Where(l => l.TargetRoom != 72).ToList();
+					foreach (var link in spencerSouthLedge.Links)
+					{
+						if (link.Access.Contains(AccessReqs.SpencerCavedIn))
+						{
+							link.Access.RemoveAll(a => a == AccessReqs.SpencerCavedIn);
+							link.Access.Add(AccessReqs.MegaGrenade);
+						}
+					}
+
+					foreach (var gameobject in spencerSouthLedge.GameObjects)
+					{
+						if (gameobject.Type == GameObjectType.Trigger && gameobject.OnTrigger.Contains(AccessReqs.SpencerCavedIn))
+						{
+							gameobject.OnTrigger.RemoveAll(a => a == AccessReqs.SpencerCavedIn);
+							gameobject.OnTrigger.Add(AccessReqs.MegaGrenade);
+						}
+					}
+				}
+
+				if (GameLogic.Rooms.TryFind(r => r.Id == 72, out var spencerMain))
+				{
+					spencerMain.Links = spencerMain.Links.Where(l => l.TargetRoom != 73).ToList();
+				}
+
+				if (GameLogic.Rooms.TryFind(r => r.Id == 204, out var spencerWater))
+				{
+					spencerWater.Links = spencerWater.Links.Where(l => l.TargetRoom != 71).ToList();
+				}
+
+				if (GameLogic.Rooms.TryFind(r => r.Id == 71, out var spencerWaterfall))
+				{
+					spencerWaterfall.Links = spencerWaterfall.Links.Where(l => l.TargetRoom != 203).ToList();
 				}
 			}
 
