@@ -728,7 +728,7 @@ namespace FFMQLib
 			new(EnemyAttackIds.QuakeAxe, EnemizerElements.None, AttackStrengths.Strong, false, false, false, true, false),
 			new(EnemyAttackIds.CureArrow, EnemizerElements.None, AttackStrengths.Strong, false, false, false, true, false),
 			new(EnemyAttackIds.Lazer, EnemizerElements.None, AttackStrengths.Strong, false, false, false, true, false),
-			new(EnemyAttackIds.SpiderKids, EnemizerElements.None, AttackStrengths.Safe, false, false, false, true, false),
+			new(EnemyAttackIds.SpiderKids, EnemizerElements.None, AttackStrengths.Strong, false, false, false, true, false),
 			new(EnemyAttackIds.SilverWeb, EnemizerElements.None, AttackStrengths.Ailment, false, false, false, true, false),
 			new(EnemyAttackIds.GoldenWeb, EnemizerElements.None, AttackStrengths.Ailment, false, false, false, true, false),
 			new(EnemyAttackIds.MegaFlare, EnemizerElements.Fire, AttackStrengths.Strong, false, false, false, true, false),

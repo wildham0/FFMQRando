@@ -23,7 +23,8 @@ namespace FFMQRWebAPI.Controllers
         public IActionResult Get(string s, int m, bool c, bool b, int cs, bool km, bool? os = null, string? version = null)
         {
 			bool versionFormatError = false;
-			bool unsupportedVersion = version == null;
+			bool unsupportedVersion = false;
+
 
 			if (version != null)
 			{
@@ -37,7 +38,21 @@ namespace FFMQRWebAPI.Controllers
 					unsupportedVersion = true;
 				}
 			}
+			else
+			{
+				if (os == null)
+				{
+					version = "1.5";
+				}
+				else
+				{
+					version = "1.6";
 
+				}
+			}
+
+
+			/*
 			if (unsupportedVersion || versionFormatError)
 			{
 				if (os == null)
@@ -48,11 +63,15 @@ namespace FFMQRWebAPI.Controllers
 				{
 					return StatusCode(StatusCodes.Status426UpgradeRequired, "Your version of FFMQ's APWorld is unsupported, upgrade to APWorld version 1.7 or set the following options to default: Overworld Shuffle, Map Shuffle, Crest Shuffle, Shuffle Battlefield Rewards, and Companions Locations.");
 				}
+			}*/
+			if (unsupportedVersion || versionFormatError)
+			{
+				return StatusCode(StatusCodes.Status426UpgradeRequired, "Version mismatch. Your version of FFMQ's APWorld is unsupported, upgrade to latest APWorld or set the following options to default: Overworld Shuffle, Map Shuffle, Crest Shuffle, Shuffle Battlefield Rewards, and Companions Locations.");
 			}
 			else
 			{
 				FFMQRom rom = new FFMQRom();
-				var newrooms = rom.GenerateRooms(c, b, m, cs, km, os, s);
+				var newrooms = rom.GenerateRooms(c, b, m, cs, km, os, version, s);
 
 				var bytes = Encoding.ASCII.GetBytes(newrooms);
 				return File(bytes, "text/plain", "rooms.yaml");

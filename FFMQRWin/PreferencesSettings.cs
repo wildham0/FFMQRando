@@ -52,6 +52,7 @@ namespace FFMQRWin
 			CreateCheckBox("DarkKingTrueForm", "Randomize Dark King's True Form");
 			CreateComboBox("MusicMode", "Music Mode", new List<string>() { "Normal", "Shuffle Tracks", "Mute" });
 			CreateCheckBox("ReduceBattleFlash", "Reduce Battle Flashes");
+			CreateCheckBox("DisableSpeedHacks", "Disable Speed Hacks");
 			CreateSpriteSelector();
 			CreateTextBox("CustomSpriteLocation", "Custom Sprite Location");
 			CreateComboBox("FavoredPath", "ROM File Save Location", new List<string>() { "Original ROM File Location", "APMQ File Location", "Custom Save Location" });
@@ -239,6 +240,7 @@ namespace FFMQRWin
 			checkBoxes["RandomBenjaminPalette"].Checked = Settings.Default.RandomBenjaminPalette;
 			checkBoxes["DarkKingTrueForm"].Checked = Settings.Default.DarkKingTrueForm;
 			checkBoxes["ReduceBattleFlash"].Checked = Settings.Default.ReduceBattleFlash;
+			checkBoxes["DisableSpeedHacks"].Checked = Settings.Default.DisableSpeedHacks;
 
 			comboBoxes["FavoredPath"].SelectedIndex = Settings.Default.FavoredPath;
 			comboBoxes["MusicMode"].SelectedIndex = Settings.Default.MusicMode;
@@ -256,6 +258,7 @@ namespace FFMQRWin
 			Settings.Default.RandomBenjaminPalette = checkBoxes["RandomBenjaminPalette"].Checked;
 			Settings.Default.DarkKingTrueForm = checkBoxes["DarkKingTrueForm"].Checked;
 			Settings.Default.ReduceBattleFlash = checkBoxes["ReduceBattleFlash"].Checked;
+			Settings.Default.DisableSpeedHacks = checkBoxes["DisableSpeedHacks"].Checked;
 
 			Settings.Default.FavoredPath = comboBoxes["FavoredPath"].SelectedIndex;
 			Settings.Default.MusicMode = comboBoxes["MusicMode"].SelectedIndex;
@@ -274,6 +277,7 @@ namespace FFMQRWin
 			pref.RandomBenjaminPalette = checkBoxes["RandomBenjaminPalette"].Checked;
 			pref.DarkKingTrueForm = checkBoxes["DarkKingTrueForm"].Checked;
 			pref.ReduceBattleFlash = checkBoxes["ReduceBattleFlash"].Checked;
+			pref.DisableSpeedHacks = checkBoxes["DisableSpeedHacks"].Checked;
 			pref.MusicMode = (MusicMode)comboBoxes["MusicMode"].SelectedIndex;
 			pref.PlayerSprite = spriteBoxes["PlayerSprite"].CurrentSprite;
 
@@ -286,6 +290,7 @@ namespace FFMQRWin
 			pref.RandomBenjaminPalette = Settings.Default.RandomBenjaminPalette;
 			pref.DarkKingTrueForm = Settings.Default.DarkKingTrueForm;
 			pref.ReduceBattleFlash = Settings.Default.ReduceBattleFlash;
+			pref.DisableSpeedHacks = Settings.Default.DisableSpeedHacks;
 			pref.MusicMode = (MusicMode)Settings.Default.MusicMode;
 			pref.PlayerSprite = Settings.Default.PlayerSprite;
 			pref.CustomSprites = customSprite;

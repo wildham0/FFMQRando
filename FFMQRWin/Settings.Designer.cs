@@ -190,5 +190,17 @@ namespace FFMQRWin {
                 this["AutoCloseOnSuccess"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DisableSpeedHacks {
+            get {
+                return ((bool)(this["DisableSpeedHacks"]));
+            }
+            set {
+                this["DisableSpeedHacks"] = value;
+            }
+        }
     }
 }

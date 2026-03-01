@@ -22,7 +22,7 @@ namespace FFMQLib
 		public void GeneralModifications(Flags flags, Preferences prefs, bool apenabled, MT19337 rng)
 		{
 			ExpandRom();
-			FastMovement();
+			FastMovement(prefs.DisableSpeedHacks);
 			DefaultSettings();
 			RemoveClouds();
 			RemoveStrobing(prefs.ReduceBattleFlash);
@@ -43,8 +43,13 @@ namespace FFMQLib
 			DisableSeedDuping(flags.DisableDuping);
 		}
 		
-		public void FastMovement()
+		public void FastMovement(bool disablespeedhacks)
 		{
+			if (disablespeedhacks)
+			{
+				return;
+			}
+
 			// walking
 			// double scrolling rate
 			Put(0x008CAC, Blob.FromHex("FE0202FE")); // 8CAB > 8CAC

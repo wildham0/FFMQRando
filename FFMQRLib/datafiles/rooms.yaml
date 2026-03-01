@@ -1791,8 +1791,6 @@
     entrance: 151
     teleporter: [7, 6]
     access: []
-  - target_room: 203
-    access: ["MegaGrenade"]
   - target_room: 72
     access: ["Claw"]
   - target_room: 203
