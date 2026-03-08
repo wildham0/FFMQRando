@@ -90,9 +90,9 @@ Final Fantasy Mystic Quest:
     Half: 0
     ThreeQuarter: 0
     Normal: 0
-    OneAndQuarter: 0
+    OneAndQuarter: 1
     OneAndHalf: 0
-    Double: 1
+    Double: 0
     DoubleAndHalf: 0
     Triple: 0
   enemizer_attacks:
