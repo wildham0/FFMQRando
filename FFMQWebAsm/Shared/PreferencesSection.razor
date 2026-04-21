@@ -4,6 +4,7 @@
 @inject HttpClient Http
 @using System.Net.Http
 @using FFMQLib;
+@using BigGustave;
 @inject NavigationManager NavigationManager
 @inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
 @inject IJSRuntime JS
@@ -90,7 +91,7 @@
 </Container>
 
 @code
-				{
+{
 	[Parameter]
 	public Preferences preferences { get; set; }
 
@@ -331,15 +332,34 @@
 
 			using (ZipArchive spriteContainer = new ZipArchive(ms))
 			{
-				var entry = spriteContainer.GetEntry("darkking1.bmp");
-				using (BinaryReader reader = new BinaryReader(entry.Open()))
+				if (spriteContainer.Entries.TryFind(s => s.Name.Contains("darkking1"), out var entry1))
 				{
-					preferences.DarkKing3 = reader.ReadBytes((int)entry.Length);
+					if (entry1.Name.Contains("png"))
+					{
+						preferences.DarkKing3 = new CommonImage(Png.Open(entry1.Open()));
+					}
+					else
+					{
+						using (BinaryReader reader = new BinaryReader(entry1.Open()))
+						{
+							preferences.DarkKing3 = new CommonImage(reader.ReadBytes((int)entry1.Length));
+						}
+					}
 				}
-				entry = spriteContainer.GetEntry("darkking2.bmp");
-				using (BinaryReader reader = new BinaryReader(entry.Open()))
+
+				if (spriteContainer.Entries.TryFind(s => s.Name.Contains("darkking2"), out var entry2))
 				{
-					preferences.DarkKing4 = reader.ReadBytes((int)entry.Length);
+					if (entry2.Name.Contains("png"))
+					{
+						preferences.DarkKing3 = new CommonImage(Png.Open(entry2.Open()));
+					}
+					else
+					{
+						using (BinaryReader reader = new BinaryReader(entry2.Open()))
+						{
+							preferences.DarkKing3 = new CommonImage(reader.ReadBytes((int)entry2.Length));
+						}
+					}
 				}
 			}
 			

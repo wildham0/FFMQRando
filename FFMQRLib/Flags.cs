@@ -410,8 +410,9 @@ namespace FFMQLib
 		public bool AutoDownloadRom { get; set; } = false;
 		public string PlayerSprite { get; set; } = "default";	
 		public byte[] CustomSprites { get; set; } = new byte[0];
-		public byte[] DarkKing3 { get; set; } = new byte[0];
-		public byte[] DarkKing4 { get; set; } = new byte[0];
+		public byte[] DarkKing { get; set; } = new byte[0];
+		public CommonImage DarkKing3 { get; set; } = null;
+		public CommonImage DarkKing4 { get; set; } = null;
 
 		public void ValidateCustomSprites()
 		{

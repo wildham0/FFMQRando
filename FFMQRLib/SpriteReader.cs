@@ -31,10 +31,51 @@ namespace FFMQLib
 
 		private List<Pixel> image;
 		private byte[] header;
-		public int Width { get; }
-		public int Height { get; }
-		public List<(byte position, Pixel pixel)> Palette { get; }
+		public int Width { get; set; }
+		public int Height { get; set; }
+		public List<(byte position, Pixel pixel)> Palette { get; set;  }
 		public CommonImage(Png data)
+		{
+			ProcessPng(data);
+		}
+
+		// From BMP
+		public CommonImage(byte[] data)
+		{
+			byte[] pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
+			byte[] bmpSignature = [0x42, 0x4D];
+
+			bool isBmp = true;
+			bool isPng = true;
+
+			for (int i = 0; i < 8; i++)
+			{
+				if (data[i] != pngSignature[i])
+				{
+					isPng = false;
+				}
+
+				if (i < 2 && data[i] != bmpSignature[i])
+				{
+					isBmp = false;
+				}
+			}
+
+			if (isPng)
+			{
+				Stream pngStream = new MemoryStream(data);
+				ProcessPng(Png.Open(pngStream));
+			}
+			else if (isBmp)
+			{
+				ProcessBmp(data);
+			}
+			else
+			{
+				throw new Exception("CommonImage: Trying to decode invalid image file.");
+			}
+		}
+		private void ProcessPng(Png data)
 		{
 			Palette = new();
 			Width = data.Width;
@@ -47,13 +88,11 @@ namespace FFMQLib
 			{
 				for (int x = 0; x < Width; x++)
 				{
-					image.Add(data.GetPixel(x,y));
+					image.Add(data.GetPixel(x, y));
 				}
 			}
 		}
-
-		// From BMP
-		public CommonImage(byte[] data)
+		private void ProcessBmp(byte[] data)
 		{
 			var dataOffset = data[infoDataOffset] + (data[infoDataOffset + 1] * 0x100) + (data[infoDataOffset + 2] * 0x100 * 0x100) + (data[infoDataOffset + 3] * 0x100 * 0x100 * 0x100);
 			var colorCount = data[infoColorsUsed] + (data[infoColorsUsed + 1] * 0x100) + (data[infoColorsUsed + 2] * 0x100 * 0x100) + (data[infoColorsUsed + 3] * 0x100 * 0x100 * 0x100);
@@ -91,7 +130,7 @@ namespace FFMQLib
 					}
 					else
 					{
-						image.Add(new Pixel(0,0,0));
+						image.Add(new Pixel(0, 0, 0));
 					}
 				}
 			}
@@ -106,7 +145,14 @@ namespace FFMQLib
 	{
 		private byte[] dataz;
 		private byte[] metadata;
-		private byte[] image;
+		//private byte[] image;
+		private byte[] rawImage;
+		private CommonImage image;
+		private int width => image.Width;
+		private int height => image.Height;
+
+		private byte[] drawingArray;
+		private byte[] paletteArray;
 
 		private const int infoDataOffset = 0x0A; // 4 bytes
 		private const int infoColorsUsed = 0x2E; // 4 bytes
@@ -166,9 +212,9 @@ namespace FFMQLib
 
 			List<Pixel> emptyPixels = pixelPalettes.Select(pal => pal.Find(p => p.position == 0).pixel).ToList();
 
-			byte[] drawingarray = new byte[(width * height) / 8];
-			byte[] palettearray = new byte[(width * height) / 8];
-			byte[] rawimage = new byte[width * height];
+			drawingArray = new byte[(width * height) / 8];
+			paletteArray = new byte[(width * height) / 8];
+			rawImage = new byte[image.Width * image.Height];
 
 			int bitmaskposition = 0;
 			int arrayposition = 0;
@@ -190,8 +236,8 @@ namespace FFMQLib
 					// Empty tile?
 					if (currentTile.Where(emptyPixels.Contains).ToList().Count >= 64)
 					{
-						drawingarray[arrayposition] &= (byte)~bitmask[bitmaskposition];
-						palettearray[arrayposition] |= bitmask[bitmaskposition];
+						drawingArray[arrayposition] &= (byte)~bitmask[bitmaskposition];
+						paletteArray[arrayposition] |= bitmask[bitmaskposition];
 					}
 					else // Not empty
 					{
@@ -211,14 +257,14 @@ namespace FFMQLib
 						}
 
 						// Update drawing arrays
-						drawingarray[arrayposition] |= bitmask[bitmaskposition];
+						drawingArray[arrayposition] |= bitmask[bitmaskposition];
 						if (palettecandidate == 0)
 						{
-							palettearray[arrayposition] &= (byte)~bitmask[bitmaskposition];
+							paletteArray[arrayposition] &= (byte)~bitmask[bitmaskposition];
 						}
 						else
 						{
-							palettearray[arrayposition] |= bitmask[bitmaskposition];
+							paletteArray[arrayposition] |= bitmask[bitmaskposition];
 						}
 
 						// Convert image
@@ -228,7 +274,7 @@ namespace FFMQLib
 							{
 								if (pixelPalettes[palettecandidate].TryFind(p => p.pixel.Equals(image.GetPixel(x * 8 + i, y * 8 + j)), out var pixel))
 								{
-									rawimage[(y * 8 + j) * (height * 8) + (x * 8 + i)] = pixel.position;
+									rawImage[(y * 8 + j) * (height * 8) + (x * 8 + i)] = pixel.position;
 								}
 							}
 						}
@@ -320,10 +366,10 @@ namespace FFMQLib
 			for (int y = 0; y < 8; y++)
 			{
 				//int linestart = dataOffset + ((infoHeight - tilePosition.y - 1 - y) * infoWidth) + tilePosition.x;
-				int linestart = ((infoHeight - tilePosition.y - 1 - y) * infoWidth) + tilePosition.x;
+				int linestart = ((height - tilePosition.y - 1 - y) * width) + tilePosition.x;
 				for (int x = 0; x < 8; x++)
 				{
-					tilepixels[(y * 8) + x] = image[linestart + x];
+					tilepixels[(y * 8) + x] = rawImage[linestart + x];
 				}
 			}
 
@@ -411,7 +457,7 @@ namespace FFMQLib
 				for (int i = 0; i < 8; i++)
 				{
 					//byte pixelvalue = data[dataOffset + infoWidth - 8 - (p * 8) + i];
-					byte pixelvalue = image[infoWidth - 8 - (p * 8) + i];
+					byte pixelvalue = rawImage[infoWidth - 8 - (p * 8) + i];
 
 					temppixels.Add((pixelvalue, (byte)i));
 
@@ -526,6 +572,8 @@ namespace FFMQLib
 		{
 			Png pngimage = Png.Open(rawdata);
 
+
+			Png.
 			palette = new();
 			pixelcolors = new();
 			infoWidth = pngimage.Width;
@@ -620,6 +668,8 @@ namespace FFMQLib
 		{ 
 		
 		}
+
+		public DarkKingSpriteDataPack EncodeDarkKing()
 
 		public DarkKingSpriteDataPack EncodeDarkKing(byte[] dksprite)
 		{
@@ -724,13 +774,46 @@ namespace FFMQLib
 		}
 		public PlayerSpriteDataPack EncodePlayerSprite(PlayerSprite playersprite)
 		{
+			ReadPalettes(playersprite.imagedata, 1, EncodingModes.m3bpp);
+			ConvertToBytes(playersprite.imagedata);
+			
+			// Get Empty Pixel
+			byte emptyPixel = 0x00;
+
+			// Get Software Bop flag
+			byte softbopbyte = rawImage[(2 * width) - 1];
+
+			// Get Full Horizontal Flip flag
+			byte fullhorizontalflipbyte = rawImage[(2 * width) - 2];
+
+			PlayerSpriteDataPack playerSpriteDataPack = new()
+			{
+				SoftBopEnabled = (softbopbyte != emptyPixel),
+				FullHorizontalFlipEnabled = (fullhorizontalflipbyte != emptyPixel),
+				WalkingSeriesEncoded = EncodeSeries((0, 0), 8, 0),
+				PushSeriesEncoded = EncodeSeries((16, 0), 8, 0),
+				JumpSeriesEncoded = EncodeSeries((32, 0), 6, 0),
+				VictorySeriesEncoded = EncodeSeries((48, 0), 4, 0),
+				ThrowDeathSeriesEncoded = EncodeSeries((64, 0), 8, 0),
+				BombShrugSeriesEncoded = EncodeSeries((80, 0), 4, 0),
+				ShrugHandEncoded = EncodeTile((96, 24), 0),
+				ClimbSeriesEncoded = EncodeSeries((80, 32), 3, 0),
+				Palette = palettes[0]
+			};
+
+			return playerSpriteDataPack;
+
+		}
+		/*
+		public PlayerSpriteDataPack EncodePlayerSprite(PlayerSprite playersprite)
+		{
 			LoadCustomSprites(playersprite);
 
 			infoWidth = 104;
 			infoHeight = 64;
 			paletteCount = 1;
 
-			ProcessBmp(playersprite.spritesheet);
+			ProcessBmp(playersprite.spritesheet);*/
 
 			/*
 			dataOffset = data[infoDataOffset] + (data[infoDataOffset + 1] * 0x100) + (data[infoDataOffset + 2] * 0x100 * 0x100) + (data[infoDataOffset + 3] * 0x100 * 0x100 * 0x100);
@@ -771,7 +854,7 @@ namespace FFMQLib
 				}
 			}
 			*/
-
+			/*
 			byte emptyPixel = pixelcolors[0].Find(p => p.position == 0).pixelid;
 
 			// Get Software Bop flag
@@ -797,7 +880,8 @@ namespace FFMQLib
 			};
 
 			return playerSpriteDataPack;
-		}
+		}*/
+		/*
 		private void LoadCustomSprites(PlayerSprite sprite)
 		{
 			if (sprite.filename == "default")
@@ -808,6 +892,6 @@ namespace FFMQLib
 			{
 				data = sprite.spritesheet;
 			}
-		}
+		}*/
 	}
 }

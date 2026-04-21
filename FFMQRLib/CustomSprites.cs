@@ -1,12 +1,13 @@
-﻿using System;
+﻿using BigGustave;
+using RomUtilities;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.ComponentModel;
-using System.Reflection;
-using System.Diagnostics;
 using System.Linq;
-using RomUtilities;
+using System.Reflection;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -54,6 +55,13 @@ namespace FFMQLib
 			ap = true;
 		}
 	}
+	/*
+	public class DarkKingSpriteGroup
+	{ 
+		public string filename { get; set; }
+		public
+	
+	}*/
 
 	public class DarkKingTrueForm
 	{
@@ -120,7 +128,7 @@ namespace FFMQLib
 		}
 		public void RandomizeDarkKingTrueForm(Preferences pref, Enemies enemies, Enemizer enemizer, bool ap, MT19337 rng, FFMQRom rom)
 		{
-			bool debugmode = pref.DarkKing3.Length > 0;
+			bool debugmode = pref.DarkKing.Length > 0;
 
 			if (!pref.DarkKingTrueForm && !debugmode)
 			{
@@ -138,6 +146,8 @@ namespace FFMQLib
 
 			if (debugmode)
 			{
+
+
 				darkking3 = darkkingspritereader.EncodeDarkKing(pref.DarkKing3);
 				darkking4 = darkkingspritereader.EncodeDarkKing(pref.DarkKing4);
 
@@ -214,6 +224,8 @@ namespace FFMQLib
 		[YamlIgnore]
 		public byte[] spritesheet { get; set; }
 		[YamlIgnore]
+		public CommonImage imagedata { get; set; }
+		[YamlIgnore]
 		public byte[] iconimg { get; set; }
 
 		public PlayerSprite()
@@ -229,6 +241,13 @@ namespace FFMQLib
 			name = "";
 			spritesheet = _spritedata;
 		}
+		public PlayerSprite(string _name, CommonImage _spritedata)
+		{
+			filename = _name;
+			author = "";
+			name = "";
+			imagedata = _spritedata;
+		}
 		public PlayerSprite(string _name)
 		{
 			filename = _name;
@@ -241,6 +260,13 @@ namespace FFMQLib
 			author = _sprite.author;
 			name = _sprite.name;
 			spritesheet = _spritedata;
+		}
+		public PlayerSprite(PlayerSprite _sprite, CommonImage _spritedata)
+		{
+			filename = _sprite.filename;
+			author = _sprite.author;
+			name = _sprite.name;
+			imagedata = _spritedata;
 		}
 	}
 	public class PlayerSprites
@@ -335,20 +361,34 @@ namespace FFMQLib
 				}
 			}
 		}
-		private byte[] LoadSpritesheet(string spritename)
+		private CommonImage LoadSpritesheet(string spritename)
 		{
-			byte[] spritesheet;
+			CommonImage spritesheet;
 			var assembly = Assembly.GetExecutingAssembly();
 			string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("customsprites.zip"));
 			using (Stream zipfile = assembly.GetManifestResourceStream(filepath))
 			{
 				using (ZipArchive spriteContainer = new ZipArchive(zipfile))
 				{
-					var entry = spriteContainer.GetEntry("spritesheets/" + spritename + ".bmp");
-					using (BinaryReader reader = new BinaryReader(entry.Open()))
+					if (spriteContainer.Entries.TryFind(s => s.FullName.Contains("spritesheets/" + spritename), out var entry))
 					{
-						spritesheet = reader.ReadBytes((int)entry.Length);
+						if (entry.Name.Contains("png"))
+						{
+							spritesheet = new CommonImage(Png.Open(entry.Open()));
+						}
+						else
+						{
+							using (BinaryReader reader = new BinaryReader(entry.Open()))
+							{
+								spritesheet = new CommonImage(reader.ReadBytes((int)entry.Length));
+							}
+						}
 					}
+					else
+					{
+						throw new Exception($"Couldn't find sprite {spritename} in sprite bundle.");
+					}
+					//var entry = spriteContainer.GetEntry("spritesheets/" + spritename + ".bmp");
 				}
 			}
 
