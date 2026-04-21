@@ -155,12 +155,12 @@ namespace FFMQLib
             var availablecompanions = Available.Where(c => c.Value).Select(c => c.Key).ToList();
 			Quests = Quests.Where(q => availablecompanions.Contains(q.Companion)).ToList();
 		}
-		public void UpdateQuests(ItemsPlacement itemsPlacement, GameInfoScreen screen)
+		public void UpdateQuests(ItemsPlacement itemsPlacement, GameInfoScreen screen, bool apEnabled)
 		{
 			// Update Refresher Quest
 			if (Quests.TryFind(q => q.Name == QuestsId.CollectQtyItems, out var refresherQuest))
 			{
-				int refresherWorldQty = itemsPlacement.ItemsLocations.Count(l => l.IsPlaced && l.Content == Items.Refresher) * 3;
+				int refresherWorldQty = apEnabled ? (17 * 3) : (itemsPlacement.ItemsLocations.Count(l => l.IsPlaced && l.Content == Items.Refresher) * 3);
 				int rate = refresherQuest.Quantity;
 				refresherQuest.Quantity = rate * refresherWorldQty / 100;
 				refresherQuest.Description = $"Collect {refresherQuest.Quantity} Refreshers.\n";
