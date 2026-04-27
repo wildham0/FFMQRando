@@ -10,7 +10,7 @@ namespace FFMQLib
 {
 	public partial class FFMQRom : SnesRom
 	{
-		public void Improve(bool enablebugfix, Preferences preferences)
+		public void Improve(Preferences preferences)
 		{
 			// Convert 1.0 rom to 1.1 for compatibility
 			if (ConvertTo11)
@@ -48,7 +48,7 @@ namespace FFMQLib
 			DarkKingTrueForm darkKingTrueForm = new();
 
             // General modifications
-            ImprovedModifications(enablebugfix, preferences.ReduceBattleFlash, preferences.DisableSpeedHacks, preferences.MusicMode, rng);
+            ImprovedModifications(preferences, rng);
 
 			// Enemies
 			MapObjects.SetEnemiesDensity(EnemiesDensity.Half, rng);
@@ -81,21 +81,24 @@ namespace FFMQLib
 			// Remove header if any
 			this.Header = Array.Empty<byte>();
 		}
-        public void ImprovedModifications(bool enablebugfixes, bool reducebattleflash, bool disablespeedhacks, MusicMode music, MT19337 rng)
+        public void ImprovedModifications(Preferences preferences, MT19337 rng)
         {
             ExpandRom();
-            FastMovement(disablespeedhacks);
+            FastMovement(preferences.DisableSpeedHacks);
             DefaultSettings();
-            RemoveStrobing(reducebattleflash);
+            RemoveStrobing(preferences.ReduceBattleFlash);
 			//SmallFixes();
-			if (enablebugfixes)
+			if (preferences.EnableBugFixes)
 			{
                 BugFixes();
             }
 			SystemBugFixes();
             GameStateIndicator(hashString);
-            //PazuzuFixedFloorRng(rng);
-            Msu1Support(music == MusicMode.Mute);
+			if (preferences.Pazuzu6F)
+			{
+				PazuzuAlwaysJumpToFloor6();
+			}
+			Msu1Support(preferences.MusicMode == MusicMode.Mute);
 			SaveFileReduction();
 		}
     }

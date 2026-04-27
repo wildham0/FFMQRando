@@ -408,6 +408,8 @@ namespace FFMQLib
 		public bool ReduceBattleFlash { get; set; } = false;
 		public bool DisableSpeedHacks { get; set; } = false;
 		public bool AutoDownloadRom { get; set; } = false;
+		public bool Pazuzu6F { get; set; } = false;
+		public bool EnableBugFixes { get; set; } = false;
 		public string PlayerSprite { get; set; } = "default";	
 		public byte[] CustomSprites { get; set; } = new byte[0];
 		public byte[] DarkKing3 { get; set; } = new byte[0];
