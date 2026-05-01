@@ -260,7 +260,7 @@ namespace FFMQLib
 
 					if (isProgGear)
 					{
-						var npcMode = ItemNPCflags[(ItemGivingNPCs)itemplacement.ItemsLocations.Find(i => i.Content == item.Content).ObjectId];
+						var npcMode = ItemNPCflags[(ItemGivingNPCs)itemplacement.ItemsLocations.Find(i => i.Name == item.Name).ObjectId];
 						defaulType = npcMode.oncheck ? HintCheckType.NPCOn : HintCheckType.NPCOff;
 					}
 				}

@@ -4,6 +4,7 @@
 @inject HttpClient Http
 @using System.Net.Http
 @using FFMQLib;
+@using BigGustave;
 @inject NavigationManager NavigationManager
 @inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
 @inject IJSRuntime JS
@@ -90,7 +91,7 @@
 </Container>
 
 @code
-				{
+{
 	[Parameter]
 	public Preferences preferences { get; set; }
 
@@ -329,24 +330,7 @@
 			MemoryStream ms = new MemoryStream();
 			await e.Files.First().OpenReadStream().CopyToAsync(ms);
 
-			using (ZipArchive spriteContainer = new ZipArchive(ms))
-			{
-				var entry = spriteContainer.GetEntry("darkking1.bmp");
-				using (BinaryReader reader = new BinaryReader(entry.Open()))
-				{
-					preferences.DarkKing3 = reader.ReadBytes((int)entry.Length);
-				}
-				entry = spriteContainer.GetEntry("darkking2.bmp");
-				using (BinaryReader reader = new BinaryReader(entry.Open()))
-				{
-					preferences.DarkKing4 = reader.ReadBytes((int)entry.Length);
-				}
-			}
-			
-			//spritesheet = ms.ToArray();
-
-			//preferences.CustomSprites = spritesheet;
-			//preferences.ValidateCustomSprites();
+			preferences.DarkKing = ms.ToArray();
 			dkMessage = "Dark King Sprites Loaded";
 			//SaveSprites();
 		}
