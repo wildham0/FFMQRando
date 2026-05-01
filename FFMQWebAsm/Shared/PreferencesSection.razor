@@ -330,43 +330,7 @@
 			MemoryStream ms = new MemoryStream();
 			await e.Files.First().OpenReadStream().CopyToAsync(ms);
 
-			using (ZipArchive spriteContainer = new ZipArchive(ms))
-			{
-				if (spriteContainer.Entries.TryFind(s => s.Name.Contains("darkking1"), out var entry1))
-				{
-					if (entry1.Name.Contains("png"))
-					{
-						preferences.DarkKing3 = new CommonImage(Png.Open(entry1.Open()));
-					}
-					else
-					{
-						using (BinaryReader reader = new BinaryReader(entry1.Open()))
-						{
-							preferences.DarkKing3 = new CommonImage(reader.ReadBytes((int)entry1.Length));
-						}
-					}
-				}
-
-				if (spriteContainer.Entries.TryFind(s => s.Name.Contains("darkking2"), out var entry2))
-				{
-					if (entry2.Name.Contains("png"))
-					{
-						preferences.DarkKing3 = new CommonImage(Png.Open(entry2.Open()));
-					}
-					else
-					{
-						using (BinaryReader reader = new BinaryReader(entry2.Open()))
-						{
-							preferences.DarkKing3 = new CommonImage(reader.ReadBytes((int)entry2.Length));
-						}
-					}
-				}
-			}
-			
-			//spritesheet = ms.ToArray();
-
-			//preferences.CustomSprites = spritesheet;
-			//preferences.ValidateCustomSprites();
+			preferences.DarkKing = ms.ToArray();
 			dkMessage = "Dark King Sprites Loaded";
 			//SaveSprites();
 		}

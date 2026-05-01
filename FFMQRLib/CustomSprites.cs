@@ -55,19 +55,11 @@ namespace FFMQLib
 			ap = true;
 		}
 	}
-	/*
-	public class DarkKingSpriteGroup
-	{ 
-		public string filename { get; set; }
-		public
-	
-	}*/
-
 	public class DarkKingTrueForm
 	{
 		public DarkKingSprite DarkKingSprite { get; set; }
-		private byte[] dk3bmpdata;
-		private byte[] dk4bmpdata;
+		private CommonImage dk3spritedata;
+		private CommonImage dk4spritedata;
 
 		private const int drawingArrayBank = 0x0A;
 		private const int drawingArrayOffsetDK3 = 0x82C6;
@@ -112,16 +104,20 @@ namespace FFMQLib
 					spritelist = spritelist.Where(s => !ap || s.ap).ToList();
 					DarkKingSprite = rng.PickFrom(spritelist);
 
-					entry = spriteContainer.GetEntry(DarkKingSprite.filename + "1.bmp");
-					using (BinaryReader reader = new BinaryReader(entry.Open()))
+					if (spriteContainer.Entries.TryFind(s => s.Name.Contains(DarkKingSprite.filename + "1"), out var entry1))
 					{
-						dk3bmpdata = reader.ReadBytes((int)entry.Length);
+						using (BinaryReader reader = new BinaryReader(entry1.Open()))
+						{
+							dk3spritedata = new CommonImage(reader.ReadBytes((int)entry1.Length));
+						}
 					}
 
-					entry = spriteContainer.GetEntry(DarkKingSprite.filename + "2.bmp");
-					using (BinaryReader reader = new BinaryReader(entry.Open()))
+					if (spriteContainer.Entries.TryFind(s => s.Name.Contains(DarkKingSprite.filename + "2"), out var entry2))
 					{
-						dk4bmpdata = reader.ReadBytes((int)entry.Length);
+						using (BinaryReader reader = new BinaryReader(entry2.Open()))
+						{
+							dk4spritedata = new CommonImage(reader.ReadBytes((int)entry2.Length));
+						}
 					}
 				}
 			}
@@ -146,19 +142,32 @@ namespace FFMQLib
 
 			if (debugmode)
 			{
+				Stream ms = new MemoryStream(pref.DarkKing);
+				using (ZipArchive spriteContainer = new ZipArchive(ms))
+				{
+					if (spriteContainer.Entries.TryFind(s => s.Name.Contains("darkking1"), out var entry1))
+					{
+						using (BinaryReader reader = new BinaryReader(entry1.Open()))
+						{
+							dk3spritedata = new CommonImage(reader.ReadBytes((int)entry1.Length));
+						}
+					}
 
-
-				darkking3 = darkkingspritereader.EncodeDarkKing(pref.DarkKing3);
-				darkking4 = darkkingspritereader.EncodeDarkKing(pref.DarkKing4);
+					if (spriteContainer.Entries.TryFind(s => s.Name.Contains("darkking2"), out var entry2))
+					{
+						using (BinaryReader reader = new BinaryReader(entry2.Open()))
+						{
+							dk4spritedata = new CommonImage(reader.ReadBytes((int)entry2.Length));
+						}
+					}
+				}
 
 				DarkKingSprite.name = "Test|King";
 				DarkKingSprite.author = "";
 			}
-			else
-			{
-				darkking3 = darkkingspritereader.EncodeDarkKing(dk3bmpdata);
-				darkking4 = darkkingspritereader.EncodeDarkKing(dk4bmpdata);
-			}
+
+			darkking3 = darkkingspritereader.EncodeDarkKing(dk3spritedata);
+			darkking4 = darkkingspritereader.EncodeDarkKing(dk4spritedata);
 
 			rom.PutInBank(drawingArrayBank, drawingArrayOffsetDK3, darkking3.DrawingArray);
 			rom.PutInBank(drawingArrayBank, paletteArrayOffsetDK3, darkking3.PaletteArray);
@@ -239,7 +248,7 @@ namespace FFMQLib
 			filename = _name;
 			author = "";
 			name = "";
-			spritesheet = _spritedata;
+			imagedata = new CommonImage(_spritedata);
 		}
 		public PlayerSprite(string _name, CommonImage _spritedata)
 		{
