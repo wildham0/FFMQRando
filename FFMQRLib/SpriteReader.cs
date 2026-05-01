@@ -187,6 +187,31 @@ namespace FFMQLib
 				palettes.Add(temppalette);
 			}
 		}
+		public static Dictionary<EnemizerElements, List<Palette>> GetElementalPalette(CommonImage paletteImage)
+		{
+			List<EnemizerElements> elements = new() { EnemizerElements.Fire, EnemizerElements.Water, EnemizerElements.Earth, EnemizerElements.Air, EnemizerElements.Thunder };
+			Dictionary<EnemizerElements, List<Palette>> palettes = new();
+
+			for (int y = 0; y < 5; y++)
+			{
+				List<SnesColor> dk3pal1 = new() { new SnesColor(0, 0, 0) };
+				List<SnesColor> dk3pal2 = new() { new SnesColor(0, 0, 0) };
+				List<SnesColor> dk4pal1 = new() { new SnesColor(0, 0, 0) };
+				List<SnesColor> dk4pal2 = new() { new SnesColor(0, 0, 0) };
+
+				for (int x = 1; x < 8; x++)
+				{
+					dk3pal1.Add(new SnesColor(GetSnesPalette(paletteImage.GetPixel(x, y))));
+					dk3pal2.Add(new SnesColor(GetSnesPalette(paletteImage.GetPixel(x + 8, y))));
+					dk4pal1.Add(new SnesColor(GetSnesPalette(paletteImage.GetPixel(x, y + 5))));
+					dk4pal2.Add(new SnesColor(GetSnesPalette(paletteImage.GetPixel(x + 8, y + 5))));
+				}
+
+				palettes[elements[y]] = new List<Palette>() { new Palette(dk3pal1), new Palette(dk3pal2), new Palette(dk4pal1), new Palette(dk4pal2) };
+			}
+
+			return palettes;
+		}
 		private void ConvertDkToBytes(CommonImage image)
 		{
 			int width = image.Width / 8;
@@ -307,7 +332,7 @@ namespace FFMQLib
 
 			return tilepixels;
 		}
-		private byte[] GetSnesPalette(Pixel pixel)
+		private static byte[] GetSnesPalette(Pixel pixel)
 		{
 			return new byte[] {
 				(byte)((((pixel.G / 8) * 32) & 0xE0) + (pixel.R / 8)),

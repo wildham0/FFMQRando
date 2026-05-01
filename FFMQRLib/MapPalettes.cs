@@ -22,6 +22,12 @@ namespace FFMQLib
 			Green = Min(green, 31);
 			Blue = Min(blue, 31);
 		}
+		public SnesColor(int red, int green, int blue, int range)
+		{
+			Red = Min(red * 32 / range, 31);
+			Green = Min(green * 32 / range, 31);
+			Blue = Min(blue * 32 / range, 31);
+		}
 		public SnesColor(byte[] color)
 		{
 			Red = color[0] & 0x1F;

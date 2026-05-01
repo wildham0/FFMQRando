@@ -60,6 +60,7 @@ namespace FFMQLib
 		public DarkKingSprite DarkKingSprite { get; set; }
 		private CommonImage dk3spritedata;
 		private CommonImage dk4spritedata;
+		private Dictionary<EnemizerElements, List<Palette>> elementalPalettes = new();
 
 		private const int drawingArrayBank = 0x0A;
 		private const int drawingArrayOffsetDK3 = 0x82C6;
@@ -119,6 +120,14 @@ namespace FFMQLib
 							dk4spritedata = new CommonImage(reader.ReadBytes((int)entry2.Length));
 						}
 					}
+
+					if (spriteContainer.Entries.TryFind(s => s.Name.Contains(DarkKingSprite.filename + "pal"), out var entrypal))
+					{
+						using (BinaryReader reader = new BinaryReader(entrypal.Open()))
+						{
+							elementalPalettes = SpriteReader.GetElementalPalette(new CommonImage(reader.ReadBytes((int)entrypal.Length)));
+						}
+					}
 				}
 			}
 		}
@@ -160,6 +169,14 @@ namespace FFMQLib
 							dk4spritedata = new CommonImage(reader.ReadBytes((int)entry2.Length));
 						}
 					}
+
+					if (spriteContainer.Entries.TryFind(s => s.Name.Contains("darkkingpal"), out var entrypal))
+					{
+						using (BinaryReader reader = new BinaryReader(entrypal.Open()))
+						{
+							elementalPalettes = SpriteReader.GetElementalPalette(new CommonImage(reader.ReadBytes((int)entrypal.Length)));
+						}
+					}
 				}
 
 				DarkKingSprite.name = "Test|King";
@@ -180,6 +197,8 @@ namespace FFMQLib
 			// Move all DK sprites to bank 10
 			rom.PutInBank(0x10, 0xB2F0, dk12sprites.Concat(darkking3.EncodedTiles.Concat(darkking4.EncodedTiles).SelectMany(x => x)).ToArray());
 			enemies.Data[EnemyIds.DarkKing].GraphicData = Blob.FromHex("F0B210");
+			enemies.Data[EnemyIds.DarkKing].Palette1 = 0xFF;
+			enemies.Data[EnemyIds.DarkKing].Palette2 = 0xFF;
 			//rom.PutInBank(0x09, 0x85F0, Blob.FromHex("F0B210")); // Update this because we're extracting graphic data for enemies now.
 
 			// Expand Dark King Palette Hack
@@ -189,6 +208,11 @@ namespace FFMQLib
 			byte[] darkking1Palette2 = originaldkpalettes[0].ToBytes();
 			byte[] darkking2Palette1 = originaldkpalettes[2].ToBytes();
 			byte[] darkking2Palette2 = originaldkpalettes[0].ToBytes();
+			byte[] darkking3Palette1 = darkking3.Palette1.ToArray();
+			byte[] darkking3Palette2 = darkking3.Palette2.ToArray();
+			byte[] darkking4Palette1 = darkking4.Palette1.ToArray();
+			byte[] darkking4Palette2 = darkking4.Palette2.ToArray();
+
 
 			if (enemizer != null && enemizer.ElementalEnemies.TryGetValue(EnemyIds.DarkKing, out var element))
 			{
@@ -197,13 +221,21 @@ namespace FFMQLib
 				darkking1Palette2 = elementalpalette.GetBytes();
 				darkking2Palette1 = elementalpalette.GetBytes();
 				darkking2Palette2 = elementalpalette.GetBytes();
+
+				if (elementalPalettes.TryGetValue(element, out var elementalpalettes))
+				{
+					darkking3Palette1 = elementalpalettes[0].GetBytes();
+					darkking3Palette2 = elementalpalettes[1].GetBytes();
+					darkking4Palette1 = elementalpalettes[2].GetBytes();
+					darkking4Palette2 = elementalpalettes[3].GetBytes();
+				}
 			}
 
 			List<byte[]> newdkpalettes = new() {
 				darkking1Palette1, darkking1Palette2,
 				darkking2Palette1, darkking2Palette2,
-				darkking3.Palette1.ToArray(), darkking3.Palette2.ToArray(),
-				darkking4.Palette1.ToArray(), darkking4.Palette2.ToArray(),
+				darkking3Palette1, darkking3Palette2,
+				darkking4Palette1, darkking4Palette2,
 			};
 
 			rom.PutInBank(0x10, 0xB100, newdkpalettes.SelectMany(x => x).ToArray());
