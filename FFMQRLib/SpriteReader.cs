@@ -549,20 +549,23 @@ namespace FFMQLib
 			image = playersprite.imagedata;
 			ReadPalettes(playersprite.imagedata, 1, EncodingModes.m3bpp);
 			ConvertPlayerToBytes(playersprite.imagedata);
-			
+
 			// Get Empty Pixel
-			byte emptyPixel = 0x00;
+			//byte emptyPixel = 0x00;
+			Pixel emptyPixel = playersprite.imagedata.GetPixel(playersprite.imagedata.Width - 8, playersprite.imagedata.Height - 1);
 
 			// Get Software Bop flag
-			byte softbopbyte = rawImage[(height - 1) * width - 1];
+			//byte softbopbyte = rawImage[(height - 1) * width - 1];
+			Pixel softbopbyte = playersprite.imagedata.GetPixel(playersprite.imagedata.Width - 1, playersprite.imagedata.Height - 2);
 
 			// Get Full Horizontal Flip flag
-			byte fullhorizontalflipbyte = rawImage[(height - 1) * width - 2];
+			Pixel fullhorizontalflipbyte = playersprite.imagedata.GetPixel(playersprite.imagedata.Width - 2, playersprite.imagedata.Height - 2);
+			//byte fullhorizontalflipbyte = rawImage[(height - 1) * width - 2];
 
 			PlayerSpriteDataPack playerSpriteDataPack = new()
 			{
-				SoftBopEnabled = (softbopbyte != emptyPixel),
-				FullHorizontalFlipEnabled = (fullhorizontalflipbyte != emptyPixel),
+				SoftBopEnabled = !softbopbyte.Equals(emptyPixel),
+				FullHorizontalFlipEnabled = !fullhorizontalflipbyte.Equals(emptyPixel),
 				WalkingSeriesEncoded = EncodeSeries((0, 0), 8),
 				PushSeriesEncoded = EncodeSeries((16, 0), 8),
 				JumpSeriesEncoded = EncodeSeries((32, 0), 6),
