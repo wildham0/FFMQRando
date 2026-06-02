@@ -41,9 +41,6 @@
     public Preferences Preferences { get; set; }
 
     [Parameter]
-    public bool EnableBugFixes { get; set; }
-
-    [Parameter]
     public bool Beta { get; set; }
 
     [Parameter]
@@ -98,10 +95,10 @@
         {
             string fileName = "";
 
-            rom.Improve(EnableBugFixes, Preferences);
+            rom.Improve(Preferences);
 
             romMessage = "ROM file generated successfully.";
-            fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_ImprovedVanilla" + (EnableBugFixes ? "_BugFixes" : "")  + ".sfc";
+			fileName = "FFMQR_" + FFMQLib.Metadata.Version + "_ImprovedVanilla" + (Preferences.EnableBugFixes ? "_BugFixes" : "") + (Preferences.Pazuzu6F ? "_Pazuzu6F" : "") + ".sfc";
 
             var fs = rom.DataStream();
 

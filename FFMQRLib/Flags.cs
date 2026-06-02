@@ -1,15 +1,17 @@
-﻿using RomUtilities;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using System.Web;
+﻿using BigGustave;
+using RomUtilities;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Numerics;
+using System.Security.Cryptography;
+using System.Text;
+using System.Web;
+using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-using System.IO;
-using YamlDotNet.RepresentationModel;
-using System.Security.Cryptography;
-using System.Numerics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace FFMQLib
@@ -408,21 +410,40 @@ namespace FFMQLib
 		public bool ReduceBattleFlash { get; set; } = false;
 		public bool DisableSpeedHacks { get; set; } = false;
 		public bool AutoDownloadRom { get; set; } = false;
+		public bool Pazuzu6F { get; set; } = false;
+		public bool EnableBugFixes { get; set; } = false;
 		public string PlayerSprite { get; set; } = "default";	
 		public byte[] CustomSprites { get; set; } = new byte[0];
-		public byte[] DarkKing3 { get; set; } = new byte[0];
-		public byte[] DarkKing4 { get; set; } = new byte[0];
+		public byte[] DarkKing { get; set; } = new byte[0];
 
 		public void ValidateCustomSprites()
 		{
-			if (CustomSprites[0x00] != 0x42 || CustomSprites[0x01] != 0x4D)
+			byte[] pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
+			byte[] bmpSignature = [0x42, 0x4D];
+
+			bool isBmp = true;
+			bool isPng = true;
+
+			for (int i = 0; i < 8; i++)
 			{
-				throw new Exception("Not BMP image format.");
+				if (CustomSprites[i] != pngSignature[i])
+				{
+					isPng = false;
+				}
+
+				if (i < 2 && CustomSprites[i] != bmpSignature[i])
+				{
+					isBmp = false;
+				}
 			}
 
-			if (CustomSprites[0x1C] != 0x08)
+			if (!isPng && !isBmp)
 			{
-				throw new Exception("Wrong bitdepth. Bitdepth must be 8 bits.");
+				throw new Exception("Not BMP or PNMG image format.");
+			}
+			else if (isBmp && CustomSprites[0x1C] != 0x08)
+			{
+				throw new Exception("BMP image is wrong bitdepth. Bitdepth must be 8 bits.");
 			}
 		}
 	}

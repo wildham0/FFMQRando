@@ -1,12 +1,13 @@
-﻿using System;
+﻿using BigGustave;
+using RomUtilities;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.ComponentModel;
-using System.Reflection;
-using System.Diagnostics;
 using System.Linq;
-using RomUtilities;
+using System.Reflection;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -54,12 +55,12 @@ namespace FFMQLib
 			ap = true;
 		}
 	}
-
 	public class DarkKingTrueForm
 	{
 		public DarkKingSprite DarkKingSprite { get; set; }
-		private byte[] dk3bmpdata;
-		private byte[] dk4bmpdata;
+		private CommonImage dk3spritedata;
+		private CommonImage dk4spritedata;
+		private Dictionary<EnemizerElements, List<Palette>> elementalPalettes = new();
 
 		private const int drawingArrayBank = 0x0A;
 		private const int drawingArrayOffsetDK3 = 0x82C6;
@@ -104,23 +105,35 @@ namespace FFMQLib
 					spritelist = spritelist.Where(s => !ap || s.ap).ToList();
 					DarkKingSprite = rng.PickFrom(spritelist);
 
-					entry = spriteContainer.GetEntry(DarkKingSprite.filename + "1.bmp");
-					using (BinaryReader reader = new BinaryReader(entry.Open()))
+					if (spriteContainer.Entries.TryFind(s => s.Name.Contains(DarkKingSprite.filename + "1"), out var entry1))
 					{
-						dk3bmpdata = reader.ReadBytes((int)entry.Length);
+						using (BinaryReader reader = new BinaryReader(entry1.Open()))
+						{
+							dk3spritedata = new CommonImage(reader.ReadBytes((int)entry1.Length));
+						}
 					}
 
-					entry = spriteContainer.GetEntry(DarkKingSprite.filename + "2.bmp");
-					using (BinaryReader reader = new BinaryReader(entry.Open()))
+					if (spriteContainer.Entries.TryFind(s => s.Name.Contains(DarkKingSprite.filename + "2"), out var entry2))
 					{
-						dk4bmpdata = reader.ReadBytes((int)entry.Length);
+						using (BinaryReader reader = new BinaryReader(entry2.Open()))
+						{
+							dk4spritedata = new CommonImage(reader.ReadBytes((int)entry2.Length));
+						}
+					}
+
+					if (spriteContainer.Entries.TryFind(s => s.Name.Contains(DarkKingSprite.filename + "pal"), out var entrypal))
+					{
+						using (BinaryReader reader = new BinaryReader(entrypal.Open()))
+						{
+							elementalPalettes = SpriteReader.GetElementalPalette(new CommonImage(reader.ReadBytes((int)entrypal.Length)));
+						}
 					}
 				}
 			}
 		}
 		public void RandomizeDarkKingTrueForm(Preferences pref, Enemies enemies, Enemizer enemizer, bool ap, MT19337 rng, FFMQRom rom)
 		{
-			bool debugmode = pref.DarkKing3.Length > 0;
+			bool debugmode = pref.DarkKing.Length > 0;
 
 			if (!pref.DarkKingTrueForm && !debugmode)
 			{
@@ -138,17 +151,40 @@ namespace FFMQLib
 
 			if (debugmode)
 			{
-				darkking3 = darkkingspritereader.EncodeDarkKing(pref.DarkKing3);
-				darkking4 = darkkingspritereader.EncodeDarkKing(pref.DarkKing4);
+				Stream ms = new MemoryStream(pref.DarkKing);
+				using (ZipArchive spriteContainer = new ZipArchive(ms))
+				{
+					if (spriteContainer.Entries.TryFind(s => s.Name.Contains("darkking1"), out var entry1))
+					{
+						using (BinaryReader reader = new BinaryReader(entry1.Open()))
+						{
+							dk3spritedata = new CommonImage(reader.ReadBytes((int)entry1.Length));
+						}
+					}
+
+					if (spriteContainer.Entries.TryFind(s => s.Name.Contains("darkking2"), out var entry2))
+					{
+						using (BinaryReader reader = new BinaryReader(entry2.Open()))
+						{
+							dk4spritedata = new CommonImage(reader.ReadBytes((int)entry2.Length));
+						}
+					}
+
+					if (spriteContainer.Entries.TryFind(s => s.Name.Contains("darkkingpal"), out var entrypal))
+					{
+						using (BinaryReader reader = new BinaryReader(entrypal.Open()))
+						{
+							elementalPalettes = SpriteReader.GetElementalPalette(new CommonImage(reader.ReadBytes((int)entrypal.Length)));
+						}
+					}
+				}
 
 				DarkKingSprite.name = "Test|King";
 				DarkKingSprite.author = "";
 			}
-			else
-			{
-				darkking3 = darkkingspritereader.EncodeDarkKing(dk3bmpdata);
-				darkking4 = darkkingspritereader.EncodeDarkKing(dk4bmpdata);
-			}
+
+			darkking3 = darkkingspritereader.EncodeDarkKing(dk3spritedata);
+			darkking4 = darkkingspritereader.EncodeDarkKing(dk4spritedata);
 
 			rom.PutInBank(drawingArrayBank, drawingArrayOffsetDK3, darkking3.DrawingArray);
 			rom.PutInBank(drawingArrayBank, paletteArrayOffsetDK3, darkking3.PaletteArray);
@@ -161,6 +197,8 @@ namespace FFMQLib
 			// Move all DK sprites to bank 10
 			rom.PutInBank(0x10, 0xB2F0, dk12sprites.Concat(darkking3.EncodedTiles.Concat(darkking4.EncodedTiles).SelectMany(x => x)).ToArray());
 			enemies.Data[EnemyIds.DarkKing].GraphicData = Blob.FromHex("F0B210");
+			enemies.Data[EnemyIds.DarkKing].Palette1 = 0xFF;
+			enemies.Data[EnemyIds.DarkKing].Palette2 = 0xFF;
 			//rom.PutInBank(0x09, 0x85F0, Blob.FromHex("F0B210")); // Update this because we're extracting graphic data for enemies now.
 
 			// Expand Dark King Palette Hack
@@ -170,6 +208,11 @@ namespace FFMQLib
 			byte[] darkking1Palette2 = originaldkpalettes[0].ToBytes();
 			byte[] darkking2Palette1 = originaldkpalettes[2].ToBytes();
 			byte[] darkking2Palette2 = originaldkpalettes[0].ToBytes();
+			byte[] darkking3Palette1 = darkking3.Palette1.ToArray();
+			byte[] darkking3Palette2 = darkking3.Palette2.ToArray();
+			byte[] darkking4Palette1 = darkking4.Palette1.ToArray();
+			byte[] darkking4Palette2 = darkking4.Palette2.ToArray();
+
 
 			if (enemizer != null && enemizer.ElementalEnemies.TryGetValue(EnemyIds.DarkKing, out var element))
 			{
@@ -178,13 +221,21 @@ namespace FFMQLib
 				darkking1Palette2 = elementalpalette.GetBytes();
 				darkking2Palette1 = elementalpalette.GetBytes();
 				darkking2Palette2 = elementalpalette.GetBytes();
+
+				if (elementalPalettes.TryGetValue(element, out var elementalpalettes))
+				{
+					darkking3Palette1 = elementalpalettes[0].GetBytes();
+					darkking3Palette2 = elementalpalettes[1].GetBytes();
+					darkking4Palette1 = elementalpalettes[2].GetBytes();
+					darkking4Palette2 = elementalpalettes[3].GetBytes();
+				}
 			}
 
 			List<byte[]> newdkpalettes = new() {
 				darkking1Palette1, darkking1Palette2,
 				darkking2Palette1, darkking2Palette2,
-				darkking3.Palette1.ToArray(), darkking3.Palette2.ToArray(),
-				darkking4.Palette1.ToArray(), darkking4.Palette2.ToArray(),
+				darkking3Palette1, darkking3Palette2,
+				darkking4Palette1, darkking4Palette2,
 			};
 
 			rom.PutInBank(0x10, 0xB100, newdkpalettes.SelectMany(x => x).ToArray());
@@ -214,6 +265,8 @@ namespace FFMQLib
 		[YamlIgnore]
 		public byte[] spritesheet { get; set; }
 		[YamlIgnore]
+		public CommonImage imagedata { get; set; }
+		[YamlIgnore]
 		public byte[] iconimg { get; set; }
 
 		public PlayerSprite()
@@ -227,7 +280,14 @@ namespace FFMQLib
 			filename = _name;
 			author = "";
 			name = "";
-			spritesheet = _spritedata;
+			imagedata = new CommonImage(_spritedata);
+		}
+		public PlayerSprite(string _name, CommonImage _spritedata)
+		{
+			filename = _name;
+			author = "";
+			name = "";
+			imagedata = _spritedata;
 		}
 		public PlayerSprite(string _name)
 		{
@@ -241,6 +301,13 @@ namespace FFMQLib
 			author = _sprite.author;
 			name = _sprite.name;
 			spritesheet = _spritedata;
+		}
+		public PlayerSprite(PlayerSprite _sprite, CommonImage _spritedata)
+		{
+			filename = _sprite.filename;
+			author = _sprite.author;
+			name = _sprite.name;
+			imagedata = _spritedata;
 		}
 	}
 	public class PlayerSprites
@@ -335,20 +402,34 @@ namespace FFMQLib
 				}
 			}
 		}
-		private byte[] LoadSpritesheet(string spritename)
+		private CommonImage LoadSpritesheet(string spritename)
 		{
-			byte[] spritesheet;
+			CommonImage spritesheet;
 			var assembly = Assembly.GetExecutingAssembly();
 			string filepath = assembly.GetManifestResourceNames().Single(str => str.EndsWith("customsprites.zip"));
 			using (Stream zipfile = assembly.GetManifestResourceStream(filepath))
 			{
 				using (ZipArchive spriteContainer = new ZipArchive(zipfile))
 				{
-					var entry = spriteContainer.GetEntry("spritesheets/" + spritename + ".bmp");
-					using (BinaryReader reader = new BinaryReader(entry.Open()))
+					if (spriteContainer.Entries.TryFind(s => s.FullName.Contains("spritesheets/" + spritename), out var entry))
 					{
-						spritesheet = reader.ReadBytes((int)entry.Length);
+						if (entry.Name.Contains("png"))
+						{
+							spritesheet = new CommonImage(Png.Open(entry.Open()));
+						}
+						else
+						{
+							using (BinaryReader reader = new BinaryReader(entry.Open()))
+							{
+								spritesheet = new CommonImage(reader.ReadBytes((int)entry.Length));
+							}
+						}
 					}
+					else
+					{
+						throw new Exception($"Couldn't find sprite {spritename} in sprite bundle.");
+					}
+					//var entry = spriteContainer.GetEntry("spritesheets/" + spritename + ".bmp");
 				}
 			}
 

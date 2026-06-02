@@ -45,6 +45,7 @@
                 <li>Half as many battlefield fights</li>
                 <li>Double walking speed</li>
                 <li>Bug Fixes (Optional)</li>
+				<li>Pazuzu 6F (Optional)</li>
                 <li>MSU-1 Support</li>
             </ul>
     </Container>
@@ -59,10 +60,11 @@
 
     <Container Class="flagBox">
         <Container Class="flagColumn">
-            <ImproveButton EnableBugFixes="enableBugFixes" Preferences="preferences" Beta="@GetBetaStatus()" IsLoadFromMemoryDone="LoadFromMemoryDone" />
+            <ImproveButton Preferences="preferences" Beta="@GetBetaStatus()" IsLoadFromMemoryDone="LoadFromMemoryDone" />
         </Container>
         <Container Class="flagColumn">
-            <BoolFlag UsePreset=false Name="Enable Bug Fixes" @bind-Value="enableBugFixes" Tooltip="Apply the randomizer's bug fixes: no Cure overflow for the Dark King, fixed Companion Resistances, fixed Vendor Buy Zero Bug and fixed Life spell killing non-undead enemies." />
+            <BoolFlag UsePreset=false Name="Enable Bug Fixes" @bind-Value="preferences.EnableBugFixes" Tooltip="Apply the randomizer's bug fixes: no Cure overflow for the Dark King, fixed Companion Resistances, fixed Vendor Buy Zero Bug and fixed Life spell killing non-undead enemies." />
+			<BoolFlag UsePreset=false Name="Pazuzu always jump to 6F" @bind-Value="preferences.Pazuzu6F" Tooltip="The first time you talk to Pazuzu, he will always jump to Floor 6. Talking to him again will have him jump to a random floor as usual if he can." />
         </Container>
     </Container>
 </Container>

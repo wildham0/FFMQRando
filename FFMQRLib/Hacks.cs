@@ -494,6 +494,11 @@ namespace FFMQLib
 
 			newPazuzuRng.WriteAt(0x03, 0xFC7E, this);
 		}
+		public void PazuzuAlwaysJumpToFloor6()
+		{
+			PutInBank(0x11, 0x88A0, Blob.FromHex("362a32d030553054105420548055ffff2b402b412b422b432b4423452b4600"));
+			PutInBank(0x03, 0xFC64, Blob.FromHex("0502a0881100"));
+		}
 		public void KeyItemWindow(bool skyfragmentsEnabled)
 		{
 			// Timer Hack

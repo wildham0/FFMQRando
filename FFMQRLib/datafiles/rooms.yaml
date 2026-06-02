@@ -3442,8 +3442,8 @@
     entrance: 346
     teleporter: [186, 0]
     access: []
-  - target_room: 166
-    access: ["DragonClaw", "MegaGrenade", "Sword", "Axe", "SandCoin", "RiverCoin", "SunCoin", "LibraCrest", "GeminiCrest", "MobiusCrest"]
+# This is blocked off with floor shuffle and it doesn't matter logically
+#  - target_room: 166
 #   access: ["DragonClaw"] # the one ways are blocked off so progression doesn't end up behind them with no way to come back  
 - name: Pazuzu 2F
   id: 169
@@ -3516,8 +3516,8 @@
     entrance: 360
     teleporter: [194, 0]
     access: []
-  - target_room: 170
-    access: ["DragonClaw", "MegaGrenade", "Sword", "Axe", "SandCoin", "RiverCoin", "SunCoin", "LibraCrest", "GeminiCrest", "MobiusCrest"]
+# This is blocked off with floor shuffle and it doesn't matter logically
+#  - target_room: 170
 #   access: ["DragonClaw"] # the one ways are blocked off so progression doesn't end up behind them with no way to come back  
   - target_room: 172
     access: ["DragonClaw"]

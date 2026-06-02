@@ -1304,7 +1304,7 @@ namespace FFMQLib
 
 				TileScripts.AddScript(0x26,
 					new ScriptBuilder(new List<string>{
-						"0A98FD"
+						"0A9CFD"
 					}));
 
 				//GameMaps[(int)MapList.PazuzuTowerB].ModifyMap(0x10, 0x28, 0x78);

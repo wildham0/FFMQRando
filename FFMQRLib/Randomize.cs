@@ -16,8 +16,8 @@ namespace FFMQLib
 		// Y = Major Release
 		// Z = Patch Release
 		// Increment Beta on every new builds, reset to zero on version increase
-		public static string Version = "1.7.1";
-		public static string Build = "03";
+		public static string Version = "1.7.2";
+		public static string Build = "08";
 		public static string BetaVersionShort => Version + "-b" + Build;
 		public static string BetaVersionLong => Version + "-beta" + Build;
 	}
@@ -151,7 +151,7 @@ namespace FFMQLib
 
 			SetStartingItems(itemsPlacement);
 			MapObjects.UpdateChests(itemsPlacement);
-			Companions.UpdateQuests(itemsPlacement, GameInfoScreen);
+			Companions.UpdateQuests(itemsPlacement, GameInfoScreen, apconfigs.ApEnabled);
 			UpdateScripts(flags, itemsPlacement, Overworld.StartingLocation, apconfigs.ApEnabled, preferences.MusicMode == MusicMode.Mute, rng);
 			ChestsHacks(flags, itemsPlacement);
 			Battlefields.PlaceItems(itemsPlacement);
