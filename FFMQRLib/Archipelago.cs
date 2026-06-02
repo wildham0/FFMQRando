@@ -526,6 +526,10 @@ namespace FFMQLib
 				var gameobjects = GameLogic.Rooms.SelectMany(r => r.GameObjects).ToList();
 				var links = GameLogic.Rooms.SelectMany(r => r.Links).ToList();
 
+				// Remove HeroChest
+				var herochest = gameobjects.Where(o => o.Type == GameObjectType.HeroChest).ToList();
+				herochest.ForEach(c => c.Type = GameObjectType.Chest);
+
 				// Update South Ledge
 				if (GameLogic.Rooms.TryFind(r => r.Id == 73, out var spencerSouthLedge))
 				{
