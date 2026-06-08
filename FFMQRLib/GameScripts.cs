@@ -1196,11 +1196,12 @@ namespace FFMQLib
 			// Headless Knight
 			MapSpriteSets[0x20].AddAddressor(6, 0, 31, SpriteSize.Tiles16);
 			MapObjects[0x4F][0x00].Sprite = 0x42;
+			MapObjects[0x4F][0x00].Value = (byte)TalkScriptsList.FightHeadlessKnight;
 
 			MapObjects[0x4F][0x0C].X = MapObjects[0x4F][0x00].X;
 			MapObjects[0x4F][0x0C].Y = MapObjects[0x4F][0x00].Y;
 			MapObjects[0x4F][0x0C].Gameflag = 0x00;
-            //GameFlags[GameFlagIds.ShowDullahanChest] = true;
+			//GameFlags[GameFlagIds.ShowDullahanChest] = true;
 
 			MapObjects[0x4F][0x00].Y++;
 
