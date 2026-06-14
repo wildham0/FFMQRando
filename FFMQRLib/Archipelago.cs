@@ -566,7 +566,10 @@ namespace FFMQLib
 				if (GameLogic.Rooms.TryFind(r => r.Id == 71, out var spencerWaterfall))
 				{
 					spencerWaterfall.Links = spencerWaterfall.Links.Where(l => l.TargetRoom != 203).ToList();
+					var linktoSpencer = spencerWaterfall.Links.Find(l => l.Entrance == 143);
+					linktoSpencer.teleporter = [81, 0];
 				}
+
 			}
 
 			return GameLogic.OutputRooms();
