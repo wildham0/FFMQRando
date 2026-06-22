@@ -128,7 +128,7 @@ namespace FFMQLib
 				SpoilersText += GenerateItemsPlacementSpoiler(flags, itemsplacement) + "\n";
 				SpoilersText += GenerateInfoScreenSpoiler(gameinfo);
 				SpoilersText += GenerateCompanionSpoilers(gameinfo, gamelogic, flags.CompanionsLocations != CompanionsLocationType.Standard || (flags.MapShuffling != MapShufflingMode.None));
-				if ((flags.MapShuffling != MapShufflingMode.None) || flags.OverworldShuffle)
+				if ((flags.MapShuffling != MapShufflingMode.None) || flags.OverworldShuffle || flags.CrestShuffle)
 				{
 					SpoilersText += GenerateMapSpoiler(flags, gamelogic) + "\n";
 				}
