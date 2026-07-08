@@ -284,7 +284,14 @@ namespace FFMQLib
 					{
 						foreach (var locObject in locationObjects)
 						{
-							if (placement.ItemsLocations.TryFind(l => l.Type == locObject.Type && l.ObjectId == locObject.ObjectId, out var foundObject))
+							List<GameObjectType> typeGroup = [locObject.Type];
+							
+							if (locObject.Type == GameObjectType.Box || locObject.Type == GameObjectType.Chest)
+							{
+								typeGroup = [GameObjectType.Box, GameObjectType.Chest];
+							}
+							
+							if (placement.ItemsLocations.TryFind(l => l.ObjectId == locObject.ObjectId && typeGroup.Contains(l.Type), out var foundObject))
 							{
 								string itemname = foundObject.Content.ToString();
 								if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == foundObject.Content) > 0))
