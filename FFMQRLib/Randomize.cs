@@ -17,7 +17,7 @@ namespace FFMQLib
 		// Z = Patch Release
 		// Increment Beta on every new builds, reset to zero on version increase
 		public static string Version = "1.7.3";
-		public static string Build = "03";
+		public static string Build = "04";
 		public static string BetaVersionShort => Version + "-b" + Build;
 		public static string BetaVersionLong => Version + "-beta" + Build;
 	}
@@ -208,7 +208,7 @@ namespace FFMQLib
 			titleScreen.Write(this, Metadata.Version, hashString, flags);
 
 			// Spoilers
-			Spoilers spoilersGenerator = new(flags, titleScreen, seed.ToHex(), hashString, itemsPlacement, GameInfoScreen, GameLogic, Battlefields);
+			Spoilers spoilersGenerator = new(flags, titleScreen, seed.ToHex(), hashString, itemsPlacement, GameInfoScreen, GameLogic, Battlefields, Companions);
 			SpoilersText = spoilersGenerator.SpoilersText;
 			GameinfoText = spoilersGenerator.GameinfoText;
 
