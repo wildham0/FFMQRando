@@ -14,9 +14,9 @@ namespace FFMQLib
 		public string SpoilersText;
 		public string GameinfoText;
 
-		public Spoilers(Flags flags, TitleScreen titlescreen, string seed, string hash, ItemsPlacement itemsplacement, GameInfoScreen gameinfo, GameLogic gamelogic, Battlefields battlefields)
+		public Spoilers(Flags flags, TitleScreen titlescreen, string seed, string hash, ItemsPlacement itemsplacement, GameInfoScreen gameinfo, GameLogic gamelogic, Battlefields battlefields, Companions companions)
 		{
-			GenerateSpoilers(flags, titlescreen, seed, hash, itemsplacement, gameinfo, gamelogic, battlefields);
+			GenerateSpoilers(flags, titlescreen, seed, hash, itemsplacement, gameinfo, gamelogic, battlefields, companions);
 		}
 
 		public static string MapSpoiler(GameLogic gamelogic)
@@ -113,7 +113,7 @@ namespace FFMQLib
 
 			return spoilers;
 		}
-		private void GenerateSpoilers(Flags flags, TitleScreen titlescreen, string seed, string hash, ItemsPlacement itemsplacement, GameInfoScreen gameinfo, GameLogic gamelogic, Battlefields battlefields)
+		private void GenerateSpoilers(Flags flags, TitleScreen titlescreen, string seed, string hash, ItemsPlacement itemsplacement, GameInfoScreen gameinfo, GameLogic gamelogic, Battlefields battlefields, Companions companions)
 		{
 			SpoilersText = "";
 			GameinfoText = "";
@@ -127,8 +127,8 @@ namespace FFMQLib
 			{
 				SpoilersText += GenerateItemsPlacementSpoiler(flags, itemsplacement) + "\n";
 				SpoilersText += GenerateInfoScreenSpoiler(gameinfo);
-				SpoilersText += GenerateCompanionSpoilers(gameinfo, gamelogic, flags.CompanionsLocations != CompanionsLocationType.Standard || (flags.MapShuffling != MapShufflingMode.None));
-				if ((flags.MapShuffling != MapShufflingMode.None) || flags.OverworldShuffle)
+				SpoilersText += GenerateCompanionSpoilers(gameinfo, gamelogic, companions, flags.CompanionsLocations != CompanionsLocationType.Standard || (flags.MapShuffling != MapShufflingMode.None), true);
+				if ((flags.MapShuffling != MapShufflingMode.None) || flags.OverworldShuffle || flags.CrestShuffle)
 				{
 					SpoilersText += GenerateMapSpoiler(flags, gamelogic) + "\n";
 				}
@@ -136,7 +136,7 @@ namespace FFMQLib
 			}
 
 			GameinfoText += GenerateInfoScreenSpoiler(gameinfo);
-			GameinfoText += GenerateCompanionSpoilers(gameinfo, gamelogic, false);
+			GameinfoText += GenerateCompanionSpoilers(gameinfo, gamelogic, companions, false, false);
 		}
 		
 		private string GenerateRomData(Flags flags, string version, string hash, string seed)
@@ -284,7 +284,14 @@ namespace FFMQLib
 					{
 						foreach (var locObject in locationObjects)
 						{
-							if (placement.ItemsLocations.TryFind(l => l.Type == locObject.Type && l.ObjectId == locObject.ObjectId, out var foundObject))
+							List<GameObjectType> typeGroup = [locObject.Type];
+							
+							if (locObject.Type == GameObjectType.Box || locObject.Type == GameObjectType.Chest)
+							{
+								typeGroup = [GameObjectType.Box, GameObjectType.Chest];
+							}
+							
+							if (placement.ItemsLocations.TryFind(l => l.ObjectId == locObject.ObjectId && typeGroup.Contains(l.Type), out var foundObject))
 							{
 								string itemname = foundObject.Content.ToString();
 								if (flags.ProgressiveGear && (progressiveItems.FindIndex(x => x.Item1 == foundObject.Content) > 0))
@@ -307,7 +314,7 @@ namespace FFMQLib
 
 			return spoilers;
 		}
-		private string GenerateCompanionSpoilers(GameInfoScreen screen, GameLogic gamelogic, bool spoilLocations)
+		private string GenerateCompanionSpoilers(GameInfoScreen screen, GameLogic gamelogic, Companions companionsdata, bool spoilLocations, bool spoilstarting)
 		{
 			string spoilers = "";
 
@@ -319,6 +326,12 @@ namespace FFMQLib
 			}
 			
 			spoilers += "--- Companions ---\n";
+
+			if (spoilstarting)
+			{
+				spoilers += "Starting Companion: " + companionsdata.StartingCompanion.ToString() + "\n\n";
+			}
+
 			List<CompanionsId> companions = new() { CompanionsId.Kaeli, CompanionsId.Tristam, CompanionsId.Phoebe, CompanionsId.Reuben };
 			foreach (var companion in companions)
 			{

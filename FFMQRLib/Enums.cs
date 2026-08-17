@@ -718,7 +718,7 @@ namespace FFMQLib
 		FightMedusa = 0x4D,
 		GiantTree = 0x4E,
 		FightGidrah = 0x51,
-		FightHeadlessKnight = 0x54,
+		FightHeadlessKnightOld = 0x54,
 		WindiaChocobo = 0x5A,
 		KaeliWindia = 0x5B,
 		Otto = 0x5C,
@@ -742,6 +742,7 @@ namespace FFMQLib
 		WindiaHinter,
 		FireburgSeedVendor,
 		WindiaSeedVendor,
+		FightHeadlessKnight
 
 	}
 	public enum BattlefieldRewardType : byte

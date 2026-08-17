@@ -619,7 +619,7 @@
     entrance: 19
     teleporter: [20, 0]
     access: []
-- name: Focus Tower 2F - Venus Chest Room
+- name: Focus Tower 2F - Back Door Room
   id: 12
   game_objects:
   - name: "Focus Tower 2F - Back Door Chest"
@@ -853,7 +853,7 @@
     entrance: 54
     teleporter: [36, 0]
     access: []
-- name: Bone Dungeon 1F
+- name: Bone Dungeon 1F - Entrance Room
   id: 25
   game_objects:
   - name: "Bone Dungeon 1F - Entrance Room West Box"
@@ -923,7 +923,7 @@
     entrance: 60
     teleporter: [4, 2]
     access: []
-- name: Bone Dungeon B1 - Hidden Room
+- name: Bone Dungeon B1 - Ribcage Waterway Room
   id: 29
   game_objects:
   - name: "Bone Dungeon B1 - Ribcage Waterway Box"
@@ -935,7 +935,7 @@
     entrance: 62
     teleporter: [91, 3]
     access: ["LongSpineBombed"]
-- name: Bone Dungeon B2 - Exploding Skull Room - First Room
+- name: Bone Dungeon B2 - Spines Room - First Room
   id: 30
   game_objects:
   - name: "Bone Dungeon B2 - Spines Room Alcove Box"
@@ -954,7 +954,7 @@
     access: []
   - target_room: 31
     access: ["LongSpineBombed"]
-- name: Bone Dungeon B2 - Exploding Skull Room - Second Room
+- name: Bone Dungeon B2 - Spines Room - Second Room
   id: 31
   game_objects:
   - name: "Bone Dungeon B2 - Spines Room Looped Hallway Box"
@@ -975,7 +975,7 @@
     access: ["ShortSpineBombed"]
   - target_room: 30
     access: ["LongSpineBombed"]
-- name: Bone Dungeon B2 - Exploding Skull Room - Third Room
+- name: Bone Dungeon B2 - Spines Room - Third Room
   id: 32
   game_objects: []
   links:
@@ -985,7 +985,7 @@
     access: []
   - target_room: 31
     access: ["ShortSpineBombed"]
-- name: Bone Dungeon B2 - Box Room
+- name: Bone Dungeon B2 - Lone Room
   id: 33
   game_objects:
   - name: "Bone Dungeon B2 - Lone Room Box"
@@ -997,7 +997,7 @@
     entrance: 66
     teleporter: [93, 3]
     access: []
-- name: Bone Dungeon B2 - Quake Room
+- name: Bone Dungeon B2 - Penultimate Room
   id: 34
   game_objects:
   - name: "Bone Dungeon B2 - Penultimate Room Chest"
@@ -1473,7 +1473,7 @@
     entrance: 123
     teleporter: [67, 0]
     access: []
-- name: Ice Pyramid 2F West Room
+- name: Ice Pyramid 2F Northwest Room
   id: 57
   game_objects:
   - name: "Ice Pyramid 2F - Northwest Room Box"
@@ -1525,7 +1525,7 @@
     entrance: 128
     teleporter: [68, 0]
     access: []
-- name: Ice Pyramid 3F Two Boxes Room
+- name: Ice Pyramid 3F Staircase Dead End
   id: 61
   game_objects:
   - name: "Ice Pyramid 3F - Staircase Dead End Left Box"
@@ -1937,7 +1937,7 @@
     entrance: 167
     teleporter: [98, 3]
     access: []
-- name: GrenadeMan's House
+- name: Locked House
   id: 78
   game_objects:
   - name: "Fireburg - Locked House Man"
@@ -1953,7 +1953,7 @@
     entrance: 169
     teleporter: [93, 0]
     access: []
-- name: GrenadeMan's Mobius Room
+- name: Locked House Mobius Room
   id: 79
   game_objects: []
   links:
@@ -2115,7 +2115,7 @@
     entrance: 186
     teleporter: [101, 3]
     access: ["MineCrescentBombed"]
-- name: Mine Climbing Room
+- name: Mine Glitchy Collision Cave
   id: 90
   game_objects:
   - name: "Mine - Glitchy Collision Cave Box"
@@ -2425,7 +2425,7 @@
     entrance: 226
     teleporter: [115, 0]
     access: []
-- name: Lava Dome Jump Maze II
+- name: Lava Dome Gold Maze
   id: 107
   game_objects:
   - name: "Lava Dome - Gold Maze Northwest Box"
@@ -2477,7 +2477,7 @@
     entrance: 230
     teleporter: [117, 0]
     access: []
-- name: Lava Dome Jump Maze I
+- name: Lava Dome Bare Maze
   id: 109
   game_objects:
   - name: "Lava Dome - Bare Maze Leapfrog Alcove North Box"
@@ -2513,7 +2513,7 @@
     entrance: 234
     teleporter: [123, 0]
     access: []
-- name: Lava Dome Lower Moon Helm Room
+- name: Lava Dome U-Bend Room
   id: 111
   game_objects:
   - name: "Lava Dome - U-Bend Room North Box"
@@ -2533,7 +2533,7 @@
     entrance: 236
     teleporter: [125, 0]
     access: []
-- name: Lava Dome Moon Helm Room
+- name: Lava Dome Beyond River Room
   id: 112
   game_objects:
   - name: "Lava Dome - Beyond River Room Chest"
@@ -2561,7 +2561,7 @@
     entrance: 238
     teleporter: [127, 0]
     access: []
-- name: Lava Dome Life Chest Room Lower Ledge
+- name: Lava Dome Gold Bar Room Lower Ledge
   id: 114
   game_objects:
   - name: "Lava Dome - Gold Bar Room Boulder Chest"
@@ -2575,7 +2575,7 @@
     access: []
   - target_room: 115
     access: ["Claw"]
-- name: Lava Dome Life Chest Room Upper Ledge
+- name: Lava Dome Gold Bar Room Upper Ledge
   id: 115
   game_objects:
   - name: "Lava Dome - Gold Bar Room Leapfrog Alcove Box West"
@@ -2593,7 +2593,7 @@
     access: []
   - target_room: 114
     access: ["Claw"]
-- name: Lava Dome Big Jump Room Main Area
+- name: Lava Dome Lava River Room Main Area
   id: 116
   game_objects:
   - name: "Lava Dome - Lava River Room North Box"
@@ -2619,7 +2619,7 @@
     access: []
   - target_room: 117
     access: ["MegaGrenade"]
-- name: Lava Dome Big Jump Room MegaGrenade Area
+- name: Lava Dome Lava River Room MegaGrenade Area
   id: 117
   game_objects: []
   links:
@@ -2657,7 +2657,7 @@
     entrance: 247
     teleporter: [137, 0]
     access: []
-- name: Lava Dome Four Boxes Stairs
+- name: Lava Dome Caldera Stairway
   id: 120
   game_objects:
   - name: "Lava Dome - Caldera Stairway West Left Box"
@@ -2898,7 +2898,7 @@
     entrance: 285
     teleporter: [148, 0]
     access: []
-- name: Giant Tree 2F Mushroom Room
+- name: Giant Tree 2F Mushroom Tunnel
   id: 133
   game_objects:
   - name: "Giant Tree 2F - Mushroom Tunnel West Box"
@@ -3082,7 +3082,7 @@
     access: ["Sword"]
   - target_room: 144
     access: ["Claw"]
-- name: Giant Tree 4F South Ledge
+- name: Giant Tree 4F Hook Ledge
   id: 146
   game_objects:
   - name: "Giant Tree 4F - Hook Ledge Northeast Box"
@@ -3096,7 +3096,7 @@
   links:
   - target_room: 144
     access: ["DragonClaw"]
-- name: Giant Tree 4F Slime Room East Area
+- name: Giant Tree 4F East Slime Room
   id: 147
   game_objects:
   - name: "Giant Tree 4F - East Slime Room Box"
@@ -3108,7 +3108,7 @@
     entrance: 304
     teleporter: [168, 0]
     access: []
-- name: Giant Tree 4F Slime Room West Area
+- name: Giant Tree 4F West Slime Room
   id: 148
   game_objects: []
   links:
@@ -3361,7 +3361,7 @@
     entrance: 337
     teleporter: [102, 8]
     access: []
-- name: Windia Inn Beds
+- name: Windia Inn Bedroom
   id: 164
   game_objects:
   - name: "Windia - Inn Bedroom North Box"
@@ -3410,7 +3410,7 @@
     entrance: 345
     teleporter: [185, 0]
     access: []
-- name: Pazuzu Tower 1F Boxes Room
+- name: Pazuzu Tower 1F Descent
   id: 167
   game_objects:
   - name: "Pazuzu's Tower 1F - Descent Bomb Wall West Box"
@@ -3521,7 +3521,7 @@
 #   access: ["DragonClaw"] # the one ways are blocked off so progression doesn't end up behind them with no way to come back  
   - target_room: 172
     access: ["DragonClaw"]
-- name: Pazuzu 3F Southern Island
+- name: Pazuzu 3F South Ledge
   id: 172
   game_objects:
   - name: "Pazuzu's Tower 3F - South Ledge Box"
