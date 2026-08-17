@@ -131,10 +131,10 @@ namespace FFMQLib
 				var spencerSouthRoom = Rooms.Find(x => x.Id == 73);
 				spencerSouthRoom.Links.Find(l => l.TargetRoom == 227).Access.Add(AccessReqs.Barred);
 			}
-			else if((flags.MapShuffling != MapShufflingMode.Everything) && !flags.OverworldShuffle && !flags.CrestShuffle)
+			else if ((flags.MapShuffling != MapShufflingMode.Everything) && !flags.OverworldShuffle && !flags.CrestShuffle)
 			{
-                // Add Sealed Temple Exit trick to logic in Expert mode
-                var exitTrickRoom = Rooms.Find(x => x.Id == 75);
+				// Add Sealed Temple Exit trick to logic in Expert mode
+				var exitTrickRoom = Rooms.Find(x => x.Id == 75);
 				exitTrickRoom.Links.Add(new RoomLink(74, new() { AccessReqs.ExitBook }));
 			}
 
@@ -156,6 +156,26 @@ namespace FFMQLib
 					{
 						link.Access.Remove(AccessReqs.ShipLiberated);
 					}
+				}
+			}
+
+			// Early Pazuzu/Tree check in Foresta
+			if (flags.OverworldShuffle && flags.MapShuffling != MapShufflingMode.DungeonsMixed)
+			{
+				if (Rooms.Find(x => x.Id == 220).Links.TryFind(x => x.Location == LocationIds.PazuzusTower, out var pazuzuEntrance))
+				{
+					pazuzuEntrance.Access.Add(AccessReqs.PowerLevel2);
+				}
+
+				if (Rooms.Find(x => x.Id == 220).Links.TryFind(x => x.Location == LocationIds.AliveForest, out var giantTreeEntrance))
+				{
+					giantTreeEntrance.Access.Add(AccessReqs.PowerLevel2);
+				}
+
+
+				if (Rooms.Find(x => x.Id == 220).Links.TryFind(x => x.Location == LocationIds.MountGale, out var mountGaleEntrance))
+				{
+					mountGaleEntrance.Access.Add(AccessReqs.PowerLevel2);
 				}
 			}
 
