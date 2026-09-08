@@ -322,7 +322,7 @@ namespace FFMQLib
 
 			var test2 = itemsPlacement.ItemsLocations.Where(x => x.ObjectId < 0x20).ToList();
 
-			foreach(var location in itemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.Chest || x.Type == GameObjectType.Box).ToList())
+			foreach(var location in itemsPlacement.ItemsLocations.Where(x => x.Type == GameObjectType.Chest || x.Type == GameObjectType.Box || x.Type == GameObjectType.HeroChest).ToList())
 			{
 				byte quantity = 1;
 
