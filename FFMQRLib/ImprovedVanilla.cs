@@ -62,7 +62,7 @@ namespace FFMQLib
 			SetMusicMode(preferences.MusicMode, sillyrng);
 			RandomBenjaminPalette(preferences.RandomBenjaminPalette, sillyrng);
 			WindowPalette(preferences.WindowPalette);
-			playerSprites.SetPlayerSprite(playerSprite, this);
+			playerSprites.SetPlayerSprite(playerSprite, preferences.DisableSpeedHacks, this);
 			darkKingTrueForm.RandomizeDarkKingTrueForm(preferences, Enemies, Enemizer, false, sillyrng, this);
 
 			// Credits

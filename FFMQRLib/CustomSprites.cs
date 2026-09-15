@@ -435,7 +435,7 @@ namespace FFMQLib
 
 			return spritesheet;
 		}
-		public void SetPlayerSprite(PlayerSprite playersprite, FFMQRom rom)
+		public void SetPlayerSprite(PlayerSprite playersprite, bool slowwalk, FFMQRom rom)
 		{
 			if (playersprite.filename == "default")
 			{
@@ -462,7 +462,8 @@ namespace FFMQLib
 			if (playerspritedatapack.SoftBopEnabled)
 			{
 				rom.PutInBank(0x01, 0x94B6, Blob.FromHex("22008511eaeaeaea"));
-				rom.PutInBank(0x11, 0x8500, Blob.FromHex("ad26192904ea4a4a48ad8b0e2901f0096848f002a9ff8d9919686b"));
+				string walkspeed = slowwalk ? "084a4a4a" : "04ea4a4a";
+				rom.PutInBank(0x11, 0x8500, Blob.FromHex($"ad261929{walkspeed}48ad8b0e2901f0096848f002a9ff8d9919686b"));
 			}
 
 			// Full Horizontal Flip hack
