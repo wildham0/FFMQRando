@@ -129,7 +129,10 @@ namespace FFMQLib
 				frozenFieldRoom.Links.RemoveAll(l => l.Access.Contains(AccessReqs.DualheadHydra));
 
 				var spencerSouthRoom = Rooms.Find(x => x.Id == 73);
-				spencerSouthRoom.Links.Find(l => l.TargetRoom == 227).Access.Add(AccessReqs.Barred);
+				spencerSouthRoom.Links.Find(l => l.TargetRoom == 72).Access.Add(AccessReqs.Barred);
+
+				var spencerMainRoom = Rooms.Find(x => x.Id == 72);
+				spencerMainRoom.Links.Find(l => l.TargetRoom == 73).Access.Add(AccessReqs.Barred);
 			}
 			else if ((flags.MapShuffling != MapShufflingMode.Everything) && !flags.OverworldShuffle && !flags.CrestShuffle)
 			{
