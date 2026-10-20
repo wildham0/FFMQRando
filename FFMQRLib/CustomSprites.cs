@@ -411,7 +411,7 @@ namespace FFMQLib
 			{
 				using (ZipArchive spriteContainer = new ZipArchive(zipfile))
 				{
-					if (spriteContainer.Entries.TryFind(s => s.FullName.Contains("spritesheets/" + spritename), out var entry))
+					if (spriteContainer.Entries.TryFind(s => s.FullName.Contains("spritesheets/" + spritename + "."), out var entry))
 					{
 						if (entry.Name.Contains("png"))
 						{
